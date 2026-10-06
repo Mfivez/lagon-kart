@@ -1,0 +1,36 @@
+{
+  "name": "lagon-kart",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "dev": "concurrently -k \"tsx watch server/index.ts\" \"vite --host 0.0.0.0\"",
+    "build": "npm run typecheck && vite build && tsc -p tsconfig.server.json",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/server/index.js",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "test:network": "node --import tsx scripts/network-check.ts",
+    "test:browser": "node --import tsx scripts/browser-check.ts",
+    "test:tournament": "node --import tsx scripts/tournament-check.ts",
+    "test:browser-tournament": "node --import tsx scripts/browser-tournament-check.ts"
+  },
+  "dependencies": {
+    "@colyseus/core": "0.16.26",
+    "@colyseus/schema": "3.0.76",
+    "@colyseus/ws-transport": "0.16.5",
+    "colyseus.js": "0.16.22",
+    "three": "0.186.1"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.1",
+    "@types/three": "0.183.1",
+    "concurrently": "9.2.4",
+    "playwright": "1.58.2",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "vite": "6.4.4"
+  }
+}

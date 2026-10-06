@@ -1,0 +1,26 @@
+name: lagon-kart
+services:
+  app:
+    build: .
+    init: true
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${HOST_PORT:-3000}:3000"
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3000
+      SIM_HZ: ${SIM_HZ:-30}
+      SNAPSHOT_HZ: ${SNAPSHOT_HZ:-20}
+      MAX_ROOMS: ${MAX_ROOMS:-16}
+      MAX_PLAYERS: ${MAX_PLAYERS:-8}
+      RECONNECT_SECONDS: ${RECONNECT_SECONDS:-30}
+      INPUT_TIMEOUT_MS: ${INPUT_TIMEOUT_MS:-250}
+    stop_grace_period: 10s
+  tunnel:
+    image: cloudflare/cloudflared:2026.10.0
+    profiles: [tunnel]
+    restart: unless-stopped
+    command: ["tunnel", "--no-autoupdate", "--protocol", "http2", "--url", "http://app:3000"]
+    depends_on:
+      app:
+        condition: service_healthy

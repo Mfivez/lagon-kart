@@ -1,14 +1,13 @@
 {
   "checks": [
-    "Accueil : six circuits sélectionnables, dont Mangrove et Dunes, et huit couleurs",
+    "Accueil : 12 circuits sélectionnables, toutes les nouvelles pistes parcourues dans le sélecteur, et huit couleurs",
     "Garage : trois modèles, cinq personnages, six catégories et douze pièces verrouillées au niveau zéro ; aperçus 3D et identités distinctes",
-    "Deux contextes indépendants rejoignent le même salon ; chacun reçoit et rend les modèles/personnages de l’autre",
-    "Changement de kart/personnage synchronisé en salon ; rechargement avec même place, identité, choix et préférences du garage"
+    "Deux contextes indépendants rejoignent le même salon ; chacun reçoit et rend les modèles/personnages de l’autre"
   ],
   "errors": [],
   "fixtures": [],
   "captures": [
-    "home-six-tracks.png",
+    "home-12-tracks.png",
     "garage-level-zero.png",
     "lobby-two-humans.png"
   ],
@@ -19,35 +18,35 @@
       "glacier",
       "neon",
       "mangrove",
-      "dunes"
+      "dunes",
+      "volcan",
+      "forest",
+      "harbor",
+      "sky",
+      "foundry",
+      "castle"
     ],
     "identities": [
       {
-        "id": "aeebe9bf-3975-41c0-87ec-1d30843f7b85",
+        "id": "bfa1d1a9-d632-491b-b36d-e70f3acedd1c",
         "name": "Démo Reine",
         "careerLevel": 0
       },
       {
-        "id": "a591a0bb-ee0a-4365-9467-e12c9e9f4fb3",
+        "id": "3abe70c7-5646-4100-ac4b-c41751e44a80",
         "name": "Démo Obama",
         "careerLevel": 0
       }
-    ],
-    "reconnection": {
-      "sessionPreserved": true,
-      "profilePreserved": true,
-      "modelId": "zsky",
-      "characterId": "trump"
-    }
+    ]
   },
-  "failure": "locator.selectOption: Timeout 25000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#cpu-select')\u001b[22m\n\u001b[2m    - locator resolved to <select id=\"cpu-select\">…</select>\u001b[22m\n\u001b[2m  - attempting select option action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and enabled\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying select option action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and enabled\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying select option action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    49 × waiting for element to be visible and enabled\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m     - retrying select option action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n    at <anonymous> (/mnt/c/users/bstorm_user/desktop/project/scripts/features-browser-check.ts:172:37)",
+  "failure": "page.reload: Timeout 25000ms exceeded.\nCall log:\n\u001b[2m  - waiting for navigation until \"load\"\u001b[22m\n\u001b[2m    - navigated to \"http://127.0.0.1:39823/room/VB2QK5\"\u001b[22m\n\n    at <anonymous> (/mnt/c/users/bstorm_user/desktop/project/scripts/features-browser-check.ts:158:14)",
   "states": [
     {
       "world": {
         "phase": "lobby",
         "players": [
           {
-            "id": "NjjIWecCb",
+            "id": "CoEj8PQHJ",
             "name": "Démo Reine",
             "color": "#69cbd0",
             "modelId": "zsky",
@@ -60,7 +59,7 @@
               "wing": "neutral",
               "weight": "normal"
             },
-            "playerId": "aeebe9bf-3975-41c0-87ec-1d30843f7b85",
+            "playerId": "bfa1d1a9-d632-491b-b36d-e70f3acedd1c",
             "careerLevel": 0,
             "eventStage": 0,
             "eventLevel": 0,
@@ -69,6 +68,9 @@
             "x": -5.410418152454073,
             "z": -84.4828389504305,
             "angle": 1.7696644746532986,
+            "elevation": 0,
+            "verticalVelocity": 0,
+            "airborne": false,
             "speed": 0,
             "driftCharge": 0,
             "boost": 0,
@@ -88,8 +90,8 @@
             "connected": true,
             "spectator": false,
             "abandoned": false,
-            "lastSeq": 254,
-            "epoch": 2,
+            "lastSeq": 38,
+            "epoch": 3,
             "driftDirection": 0,
             "lateralVelocity": 0,
             "respawnX": -5.410418152454073,
@@ -112,7 +114,7 @@
             "draftCooldown": 0
           },
           {
-            "id": "suPYY-Apf",
+            "id": "v-TtPCxBc",
             "name": "Démo Obama",
             "color": "#fed36a",
             "modelId": "retro",
@@ -125,7 +127,7 @@
               "wing": "neutral",
               "weight": "normal"
             },
-            "playerId": "a591a0bb-ee0a-4365-9467-e12c9e9f4fb3",
+            "playerId": "3abe70c7-5646-4100-ac4b-c41751e44a80",
             "careerLevel": 0,
             "eventStage": 0,
             "eventLevel": 0,
@@ -134,6 +136,9 @@
             "x": -6.398217719055636,
             "z": -89.3842930220527,
             "angle": 1.7696644746532986,
+            "elevation": 0,
+            "verticalVelocity": 0,
+            "airborne": false,
             "speed": 0,
             "driftCharge": 0,
             "boost": 0,
@@ -153,7 +158,7 @@
             "connected": true,
             "spectator": false,
             "abandoned": false,
-            "lastSeq": 488,
+            "lastSeq": 287,
             "epoch": 1,
             "driftDirection": 0,
             "lateralVelocity": 0,
@@ -252,10 +257,10 @@
             "cooldown": 0
           }
         ],
-        "hostId": "suPYY-Apf",
+        "hostId": "v-TtPCxBc",
         "practice": false,
         "round": 0,
-        "time": 70.46666666666523,
+        "time": 80.03333333333136,
         "countdown": 0,
         "raceTime": 0,
         "finishTimeout": 0,
@@ -282,9 +287,9 @@
         "ranked": false,
         "championshipId": ""
       },
-      "sessionId": "NjjIWecCb",
+      "sessionId": "CoEj8PQHJ",
       "predicted": {
-        "id": "NjjIWecCb",
+        "id": "CoEj8PQHJ",
         "name": "Démo Reine",
         "color": "#69cbd0",
         "modelId": "zsky",
@@ -297,7 +302,7 @@
           "wing": "neutral",
           "weight": "normal"
         },
-        "playerId": "aeebe9bf-3975-41c0-87ec-1d30843f7b85",
+        "playerId": "bfa1d1a9-d632-491b-b36d-e70f3acedd1c",
         "careerLevel": 0,
         "eventStage": 0,
         "eventLevel": 0,
@@ -306,6 +311,9 @@
         "x": -5.410418152454073,
         "z": -84.4828389504305,
         "angle": 1.7696644746532986,
+        "elevation": 0,
+        "verticalVelocity": 0,
+        "airborne": false,
         "speed": 0,
         "driftCharge": 0,
         "boost": 0,
@@ -325,8 +333,8 @@
         "connected": true,
         "spectator": false,
         "abandoned": false,
-        "lastSeq": 254,
-        "epoch": 2,
+        "lastSeq": 38,
+        "epoch": 3,
         "driftDirection": 0,
         "lateralVelocity": 0,
         "respawnX": -5.410418152454073,
@@ -348,7 +356,7 @@
         "draftCharge": 0,
         "draftCooldown": 0
       },
-      "fps": 2.337723057741754,
+      "fps": 1.9049433279360044,
       "quality": "light",
       "kartAssets": {
         "status": "ready",
@@ -455,7 +463,7 @@
         "phase": "lobby",
         "players": [
           {
-            "id": "NjjIWecCb",
+            "id": "CoEj8PQHJ",
             "name": "Démo Reine",
             "color": "#69cbd0",
             "modelId": "zsky",
@@ -468,7 +476,7 @@
               "wing": "neutral",
               "weight": "normal"
             },
-            "playerId": "aeebe9bf-3975-41c0-87ec-1d30843f7b85",
+            "playerId": "bfa1d1a9-d632-491b-b36d-e70f3acedd1c",
             "careerLevel": 0,
             "eventStage": 0,
             "eventLevel": 0,
@@ -477,6 +485,9 @@
             "x": -5.410418152454073,
             "z": -84.4828389504305,
             "angle": 1.7696644746532986,
+            "elevation": 0,
+            "verticalVelocity": 0,
+            "airborne": false,
             "speed": 0,
             "driftCharge": 0,
             "boost": 0,
@@ -496,8 +507,8 @@
             "connected": true,
             "spectator": false,
             "abandoned": false,
-            "lastSeq": 254,
-            "epoch": 2,
+            "lastSeq": 38,
+            "epoch": 3,
             "driftDirection": 0,
             "lateralVelocity": 0,
             "respawnX": -5.410418152454073,
@@ -520,7 +531,7 @@
             "draftCooldown": 0
           },
           {
-            "id": "suPYY-Apf",
+            "id": "v-TtPCxBc",
             "name": "Démo Obama",
             "color": "#fed36a",
             "modelId": "retro",
@@ -533,7 +544,7 @@
               "wing": "neutral",
               "weight": "normal"
             },
-            "playerId": "a591a0bb-ee0a-4365-9467-e12c9e9f4fb3",
+            "playerId": "3abe70c7-5646-4100-ac4b-c41751e44a80",
             "careerLevel": 0,
             "eventStage": 0,
             "eventLevel": 0,
@@ -542,6 +553,9 @@
             "x": -6.398217719055636,
             "z": -89.3842930220527,
             "angle": 1.7696644746532986,
+            "elevation": 0,
+            "verticalVelocity": 0,
+            "airborne": false,
             "speed": 0,
             "driftCharge": 0,
             "boost": 0,
@@ -561,7 +575,7 @@
             "connected": true,
             "spectator": false,
             "abandoned": false,
-            "lastSeq": 488,
+            "lastSeq": 287,
             "epoch": 1,
             "driftDirection": 0,
             "lateralVelocity": 0,
@@ -660,10 +674,10 @@
             "cooldown": 0
           }
         ],
-        "hostId": "suPYY-Apf",
+        "hostId": "v-TtPCxBc",
         "practice": false,
         "round": 0,
-        "time": 70.46666666666523,
+        "time": 80.03333333333136,
         "countdown": 0,
         "raceTime": 0,
         "finishTimeout": 0,
@@ -690,9 +704,9 @@
         "ranked": false,
         "championshipId": ""
       },
-      "sessionId": "suPYY-Apf",
+      "sessionId": "v-TtPCxBc",
       "predicted": {
-        "id": "suPYY-Apf",
+        "id": "v-TtPCxBc",
         "name": "Démo Obama",
         "color": "#fed36a",
         "modelId": "retro",
@@ -705,7 +719,7 @@
           "wing": "neutral",
           "weight": "normal"
         },
-        "playerId": "a591a0bb-ee0a-4365-9467-e12c9e9f4fb3",
+        "playerId": "3abe70c7-5646-4100-ac4b-c41751e44a80",
         "careerLevel": 0,
         "eventStage": 0,
         "eventLevel": 0,
@@ -714,6 +728,9 @@
         "x": -6.398217719055636,
         "z": -89.3842930220527,
         "angle": 1.7696644746532986,
+        "elevation": 0,
+        "verticalVelocity": 0,
+        "airborne": false,
         "speed": 0,
         "driftCharge": 0,
         "boost": 0,
@@ -733,7 +750,7 @@
         "connected": true,
         "spectator": false,
         "abandoned": false,
-        "lastSeq": 488,
+        "lastSeq": 287,
         "epoch": 1,
         "driftDirection": 0,
         "lateralVelocity": 0,
@@ -756,7 +773,7 @@
         "draftCharge": 0,
         "draftCooldown": 0
       },
-      "fps": 1.8751171948246663,
+      "fps": 1.1009578333149805,
       "quality": "light",
       "kartAssets": {
         "status": "ready",
@@ -805,8 +822,8 @@
             "loadCount": 1,
             "modelUrl": "/models/kart-retro-v1.glb",
             "error": null,
-            "instanceCount": 2,
-            "importedCount": 2,
+            "instanceCount": 3,
+            "importedCount": 3,
             "fallbackCount": 0,
             "characters": [
               "obama"
@@ -820,11 +837,11 @@
             }
           }
         },
-        "instanceCount": 3,
-        "importedCount": 3,
+        "instanceCount": 4,
+        "importedCount": 4,
         "fallbackCount": 0,
-        "sharedGeometryCount": 116,
-        "paintMaterialCount": 6,
+        "sharedGeometryCount": 114,
+        "paintMaterialCount": 8,
         "sourceMeshCount": 21,
         "sourceTriangles": 4292,
         "sourceBounds": {

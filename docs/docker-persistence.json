@@ -1,0 +1,26 @@
+{
+  "success": false,
+  "failure": "Délai dépassé : départ",
+  "checks": [
+    "Image finale exacte démarrée sur le port local 3104 avec un volume temporaire distinct"
+  ],
+  "image": "lagon-kart-app:latest",
+  "imageId": "sha256:6bed08d4ca9348e53395513fbbda74493bb38b9dc653648f3a1111a7e812c7c1",
+  "bundle": "index-CU-Fug6i.js",
+  "origin": "http://127.0.0.1:3104",
+  "container": "lagon-persistence-check-c4664dac",
+  "volume": "lagon-persistence-check-c4664dac-data",
+  "firstContainerId": "6a8fbe696cfdb4a53e076d678987f919048baeee252f4bdd0c54ae39c22242f5",
+  "secondContainerId": "",
+  "durationSeconds": 23.175,
+  "method": "Isolated temporary Docker volume; authenticated API profile; real solo race through ordinary SDK inputs; remove and recreate container; compare persisted public data.",
+  "publicAppTouched": false,
+  "publicTunnelTouched": false,
+  "userVolumeTouched": false,
+  "profile": null,
+  "replay": null,
+  "cleanup": {
+    "containerRemoved": true,
+    "volumeRemoved": true
+  }
+}

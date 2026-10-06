@@ -4,7 +4,39 @@ import { TRACKS, getTrack, nearestTrack, trackPoint, trackSurface } from '../sha
 import { COLORS, TOTAL_LAPS, createKart, createWorld, neutralInput, startRace, stepKart, stepWorld } from '../shared/game.js';
 import { autopilot } from '../shared/autopilot.js';
 import { constrainTrackEvent, dynamicSurface, eventRoutePoint, getTrackEvent,
-  nearestDriveableTrack, pointOnBranch, trackEventPickups } from '../shared/track-events.js';
+  nearestDriveableTrack, pointOnBranch, trackEventPickups, eventCheckpointGates, type TrackBranch } from '../shared/track-events.js';
+import { DEFAULT_BUILD, type KartBuild } from '../shared/garage.js';
+
+function driveSector(trackId: string, route: TrackBranch, useBranch: boolean, build: KartBuild = { ...DEFAULT_BUILD }) {
+  const track = getTrack(trackId), world = createWorld(false, trackId); world.eventLevel = useBranch ? 1 : 0;
+  const kart = createKart('sector', 'Essai à allure normale', COLORS[0]!, 0, trackId, 'zsky', build); world.players = [kart];
+  startRace(world);
+  for (let tick = 0; tick < 90; tick++) stepWorld(world, new Map(), 1 / 30);
+  world.eventStage = 2;
+  const finalGate = (Math.floor(route.end / (track.length / 12)) + 2) % 12;
+  Object.assign(kart, trackPoint(route.start - 15, trackId), { speed: 28,
+    nextCheckpoint: Math.floor(route.start / (track.length / 12)) + 1, eventStage: 2, eventLevel: world.eventLevel,
+    padLaps: Object.fromEntries(track.zones.map(zone => [zone.id, 0])) });
+  const point = (progress: number) => useBranch && progress >= route.start && progress <= route.end ? pointOnBranch(route, progress) : trackPoint(progress, trackId);
+  let ticks = 0, visited = false, offroadTicks = 0, steer = 0;
+  for (; ticks < 30 * 60 && kart.nextCheckpoint !== finalGate; ticks++) {
+    const near = nearestDriveableTrack(kart.x, kart.z, trackId, 2, world.eventLevel);
+    visited ||= near.branchId === route.id && nearestTrack(kart.x, kart.z, trackId).distance > track.width / 2 + 5;
+    const target = point(near.progress + Math.max(8, kart.speed * .45));
+    const next = point(near.progress + 10), after = point(near.progress + 22);
+    const curvature = Math.abs(Math.atan2(Math.sin(after.angle - next.angle), Math.cos(after.angle - next.angle))) / Math.max(1, Math.hypot(after.x - next.x, after.z - next.z));
+    const cruiseSpeed = Math.max(15, Math.min(28, .95 / Math.max(.001, curvature)));
+    const desired = Math.atan2(target.x - kart.x, target.z - kart.z), difference = Math.atan2(Math.sin(desired - kart.angle), Math.cos(desired - kart.angle));
+    const requestedSteer = Math.max(-.85, Math.min(.85, difference * 2.1));
+    // Limited steering strength and gradual changes; no drift, reset, item or
+    // injected position while traversing the sector. Both paths use this driver.
+    steer += Math.max(-.12, Math.min(.12, requestedSteer - steer));
+    stepWorld(world, new Map([[kart.id, { ...neutralInput(ticks), throttle: kart.speed > cruiseSpeed ? 0 : 1,
+      brake: kart.speed > cruiseSpeed + 4, steer }]]), 1 / 30);
+    offroadTicks += Number(kart.surface === 'offroad');
+  }
+  return { seconds: ticks / 30, complete: kart.nextCheckpoint === finalGate, visited, offroadTicks };
+}
 
 test('level zero preserves the original circuit and every original surface at every lap', () => {
   for (const track of TRACKS) for (const stage of [0, 1, 2]) {
@@ -56,15 +88,15 @@ test('branch joins preserve the full width of the original driveable road', () =
   }
 });
 
-for (const track of TRACKS) test(track.id + ': three real branches rejoin before the next gate and remain driveable', () => {
+for (const track of TRACKS) test(track.id + ': broad tangent branches keep ordered gates and the shortcut beats the normal road length', () => {
   const event = getTrackEvent(track.id, 2, 3), gateDistance = track.length / 12;
   const detour = event.branches.find(route => route.kind === 'detour')!;
   const shortcut = event.branches.find(route => route.kind === 'shortcut')!;
-  assert.ok(shortcut.length < detour.length * .92, 'the expert route must actually shorten the enforced detour');
+  assert.ok(shortcut.length < (shortcut.end - shortcut.start) * .95, 'a shortcut must shorten the normal road itself');
   for (const route of event.branches) {
-    const gate = Math.floor(route.start / gateDistance);
-    assert.ok(route.start >= gate * gateDistance + 5.99);
-    assert.ok(route.end <= (gate + 1) * gateDistance - 5.99);
+    assert.ok(route.width >= 12, 'two drivers need room to steer and pass');
+    assert.ok(route.minTurnRadius >= (route.kind === 'shortcut' ? 25 : 20), 'tight artificial hairpins are not acceptable');
+    assert.ok(route.end - route.start > gateDistance * 2, 'transitions must extend over a useful approach distance');
     for (const [point, progress] of [[route.points[0]!, route.start], [route.points.at(-1)!, route.end]] as const) {
       const main = trackPoint(progress, track.id);
       assert.ok(Math.hypot(point.x - main.x, point.z - main.z) < 1e-6, 'route must reconnect to the real road');
@@ -85,10 +117,17 @@ for (const track of TRACKS) test(track.id + ': three real branches rejoin before
       }
     }
     assert.ok(separated >= 8, 'this must be a separate road, not a different lane of the existing road');
-    assert.ok(route.points.every(point => Math.floor(point.progress / gateDistance) === gate), 'a branch cannot manufacture a skipped checkpoint');
+    const intermediate = track.checkpoints.map((checkpoint, index) => ({ checkpoint, index })).filter(({ checkpoint }) => checkpoint.progress > route.start && checkpoint.progress < route.end);
+    assert.ok(intermediate.length >= 2);
+    for (const { checkpoint, index } of intermediate) {
+      const gate = eventCheckpointGates(track.id, index, 2, 3).find(gate => gate.branchId === route.id)!;
+      assert.ok(gate); assert.equal(gate.progress, checkpoint.progress);
+      assert.ok(nearestDriveableTrack(gate.x, gate.z, track.id, 2, 3).distance < 1e-6);
+    }
+    assert.equal(eventCheckpointGates(track.id, 0, 2, 3).length, 1, 'no alternate finish-line gate');
   }
   const technical = event.branches.find(route => route.kind === 'technical')!;
-  const surfaces = [.22, .5, .9].map(t => {
+  const surfaces = [.27, .65, .9].map(t => {
     const point = pointOnBranch(technical, technical.start + (technical.end - technical.start) * t);
     return dynamicSurface(point.x, point.z, track.id, 2, 3).surface;
   });
@@ -137,13 +176,13 @@ test('CPU route guidance passes around closures and weather changes actual road 
   assert.equal(getTrackEvent('lagon', 999, 999).stage, 2); assert.equal(getTrackEvent('lagon', 999, 999).level, 3);
 });
 
-for (const track of TRACKS) test(track.id + ': eight ordinary drivers finish with common phases, closures and actual detour visits', t => {
+for (const track of TRACKS) test(track.id + ': eight ordinary drivers finish with common phases, closures and actual detour visits without resetting', t => {
   const world = createWorld(false, track.id); world.eventLevel = 3;
   world.players = Array.from({ length: 8 }, (_, index) => createKart('dynamic-' + index, 'Pilote ' + index, COLORS[index]!, index, track.id));
   startRace(world);
-  const phases = new Set<number>(), detourDrivers = new Set<string>();
+  const phases = new Set<number>(), detourDrivers = new Set<string>(); let resets = 0;
   for (let tick = 0; tick < 30 * 160 && world.phase !== 'finished'; tick++) {
-    stepWorld(world, new Map(world.players.map(kart => [kart.id, autopilot(kart, tick, true)])), 1 / 30);
+    stepWorld(world, new Map(world.players.map(kart => { const input = autopilot(kart, tick, true); resets += Number(input.reset); return [kart.id, input]; })), 1 / 30);
     phases.add(world.eventStage);
     if (tick % 6 !== 0 || world.eventStage === 0) continue;
     for (const kart of world.players) {
@@ -156,6 +195,7 @@ for (const track of TRACKS) test(track.id + ': eight ordinary drivers finish wit
   assert.equal(detourDrivers.size, 8, 'every driver must physically use the separate road, not skip the closed area');
   assert.deepEqual([...phases].sort(), [0, 1, 2]);
   assert.equal(new Set(world.players.map(kart => kart.rank)).size, 8);
+  assert.equal(resets, 0, 'normal branches must not rely on the reset button to finish a race');
   t.diagnostic(track.id + ': 8/8 finished with events in ' + world.raceTime.toFixed(2) + ' simulation seconds');
 });
 
@@ -187,29 +227,24 @@ test('reset returns to a validated gate without sweeping the teleport through an
   assert.ok(Math.hypot(kart.x - respawn.x, kart.z - respawn.z) < 1e-6, 'teleport was stopped by a barrier crossed only by its imaginary segment');
 });
 
-test('all eighteen branches can be driven through the physics to the next real checkpoint without resetting', () => {
+test('every branch supports normal cruising with limited gradual steering, without drift or reset', () => {
   for (const track of TRACKS) for (const route of getTrackEvent(track.id, 2, 3).branches) {
-    const world = createWorld(false, track.id); world.eventLevel = 3;
-    const kart = createKart('branch-test', 'Essai de branche', COLORS[0]!, 0, track.id); world.players = [kart];
-    startRace(world);
-    for (let tick = 0; tick < 90; tick++) stepWorld(world, new Map(), 1 / 30);
-    world.eventStage = 2;
-    const gate = Math.floor(route.start / (track.length / 12)) + 1;
-    // This isolated handling fixture starts before the branch. The six complete
-    // races above, in contrast, start on the grid and never inject positions.
-    Object.assign(kart, trackPoint(route.start - 12, track.id), { speed: 12, nextCheckpoint: gate, eventStage: 2, eventLevel: 3 });
-    let visited = false;
-    for (let tick = 0; tick < 30 * 20 && kart.nextCheckpoint === gate; tick++) {
-      const near = nearestDriveableTrack(kart.x, kart.z, track.id, 2, 3);
-      if (near.branchId === route.id && nearestTrack(kart.x, kart.z, track.id).distance > track.width / 2 + 5) visited = true;
-      const progress = near.progress + Math.max(3.5, kart.speed * .28);
-      const target = progress >= route.start && progress <= route.end ? pointOnBranch(route, progress) : trackPoint(progress, track.id);
-      const desired = Math.atan2(target.x - kart.x, target.z - kart.z);
-      const difference = Math.atan2(Math.sin(desired - kart.angle), Math.cos(desired - kart.angle));
-      stepWorld(world, new Map([[kart.id, { ...neutralInput(tick), throttle: kart.speed > 14 ? 0 : 1,
-        brake: kart.speed > 18, steer: Math.max(-1, Math.min(1, difference * 2.6)) }]]), 1 / 30);
+    const result = driveSector(track.id, route, true);
+    assert.equal(result.complete, true, route.id + ': the final gate must be crossed after rejoining');
+    assert.equal(result.visited, true, route.id + ': driver must actually leave the original road');
+    assert.equal(result.offroadTicks, 0, route.id + ': friendly geometry should not require cutting over the shoulder');
+  }
+});
+
+test('shortcuts save real sector time against the normal road with the same accessible driver and no added turbo', t => {
+  for (const track of TRACKS) {
+    const route = getTrackEvent(track.id, 2, 3).branches.find(route => route.kind === 'shortcut')!;
+    for (const build of [{ ...DEFAULT_BUILD }, { ...DEFAULT_BUILD, chassis: 'heavy', engine: 'velocity', tires: 'allterrain', wing: 'streamlined', weight: 'ballast' }]) {
+      const main = driveSector(track.id, route, false, build), shortcut = driveSector(track.id, route, true, build);
+      assert.ok(main.complete && shortcut.complete, track.id + ': both paths must finish the comparison');
+      assert.equal(shortcut.offroadTicks, 0); assert.equal(shortcut.visited, true);
+      assert.ok(shortcut.seconds < main.seconds * .95, track.id + ': shortcut must save time on an ordinary build');
+      t.diagnostic(track.id + '/' + build.chassis + ': normal ' + main.seconds.toFixed(2) + ' s, shortcut ' + shortcut.seconds.toFixed(2) + ' s');
     }
-    assert.equal(visited, true, route.id + ': driver did not actually leave the original road');
-    assert.equal(kart.nextCheckpoint, (gate + 1) % 12, route.id + ': driver failed to rejoin and cross the next gate');
   }
 });

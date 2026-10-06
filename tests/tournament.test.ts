@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { TRACK_IDS } from '../shared/track.js';
 import assert from 'node:assert/strict';
 import { applyConfiguration, createTournament, drawSchedule, rankTournament,
   recordRound, registerTournamentDriver, restartTournament, TOURNAMENT_POINTS,
@@ -111,4 +112,16 @@ test('leaving cannot erase scored points, late entrants start at zero and rematc
   assert.equal(next.raceIndex, 0);
   assert.equal(next.completed, false);
   assert.equal(tournament.rounds.length, 2);
+});
+
+ test('random selection accepts every available circuit while limiting the tournament to eight races', () => {
+  const result = applyConfiguration(createTournament(), {
+    mode: 'tournament', selection: 'random', raceCount: 8, trackPool: [...TRACK_IDS],
+  }, 'lagon', () => .5);
+  assert.equal(result.tournament.trackPool.length, TRACK_IDS.length);
+  assert.equal(result.tournament.schedule.length, 8);
+  assert.equal(new Set(result.tournament.schedule).size, 8);
+  assert.throws(() => applyConfiguration(createTournament(), {
+    mode: 'tournament', selection: 'manual', raceCount: 12, schedule: [...TRACK_IDS],
+  }, 'lagon'));
 });

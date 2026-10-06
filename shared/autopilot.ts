@@ -13,14 +13,14 @@ export function autopilot(kart: AutopilotDriver, seq: number, useItems = false):
   const event = getTrackEvent(track.id, stage, level);
   const detour = event.branches.find(route => route.kind === 'detour');
   const approachingDetour = Boolean(event.blockers.length && detour && near.progress >= detour.start - 30 && near.progress <= detour.end + 8);
-  const lookahead = approachingDetour ? Math.max(4, kart.speed * .28) : Math.max(9, kart.speed * .58);
+  const lookahead = approachingDetour ? Math.max(8, kart.speed * .45) : Math.max(9, kart.speed * .58);
   const target = eventRoutePoint(near.progress + lookahead, track.id, stage, level);
   const desired = Math.atan2(target.x - kart.x, target.z - kart.z);
   const difference = Math.atan2(Math.sin(desired - kart.angle), Math.cos(desired - kart.angle));
-  const ahead = trackPoint(near.progress + 25, track.id);
+  const ahead = eventRoutePoint(near.progress + 25, track.id, stage, level);
   const curvature = Math.abs(Math.atan2(Math.sin(ahead.angle - near.angle), Math.cos(ahead.angle - near.angle))) / 25;
   const iceAhead = dynamicSurface(target.x, target.z, track.id, stage, level).surface === 'ice';
-  const targetSpeed = approachingDetour ? 13 : curvature > .045 ? 21 : curvature > .03 ? 26 : iceAhead ? 28 : 46;
+  const targetSpeed = approachingDetour ? Math.min(32, detour!.minTurnRadius * 1.05) : curvature > .045 ? 21 : curvature > .03 ? 26 : iceAhead ? 28 : 46;
   let localProgress = near.progress;
   if (kart.nextCheckpoint === 1 && localProgress > track.length * .9) localProgress -= track.length;
   if (kart.nextCheckpoint === 0 && localProgress < track.length * .2) localProgress += track.length;

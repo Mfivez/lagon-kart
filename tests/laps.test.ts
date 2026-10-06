@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { COLORS, TOTAL_LAPS, TRACKS, createKart, createWorld, getTrack, neutralInput,
-  stepWorld, type World } from '../shared/game.js';
+  resetKart, stepWorld, type World } from '../shared/game.js';
+import { eventCheckpointGates, getTrackEvent, nearestDriveableTrack } from '../shared/track-events.js';
+import { trackElevation } from '../shared/track.js';
 
 function race(trackId = 'lagon', eventLevel = 0): World {
   const world = createWorld(true, trackId); world.phase = 'racing'; world.pickups = []; world.eventLevel = eventLevel;
@@ -65,4 +67,75 @@ test('100 ms movement sweeps through the expected gate and finish-line jitter ca
   cross(world, track.checkpoints[0]!, 0, false, 0.1); assert.equal(kart.lap, 1);
   for (let i = 0; i < 5; i++) { cross(world, track.checkpoints[0]!, 0, true); cross(world, track.checkpoints[0]!); }
   assert.equal(kart.lap, 1); assert.equal(kart.nextCheckpoint, 1);
+});
+
+for (const track of TRACKS) test(`${track.id}: every real branch credits its own ordered gates for three laps`, () => {
+  const routes = getTrackEvent(track.id, 2, 1).branches;
+  for (const route of routes) {
+    const world = race(track.id, 1), kart = world.players[0]!; world.eventStage = 2;
+    let branchGates = 0;
+    for (let lap = 0; lap < TOTAL_LAPS; lap++) {
+      for (let index = 1; index < track.checkpoints.length; index++) {
+        const gates = eventCheckpointGates(track.id, index, 2, 1);
+        const gate = gates.find(candidate => candidate.branchId === route.id) ?? gates[0]!;
+        if (gate.branchId) branchGates++;
+        cross(world, gate);
+        assert.equal(kart.nextCheckpoint, (index + 1) % track.checkpoints.length, `${route.kind}, lap ${lap}, gate ${index}`);
+      }
+      cross(world, track.checkpoints[0]!); assert.equal(kart.lap, lap + 1);
+    }
+    assert.ok(branchGates >= 6, 'a branch crosses several genuine intermediate checkpoints');
+    assert.equal(kart.finished, true);
+  }
+});
+
+test('branch respawn stays on the actual validated route and skipping an intermediate branch gate is rejected', () => {
+  const track = getTrack('lagon'), routes = getTrackEvent(track.id, 2, 1).branches;
+  const route = routes.find(candidate => candidate.kind === 'shortcut')!;
+  const gates = track.checkpoints.flatMap((checkpoint, index) => eventCheckpointGates(track.id, index, 2, 1)
+    .filter(gate => gate.branchId === route.id).map(gate => ({ gate, index, distance: Math.hypot(gate.x - checkpoint.x, gate.z - checkpoint.z) })));
+  assert.ok(gates.length >= 2);
+  const farthest = [...gates].sort((a, b) => b.distance - a.distance)[0]!;
+  const world = race(track.id, 1), kart = world.players[0]!; world.eventStage = 2;
+  kart.nextCheckpoint = farthest.index;
+  cross(world, farthest.gate);
+  assert.equal(kart.nextCheckpoint, farthest.index + 1);
+  assert.ok(Math.hypot(kart.respawnX - farthest.gate.x - Math.sin(farthest.gate.angle) * 2,
+    kart.respawnZ - farthest.gate.z - Math.cos(farthest.gate.angle) * 2) < 1e-6);
+  Object.assign(kart, track.checkpoints[10]!, { speed: 0 });
+  stepWorld(world, new Map([[kart.id, { ...neutralInput(), reset: true }]]), 1 / 30);
+  assert.equal(nearestDriveableTrack(kart.x, kart.z, track.id, 2, 1).branchId, route.id);
+  assert.equal(kart.nextCheckpoint, farthest.index + 1);
+  const skipped = race(track.id, 1); skipped.eventStage = 2; skipped.players[0]!.nextCheckpoint = gates[0]!.index;
+  cross(skipped, gates[1]!.gate);
+  assert.equal(skipped.players[0]!.nextCheckpoint, gates[0]!.index);
+  assert.equal(skipped.players[0]!.lap, 0);
+});
+
+test('a kart crossing a checkpoint in flight still validates that checkpoint', () => {
+  const world = race(), kart = world.players[0]!, gate = getTrack('lagon').checkpoints[1]!;
+  Object.assign(kart, { elevation: 4, verticalVelocity: 2, airborne: true });
+  cross(world, gate);
+  assert.equal(kart.nextCheckpoint, 2);
+  assert.equal(kart.airborne, true); assert.ok(kart.elevation > 3);
+  assert.equal(kart.lap, 0);
+});
+
+test('reset lands on the actual elevated branch and clears flight without altering checkpoint credit', () => {
+  const candidate = TRACKS.flatMap(track => track.checkpoints.flatMap((_, index) =>
+    eventCheckpointGates(track.id, index, 2, 1).filter(gate => gate.branchId && trackElevation(gate.progress, track.id) > 1)
+      .map(gate => ({ track, gate, index }))))[0]!;
+  assert.ok(candidate, 'an elevated branch checkpoint exists');
+  const { track, gate, index } = candidate;
+  const world = race(track.id, 1), kart = world.players[0]!;
+  kart.eventStage = world.eventStage = 2;
+  Object.assign(kart, { respawnX: gate.x, respawnZ: gate.z, respawnAngle: gate.angle,
+    nextCheckpoint: index + 1, lap: 1, elevation: 40, verticalVelocity: 10, airborne: true });
+  resetKart(kart);
+  const ground = nearestDriveableTrack(kart.x, kart.z, track.id, 2, 1);
+  assert.equal(ground.branchId, gate.branchId);
+  assert.ok(trackElevation(ground.progress, track.id) > 1);
+  assert.equal(kart.elevation, trackElevation(ground.progress, track.id));
+  assert.equal(kart.airborne, false); assert.equal(kart.verticalVelocity, 0);
+  assert.equal(kart.nextCheckpoint, index + 1); assert.equal(kart.lap, 1);
 });

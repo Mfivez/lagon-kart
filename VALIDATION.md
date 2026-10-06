@@ -2,7 +2,62 @@
 
 Vérifications effectuées le 6 octobre 2026 dans WSL/Linux avec Docker Desktop 4.55.0, Docker Engine 29.1.3, Compose 2.40.3, Node 20.19.2 sur l'hôte et Node 22.21.1 dans l'image. Les résultats ci-dessous distinguent simulation, clients réseau automatisés et navigateur.
 
-## Version actuelle : les deux MP3 fournis
+## Lot à douze circuits : preuves ciblées et intégration
+
+Le code comprend douze circuits, des branches larges et raccourcis réellement
+plus courts, des ponts et des sauts, trois modèles de kart en huit peintures,
+cinq personnages, dix-huit pièces de garage, six coupes, le classement par
+saisons, les replays et ghosts et le mode quatre contre quatre. Compose conserve
+les données de progression dans le volume `player-data` ; les salons actifs
+restent en mémoire.
+
+Les preuves déjà exécutées pour ces fonctionnalités sont séparées par portée :
+
+- **Branches : 33 tests réussis**, dont huit pilotes terminant trois tours sur
+  chacune des douze pistes au niveau maximal des événements, sans demande de
+  remise en piste (**96 arrivées**). Les 36 branches sont parcourues à braquage
+  progressif ; 24 comparaisons de secteur vérifient un gain du raccourci avec
+  deux configurations de kart. [Méthode et résultats](docs/CIRCUITS.md),
+  [mesures détaillées](docs/branch-comparison.json).
+- **Compteur de tours : 31 tests ciblés**, dans une suite de 57 tests réussis.
+  Portes alternatives physiques, accotements, sens inverse, ordre, sauts et
+  repositionnement sont vérifiés. Ces fixtures de frontière ne remplacent pas
+  une course continue. [Rapport](docs/LAPS.md).
+- **Garage : 9 tests ; objets en équipes : 10 tests**, réussis. Les essais
+  mesurent les différences réelles de conduite des pièces, leur verrouillage,
+  l'absence d'effet physique des modèles/personnages et la protection des alliés.
+  [Garage](tests/garage.test.ts), [objets et équipes](tests/team-items.test.ts).
+- **Modèles et personnages : 5 + 5 contrôles Chromium réussis**, géométries
+  partagées, peintures indépendantes, trois téléchargements GLB au maximum,
+  animation et secours. [Modèles](docs/KART_MODELS.md),
+  [personnages](docs/CHARACTERS.md).
+- **Interface : 11 contrôles Chromium réussis sur le précédent build à six
+  circuits**, avec deux contextes indépendants, choix du garage, reconnexion,
+  équipes, commandes clavier réelles, progression et lecture de replay. Les
+  arrivées de tournoi et des paliers de carrière sont imposés dans le serveur
+  privé pour contrôler les écrans. [Détail et captures](docs/FEATURE_BROWSER.md).
+- **Progression et réseau : stockage persistant, MMR, saisons, matchmaking,
+  contrôles d'accès et replays** vérifiés par les suites ciblées décrites dans
+  [PROGRESSION.md](docs/PROGRESSION.md). Les tests de récompenses utilisent des
+  arrivées accélérées ; ce ne sont pas des courses entièrement conduites.
+- **Nouvelles pistes :** géométrie, reliefs et état des preuves du build à douze
+  circuits sont consignés dans [CIRCUITS_APPENDIX.md](docs/CIRCUITS_APPENDIX.md).
+
+Ces résultats ciblés ne sont pas additionnés comme un total du dernier build.
+Le build global, Docker, le tunnel et les contrôles multijoueurs finaux doivent
+être consignés avec leur propre résultat après exécution. Les captures de
+six circuits et l'ancienne course publique MP3 ne prouvent pas ce déploiement.
+La conduite humaine complète, deux machines physiques, les performances GPU et
+l'écoute sur le matériel des collègues restent à vérifier. Voir aussi le
+[parcours de démo](docs/DEMO.md) et le [suivi des tâches](todo.md).
+
+## Archives des versions précédentes
+
+Les sections suivantes conservent leurs résultats, nombres de circuits, ports,
+URL et empreintes d'origine. Elles ne décrivent pas toutes l'état courant et ne
+prétendent pas que chaque essai a été rejoué après les dernières modifications.
+
+## Historique : les deux MP3 fournis
 
 `Lap 1.mp3` joue au premier tour et `Lap 2.mp3` aux deuxième et troisième tours, sur les quatre circuits. Les originaux sont conservés et les copies versionnées servies depuis l'origine du jeu. Aucune dépendance ou dépense ajoutée ; moteur, effets, simulation et protocole réseau conservés.
 

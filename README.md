@@ -1,8 +1,8 @@
 # Lagon Kart
 
-Un jeu de kart 3D arcade à partager entre amis : quatre circuits originaux, trois tours par course, drift et mini-turbo, objets, aspiration et tournois de deux à huit courses. L'interface est en français. Le serveur calcule les déplacements, collisions, objets et résultats ; le navigateur envoie les touches de conduite.
+Un jeu de kart 3D arcade à partager entre amis : **douze circuits originaux**, trois tours par course, routes évolutives, drift et mini-turbo, objets, aspiration et tournois de deux à huit courses. Le garage, six championnats progressifs, les courses classées, les replays et les équipes 4 contre 4 complètent les parties libres. L'interface est en français. Le serveur calcule les déplacements, collisions, objets et résultats ; le navigateur envoie les touches de conduite.
 
-Les karts utilisent désormais le modèle gratuit [Go Kart de Zsky](https://poly.pizza/m/MkByxZCSMA), avec huit peintures, roues animées, braquage et légère inclinaison visuelle de la carrosserie. Les crédits de [Zsky](https://www.patreon.com/Zsky) et la licence [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) sont accessibles depuis le jeu. Coût des assets et de la préparation : **0 €**.
+Les **trois modèles gratuits**, Zsky, Sprint et Rétro, acceptent chacun huit peintures, des roues animées, le braquage et une légère inclinaison visuelle de la carrosserie. Cinq personnages sont disponibles. Les modèles de Zsky, Poly by Google et Ben Harrison sont crédités sous [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) ; leurs sources restent dans le dépôt. Coût des assets et de la préparation : **0 €**, sans service payant ni nouvelle dépendance. Voir [la bibliothèque de modèles](docs/KART_MODELS.md).
 
 Voir la [démo intégrée, ses captures et ses tests](docs/DEMO.md), ainsi que le [suivi des tâches](todo.md).
 
@@ -39,7 +39,7 @@ docker compose logs -f tunnel
 
 Attendre l'apparition de l'adresse `https://…trycloudflare.com`. `Ctrl+C` quitte l'affichage des logs et laisse le jeu et le tunnel actifs. **Ouvrir cette adresse publique soi-même avant de créer le salon** : le bouton de copie du salon produira alors un lien public utilisable par les amis. Depuis `localhost`, le lien copié est local ; les amis doivent ouvrir l'adresse publique et saisir le code du salon.
 
-1. Choisir un pseudo, une couleur et un circuit, puis créer un salon.
+1. Choisir un pseudo, une couleur et un circuit ; le **Garage** permet aussi de choisir le modèle, le personnage et les pièces. Créer un salon.
 2. Copier son lien ou communiquer son code aux amis.
 3. L'hôte règle la course ou le tournoi, puis chaque pilote se déclare prêt.
 4. L'hôte lance la course. Un décompte commun de trois secondes précède le départ.
@@ -55,8 +55,20 @@ Le mode **Entraînement** permet de courir seul sur le circuit choisi. Un nouvel
 | Canyon solaire | Tracé plus sinueux, falaises et cactus, bonne adhérence, zones de boue sur les côtés. |
 | Banquise boréale | Neige et cristaux, adhérence réduite, plaques de glace qui prolongent les glissades. Anticiper les changements de direction. |
 | Métropole néon | Ville nocturne, chicane et trois bandes turbo disposées sur différentes lignes. |
+| Mangrove sinueuse | Racines et végétation, eau, boue et choix de trajectoire. |
+| Dunes de cuivre | Dunes, arches minérales et portions à faible adhérence. |
+| Caldeira ardente | Lave et basalte, viaduc et tremplin volcanique. |
+| Forêt des géants | Séquoias, boue évitable, pont en bois et saut. |
+| Port des cargos | Grues et conteneurs, pont métallique et rampe de quai. |
+| Archipel céleste | Îlots flottants, deux ponts et saut au-dessus des nuages. |
+| Fonderie des pistons | Usine et pistons, passerelle et rampe d'essai. |
+| Citadelle royale | Remparts et douves, pont de pierre et saut de parade. |
 
 Les tracés, largeurs, décors, zones et checkpoints sont propres à chaque circuit. Les réglages d'un salon n'affectent pas les autres salons.
+
+Les événements se règlent du niveau **0 à 3**. Le niveau 0 garde le circuit classique. Dès le niveau 1, une déviation large avec objets et une voie turbo glissante offrent des alternatives ; un raccourci ouvre au troisième tour du leader. À partir du niveau 2, un barrage et une modification du terrain apparaissent au deuxième tour. Le niveau 3 combine météo et terrains difficiles. Tous les joueurs rencontrent la même phase, y compris ceux qui ont un tour de retard.
+
+Les bifurcations sont annoncées en amont et dessinées sur la mini-carte, avec le barrage et le raccourci fermé. Les nouveaux raccordements ont des courbes progressives et une largeur de 12 à 14 m ; les raccourcis économisent **15 à 28 % de distance** sur la portion de route normale remplacée. Les checkpoints alternatifs doivent être réellement franchis, dans l'ordre. Les six nouvelles pistes ajoutent des ponts et des tremplins, avec montée, saut et réception simulés. Voir [les tracés et les mesures des branches](docs/CIRCUITS.md) et [les six pistes à relief](docs/CIRCUITS_APPENDIX.md).
 
 L'hôte choisit **Une course** ou **Un tournoi**, avant le premier départ. Pour un tournoi de **2 à 8 courses** :
 
@@ -66,6 +78,8 @@ L'hôte choisit **Une course** ou **Un tournoi**, avant le premier départ. Pour
 Le programme est visible de tous et verrouillé dès que le tournoi commence. Les arrivants gagnent respectivement **15, 12, 10, 8, 6, 4, 2 et 1 point** ; une course non terminée rapporte zéro point. Les égalités sont départagées par les victoires, les courses terminées, le temps cumulé, puis un identifiant stable. La reconnexion conserve les points. Un pilote rejoignant un tournoi commencé part avec zéro point et participe à la prochaine manche. Les points d'un pilote parti restent dans le classement.
 
 Entre les courses, l'hôte clique sur **Prochaine course** et les pilotes se déclarent prêts. Après la dernière course, le podium affiche le classement général. Un nouveau tournoi remet les scores à zéro, conserve les réglages et effectue un nouveau tirage si le mode est aléatoire.
+
+En **4 contre 4**, Corail affronte Lagon. Le salon complète les places avec des CPU, qui suivent les mêmes règles de conduite et de garage. Les points des quatre membres s'additionnent entre les manches ; les objets guidés ciblent les adversaires et les impacts épargnent les coéquipiers. Les CPU ne gagnent ni classement ni progression persistante. Voir [les équipes et leurs tests](docs/TEAMS.md).
 
 ```bash
 # Couper uniquement l'accès public ; continuer à jouer en local
@@ -80,7 +94,30 @@ docker compose --profile tunnel down
 
 L'ordinateur doit rester allumé et connecté, Docker et le tunnel doivent rester actifs. L'URL est temporaire et peut changer à chaque redémarrage du tunnel. Aucune reconstruction du jeu n'est nécessaire : les fichiers, le matchmaking et les WebSockets utilisent l'origine de la page, automatiquement HTTP/WS en local ou HTTPS/WSS en public.
 
-Les [Quick Tunnels Cloudflare](https://developers.cloudflare.com/tunnel/get-started/quick-tunnels/) fonctionnent sans compte ni domaine mais n'ont pas de garantie de disponibilité. Leur limite annoncée de 200 requêtes simultanées et l'absence de SSE ne constituent **pas** une garantie de capacité en joueurs. Le jeu utilise WebSocket. Toute personne connaissant l'URL et le code peut rejoindre ; les salons n'ont pas de comptes ni de mot de passe.
+Les [Quick Tunnels Cloudflare](https://developers.cloudflare.com/tunnel/get-started/quick-tunnels/) fonctionnent sans compte ni domaine mais n'ont pas de garantie de disponibilité. Leur limite annoncée de 200 requêtes simultanées et l'absence de SSE ne constituent **pas** une garantie de capacité en joueurs. Le jeu utilise WebSocket. Les salons amicaux n'ont pas de mot de passe : toute personne connaissant l'URL et le code peut les rejoindre. Les rencontres classées sont réservées aux profils inscrits par le matchmaking.
+
+## Garage, carrière et classement
+
+Le **Garage** propose trois modèles, huit couleurs et cinq personnages : Pilote, La Reine, Obama, Trump et Kim Jong-un. Ces choix sont visuels. Les **18 pièces**, trois par emplacement, modifient réellement la conduite : châssis, moteur, pneus, turbo, aileron et poids. L'interface montre leurs effets et les pièces verrouillées. Les niveaux de carrière 0 à 3 débloquent les variantes ; le serveur vérifie les choix reçus.
+
+Le bouton **Championnats, classement et replays** ouvre les six coupes :
+
+| Coupe | Programme | Niveau requis → obtenu sur le podium |
+| --- | --- | --- |
+| Premiers virages | Alizés, Alizés | 0 → 1 |
+| Les explorateurs | Alizés, Canyon | 1 → 1 |
+| La traversée | Canyon, Banquise, Mangrove | 1 → 2 |
+| Au millimètre | Néon, Dunes, Port | 2 → 2 |
+| Rien ne reste en place | Forêt, Caldeira, Fonderie, Citadelle | 2 → 3 |
+| La grande tournée | Néon, Banquise, Mangrove, Dunes, Caldeira, Archipel, Fonderie, Citadelle | 3 → 3 |
+
+Il faut terminer toutes les manches et finir dans les trois premiers du classement final pour valider une coupe. La progression introduit les terrains, les bifurcations, les événements, puis les ponts et les sauts à partir du niveau 2. Chaque coupe accorde une seule fois sa récompense et son déblocage.
+
+**Trouver une rencontre classée** recherche au moins deux profils humains de niveau proche pour deux courses. Le MMR évolue selon les résultats face aux autres joueurs ; les rangs vont de Bronze à Master. Le classement concerne cette instance du serveur. Une saison dure un trimestre UTC ; le changement de saison ajuste le MMR et conserve la carrière.
+
+**Mes replays** relit les trajectoires enregistrées par le serveur, en vue de dessus, avec pause et curseur. Sur l'accueil, **Fantôme du meilleur temps en entraînement** affiche un ghost disponible pour le circuit et le niveau d'événements choisis. Ce fantôme n'a pas de collisions et ne participe pas au classement. Les replays sont des traces de position, pas une resimulation exacte des objets et des contacts.
+
+Le navigateur conserve la clé de son profil pour retrouver statistiques, carrière et classement. Cette identité est liée au stockage du navigateur et à l'origine du site : changer d'adresse de tunnel ou effacer les données du site ne transfère pas automatiquement le profil. Aucun compte externe n'est nécessaire. Voir [la progression, les saisons et les sauvegardes](docs/PROGRESSION.md).
 
 ## Commandes
 
@@ -106,6 +143,8 @@ Pour varier la conduite sans ajouter de touches :
 
 Les checkpoints se franchissent dans l'ordre et dans le sens de la course. La remise en piste utilise le dernier checkpoint valide. Après le premier arrivé, les autres ont 25 secondes pour terminer ; la manche dure au maximum cinq minutes. Les pilotes n'ayant pas terminé sont classés selon leur progression avec une indication d'abandon/non-arrivée. Une coupure réserve la place environ 30 secondes et neutralise les commandes. L'actualisation de la page reprend la session grâce à un jeton conservé **par onglet** ; après expiration, rejoindre de nouveau le salon. Arrêter le serveur efface les salons, qui résident en mémoire.
 
+Les **profils, saisons et replays** sont enregistrés séparément sur disque. Compose monte le volume nommé **`player-data`** dans `/app/data`, avec les données de joueurs dans `/app/data/players`. Un redémarrage ou une reconstruction conserve ce volume ; `docker compose down` le conserve aussi. `docker compose down -v` l'efface. Réutiliser le même nom de projet Compose pour retrouver les données ; une autre instance a son propre volume. Hors Docker, `PLAYER_DATA_DIR` permet de choisir le répertoire de sauvegarde. Une seule instance de serveur doit écrire dans un même répertoire.
+
 ## Configuration facultative
 
 Les valeurs par défaut fonctionnent sans fichier `.env`. Pour les changer, copier `.env.example` en `.env`, modifier les valeurs puis relancer `docker compose up -d`.
@@ -122,20 +161,22 @@ Les valeurs par défaut fonctionnent sans fichier `.env`. Pour les changer, copi
 
 Dans le conteneur, le serveur écoute `0.0.0.0:3000`. Compose publie uniquement `127.0.0.1:3000` sur l'ordinateur ; le tunnel joint directement `http://app:3000` sur le réseau Docker. Aucun port de routeur ne doit être ouvert. `/healthz` vérifie que le serveur répond. Le service tunnel attend que ce contrôle réussisse.
 
-## Modèle du kart et préparation
+## Modèles des karts et préparation
 
-`client/public/models/kart-zsky-v1.glb` est inclus dans le projet et servi depuis la même origine que la page. `GLTFLoader` charge ce modèle une seule fois par page. Les instances partagent leurs géométries et leurs matériaux fixes ; les matériaux teintés sont propres à chaque pilote. Les roues ont des pivots préparés autour de leur axe, distincts du braquage. L'ancien kart procédural est conservé comme secours en cas d'échec de chargement.
+Les fichiers `kart-zsky-v1.glb`, `kart-sprint-v1.glb` et `kart-retro-v1.glb` sont inclus dans `client/public/models/` et servis depuis la même origine que la page. `GLTFLoader` charge chaque modèle une seule fois par page. Les instances partagent leurs géométries et leurs matériaux fixes ; les matériaux teintés sont propres à chaque pilote. Les roues ont des pivots préparés autour de leur axe, distincts du braquage. L'ancien kart procédural est conservé comme secours en cas d'échec de chargement d'un modèle.
 
 Le roulement des roues, leur braquage et l'inclinaison de carrosserie sont des effets de rendu : ils ne changent ni la position simulée, ni les collisions, ni les messages réseau. Une ombre de contact légère reste visible lorsque le jeu réduit les ombres dynamiques sur une machine lente.
 
-L'original, sa provenance et sa licence sont conservés dans `assets/sources/zsky/`. Pour reproduire la préparation, **facultativement**, avec Python 3 :
+Les originaux, leurs provenances et leurs licences sont conservés dans `assets/sources/zsky/`, `assets/sources/poly-google/` et `assets/sources/ben-harrison/`. Pour reproduire la préparation, **facultativement**, avec Python 3 :
 
 ```bash
 npm run prepare:kart
 npm run check:kart
+npm run prepare:kart-library
+npm run check:kart-library
 ```
 
-La conversion utilise la bibliothèque standard Python, sans téléchargement. Ni Python ni Blender ne sont nécessaires pour construire l'image Docker ou jouer. Voir [l'inspection du modèle](docs/KART_ASSET.md), [les captures avant/après et la validation de la démo](docs/KART_DEMO.md) et [les notices](THIRD_PARTY_NOTICES.md).
+La conversion utilise la bibliothèque standard Python, sans téléchargement. Ni Python ni Blender ne sont nécessaires pour construire l'image Docker ou jouer. Voir [l'inspection du modèle initial](docs/KART_ASSET.md), [les trois modèles et leurs pivots](docs/KART_MODELS.md), [les captures avant/après](docs/KART_DEMO.md) et [les notices](THIRD_PARTY_NOTICES.md).
 
 ## Développement et tests
 
@@ -161,7 +202,7 @@ npm test
 # Un serveur doit tourner sur localhost:3000 pour ces tests
 npm run test:network
 
-# Tournoi complet sur les quatre circuits, avec quatre clients SDK par défaut
+# Tournoi complet sur les quatre circuits historiques, quatre clients SDK par défaut
 npm run test:tournament
 
 # Deux sessions indépendantes dans Chromium
@@ -182,9 +223,14 @@ npm run test:items-browser
 
 # Musique : lecture des MP3, changement de tour, volume et reprise
 npm run test:music
+
+# Trois modèles, cinq personnages et interface carrière/équipes sur serveurs privés
+npm run test:kart-library
+npm run test:characters
+npm run test:features-browser
 ```
 
-Les scripts réseau et le test navigateur de course complète acceptent `BASE_URL` pour tester une URL publique. Le test réseau accepte `CLIENTS=2` ou `8`, ainsi que `LATENCY_MS=75` pour retarder les commandes et la réception des instantanés de 75 ms chacun. Le test de tournoi accepte `CLIENTS=2` à `8` et fait réellement parcourir trois tours sur les quatre circuits. Le test navigateur utilise deux contextes isolés dans un même Chromium, pilotés automatiquement par les commandes clavier ordinaires. Le test d'interface des tournois démarre son propre serveur et raccourcit les arrivées avec des fixtures serveur : il vérifie les écrans et transitions, pas des courses complètes. Exemple sous bash :
+Les scripts réseau et le test navigateur de course complète acceptent `BASE_URL` pour tester une URL publique. Le test réseau accepte `CLIENTS=2` ou `8`, ainsi que `LATENCY_MS=75` pour retarder les commandes et la réception des instantanés de 75 ms chacun. Le test de tournoi accepte `CLIENTS=2` à `8` et fait réellement parcourir trois tours sur les quatre circuits historiques de son programme. Les tests de simulation couvrent les douze circuits et leurs branches. Le test navigateur utilise deux contextes isolés dans un même Chromium, pilotés automatiquement par les commandes clavier ordinaires. Les tests d'interface des tournois et des fonctionnalités utilisent aussi des arrivées imposées sur leur serveur privé : ils vérifient les écrans et transitions, sans constituer des courses complètes conduites. Les rapports indiquent le lot compilé réellement testé. Exemple sous bash :
 
 ```bash
 BASE_URL=https://votre-adresse.trycloudflare.com CLIENTS=2 npm run test:network
@@ -196,15 +242,18 @@ Sous PowerShell : `$env:BASE_URL="https://votre-adresse.trycloudflare.com"`, pui
 ## Architecture et ressources
 
 - `shared/track.ts` : catalogue des circuits, zones et checkpoints communs.
+- `shared/track-events.ts` : branches, surfaces évolutives, barrages et portes alternatives.
 - `shared/game.ts` : conduite déterministe, surfaces, aspiration, départ turbo, progression, collisions et objets.
 - `shared/tournament.ts` : configuration, tirage des circuits, points et classement cumulé.
+- `shared/garage.ts`, `shared/teams.ts`, `shared/cpu.ts` : pièces, équipes et conduite des CPU.
+- `shared/progression.ts`, `server/player-store.ts`, `server/career.ts` : coupes, MMR, saisons, stockage local, matchmaking et replays.
 - `server/` : salons Colyseus, règles d'accès, reconnexion, contrôles des messages et serveur HTTP statique.
 - `client/` : Three.js, caméra, interface, musique MP3 et effets synthétiques, prédiction locale et interpolation.
 - `tests/` : tests ciblés des règles ; `scripts/` : vérifications de bout en bout.
 
 La simulation est autoritaire à pas fixe. Les commandes sont bornées et numérotées ; leur génération de connexion (`epoch`) invalide les anciennes commandes après reprise. Le serveur ne rejoue aucune file de commandes accumulées après une coupure. Le client réconcilie sa prédiction avec les commandes acquittées ; les autres karts sont interpolés et le rendu utilise `requestAnimationFrame` indépendamment du réseau. Les instantanés complets simplifient cette première version à huit joueurs, au prix d'une bande passante plus élevée que des deltas de schéma.
 
-L'audit de [react-racing-game](https://github.com/colyseus/react-racing-game) a montré que `movementData` y recopie les positions du client. Adapter sa physique Cannon côté serveur et ses anciennes dépendances économisait moins de travail qu'une conduite arcade commune. Le projet assemble donc Three.js et Colyseus, sans React ni moteur physique externe. Les packs [Kenney Car Kit](https://kenney.nl/assets/car-kit) et [Racing Kit](https://kenney.nl/assets/racing-kit), sous CC0, ont été examinés comme solutions possibles. Le kart retenu est celui de Zsky ; les circuits restent procéduraux. Toutes les ressources sont locales au serveur du jeu.
+L'audit de [react-racing-game](https://github.com/colyseus/react-racing-game) a montré que `movementData` y recopie les positions du client. Adapter sa physique Cannon côté serveur et ses anciennes dépendances économisait moins de travail qu'une conduite arcade commune. Le projet assemble donc Three.js et Colyseus, sans React ni moteur physique externe. Les packs [Kenney Car Kit](https://kenney.nl/assets/car-kit) et [Racing Kit](https://kenney.nl/assets/racing-kit), sous CC0, ont été examinés comme solutions possibles. Les trois karts retenus sont détaillés dans les notices ; circuits, décors et personnages sont procéduraux. Toutes les ressources sont locales au serveur du jeu.
 
 Les licences et les versions figurent dans [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). L'usage de Colyseus 0.16 est volontaire et ses API sont vérifiées dans les sources installées ; les primitives netcode 0.18 ne sont pas utilisées. Toutes les dépendances npm sont figées dans `package-lock.json`, les images Docker ont des versions explicites.
 

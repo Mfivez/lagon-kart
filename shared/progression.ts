@@ -13,12 +13,12 @@ export const CHAMPIONSHIPS: readonly Championship[] = [
   { id: 'weather', name: 'La traversée', description: 'Apprenez à anticiper les surfaces et les changements de météo.',
     tracks: ['canyon', 'glacier', 'mangrove'], unlockLevel: 1, rewardLevel: 2, introduction: ['Glace', 'Inondation', 'Météo'], xp: 240 },
   { id: 'precision', name: 'Au millimètre', description: 'Le drift et les raccourcis demandent de la précision.',
-    tracks: ['neon', 'dunes', 'glacier'], unlockLevel: 2, rewardLevel: 2, introduction: ['Raccourcis', 'Obstacles mobiles', 'Stabilité'], xp: 280 },
+    tracks: ['neon', 'dunes', 'harbor'], unlockLevel: 2, rewardLevel: 2, introduction: ['Raccourcis', 'Ponts et sauts', 'Stabilité'], xp: 280 },
   { id: 'metamorphosis', name: 'Rien ne reste en place', description: 'Adaptez votre route à chaque tour.',
-    tracks: ['mangrove', 'canyon', 'dunes', 'neon'], unlockLevel: 2, rewardLevel: 3,
+    tracks: ['forest', 'volcan', 'foundry', 'castle'], unlockLevel: 2, rewardLevel: 3,
     introduction: ['Transformations', 'Routes selon le tour', 'Événements combinés'], xp: 360 },
-  { id: 'masters', name: 'La grande tournée', description: 'Les six circuits réunissent toutes les mécaniques.',
-    tracks: ['lagon', 'canyon', 'glacier', 'neon', 'mangrove', 'dunes'], unlockLevel: 3, rewardLevel: 3,
+  { id: 'masters', name: 'La grande tournée', description: 'Huit courses combinent les terrains, les sauts et les transformations.',
+    tracks: ['neon', 'glacier', 'mangrove', 'dunes', 'volcan', 'sky', 'foundry', 'castle'], unlockLevel: 3, rewardLevel: 3,
     introduction: ['Toutes les mécaniques', 'Anticipation', 'Adaptation du kart'], xp: 500 },
 ] as const;
 

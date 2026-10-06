@@ -1,0 +1,631 @@
+{
+  "date": "2026-10-06",
+  "validation": "node --import tsx tests/events.test.ts : 33 tests passed",
+  "sectorProtocol": "Starts 15 m before branch, ends at first main checkpoint after rejoining. Same gradual steering controller on both paths, target cruise 28, no drift/reset/items. Original boost pads already used; shortcut surface road without extra boost. Times are simulation fixtures, not human records.",
+  "tracks": [
+    {
+      "id": "lagon",
+      "name": "Île des Alizés",
+      "length": 611.0425591829925,
+      "width": 16,
+      "description": "De grandes courbes pour apprendre le drift. Visez les bandes turbo et évitez les flaques de boue.",
+      "branches": [
+        {
+          "id": "lagon-detour",
+          "kind": "detour",
+          "start": 262.60106632624684,
+          "end": 501.20213265249373,
+          "width": 12,
+          "length": 271.72010513229645,
+          "normalRoadLength": 238.6010663262469,
+          "savingPercent": -13.88050745790248,
+          "minTurnRadius": 43.60795735188499
+        },
+        {
+          "id": "lagon-technical",
+          "kind": "technical",
+          "start": 58.92021326524937,
+          "end": 246.60106632624687,
+          "width": 12,
+          "length": 222.30247725039834,
+          "normalRoadLength": 187.6808530609975,
+          "savingPercent": -18.447073116269674,
+          "minTurnRadius": 39.367971900617974
+        },
+        {
+          "id": "lagon-shortcut",
+          "kind": "shortcut",
+          "start": 262.60106632624684,
+          "end": 501.20213265249373,
+          "width": 12,
+          "length": 201.76394456404208,
+          "normalRoadLength": 238.6010663262469,
+          "savingPercent": 15.438791757886039,
+          "minTurnRadius": 38.09676348400331
+        }
+      ],
+      "sectorSeconds": {
+        "balanced": {
+          "normal": 9.47,
+          "shortcut": 8.17
+        },
+        "heavy": {
+          "normal": 9.53,
+          "shortcut": 8.2
+        }
+      }
+    },
+    {
+      "id": "canyon",
+      "name": "Canyon solaire",
+      "length": 715.7091556236256,
+      "width": 15,
+      "description": "Des virages resserrés entre les falaises. Évitez la boue et préparez vos mini-turbos avant les lignes droites.",
+      "branches": [
+        {
+          "id": "canyon-detour",
+          "kind": "detour",
+          "start": 365.8545778118128,
+          "end": 648.0667259883235,
+          "width": 12,
+          "length": 311.3780094340196,
+          "normalRoadLength": 282.21214817651065,
+          "savingPercent": -10.334729190774251,
+          "minTurnRadius": 53.88902976880855
+        },
+        {
+          "id": "canyon-technical",
+          "kind": "technical",
+          "start": 127.28485927060427,
+          "end": 290.21214817651065,
+          "width": 12,
+          "length": 154.1152019258412,
+          "normalRoadLength": 162.92728890590638,
+          "savingPercent": 5.408601001858148,
+          "minTurnRadius": 85.59013973036245
+        },
+        {
+          "id": "canyon-shortcut",
+          "kind": "shortcut",
+          "start": 365.8545778118128,
+          "end": 648.0667259883235,
+          "width": 12,
+          "length": 238.65278790607695,
+          "normalRoadLength": 282.21214817651065,
+          "savingPercent": 15.434969951466915,
+          "minTurnRadius": 43.565642439111855
+        }
+      ],
+      "sectorSeconds": {
+        "balanced": {
+          "normal": 11.6,
+          "shortcut": 9.47
+        },
+        "heavy": {
+          "normal": 11.5,
+          "shortcut": 9.53
+        }
+      }
+    },
+    {
+      "id": "glacier",
+      "name": "Banquise boréale",
+      "length": 697.2767947039456,
+      "width": 18,
+      "description": "La glace conserve votre élan et ralentit les changements de direction. Anticipez les virages et freinez avant les plaques bleues.",
+      "branches": [
+        {
+          "id": "glacier-detour",
+          "kind": "detour",
+          "start": 356.6383973519728,
+          "end": 631.1703951452835,
+          "width": 12,
+          "length": 307.5167903814084,
+          "normalRoadLength": 274.53199779331067,
+          "savingPercent": -12.014917333217845,
+          "minTurnRadius": 30.76722146249293
+        },
+        {
+          "id": "glacier-technical",
+          "kind": "technical",
+          "start": 66.10639955866213,
+          "end": 282.53199779331067,
+          "width": 12,
+          "length": 247.6055105503332,
+          "normalRoadLength": 216.42559823464853,
+          "savingPercent": -14.406758059127277,
+          "minTurnRadius": 58.04658116609622
+        },
+        {
+          "id": "glacier-shortcut",
+          "kind": "shortcut",
+          "start": 356.6383973519728,
+          "end": 631.1703951452835,
+          "width": 12,
+          "length": 213.4352266099981,
+          "normalRoadLength": 274.53199779331067,
+          "savingPercent": 22.254881643818813,
+          "minTurnRadius": 46.85471469715474
+        }
+      ],
+      "sectorSeconds": {
+        "balanced": {
+          "normal": 10.9,
+          "shortcut": 8.57
+        },
+        "heavy": {
+          "normal": 10.93,
+          "shortcut": 8.6
+        }
+      }
+    },
+    {
+      "id": "neon",
+      "name": "Métropole néon",
+      "length": 730.8198666099337,
+      "width": 17,
+      "description": "Une chicane urbaine et trois bandes turbo. Changez de ligne pour enchaîner les accélérations et profiter de l’aspiration.",
+      "branches": [
+        {
+          "id": "neon-detour",
+          "kind": "detour",
+          "start": 129.8033111016556,
+          "end": 418.3115888557947,
+          "width": 12,
+          "length": 286.37869653688983,
+          "normalRoadLength": 288.5082777541391,
+          "savingPercent": 0.7381352222635584,
+          "minTurnRadius": 36.090723460598205
+        },
+        {
+          "id": "neon-technical",
+          "kind": "technical",
+          "start": 434.3115888557947,
+          "end": 661.9182110591058,
+          "width": 12,
+          "length": 255.8855374557571,
+          "normalRoadLength": 227.60662220331113,
+          "savingPercent": -12.424469454665354,
+          "minTurnRadius": 64.22857147954748
+        },
+        {
+          "id": "neon-shortcut",
+          "kind": "shortcut",
+          "start": 129.8033111016556,
+          "end": 418.3115888557947,
+          "width": 12,
+          "length": 206.5910642975748,
+          "normalRoadLength": 288.5082777541391,
+          "savingPercent": 28.393366767234486,
+          "minTurnRadius": 46.378410666525916
+        }
+      ],
+      "sectorSeconds": {
+        "balanced": {
+          "normal": 16.33,
+          "shortcut": 8.3
+        },
+        "heavy": {
+          "normal": 17.23,
+          "shortcut": 8.33
+        }
+      }
+    },
+    {
+      "id": "mangrove",
+      "name": "Mangrove sinueuse",
+      "length": 736.3532030821908,
+      "width": 16,
+      "description": "Une double courbe entre les marais. La boue alterne d’un bord à l’autre : gardez une ligne propre pour rejoindre les deux turbos.",
+      "branches": [
+        {
+          "id": "mangrove-detour",
+          "kind": "detour",
+          "start": 376.1766015410954,
+          "end": 666.9904361586749,
+          "width": 12,
+          "length": 314.8213991073247,
+          "normalRoadLength": 290.8138346175795,
+          "savingPercent": -8.25530343881855,
+          "minTurnRadius": 29.098051360015912
+        },
+        {
+          "id": "mangrove-technical",
+          "kind": "technical",
+          "start": 69.36276692351589,
+          "end": 237.4510676940636,
+          "width": 12,
+          "length": 141.72717147981248,
+          "normalRoadLength": 168.0883007705477,
+          "savingPercent": 15.682905454984642,
+          "minTurnRadius": 67.67672276396178
+        },
+        {
+          "id": "mangrove-shortcut",
+          "kind": "shortcut",
+          "start": 376.1766015410954,
+          "end": 666.9904361586749,
+          "width": 12,
+          "length": 208.2133433721968,
+          "normalRoadLength": 290.8138346175795,
+          "savingPercent": 28.403219315202954,
+          "minTurnRadius": 46.99223997132192
+        }
+      ],
+      "sectorSeconds": {
+        "balanced": {
+          "normal": 12.17,
+          "shortcut": 8.37
+        },
+        "heavy": {
+          "normal": 12,
+          "shortcut": 8.4
+        }
+      }
+    },
+    {
+      "id": "dunes",
+      "name": "Dunes de cuivre",
+      "length": 668.4861202145895,
+      "width": 15,
+      "description": "Deux longues lignes droites et quatre bandes turbo pour jouer l’aspiration. Les flaques de boue à la sortie des courbes punissent les trajectoires trop larges.",
+      "branches": [
+        {
+          "id": "dunes-detour",
+          "kind": "detour",
+          "start": 397.9502367918439,
+          "end": 604.7789435300404,
+          "width": 12,
+          "length": 241.54699789875082,
+          "normalRoadLength": 206.82870673819644,
+          "savingPercent": -16.786011820158375,
+          "minTurnRadius": 29.192798696162452
+        },
+        {
+          "id": "dunes-technical",
+          "kind": "technical",
+          "start": 230.8287067381965,
+          "end": 381.9502367918439,
+          "width": 12,
+          "length": 163.6099507563042,
+          "normalRoadLength": 151.1215300536474,
+          "savingPercent": -8.263826271626185,
+          "minTurnRadius": 56.35427492903147
+        },
+        {
+          "id": "dunes-shortcut",
+          "kind": "shortcut",
+          "start": 397.9502367918439,
+          "end": 604.7789435300404,
+          "width": 12,
+          "length": 163.16796164590681,
+          "normalRoadLength": 206.82870673819644,
+          "savingPercent": 21.10961567223614,
+          "minTurnRadius": 30.540636197833916
+        }
+      ],
+      "sectorSeconds": {
+        "balanced": {
+          "normal": 8.33,
+          "shortcut": 6.8
+        },
+        "heavy": {
+          "normal": 8.5,
+          "shortcut": 6.83
+        }
+      }
+    },
+    {
+      "id": "volcan",
+      "name": "Caldeira ardente",
+      "length": 1129.0626992614407,
+      "width": 22,
+      "description": "Un grand anneau autour du cratère, un viaduc au-dessus de la lave et un tremplin de basalte. Gardez votre vitesse sur les larges courbes.",
+      "branches": [
+        {
+          "id": "volcan-detour",
+          "kind": "detour",
+          "start": 384.3542330871469,
+          "end": 838.7970244460806,
+          "width": 14,
+          "length": 481.74861925674446,
+          "normalRoadLength": 454.44279135893373,
+          "savingPercent": -6.008639242831282,
+          "minTurnRadius": 90.7198929314995
+        },
+        {
+          "id": "volcan-technical",
+          "kind": "technical",
+          "start": 102.08855827178672,
+          "end": 368.3542330871469,
+          "width": 14,
+          "length": 298.7688694955523,
+          "normalRoadLength": 266.26567481536017,
+          "savingPercent": -12.207053989490447,
+          "minTurnRadius": 76.04126033253476
+        },
+        {
+          "id": "volcan-shortcut",
+          "kind": "shortcut",
+          "start": 384.3542330871469,
+          "end": 838.7970244460806,
+          "width": 14,
+          "length": 363.7104474463439,
+          "normalRoadLength": 454.44279135893373,
+          "savingPercent": 19.96562507709061,
+          "minTurnRadius": 41.78000577834849
+        }
+      ],
+      "sectorSeconds": {
+        "balanced": {
+          "normal": 17.23,
+          "shortcut": 13.97
+        },
+        "heavy": {
+          "normal": 17.3,
+          "shortcut": 14.03
+        }
+      }
+    },
+    {
+      "id": "forest",
+      "name": "Forêt des géants",
+      "length": 1166.749308995536,
+      "width": 22,
+      "description": "De longues courbes entre des séquoias, un pont de bois au-dessus du ruisseau et un saut de racines. Les bandes boueuses laissent une trajectoire sèche.",
+      "branches": [
+        {
+          "id": "forest-detour",
+          "kind": "detour",
+          "start": 202.45821816592266,
+          "end": 672.6037635807294,
+          "width": 14,
+          "length": 488.0045412397224,
+          "normalRoadLength": 470.14554541480675,
+          "savingPercent": -3.7986100259992384,
+          "minTurnRadius": 99.644984216111
+        },
+        {
+          "id": "forest-technical",
+          "kind": "technical",
+          "start": 688.6037635807294,
+          "end": 1061.5201999125748,
+          "width": 14,
+          "length": 404.46094282276397,
+          "normalRoadLength": 372.9164363318454,
+          "savingPercent": -8.458867300460904,
+          "minTurnRadius": 113.90017179300615
+        },
+        {
+          "id": "forest-shortcut",
+          "kind": "shortcut",
+          "start": 202.45821816592266,
+          "end": 672.6037635807294,
+          "width": 14,
+          "length": 372.2034912592992,
+          "normalRoadLength": 470.14554541480675,
+          "savingPercent": 20.832283770570204,
+          "minTurnRadius": 48.69305811796234
+        }
+      ],
+      "sectorSeconds": {
+        "balanced": {
+          "normal": 17.8,
+          "shortcut": 14.27
+        },
+        "heavy": {
+          "normal": 17.87,
+          "shortcut": 14.33
+        }
+      }
+    },
+    {
+      "id": "harbor",
+      "name": "Port des cargos",
+      "length": 1172.8249338274459,
+      "width": 24,
+      "description": "Les grands quais offrent de l’espace pour dépasser. Traversez le pont métallique, longez les grues et sautez le tremplin de chargement.",
+      "branches": [
+        {
+          "id": "harbor-detour",
+          "kind": "detour",
+          "start": 105.73541115228716,
+          "end": 578.4124669137229,
+          "width": 14,
+          "length": 490.86573928174954,
+          "normalRoadLength": 472.6770557614358,
+          "savingPercent": -3.848014896981544,
+          "minTurnRadius": 81.41378543089527
+        },
+        {
+          "id": "harbor-technical",
+          "kind": "technical",
+          "start": 692.1478780660101,
+          "end": 1067.0895226751588,
+          "width": 14,
+          "length": 412.2846033393292,
+          "normalRoadLength": 374.94164460914874,
+          "savingPercent": -9.95967219621814,
+          "minTurnRadius": 99.67412143945764
+        },
+        {
+          "id": "harbor-shortcut",
+          "kind": "shortcut",
+          "start": 105.73541115228716,
+          "end": 578.4124669137229,
+          "width": 14,
+          "length": 368.322814928299,
+          "normalRoadLength": 472.6770557614358,
+          "savingPercent": 22.077280790588084,
+          "minTurnRadius": 44.82219667710134
+        }
+      ],
+      "sectorSeconds": {
+        "balanced": {
+          "normal": 17.9,
+          "shortcut": 14.17
+        },
+        "heavy": {
+          "normal": 17.97,
+          "shortcut": 14.23
+        }
+      }
+    },
+    {
+      "id": "sky",
+      "name": "Archipel céleste",
+      "length": 1199.1951618746716,
+      "width": 24,
+      "description": "Des îlots flottants reliés par deux ponts panoramiques, des nuages et un grand tremplin. De larges virages permettent de préparer chaque atterrissage.",
+      "branches": [
+        {
+          "id": "sky-detour",
+          "kind": "detour",
+          "start": 407.73172062489056,
+          "end": 891.3963714060037,
+          "width": 14,
+          "length": 517.2727111887729,
+          "normalRoadLength": 483.66465078111315,
+          "savingPercent": -6.948628632128284,
+          "minTurnRadius": 121.81684364274774
+        },
+        {
+          "id": "sky-technical",
+          "kind": "technical",
+          "start": 107.93293015622264,
+          "end": 391.73172062489056,
+          "width": 14,
+          "length": 316.948290430179,
+          "normalRoadLength": 283.7987904686679,
+          "savingPercent": -11.680634687261238,
+          "minTurnRadius": 74.94965521993416
+        },
+        {
+          "id": "sky-shortcut",
+          "kind": "shortcut",
+          "start": 407.73172062489056,
+          "end": 891.3963714060037,
+          "width": 14,
+          "length": 405.12219503476996,
+          "normalRoadLength": 483.66465078111315,
+          "savingPercent": 16.239031655403803,
+          "minTurnRadius": 51.585739251938996
+        }
+      ],
+      "sectorSeconds": {
+        "balanced": {
+          "normal": 18.27,
+          "shortcut": 15.47
+        },
+        "heavy": {
+          "normal": 18.33,
+          "shortcut": 15.53
+        }
+      }
+    },
+    {
+      "id": "foundry",
+      "name": "Fonderie des pistons",
+      "length": 1216.8296733868365,
+      "width": 22,
+      "description": "Un détour ample autour des hauts-fourneaux, une passerelle industrielle et une rampe d’essai. Les plaques de refroidissement glissent ; visez les lignes sèches.",
+      "branches": [
+        {
+          "id": "foundry-detour",
+          "kind": "detour",
+          "start": 413.6098911289455,
+          "end": 904.6222550401275,
+          "width": 14,
+          "length": 485.91297189063147,
+          "normalRoadLength": 491.012363911182,
+          "savingPercent": 1.038546561217124,
+          "minTurnRadius": 89.99998558916504
+        },
+        {
+          "id": "foundry-technical",
+          "kind": "technical",
+          "start": 109.40247278223637,
+          "end": 397.6098911289455,
+          "width": 14,
+          "length": 318.983260076423,
+          "normalRoadLength": 288.2074183467091,
+          "savingPercent": -10.678365569581217,
+          "minTurnRadius": 79.95525969733113
+        },
+        {
+          "id": "foundry-shortcut",
+          "kind": "shortcut",
+          "start": 413.6098911289455,
+          "end": 904.6222550401275,
+          "width": 14,
+          "length": 372.39479980115925,
+          "normalRoadLength": 491.012363911182,
+          "savingPercent": 24.15775504412332,
+          "minTurnRadius": 50.82572313858411
+        }
+      ],
+      "sectorSeconds": {
+        "balanced": {
+          "normal": 18.63,
+          "shortcut": 14.27
+        },
+        "heavy": {
+          "normal": 18.73,
+          "shortcut": 14.33
+        }
+      }
+    },
+    {
+      "id": "castle",
+      "name": "Citadelle royale",
+      "length": 1196.3608143458664,
+      "width": 24,
+      "description": "Un large tour des remparts, un pont de pierre sur les douves et un saut de parade. Les grandes courbes invitent aux dépassements et aux mini-turbos.",
+      "branches": [
+        {
+          "id": "castle-detour",
+          "kind": "detour",
+          "start": 406.7869381152888,
+          "end": 889.2706107593998,
+          "width": 14,
+          "length": 499.7097189978093,
+          "normalRoadLength": 482.483672644111,
+          "savingPercent": -3.570285862585987,
+          "minTurnRadius": 103.83993983673646
+        },
+        {
+          "id": "castle-technical",
+          "kind": "technical",
+          "start": 107.6967345288222,
+          "end": 390.7869381152888,
+          "width": 14,
+          "length": 312.210459463027,
+          "normalRoadLength": 283.0902035864666,
+          "savingPercent": -10.286564320360148,
+          "minTurnRadius": 66.24710649504416
+        },
+        {
+          "id": "castle-shortcut",
+          "kind": "shortcut",
+          "start": 406.7869381152888,
+          "end": 889.2706107593998,
+          "width": 14,
+          "length": 383.0920428880391,
+          "normalRoadLength": 482.483672644111,
+          "savingPercent": 20.59999858884034,
+          "minTurnRadius": 52.24481449587951
+        }
+      ],
+      "sectorSeconds": {
+        "balanced": {
+          "normal": 18.23,
+          "shortcut": 14.67
+        },
+        "heavy": {
+          "normal": 18.33,
+          "shortcut": 14.73
+        }
+      }
+    }
+  ]
+}

@@ -324,7 +324,7 @@ function renderPlayers(now: number): Kart[] {
     if (kart.id === room?.sessionId && predicted && connected) return { ...predicted, x: predicted.x + correction.x, z: predicted.z + correction.z };
     const before = a?.world.players.find(p => p.id === kart.id), after = b?.world.players.find(p => p.id === kart.id);
     if (!before || !after) return kart;
-    return { ...after, x: before.x + (after.x - before.x) * t, z: before.z + (after.z - before.z) * t, angle: before.angle + Math.atan2(Math.sin(after.angle - before.angle), Math.cos(after.angle - before.angle)) * t };
+    return { ...after, elevation: before.elevation + (after.elevation - before.elevation) * t, x: before.x + (after.x - before.x) * t, z: before.z + (after.z - before.z) * t, angle: before.angle + Math.atan2(Math.sin(after.angle - before.angle), Math.cos(after.angle - before.angle)) * t };
   });
 }
 
@@ -430,22 +430,52 @@ const mapX = (x: number) => 120 + (x - mapCenterX) * mapScale;
 const mapZ = (z: number) => 90 + (z - mapCenterZ) * mapScale;
 function drawMap(players: Kart[]) {
   const track = getTrack(world?.trackId ?? chosenTrack);
-  if (track.id !== mapTrackId) {
-    mapTrackId = track.id;
-    const minX = Math.min(...track.points.map(p => p.x)), maxX = Math.max(...track.points.map(p => p.x));
-    const minZ = Math.min(...track.points.map(p => p.z)), maxZ = Math.max(...track.points.map(p => p.z));
+  const event = getTrackEvent(track.id, world?.eventStage ?? 0, world?.eventLevel ?? 0);
+  const mapKey = track.id + ':' + event.level;
+  if (mapKey !== mapTrackId) {
+    mapTrackId = mapKey;
+    // Include even the future shortcut, so the map never jumps or crops a route
+    // when a shared event opens it during the race.
+    const points = [...track.points, ...event.branches.flatMap(route => route.points)];
+    const minX = Math.min(...points.map(p => p.x)), maxX = Math.max(...points.map(p => p.x));
+    const minZ = Math.min(...points.map(p => p.z)), maxZ = Math.max(...points.map(p => p.z));
     mapCenterX = (minX + maxX) / 2; mapCenterZ = (minZ + maxZ) / 2;
     mapScale = Math.min(204 / (maxX - minX), 136 / (maxZ - minZ));
   }
   mapContext.clearRect(0, 0, 240, 180);
   mapContext.beginPath(); track.points.forEach((point, i) => i ? mapContext.lineTo(mapX(point.x), mapZ(point.z)) : mapContext.moveTo(mapX(point.x), mapZ(point.z))); mapContext.closePath();
-  mapContext.lineJoin = 'round'; mapContext.strokeStyle = 'rgba(240,247,233,.3)'; mapContext.lineWidth = 11; mapContext.stroke();
-  mapContext.strokeStyle = '#eff4dc'; mapContext.lineWidth = 2; mapContext.stroke();
+  mapContext.lineJoin = 'round'; mapContext.lineCap = 'round'; mapContext.strokeStyle = 'rgba(240,247,233,.3)'; mapContext.lineWidth = Math.max(4, track.width * mapScale); mapContext.stroke();
+  mapContext.strokeStyle = '#eff4dc'; mapContext.lineWidth = 1.7; mapContext.stroke();
   for (const zone of track.zones) {
     mapContext.beginPath();
     for (let i = 0; i <= 8; i++) { const p = trackPoint(zone.start + (zone.end - zone.start) * i / 8, track.id); if (i) mapContext.lineTo(mapX(p.x), mapZ(p.z)); else mapContext.moveTo(mapX(p.x), mapZ(p.z)); }
     mapContext.lineWidth = 4; mapContext.strokeStyle = zone.kind === 'boost' ? '#ffd477' : zone.kind === 'ice' ? '#80ecf4' : '#b07d62'; mapContext.stroke();
   }
+  for (const route of event.branches) {
+    const color = route.kind === 'detour' ? '#ffe28c' : route.kind === 'shortcut' ? '#83f6b7' : '#a4e6ff';
+    mapContext.beginPath();
+    route.points.forEach((point, index) => index ? mapContext.lineTo(mapX(point.x), mapZ(point.z)) : mapContext.moveTo(mapX(point.x), mapZ(point.z)));
+    mapContext.strokeStyle = route.open ? color : 'rgba(164,181,181,.65)';
+    mapContext.lineWidth = route.open ? Math.max(2.8, route.width * mapScale) : 1.5;
+    mapContext.setLineDash(route.open ? [] : [3, 4]); mapContext.stroke(); mapContext.setLineDash([]);
+    if (!route.open) {
+      const midpoint = route.points[Math.floor(route.points.length / 2)]!;
+      mapContext.font = 'bold 9px system-ui'; mapContext.fillStyle = '#d3ded7'; mapContext.fillText('T3', mapX(midpoint.x) + 4, mapZ(midpoint.z) - 4);
+    }
+  }
+  for (const blocker of event.blockers) {
+    const acrossX = Math.cos(blocker.angle) * blocker.halfWidth, acrossZ = -Math.sin(blocker.angle) * blocker.halfWidth;
+    mapContext.beginPath(); mapContext.moveTo(mapX(blocker.x - acrossX), mapZ(blocker.z - acrossZ));
+    mapContext.lineTo(mapX(blocker.x + acrossX), mapZ(blocker.z + acrossZ));
+    mapContext.strokeStyle = '#ff7773'; mapContext.lineWidth = 4; mapContext.stroke();
+    mapContext.font = 'bold 12px system-ui'; mapContext.fillStyle = '#ffb4a2'; mapContext.fillText('×', mapX(blocker.x) - 4, mapZ(blocker.z) + 4);
+  }
+  if (event.branches.length) {
+    mapContext.font = '8px system-ui'; mapContext.fillStyle = '#ffe28c'; mapContext.fillText('Déviation', 15, 174);
+    mapContext.fillStyle = '#83f6b7'; mapContext.fillText('Raccourci', 81, 174);
+    mapContext.fillStyle = '#a4e6ff'; mapContext.fillText('Turbo', 149, 174);
+  }
+  mapCanvas.setAttribute('aria-label', 'Carte du circuit ' + track.name + '. ' + event.title);
   for (const p of players) {
     if (p.spectator || p.abandoned) continue;
     mapContext.beginPath(); mapContext.arc(mapX(p.x), mapZ(p.z), p.id === room?.sessionId ? 5 : 3.5, 0, Math.PI * 2); mapContext.fillStyle = p.color; mapContext.fill();

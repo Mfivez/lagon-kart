@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import { CHAMPIONSHIPS, careerLevel, rankForMmr, seasonId, type ReplayData } from '../shared/progression.js';
 import { MatchmakingQueue, ReplayRecorder, calculateMmr } from '../server/competitive.js';
 import { PlayerStore, validateReplay } from '../server/player-store.js';
+import { TRACKS } from '../shared/track.js';
 
 const now = Date.UTC(2026, 9, 6, 12);
 async function fixture(t: test.TestContext, options = {}) {
@@ -19,9 +20,9 @@ function replay(id = 'test-replay', createdAt = now, finishTime = 60, ranked = f
       frames: [[0, 0, 0, 0, 0, 0, 0], [finishTime * 1000, 100, 200, 1200, 0, 3, 16]] }] };
 }
 
-test('championships introduce all six tracks, gate garage tiers, and ranks/seasons have stable boundaries', () => {
+test('six championships introduce all twelve tracks, gate garage tiers, and ranks/seasons have stable boundaries', () => {
   assert.equal(CHAMPIONSHIPS.length, 6);
-  assert.equal(new Set(CHAMPIONSHIPS.flatMap(cup => [...cup.tracks])).size, 6);
+  assert.deepEqual([...new Set(CHAMPIONSHIPS.flatMap(cup => [...cup.tracks]))].sort(), TRACKS.map(track => track.id).sort());
   assert.equal(careerLevel([]), 0); assert.equal(careerLevel(['discovery']), 1);
   assert.equal(careerLevel(['discovery', 'weather']), 2); assert.equal(careerLevel(['metamorphosis']), 3);
   assert.equal(rankForMmr(899), 'Bronze'); assert.equal(rankForMmr(900), 'Silver');
@@ -184,4 +185,17 @@ test('corrupt storage fails without erasing the file and failed atomic writes ro
   await rm(directory, { recursive: true });
   await assert.rejects(store.updateName(account.profile.id, 'Perdu'));
   assert.equal(store.getProfile(account.profile.id)!.name, 'Pilote');
+});
+
+test('replay retention stays strictly bounded when twelve tracks have separate open and ranked records', async t => {
+  const { store, directory } = await fixture(t, { maxReplays: 16 });
+  for (const [index, track] of TRACKS.entries()) {
+    await store.saveReplay({ ...replay(`open-${track.id}`, now + index, 50), trackId: track.id });
+    await store.saveReplay({ ...replay(`ranked-${track.id}`, now + index + 50, 60, true), trackId: track.id });
+  }
+  assert.equal(store.listReplays(undefined, 100).length, 16);
+  assert.equal((await readdir(join(directory, 'replays'))).length, 16);
+  for (const track of TRACKS) assert.ok(await store.bestGhost(track.id, true), `ranked record retained for ${track.id}`);
+  const restarted = await PlayerStore.open(directory, { now: () => now, maxReplays: 16 });
+  assert.equal(restarted.listReplays(undefined, 100).length, 16);
 });

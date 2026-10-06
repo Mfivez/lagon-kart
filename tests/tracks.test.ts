@@ -4,6 +4,7 @@ import { TRACKS, TRACK_IDS, TRACK, TRACK_LENGTH, ROAD_WIDTH, CHECKPOINTS, COLORS
   getTrack, isTrackId, nearestTrack, trackPoint, trackSurface, spawnPoint,
   createKart, createWorld, startRace, stepKart, stepWorld, resetKart, neutralInput,
   type Kart, type TrackDefinition, type TrackZone, type Vec2, type World } from '../shared/game.js';
+import { trackElevation, trackSlope, trackJumpAt } from '../shared/track.js';
 import { autopilot } from '../shared/autopilot.js';
 
 const dt = 1 / 30;
@@ -22,8 +23,8 @@ function zonePoint(track: TrackDefinition, zone: TrackZone) {
 }
 function orient(a: Vec2, b: Vec2, c: Vec2) { return (b.x - a.x) * (c.z - a.z) - (b.z - a.z) * (c.x - a.x); }
 
-test('six circuits expose bounded zones, closed nonintersecting routes and consistent arc coordinates', () => {
-  assert.deepEqual(TRACKS.map(track => track.id), ['lagon', 'canyon', 'glacier', 'neon', 'mangrove', 'dunes']);
+test('twelve circuits expose bounded zones, closed nonintersecting routes and consistent arc coordinates', () => {
+  assert.deepEqual(TRACKS.map(track => track.id), ['lagon', 'canyon', 'glacier', 'neon', 'mangrove', 'dunes', 'volcan', 'forest', 'harbor', 'sky', 'foundry', 'castle']);
   assert.deepEqual(TRACKS.map(track => track.id), TRACK_IDS);
   assert.equal(TRACK, getTrack('lagon').points);
   assert.equal(TRACK_LENGTH, getTrack('lagon').length);
@@ -33,8 +34,9 @@ test('six circuits expose bounded zones, closed nonintersecting routes and consi
   assert.equal(getTrack('missing').id, 'lagon');
   for (const track of TRACKS) {
     assert.equal(isTrackId(track.id), true);
-    assert.ok(track.length > 500 && track.length < 750, track.id);
-    assert.ok(track.width >= 15 && track.width <= 18);
+    const extended = track.elevations.length > 0;
+    assert.ok(extended ? track.length > 900 && track.length < 1400 : track.length > 500 && track.length < 750, track.id);
+    assert.ok(extended ? track.width >= 22 && track.width <= 24 : track.width >= 15 && track.width <= 18);
     assert.equal(track.checkpoints.length, 12);
     assert.ok(Math.hypot(trackPoint(0, track.id).x - trackPoint(track.length, track.id).x,
       trackPoint(0, track.id).z - trackPoint(track.length, track.id).z) < 1e-6);
@@ -64,7 +66,7 @@ test('six circuits expose bounded zones, closed nonintersecting routes and consi
 });
 
 test('new circuits leave space between separate bends and a dry route beside each mud patch', () => {
-  for (const id of ['mangrove', 'dunes']) {
+  for (const id of ['mangrove', 'dunes', 'volcan', 'forest', 'harbor', 'sky', 'foundry', 'castle']) {
     const track = getTrack(id);
     const samples = Array.from({ length: 240 }, (_, i) => trackPoint(i * track.length / 240, id));
     for (let i = 0; i < samples.length; i++) for (let j = i + 1; j < samples.length; j++) {
@@ -83,11 +85,11 @@ test('new circuits leave space between separate bends and a dry route beside eac
 for (const track of TRACKS) {
   test(track.id + ': eight ordinary input drivers finish three laps with items, zones and collisions', t => {
     const world = racing(track.id, 8);
-    for (let tick = 0; tick < 30 * 150 && world.phase === 'racing'; tick++)
+    for (let tick = 0; tick < 30 * (track.elevations.length ? 220 : 150) && world.phase === 'racing'; tick++)
       stepWorld(world, new Map(world.players.map(kart => [kart.id, autopilot(kart, tick, true)])), dt);
     assert.equal(world.phase, 'finished');
     assert.equal(world.players.filter(kart => kart.finished && kart.lap === TOTAL_LAPS).length, 8);
-    assert.ok(world.raceTime < 100, track.id + ': ' + world.raceTime);
+    assert.ok(world.raceTime < (track.elevations.length ? 180 : 100), track.id + ': ' + world.raceTime);
     assert.equal(new Set(world.players.map(kart => kart.rank)).size, 8);
     assert.ok(world.players.every(kart => kart.trackId === track.id));
     t.diagnostic(track.id + ': 8/8 finished in ' + world.raceTime.toFixed(2) + ' simulation seconds');
@@ -224,4 +226,54 @@ test('starting a new circuit resets positions, pickups, surfaces and boosts but 
   assert.equal(kart.trackId, 'neon'); assert.equal(kart.boost, 0); assert.deepEqual(kart.padLaps, {});
   assert.deepEqual({ x: kart.x, z: kart.z, angle: kart.angle }, spawnPoint(0, 'neon'));
   assert.ok(world.pickups.every(pickup => nearestTrack(pickup.x, pickup.z, 'neon').distance < 4));
+});
+
+
+test('six additional themes contain gentle bridges, genuine ramp profiles and clear landing corridors', () => {
+  const additions = TRACKS.slice(6);
+  assert.deepEqual(additions.map(track => track.theme), ['volcano', 'forest', 'harbor', 'sky', 'foundry', 'castle']);
+  assert.ok(TRACKS.slice(0, 6).every(track => track.elevations.length === 0));
+  for (const track of additions) {
+    assert.ok(track.elevations.some(feature => feature.kind === 'bridge'));
+    assert.equal(track.elevations.filter(feature => feature.kind === 'jump').length, 1);
+    assert.equal(trackElevation(0, track.id), 0);
+    assert.equal(trackElevation(track.length, track.id), 0);
+    assert.equal(trackElevation(-1, track.id), 0);
+    const ordered = [...track.elevations].sort((a, b) => a.start - b.start);
+    for (let i = 0; i < ordered.length; i++) {
+      const feature = ordered[i]!;
+      assert.ok(feature.start > 50 && feature.end < track.length - 55);
+      if (i) assert.ok(feature.start > ordered[i - 1]!.end + 8, track.id + ': structures overlap');
+      assert.ok(feature.height > 0 && feature.end > feature.start);
+      assert.ok(Math.abs(trackElevation(feature.start, track.id)) < 1e-8);
+      if (feature.kind === 'bridge') {
+        assert.ok(Math.abs(trackElevation(feature.end, track.id)) < 1e-8);
+        assert.ok(Math.abs(trackElevation((feature.start + feature.end) / 2, track.id) - feature.height) < 1e-6);
+        for (let progress = feature.start; progress <= feature.end; progress += .4) {
+          assert.ok(Math.abs(trackSlope(progress, track.id)) <= .151, track.id + ': bridge steeper than 15 percent');
+          assert.ok(Math.abs(trackElevation(progress + .01, track.id) - trackElevation(progress, track.id)) < .0016);
+        }
+      } else {
+        assert.ok(Math.abs(trackElevation(feature.end, track.id) - feature.height) < 1e-7);
+        assert.equal(trackElevation(feature.end + .05, track.id), 0);
+        assert.ok(trackSlope(feature.start + 1, track.id) < .15);
+        assert.ok(feature.launchSpeed! >= 6 && feature.launchSpeed! <= 9);
+        assert.equal(trackJumpAt(feature.end - 1, track.id)?.id, feature.id);
+        assert.equal(trackJumpAt(feature.end + 1, track.id), undefined);
+        const launch = trackPoint(feature.end, track.id);
+        for (let distance = 1; distance <= 55; distance++) {
+          const point = trackPoint(feature.end + distance, track.id);
+          const sideways = Math.abs((point.x - launch.x) * Math.cos(launch.angle) - (point.z - launch.z) * Math.sin(launch.angle));
+          assert.ok(sideways < track.width / 2 - 4, track.id + ': landing corridor requires a sharper turn');
+          assert.equal(trackElevation(feature.end + distance, track.id), 0);
+        }
+      }
+    }
+    // The added circuits are intentionally broad and avoid the tight bends of the old lot.
+    for (let progress = 0; progress < track.length; progress += 2) {
+      const before = trackPoint(progress - 4, track.id), after = trackPoint(progress + 4, track.id);
+      const turn = Math.abs(Math.atan2(Math.sin(after.angle - before.angle), Math.cos(after.angle - before.angle)));
+      assert.ok(turn < .45, track.id + ': unexpectedly tight corner');
+    }
+  }
 });

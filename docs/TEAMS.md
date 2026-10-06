@@ -50,9 +50,8 @@ classements de joueurs. Le serveur exclut ces pilotes des résultats persistés.
 
 ## Tests exécutés
 
-`node --import tsx --test tests/teams.test.ts tests/progression.test.ts` :
-**21 tests réussis**, dont dix consacrés aux équipes et CPU. Huit CPU terminent
-trois tours sur chacun des six circuits au niveau maximal des événements,
+`node --import tsx --test tests/teams.test.ts` : **16 tests réussis**. Huit CPU terminent
+trois tours sur chacun des douze circuits au niveau maximal des événements,
 avec des commandes ordinaires et les objets actifs. Les tests couvrent aussi
 l’équilibrage 4 contre 4, les scores, les égalités, les abandons, l’absence de
 mutation des karts et les choix d’objets face aux alliés et adversaires.

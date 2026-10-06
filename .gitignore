@@ -10,3 +10,5 @@ test-results/
 playwright-report/
 *.log
 data/
+__pycache__/
+*.pyc

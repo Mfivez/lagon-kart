@@ -8,6 +8,7 @@ import { createGameServer } from '../server/app.js';
 import { playerStore } from '../server/career.js';
 import type { RaceRoom } from '../server/RaceRoom.js';
 import { CHAMPIONSHIPS, type PlayerProfile } from '../shared/progression.js';
+import { TRACKS } from '../shared/track.js';
 import type { World } from '../shared/game.js';
 
 // Private application server + real built client. Never accepts BASE_URL and
@@ -17,7 +18,7 @@ import type { World } from '../shared/game.js';
 const dataDirectory = await mkdtemp(join(tmpdir(), 'lagon-feature-browser-'));
 const previousDirectory = process.env.PLAYER_DATA_DIR;
 process.env.PLAYER_DATA_DIR = dataDirectory;
-const destination = resolve('docs/feature-demo'); await mkdir(destination, { recursive: true });
+const destination = resolve('docs/feature-demo' + (TRACKS.length > 6 ? '-12' : '')); await mkdir(destination, { recursive: true });
 const { gameServer, httpServer } = createGameServer(resolve('dist/client'));
 await gameServer.listen(0, '127.0.0.1');
 const address = httpServer.address(); assert.ok(address && typeof address !== 'string');
@@ -94,18 +95,19 @@ try {
     page.on('response', response => {
       if (/\/(assets|models|audio)\//.test(response.url()) && response.status() >= 400) errors.push(`HTTP ${response.status()} ${response.url()}`);
     });
-    await page.goto(origin); await ready(page);
+    await page.goto(origin, { waitUntil: 'domcontentloaded', timeout: 60000 }); await ready(page);
   }
   const [host, guest] = pages as [Page, Page];
-  assert.equal(await host.locator('#track-cards [data-track]').count(), 6);
+  assert.equal(await host.locator('#track-cards [data-track]').count(), TRACKS.length);
   assert.equal(await host.locator('#swatches [data-color]').count(), 8);
   evidence.trackIds = await host.locator('#track-cards [data-track]').evaluateAll(nodes => nodes.map(node => (node as HTMLElement).dataset.track));
-  for (const trackId of ['mangrove', 'dunes', 'lagon']) {
+  assert.deepEqual(evidence.trackIds, TRACKS.map(track => track.id));
+  for (const trackId of [...TRACKS.slice(4).map(track => track.id), 'lagon']) {
     await host.locator(`#track-cards [data-track="${trackId}"]`).click();
     assert.equal(await host.locator(`#track-cards [data-track="${trackId}"]`).getAttribute('aria-pressed'), 'true');
   }
-  await capture(host, 'home-six-tracks');
-  record('Accueil : six circuits sélectionnables, dont Mangrove et Dunes, et huit couleurs');
+  await capture(host, `home-${TRACKS.length}-tracks`);
+  record(`Accueil : ${TRACKS.length} circuits sélectionnables, toutes les nouvelles pistes parcourues dans le sélecteur, et huit couleurs`);
 
   const choices = [{ name: 'Démo Reine', model: 'sprint', character: 'queen', colorIndex: 1 },
     { name: 'Démo Obama', model: 'retro', character: 'obama', colorIndex: 2 }];
@@ -153,7 +155,7 @@ try {
   await host.locator('#garage-close').click();
   const beforeReload = await state(host), profileBeforeReload = await profile(host);
   await until(async () => (await state(guest)).world!.players.some(kart => kart.id === beforeReload.sessionId && kart.modelId === 'zsky' && kart.characterId === 'trump'), 'modification propagée');
-  await host.reload(); await ready(host);
+  await host.reload({ waitUntil: 'domcontentloaded', timeout: 60000 }); await ready(host);
   await until(async () => { const view = await state(host); return view.connected && view.world?.phase === 'lobby'; }, 'reconnexion après rechargement');
   const afterReload = await state(host);
   assert.equal(afterReload.sessionId, beforeReload.sessionId);
@@ -285,7 +287,7 @@ try {
   assert.ok(Number(await replayRange.inputValue()) > 0);
   await capture(host, 'replay-private-race');
   await host.locator('.replay-dialog [data-close]').click();
-  await host.reload(); await ready(host);
+  await host.reload({ waitUntil: 'domcontentloaded', timeout: 60000 }); await ready(host);
   const finalProfile = await profile(host);
   assert.equal(finalProfile.id, careerPlayer.id); assert.equal(finalProfile.careerLevel, 3); assert.equal(finalProfile.completedChampionships.length, 6);
   await host.locator('#garage-button').click(); await host.locator('#garage-dialog').waitFor({ state: 'visible' });

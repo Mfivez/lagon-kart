@@ -9,6 +9,9 @@ export const trackFeatures: Record<string, string> = {
   lagon: 'Courbes douces · Premiers turbos', canyon: 'Virages serrés · Boue',
   glacier: 'Glissades · Trajectoires larges', neon: 'Chicanes · Pistes turbo',
   mangrove: 'Courbes en S · Boue alternée', dunes: 'Longues lignes droites · Quatre turbos',
+  volcan: 'Pont de lave · Tremplin basaltique', forest: 'Pont des cimes · Saut forestier',
+  harbor: 'Pont des cargos · Rampe de quai', sky: 'Viaduc céleste · Saut des nuages',
+  foundry: 'Passerelle industrielle · Tremplin', castle: 'Pont royal · Saut des remparts',
 };
 export function trackOutline(track: TrackDefinition) {
   const minX = Math.min(...track.points.map(point => point.x)), maxX = Math.max(...track.points.map(point => point.x));
@@ -18,7 +21,7 @@ export function trackOutline(track: TrackDefinition) {
   return `<svg viewBox="0 0 120 64" aria-hidden="true"><path d="${path}" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/></svg>`;
 }
 export function trackCards(selected: string) {
-  return TRACKS.map((track, index) => `<button class="track-card ${track.id === selected ? 'selected' : ''}" data-track="${track.id}" aria-pressed="${track.id === selected}" style="--track-accent:${track.palette.accent}"><span class="track-card-number">0${index + 1}</span>${trackOutline(track)}<strong>${escape(track.name)}</strong><small>${escape(track.difficulty)}</small></button>`).join('');
+  return TRACKS.map((track, index) => `<button class="track-card ${track.id === selected ? 'selected' : ''}" data-track="${track.id}" aria-pressed="${track.id === selected}" style="--track-accent:${track.palette.accent}"><span class="track-card-number">${String(index + 1).padStart(2, '0')}</span>${trackOutline(track)}<strong>${escape(track.name)}</strong><small>${escape(track.difficulty)}</small></button>`).join('');
 }
 export function standingsTable(entries: TournamentEntry[], me: string, final = false) {
   return `<div class="standings-heading"><span>${final ? 'CLASSEMENT FINAL DU TOURNOI' : 'CLASSEMENT DU TOURNOI'}</span><span>POINTS</span></div>${entries.map(entry => `<div class="standing-row ${entry.id === me ? 'is-you' : ''}"><b>${entry.rank}</b><i style="background:${escape(entry.color)}"></i><span>${escape(entry.name)}${entry.id === me ? '<small> VOUS</small>' : ''}</span><strong>${entry.points}<small> pts</small></strong></div>`).join('')}<p class="score-note" title="À égalité : victoires, courses terminées, puis temps cumulé.">15 · 12 · 10 · 8 · 6 · 4 · 2 · 1 points à l’arrivée. Abandon : 0.</p>`;

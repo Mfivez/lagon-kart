@@ -7,7 +7,7 @@ export interface BranchPoint extends Vec2 { progress: number; angle: number }
 export interface EventCheckpointGate extends BranchPoint { width: number; branchId: string }
 export interface TrackBranch {
   id: string; name: string; kind: BranchKind; start: number; end: number;
-  width: number; length: number; points: BranchPoint[]; open: boolean;
+  width: number; length: number; minTurnRadius: number; points: BranchPoint[]; open: boolean;
 }
 export interface TrackBlocker extends Vec2 {
   id: string; angle: number; halfLength: number; halfWidth: number;
@@ -25,47 +25,99 @@ const events = new Map<string, TrackEventInfo>();
 const clampLevel = (value: number): EventLevel => Math.max(0, Math.min(3, Math.floor(Number.isFinite(value) ? value : 0))) as EventLevel;
 const clampStage = (value: number): EventStage => Math.max(0, Math.min(2, Math.floor(Number.isFinite(value) ? value : 0))) as EventStage;
 
-function branch(trackId: string, gate: number, kind: BranchKind, offset: number, width: number): TrackBranch {
-  const track = getTrack(trackId);
-  const start = gate * track.length / 12 + 6, end = (gate + 1) * track.length / 12 - 6;
-  const points = Array.from({ length: 49 }, (_, index) => {
-    const t = index / 48, progress = start + (end - start) * t;
-    const point = trackPoint(progress, trackId), distance = Math.sin(t * Math.PI) ** 2 * offset;
-    return { x: point.x + Math.cos(point.angle) * distance,
-      z: point.z - Math.sin(point.angle) * distance, progress, angle: point.angle };
+function branch(trackId: string, start: number, end: number, kind: BranchKind, handle: number, bow: number, width: number): TrackBranch {
+  const a = trackPoint(start, trackId), b = trackPoint(end, trackId);
+  const chord = Math.hypot(b.x - a.x, b.z - a.z), normal = { x: (b.z - a.z) / chord, z: -(b.x - a.x) / chord };
+  const first = { x: a.x + Math.sin(a.angle) * chord * handle, z: a.z + Math.cos(a.angle) * chord * handle };
+  const last = { x: b.x - Math.sin(b.angle) * chord * handle, z: b.z - Math.cos(b.angle) * chord * handle };
+  const points = Array.from({ length: 97 }, (_, index) => {
+    const t = index / 96, u = 1 - t, offset = 16 * t * t * u * u * bow;
+    return { x: u ** 3 * a.x + 3 * u * u * t * first.x + 3 * u * t * t * last.x + t ** 3 * b.x + normal.x * offset,
+      z: u ** 3 * a.z + 3 * u * u * t * first.z + 3 * u * t * t * last.z + t ** 3 * b.z + normal.z * offset,
+      progress: 0, angle: b.angle };
   });
-  let length = 0;
+  let length = 0, maximumCurvature = 0;
   for (let i = 0; i < points.length - 1; i++) {
     const a = points[i]!, b = points[i + 1]!;
     a.angle = Math.atan2(b.x - a.x, b.z - a.z);
     length += Math.hypot(b.x - a.x, b.z - a.z);
+    b.progress = length;
+    if (i + 2 < points.length) {
+      const c = points[i + 2]!, ab = Math.hypot(b.x - a.x, b.z - a.z), bc = Math.hypot(c.x - b.x, c.z - b.z), ac = Math.hypot(c.x - a.x, c.z - a.z);
+      maximumCurvature = Math.max(maximumCurvature, 2 * Math.abs((b.x - a.x) * (c.z - b.z) - (b.z - a.z) * (c.x - b.x)) / (ab * bc * ac));
+    }
   }
-  return { id: trackId + '-' + kind, name: kind === 'detour' ? 'Déviation · objets' : kind === 'technical' ? 'Turbo givré' : 'Passage expert',
-    kind, start, end, width, length, points, open: true };
+  for (const point of points) point.progress = start + point.progress / length * (end - start);
+  return { id: trackId + '-' + kind, name: kind === 'detour' ? 'Déviation large' : kind === 'technical' ? 'Voie turbo' : 'Raccourci',
+    kind, start, end, width, length, minTurnRadius: 1 / maximumCurvature, points, open: true };
 }
 
 function layout(trackId: string) {
   const track = getTrack(trackId);
   const cached = layouts.get(track.id);
   if (cached) return cached;
-  // Choose straighter checkpoint intervals: the branches remain distinct while
-  // their offset curves keep a generous turn radius and never skip a gate.
-  const straightest = (gates: number[]) => gates.sort((a, b) => {
-    const curvature = (gate: number) => {
-      const start = trackPoint(gate * track.length / 12 + 6, track.id);
-      const end = trackPoint((gate + 1) * track.length / 12 - 6, track.id);
-      return (track.length / 12 - 12) / Math.hypot(end.x - start.x, end.z - start.z);
-    };
-    return curvature(a) - curvature(b) || a - b;
-  })[0]!;
-  const gate = straightest([2, 3, 4, 5]);
-  const detour = branch(track.id, gate, 'detour', 25, 9);
-  const shortcut = branch(track.id, gate, 'shortcut', -19, 5.5);
-  const technical = branch(track.id, straightest([7, 8, 9, 10]), 'technical', 18, 6);
-  const middle = trackPoint((detour.start + detour.end) / 2, track.id);
-  const result = { branches: [detour, technical, shortcut],
-    blocker: { id: track.id + '-collapse', x: middle.x, z: middle.z, angle: middle.angle,
-      halfLength: 2.6, halfWidth: track.width / 2 + 5.5 } };
+  const width = track.width >= 20 ? 14 : 12;
+  const candidates: Array<{ detour: TrackBranch; shortcut: TrackBranch; blocker: TrackBlocker; score: number }> = [];
+  const outward = (start: number, end: number, kind: BranchKind, handle: number) => {
+    const base = branch(track.id, start, end, kind, handle, 0, width);
+    const a = base.points[0]!, b = base.points.at(-1)!, middle = trackPoint((start + end) / 2, track.id), mid = base.points[48]!;
+    const chord = Math.hypot(b.x - a.x, b.z - a.z);
+    const bow = ((middle.x - mid.x) * (b.z - a.z) - (middle.z - mid.z) * (b.x - a.x)) / chord + track.width / 2 + 18;
+    return branch(track.id, start, end, kind, handle, bow, width);
+  };
+  const safeSector = (route: TrackBranch) => route.points.every((point, index) => {
+    if (index % 4) return true;
+    const near = nearestTrack(point.x, point.z, track.id);
+    return near.progress >= route.start - 18 && near.progress <= route.end + 18;
+  });
+  // Long Bézier transitions preserve the road's entry/exit tangents. Candidate
+  // selection favours broad turns and a real geometric shortcut, never a turbo
+  // used to disguise a longer, hairpin-shaped route.
+  for (const span of [3, 4, 5]) for (let gate = 1; gate + span <= 11; gate++) {
+    const start = gate * track.length / 12 + 8, end = (gate + span) * track.length / 12 - 8;
+    for (const handle of [.24, .28, .32, .36]) {
+      const shortcut = branch(track.id, start, end, 'shortcut', handle, 0, width);
+      const gain = 1 - shortcut.length / (end - start);
+      if (gain < .05 || shortcut.minTurnRadius < 25 || !safeSector(shortcut)) continue;
+      for (const outerHandle of [.38, .44, .5]) {
+        const detour = outward(start, end, 'detour', outerHandle);
+        if (detour.minTurnRadius < 28 || detour.length > (end - start) * 1.22 || !safeSector(detour)) continue;
+        let blocker: TrackBlocker | undefined, clearance = -Infinity;
+        for (const fraction of [.3, .4, .5, .6, .7]) {
+          const point = trackPoint(start + (end - start) * fraction, track.id);
+          const candidate = { id: track.id + '-collapse', x: point.x, z: point.z, angle: point.angle, halfLength: 2.6, halfWidth: track.width / 2 + 5.5 };
+          let space = Infinity;
+          for (const route of [detour, shortcut]) for (const sample of route.points) {
+            const along = (sample.x - point.x) * Math.sin(point.angle) + (sample.z - point.z) * Math.cos(point.angle);
+            if (Math.abs(along) > candidate.halfLength + width / 2 + 2) continue;
+            const across = Math.abs((sample.x - point.x) * Math.cos(point.angle) - (sample.z - point.z) * Math.sin(point.angle));
+            space = Math.min(space, across - candidate.halfWidth - width / 2 - 1);
+          }
+          if (space > clearance) { clearance = space; blocker = candidate; }
+        }
+        if (!blocker || clearance < .5) continue;
+        const score = Math.min(shortcut.minTurnRadius, 45) * .003 + gain * .6 - Math.max(0, detour.length / (end - start) - 1) * .2;
+        candidates.push({ detour, shortcut, blocker, score });
+      }
+    }
+  }
+  candidates.sort((a, b) => b.score - a.score);
+  const chosen = candidates[0];
+  if (!chosen) throw new Error('Aucune bifurcation fluide et sûre pour le circuit ' + track.id);
+  const { detour, shortcut, blocker } = chosen;
+  const alternatives: TrackBranch[] = [];
+  for (const span of [3, 4]) for (let gate = 1; gate + span <= 11; gate++) {
+    const start = gate * track.length / 12 + 8, end = (gate + span) * track.length / 12 - 8;
+    if (start < detour.end + 10 && end > detour.start - 10) continue;
+    for (const handle of [.38, .44, .5]) {
+      const candidate = outward(start, end, 'technical', handle);
+      if (candidate.minTurnRadius >= 20 && safeSector(candidate)) alternatives.push(candidate);
+    }
+  }
+  alternatives.sort((a, b) => b.minTurnRadius - a.minTurnRadius);
+  const technical = alternatives[0];
+  if (!technical) throw new Error('Aucune voie secondaire fluide pour le circuit ' + track.id);
+  const result = { branches: [detour, technical, shortcut], blocker };
   layouts.set(track.id, result);
   return result;
 }
@@ -77,16 +129,20 @@ export function getTrackEvent(trackId: string, stage = 0, level = 0): TrackEvent
   const cached = events.get(key);
   if (cached) return cached;
   const active = currentLevel >= 2 && currentStage >= 1;
-  const name = track.theme === 'ice' ? 'Avalanche' : track.theme === 'canyon' ? 'Éboulement' : track.theme === 'neon' ? 'Route coupée' : 'Inondation';
+  const name = track.theme === 'ice' ? 'Avalanche' : track.theme === 'canyon' ? 'Éboulement'
+    : track.theme === 'volcano' ? 'Coulée volcanique' : track.theme === 'sky' ? 'Tempête'
+      : track.theme === 'foundry' ? 'Incident industriel' : track.theme === 'castle' ? 'Pont coupé'
+        : track.theme === 'neon' ? 'Route coupée' : 'Inondation';
   const result: TrackEventInfo = { trackId: track.id, stage: currentStage, level: currentLevel,
-    title: currentLevel === 0 ? 'Circuit classique' : active ? currentStage === 2 ? name + ' · passage expert ouvert' : name + ' · suivez la déviation'
-      : currentStage === 2 ? 'Passage expert ouvert' : 'Choisissez votre route',
+    title: currentLevel === 0 ? 'Circuit classique' : active ? currentStage === 2 ? name + ' · raccourci ouvert' : name + ' · suivez la déviation'
+      : currentStage === 2 ? 'Raccourci ouvert' : 'Choisissez votre route',
     description: currentLevel === 0 ? 'La piste reste identique pendant les trois tours.' : active
-      ? currentStage === 2 ? 'La route principale reste barrée. Le passage intérieur étroit est ouvert ; la déviation large reste disponible.'
+      ? currentStage === 2 ? 'La route principale reste barrée. Le raccourci intérieur, plus court que la route normale, est ouvert.'
         : 'Une section de la route est barrée pour tous les pilotes. La voie extérieure large contourne les débris.'
-      : currentStage === 2 ? 'Un passage intérieur étroit s’ouvre. La route normale, la déviation et Turbo givré restent disponibles.'
-        : 'La déviation large donne des objets ; Turbo givré combine accélération et faible adhérence.',
-    weather: active ? currentLevel === 3 && currentStage === 2 ? 'storm' : track.theme === 'ice' ? 'snow' : track.theme === 'canyon' ? 'ash' : 'rain' : 'clear',
+      : currentStage === 2 ? 'Un raccourci large s’ouvre. La route normale, la déviation et la voie turbo restent disponibles.'
+        : 'La déviation large donne des objets ; la voie turbo offre une accélération avec une courte zone glissante annoncée.',
+    weather: active ? currentLevel === 3 && currentStage === 2 ? 'storm' : track.theme === 'ice' ? 'snow'
+      : ['canyon', 'volcano', 'foundry'].includes(track.theme) ? 'ash' : 'rain' : 'clear',
     branches: currentLevel === 0 ? [] : layout(track.id).branches.map(route => ({ ...route,
       open: route.kind !== 'shortcut' || currentStage >= 2 })),
     blockers: active ? [layout(track.id).blocker] : [] };
@@ -96,9 +152,8 @@ export function getTrackEvent(trackId: string, stage = 0, level = 0): TrackEvent
 
 function branchSurface(route: TrackBranch, progress: number): Surface {
   const t = (progress - route.start) / (route.end - route.start);
-  if (route.kind === 'technical') return t < .3 ? 'boost' : t < .83 ? 'ice' : 'road';
-  if (route.kind === 'shortcut') return t > .12 && t < .55 ? 'boost' : 'road';
-  return t > .48 && t < .64 ? 'mud' : 'road';
+  if (route.kind === 'technical') return t > .2 && t < .35 ? 'boost' : t > .6 && t < .7 ? 'ice' : 'road';
+  return 'road';
 }
 
 export function nearestDriveableTrack(x: number, z: number, trackId: string, stage = 0, level = 0): DriveablePosition {
@@ -153,9 +208,10 @@ export function eventRoutePoint(progress: number, trackId: string, stage = 0, le
 }
 
 export function pointOnBranch(route: TrackBranch, progress: number): Vec2 & { angle: number } {
-  const value = Math.max(0, Math.min(route.points.length - 1, (progress - route.start) / (route.end - route.start) * (route.points.length - 1)));
-  const index = Math.min(route.points.length - 2, Math.floor(value)), fraction = value - index;
-  const a = route.points[index]!, b = route.points[index + 1]!;
+  const value = Math.max(route.start, Math.min(route.end, progress));
+  let low = 0, high = route.points.length - 2;
+  while (low < high) { const middle = (low + high) >>> 1; if (route.points[middle + 1]!.progress < value) low = middle + 1; else high = middle; }
+  const a = route.points[low]!, b = route.points[low + 1]!, fraction = (value - a.progress) / (b.progress - a.progress);
   return { x: a.x + (b.x - a.x) * fraction, z: a.z + (b.z - a.z) * fraction, angle: a.angle };
 }
 

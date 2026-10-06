@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import type { GhostData } from '../shared/progression';
 import type { World } from '../shared/game';
+import { trackElevation } from '../shared/track';
+import { nearestDriveableTrack } from '../shared/track-events';
 import { replayPosition } from './replay-view';
 
 /** A translucent marker follows recorded server positions; it never enters the simulation. */
@@ -20,6 +22,6 @@ export class GhostView {
     this.group.visible = !!ghost && !!world?.practice && world.phase === 'racing' && world.trackId === ghost.trackId && world.eventLevel === (ghost.eventLevel ?? 0) && world.raceTime <= ghost.finishTime;
     if (!this.group.visible || !ghost || !world) return;
     const point = replayPosition(ghost.frames, world.raceTime * 1000);
-    if (point) { this.group.position.set(point.x, .12, point.z); this.group.rotation.y = point.angle; }
+    if (point) { this.group.position.set(point.x, .12 + trackElevation(nearestDriveableTrack(point.x, point.z, world.trackId, world.eventStage, world.eventLevel).progress, world.trackId), point.z); this.group.rotation.y = point.angle; }
   }
 }

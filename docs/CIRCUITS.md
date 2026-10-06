@@ -1,96 +1,78 @@
-# Les six circuits
+# Circuits et routes alternatives
 
-Chaque circuit possède un tracé fermé, douze checkpoints à franchir dans l’ordre et trois tours de course. Les positions, surfaces et effets sont calculés par la même simulation partagée pour le serveur et la prédiction du client. Les deux nouveaux tracés n’ajoutent aucune dépendance ni asset externe.
+Le jeu propose douze circuits, chacun avec trois tours et douze checkpoints ordonnés. Les définitions sont dans [shared/track.ts](../shared/track.ts). Les six premiers tracés sont conservés ; six pistes plus longues et plus larges ajoutent des environnements, des ponts et des tremplins.
 
-| Circuit | Identifiant | Longueur d’un tour | Largeur | Particularités |
-| --- | --- | ---: | ---: | --- |
-| Île des Alizés | `lagon` | 611 m | 16 m | Grandes courbes, deux bandes turbo et une flaque de boue. |
-| Canyon solaire | `canyon` | 716 m | 15 m | Virages serrés, deux bandes turbo et deux flaques de boue. |
-| Banquise boréale | `glacier` | 697 m | 18 m | Adhérence réduite, trois plaques de glace et une bande turbo. |
-| Métropole néon | `neon` | 731 m | 17 m | Chicane et trois bandes turbo décalées. |
-| **Mangrove sinueuse** | `mangrove` | **736 m** | **16 m** | Double courbe, quatre flaques de boue alternées et deux bandes turbo. |
-| **Dunes de cuivre** | `dunes` | **668 m** | **15 m** | Deux longues lignes droites, quatre bandes turbo décalées et deux flaques de boue extérieures. |
+| Circuit | Identifiant | Longueur d’un tour | Largeur principale |
+| --- | --- | ---: | ---: |
+| Île des Alizés | `lagon` | 611 m | 16 m |
+| Canyon solaire | `canyon` | 716 m | 15 m |
+| Banquise boréale | `glacier` | 697 m | 18 m |
+| Métropole néon | `neon` | 731 m | 17 m |
+| Mangrove sinueuse | `mangrove` | 736 m | 16 m |
+| Dunes de cuivre | `dunes` | 668 m | 15 m |
+| Caldeira ardente | `volcan` | 1129 m | 22 m |
+| Forêt des géants | `forest` | 1167 m | 22 m |
+| Port des cargos | `harbor` | 1173 m | 24 m |
+| Archipel céleste | `sky` | 1199 m | 24 m |
+| Fonderie des pistons | `foundry` | 1217 m | 22 m |
+| Citadelle royale | `castle` | 1196 m | 24 m |
 
-Les définitions sont dans [shared/track.ts](../shared/track.ts). `TRACKS` et `TRACK_IDS` contiennent les six circuits ; les listes de sélection et les programmes de tournoi doivent être dérivés de ces données.
+Les thèmes supplémentaires sont une caldeira volcanique, une forêt de séquoias, un port de cargos, des îles célestes, une fonderie et une citadelle. Les hauteurs et rampes sont décrites par `elevations` ; `trackElevation`, `trackSlope` et `trackJumpAt` sont partagés avec le jeu. Les routes alternatives suivent elles aussi les hauteurs correspondant à leur progression.
 
-## Mangrove sinueuse
+## Bifurcations corrigées pour la conduite
 
-Le tracé technique traverse un décor tropical avec une palette de verts plus sombres que l’Île des Alizés. Deux changements de courbure marqués demandent d’anticiper le braquage. La boue alterne entre les bords : une trajectoire centrale sèche reste disponible, et les deux bandes turbo récompensent la sortie des virages. L’adhérence normale vaut 0,98, contre 1 sur l’Île des Alizés ; les effets de boue restent ceux de la simulation existante.
+Les petites boucles serrées ont été remplacées par des courbes Bézier sur trois à cinq intervalles de checkpoints. Les entrées et sorties suivent la direction de la route, sans changement brutal de cap. Les chaussées font **12 m de large sur les six premiers circuits et 14 m sur les six nouveaux**.
 
-## Dunes de cuivre
+- **Déviation large** : contournement lisible, deux emplacements d’objets, aucune boue imposée sur cette voie. Les rayons minimaux observés vont de 29 à 122 m. Les CPU n’ont plus besoin de ralentir à 13 pour la franchir : ils reprennent une allure de 30–32 selon la courbe.
+- **Voie turbo** : grandes courbes, bande d’accélération et courte portion glissante, dont la couleur distingue clairement la surface.
+- **Raccourci** : coupe réellement une portion de la route normale. Il est **15 à 28 % plus court que cette route**, pas seulement plus court que la déviation. Il n’ajoute aucun turbo pour fabriquer ce gain. Les rayons minimaux observés vont de 31 à 52 m.
 
-Ce tracé facile reprend les rochers du thème canyon avec une palette sable/cuivre. Les longues portions rapides favorisent l’aspiration et les dépassements. Les quatre bandes turbo sont alternativement décalées à gauche et à droite ; il faut choisir sa ligne pour les enchaîner. Deux flaques extérieures pénalisent les sorties de courbe trop larges. L’adhérence normale vaut 1,04.
+Les bifurcations sont annoncées environ **42 m en amont**, puis à leur entrée. Un panneau indique le gain de distance du raccourci. La mini-carte affiche les voies ouvertes en couleur, le futur raccourci en pointillé avec « T3 » et les barrages en rouge ; son cadrage inclut toutes les branches et reste stable quand elles s’ouvrent.
+
+## Événements partagés
+
+La simulation autoritaire détermine la phase à partir du tour du leader et la copie sur tous les karts. Un pilote en retard rencontre donc la même route que les autres.
+
+| Niveau | Changements |
+| --- | --- |
+| 0 | Circuit classique, sans bifurcation ni événement. |
+| 1 | Déviation et voie turbo accessibles ; raccourci ouvert au troisième tour du leader. |
+| 2 | Au deuxième tour du leader, un barrage impose la déviation et la météo transforme une portion du sol ; le raccourci ouvre au troisième tour. |
+| 3 | Les événements se combinent au troisième tour avec une tempête et une seconde zone de terrain difficile. |
+
+Les événements prennent le nom du décor : inondation, avalanche, éboulement, coulée volcanique, tempête, incident industriel ou route/pont coupé. Les surfaces modifient réellement la vitesse ou l’adhérence. Les effets visuels restent légers : géométries partagées, débris et poteaux instanciés, 180 particules au maximum, aucun service externe ni dépendance nouvelle.
+
+## Checkpoints et intégration
+
+Une longue branche traverse plusieurs intervalles de progression. Elle contient donc une **porte physique alternative pour chacun des checkpoints intermédiaires**, fournie par `eventCheckpointGates`. Le jeu exige toujours les checkpoints dans l’ordre, en traversant réellement la porte de la route empruntée. La ligne d’arrivée n’a pas de porte alternative. Le retour en piste utilise la dernière porte effectivement franchie.
+
+Le module [shared/track-events.ts](../shared/track-events.ts) expose les événements, routes, surfaces, collisions balayées, points de guidage, objets et portes alternatives. La progression sur une branche suit sa longueur d’arc ; `pointOnBranch` recherche les points qui encadrent cette progression. Le module [client/track-events.ts](../client/track-events.ts) gère le rendu et libère ses ressources lors des changements de circuit.
 
 ## Validation exécutée le 6 octobre 2026
 
-Commande : `node --import tsx tests/tracks.test.ts` — **25 tests réussis**, aucun échec.
+`node --import tsx tests/events.test.ts` : **33 tests réussis**, dont :
 
-- Fermeture des six tracés et absence de croisement entre leurs segments centraux.
-- Conversion cohérente distance/position, checkpoints, départs de huit pilotes et zones contenues dans la route.
-- Espace suffisant entre les virages éloignés des deux nouveaux tracés, vérifié sur 240 positions par circuit ; les flaques conservent une ligne sèche.
-- Huit pilotes automatisés utilisant des commandes ordinaires terminent trois tours sur chacun des six circuits, avec objets et collisions actifs. Aucun positionnement ni résultat n’est injecté dans ces courses.
-- Rejet des checkpoints sautés et traversés à l’envers ; égalité des mouvements prédits et autoritaires ; drift et mini-turbo conservés.
+- géométrie et raccordements des 36 branches, largeur, rayon minimal, raccourci plus court que la route normale et portes intermédiaires ;
+- 12 courses complètes avec huit pilotes, objets, collisions et événements au niveau 3 : **96 arrivées sur 96 après trois tours, aucun retour en piste demandé** ;
+- parcours des 36 branches à allure normale avec braquage progressif plafonné : aucun drift, aucune réinitialisation et aucune sortie de chaussée ;
+- 24 comparaisons de secteur entre route normale et raccourci, avec un kart standard puis un kart chargé ;
+- barrages, collisions entre karts, téléportation au checkpoint et conservation du comportement classique au niveau 0.
 
-| Circuit | Dernier des huit pilotes arrivé, temps simulé |
-| --- | ---: |
-| Île des Alizés | 53,57 s |
-| Canyon solaire | 68,47 s |
-| Banquise boréale | 69,27 s |
-| Métropole néon | 72,67 s |
-| Mangrove sinueuse | 64,43 s |
-| Dunes de cuivre | 64,13 s |
+Les temps ci-dessous proviennent de la simulation avec le **même conducteur automatique accessible sur les deux routes** : vitesse cible maximale 28, anticipation des courbes, braquage limité et progressif, aucun objet ni drift. Les turbos de la route principale sont marqués comme déjà utilisés pour isoler le trajet ; le raccourci reste sur une surface normale. Le secteur commence 15 m avant l’embranchement et se termine après le checkpoint qui suit la jonction. Ces mesures comparent ce conducteur déterministe, pas les records de joueurs humains ; son aisance varie avec les virages de la route normale.
 
-Ces temps concernent la simulation déterministe des tests, pas une mesure de performances graphiques. Cette validation ciblée ne remplace pas la vérification visuelle du menu, une course réseau sur le tunnel ou un essai manuel sur deux machines ; leurs résultats doivent être consignés séparément dans [VALIDATION.md](../VALIDATION.md).
+| Circuit | Route normale remplacée | Raccourci | Distance économisée | Temps de secteur standard |
+| --- | ---: | ---: | ---: | ---: |
+| Île des Alizés | 239 m | 202 m | 15,4 % | 9,47 → 8,17 s |
+| Canyon solaire | 282 m | 239 m | 15,4 % | 11,60 → 9,47 s |
+| Banquise boréale | 275 m | 213 m | 22,3 % | 10,90 → 8,57 s |
+| Métropole néon | 289 m | 207 m | 28,4 % | 16,33 → 8,30 s |
+| Mangrove sinueuse | 291 m | 208 m | 28,4 % | 12,17 → 8,37 s |
+| Dunes de cuivre | 207 m | 163 m | 21,1 % | 8,33 → 6,80 s |
+| Caldeira ardente | 454 m | 364 m | 20,0 % | 17,23 → 13,97 s |
+| Forêt des géants | 470 m | 372 m | 20,8 % | 17,80 → 14,27 s |
+| Port des cargos | 473 m | 368 m | 22,1 % | 17,90 → 14,17 s |
+| Archipel céleste | 484 m | 405 m | 16,2 % | 18,27 → 15,47 s |
+| Fonderie des pistons | 491 m | 372 m | 24,2 % | 18,63 → 14,27 s |
+| Citadelle royale | 482 m | 383 m | 20,6 % | 18,23 → 14,67 s |
 
-## Circuits évolutifs et choix de routes
-
-Les six circuits disposent maintenant d’un module d’événements déterministes : [shared/track-events.ts](../shared/track-events.ts). La simulation autoritaire calcule la phase à partir du tour du leader et la copie sur tous les karts, afin que tous les pilotes voient et rencontrent le même événement, même ceux qui ont un tour de retard.
-
-| Niveau | Apprentissage et changements |
-| --- | --- |
-| 0 | Piste classique inchangée, utilisée comme référence de non-régression. |
-| 1 | Deux chemins permanents ajoutent un choix entre objets, boue, turbo et glace. Au troisième tour du leader, un passage expert s’ouvre. |
-| 2 | Au deuxième tour du leader, une section est barrée : il faut contourner les débris par la déviation. La météo change aussi l’adhérence d’une autre portion. Le passage expert s’ouvre au troisième tour. |
-| 3 | Les mêmes événements se combinent au troisième tour avec une tempête et une seconde zone de terrain difficile. |
-
-Le changement s’appelle **Inondation** sur les pistes tropicales, **Éboulement** dans les canyons, **Avalanche** sur la banquise et **Route coupée** en ville. Le sol de la portion affectée, les débris et les panneaux changent visiblement. La pluie, la neige ou les cendres sont dessinées avec au plus 180 particules ; les changements de terrain influencent réellement la vitesse ou l’adhérence par les surfaces de simulation existantes.
-
-Trois branches réellement séparées de la chaussée principale sont créées sur chaque circuit :
-
-- **Déviation · objets** : voie large de 9 m, jusqu’à 25 m du centre de la route, deux emplacements d’objets supplémentaires et une courte portion de boue. C’est le contournement accessible lorsque la route principale se ferme ; les pneus adaptés à la boue réduisent le coût de ce choix.
-- **Turbo givré** : voie de 6 m, jusqu’à 18 m de la route. Une accélération précède une plaque de glace ; l’adhérence et la stabilité du kart comptent davantage.
-- **Passage expert** : voie intérieure de 5,5 m, jusqu’à 19 m de la route, ouverte à la dernière phase. Son tracé est entre 8 % et 29 % plus court que la déviation obligatoire selon le circuit, avec un turbo et une largeur qui demande davantage de précision. La déviation reste disponible.
-
-La route principale reste le choix simple tant qu’elle est ouverte. Les bifurcations portent des panneaux et des flèches ; les bords colorés distinguent les options. Le passage expert est annoncé dès le début par un panneau « TOUR 3 », puis sa chaussée apparaît lors de l’ouverture.
-
-Chaque branche part au moins 6 m après un checkpoint et rejoint la route au moins 6 m avant le suivant. Elle conserve une progression strictement comprise dans ce même intervalle. Le classement ne gagne donc aucun checkpoint par une simple entrée dans un raccourci : le système de franchissement des portes reste nécessaire.
-
-Le rendu est isolé dans [client/track-events.ts](../client/track-events.ts) : `TrackEventsView` s’attache à un groupe ou une scène, reconstruit seulement lors d’un changement de piste/phase/niveau et libère ses géométries, panneaux et matériaux. Les poteaux et débris utilisent des instances partageant leurs géométries. Aucune image externe, aucun service et aucune dépendance supplémentaire.
-
-### Contrats d’intégration
-
-- `getTrackEvent(trackId, stage, level)` : annonce, météo, routes et obstacles communs.
-- `nearestDriveableTrack(...)` : proximité et progression sur l’union des chaussées disponibles ; la largeur propre à chaque branche sert à la contrainte de sortie de piste.
-- `dynamicSurface(...)` : surface des branches et du terrain transformé, avec identifiants de turbo stables par tour.
-- `constrainTrackEvent(...)` : collision balayée contre le barrage, y compris à haute vitesse ; un kart présent sur la tuile lors du changement est dégagé du volume.
-- `eventRoutePoint(...)` : guidage ordinaire des CPU vers la déviation. Il ne change ni leur position, ni leurs checkpoints.
-- `trackEventPickups(...)` : deux emplacements stables sur la déviation, ajoutés aux objets existants au départ d’une course avec événements.
-
-### Tests du module exécutés
-
-`node --import tsx tests/events.test.ts` : **20 tests réussis** sur les six circuits. Les onze contrôles du module pur vérifient notamment les routes séparées, les raccordements avant les checkpoints, le gain de longueur du passage expert, les surfaces, le barrage dans les deux sens même avec un déplacement de 70 m, le dégagement lors d’un changement de phase, les choix du guidage CPU et la préservation de toute la largeur de la route aux jonctions. Le niveau 0 est comparé aux fonctions de piste originales sur les trois phases.
-
-Six courses complètes sont également exécutées avec **huit pilotes**, les **événements au niveau 3**, les objets et les collisions. Les 48 pilotes terminent leurs trois tours en partant de la grille avec uniquement des commandes ordinaires. Les tests constatent que chacun parcourt réellement la déviation hors de l’ancienne chaussée, que les phases 0/1/2 sont communes et que le classement final comporte huit rangs distincts.
-
-| Circuit | Dernier des huit pilotes arrivé avec événements, temps simulé |
-| --- | ---: |
-| Île des Alizés | 68,67 s |
-| Canyon solaire | 82,80 s |
-| Banquise boréale | 80,17 s |
-| Métropole néon | 88,37 s |
-| Mangrove sinueuse | 81,77 s |
-| Dunes de cuivre | 76,13 s |
-
-Un autre test pilote les **dix-huit branches** jusqu’au prochain checkpoint réel, sans réinitialisation. Ce test de maniabilité place initialement le kart devant chaque embranchement, puis utilise seulement accélération, frein et braquage ; il est distinct des six courses complètes parties de la grille. Deux régressions supplémentaires empêchent un choc arrière de pousser un kart dans un barrage et garantissent que le retour au checkpoint ne soit pas bloqué par le balayage d’un trajet fictif de téléportation.
-
-La suite classique `node --import tsx tests/tracks.test.ts` a été réexécutée après l’intégration : **25 tests réussis**, temps simulés du niveau 0 inchangés. Ces résultats valident la simulation ; la synchronisation par le tunnel et le rendu final dans plusieurs navigateurs doivent être consignés séparément après leurs essais.
+Les valeurs détaillées, y compris le kart chargé et les rayons de courbure, sont conservées dans [branch-comparison.json](branch-comparison.json). La validation visuelle en navigateur, la course sur le tunnel et l’essai manuel sur deux machines restent des vérifications séparées ; leurs résultats doivent être consignés dans [VALIDATION.md](../VALIDATION.md).

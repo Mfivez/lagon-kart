@@ -133,8 +133,8 @@ export const TRACKS: TrackDefinition[] = [
       { kind: 'mud', start: .4, end: .44, offset: 6.5, width: 8 },
       { kind: 'boost', start: .61, end: .63, offset: 0, width: 10 },
       { kind: 'boost', start: .86, end: .88, offset: -4, width: 8 }],
-    elevations: [{ kind: 'bridge', start: .18, end: .31, height: 5, approach: 30 },
-      { kind: 'jump', start: .65, end: .667, height: 2.1, approach: 0, launchSpeed: 7.2 }],
+    elevations: [{ kind: 'bridge', start: .18, end: .31, height: 5, approach: 50 },
+      { kind: 'jump', start: .323, end: .34, height: 2.1, approach: 0, launchSpeed: 7.2 }],
   }),
   makeTrack({ id: 'forest', name: 'Forêt des géants', theme: 'forest', difficulty: 'Intermédiaire', width: 22, grip: .99,
     description: 'De longues courbes entre des séquoias, un pont de bois au-dessus du ruisseau et un saut de racines. Les bandes boueuses laissent une trajectoire sèche.',
@@ -144,8 +144,8 @@ export const TRACKS: TrackDefinition[] = [
       { kind: 'boost', start: .32, end: .34, offset: -3, width: 9 },
       { kind: 'mud', start: .69, end: .73, offset: -6.5, width: 8 },
       { kind: 'boost', start: .79, end: .81, offset: 0, width: 9 }],
-    elevations: [{ kind: 'bridge', start: .46, end: .58, height: 4.5, approach: 28 },
-      { kind: 'jump', start: .84, end: .855, height: 1.6, approach: 0, launchSpeed: 6.3 }],
+    elevations: [{ kind: 'bridge', start: .46, end: .58, height: 4.5, approach: 45 },
+      { kind: 'jump', start: .174, end: .194, height: 1.6, approach: 0, launchSpeed: 6.3 }],
   }),
   makeTrack({ id: 'harbor', name: 'Port des cargos', theme: 'harbor', difficulty: 'Facile', width: 24, grip: 1.05,
     description: 'Les grands quais offrent de l’espace pour dépasser. Traversez le pont métallique, longez les grues et sautez le tremplin de chargement.',
@@ -155,8 +155,8 @@ export const TRACKS: TrackDefinition[] = [
       { kind: 'ice', start: .48, end: .52, offset: 6, width: 8 },
       { kind: 'boost', start: .64, end: .665, offset: 0, width: 10 },
       { kind: 'boost', start: .88, end: .9, offset: 4, width: 10 }],
-    elevations: [{ kind: 'bridge', start: .26, end: .4, height: 6, approach: 35 },
-      { kind: 'jump', start: .7, end: .719, height: 2.4, approach: 0, launchSpeed: 7.8 }],
+    elevations: [{ kind: 'bridge', start: .26, end: .4, height: 6, approach: 60 },
+      { kind: 'jump', start: .487, end: .506, height: 2.4, approach: 0, launchSpeed: 7.8 }],
   }),
   makeTrack({ id: 'sky', name: 'Archipel céleste', theme: 'sky', difficulty: 'Technique', width: 24, grip: 1,
     description: 'Des îlots flottants reliés par deux ponts panoramiques, des nuages et un grand tremplin. De larges virages permettent de préparer chaque atterrissage.',
@@ -166,9 +166,9 @@ export const TRACKS: TrackDefinition[] = [
       { kind: 'boost', start: .38, end: .4, offset: 0, width: 11 },
       { kind: 'ice', start: .53, end: .565, offset: 6.5, width: 8 },
       { kind: 'boost', start: .84, end: .86, offset: -4, width: 10 }],
-    elevations: [{ kind: 'bridge', start: .13, end: .28, height: 7, approach: 38 },
-      { kind: 'jump', start: .43, end: .45, height: 2.3, approach: 0, launchSpeed: 8.2 },
-      { kind: 'bridge', start: .63, end: .76, height: 5.5, approach: 35 }],
+    elevations: [{ kind: 'bridge', start: .13, end: .28, height: 7, approach: 70 },
+      { kind: 'jump', start: .292, end: .307, height: 2.3, approach: 0, launchSpeed: 8.2 },
+      { kind: 'bridge', start: .63, end: .76, height: 5.5, approach: 55 }],
   }),
   makeTrack({ id: 'foundry', name: 'Fonderie des pistons', theme: 'foundry', difficulty: 'Intermédiaire', width: 22, grip: 1.03,
     description: 'Un détour ample autour des hauts-fourneaux, une passerelle industrielle et une rampe d’essai. Les plaques de refroidissement glissent ; visez les lignes sèches.',
@@ -178,8 +178,8 @@ export const TRACKS: TrackDefinition[] = [
       { kind: 'ice', start: .25, end: .29, offset: -6, width: 8 },
       { kind: 'mud', start: .57, end: .61, offset: 6.5, width: 8 },
       { kind: 'boost', start: .69, end: .715, offset: 0, width: 10 }],
-    elevations: [{ kind: 'bridge', start: .35, end: .47, height: 5, approach: 32 },
-      { kind: 'jump', start: .75, end: .768, height: 2, approach: 0, launchSpeed: 7.6 }],
+    elevations: [{ kind: 'bridge', start: .35, end: .47, height: 5, approach: 50 },
+      { kind: 'jump', start: .502, end: .52, height: 2, approach: 0, launchSpeed: 7.6 }],
   }),
   makeTrack({ id: 'castle', name: 'Citadelle royale', theme: 'castle', difficulty: 'Facile', width: 24, grip: 1.02,
     description: 'Un large tour des remparts, un pont de pierre sur les douves et un saut de parade. Les grandes courbes invitent aux dépassements et aux mini-turbos.',
@@ -189,8 +189,8 @@ export const TRACKS: TrackDefinition[] = [
       { kind: 'mud', start: .43, end: .47, offset: 7, width: 8 },
       { kind: 'boost', start: .61, end: .64, offset: 0, width: 10 },
       { kind: 'boost', start: .86, end: .885, offset: 4, width: 10 }],
-    elevations: [{ kind: 'bridge', start: .22, end: .35, height: 4, approach: 30 },
-      { kind: 'jump', start: .68, end: .696, height: 1.8, approach: 0, launchSpeed: 6.8 }],
+    elevations: [{ kind: 'bridge', start: .22, end: .35, height: 4, approach: 40 },
+      { kind: 'jump', start: .57, end: .59, height: 1.8, approach: 0, launchSpeed: 6.8 }],
   }),
 ];
 export function isTrackId(id: unknown): id is TrackId {
@@ -199,7 +199,8 @@ export function isTrackId(id: unknown): id is TrackId {
 export function getTrack(id = 'lagon'): TrackDefinition { return TRACKS.find(track => track.id === id) ?? TRACKS[0]!; }
 export function trackElevation(progress: number, trackId = 'lagon'): number {
   const track = getTrack(trackId);
-  const wrapped = ((progress % track.length) + track.length) % track.length;
+  const remainder = progress % track.length;
+  const wrapped = remainder < 0 ? remainder + track.length : remainder;
   const feature = track.elevations.find(feature => wrapped >= feature.start && wrapped <= feature.end);
   if (!feature) return 0;
   if (feature.kind === 'jump') return feature.height * (wrapped - feature.start) / (feature.end - feature.start);
@@ -209,7 +210,8 @@ export function trackElevation(progress: number, trackId = 'lagon'): number {
 }
 export function trackSlope(progress: number, trackId = 'lagon'): number {
   const track = getTrack(trackId);
-  const wrapped = ((progress % track.length) + track.length) % track.length;
+  const remainder = progress % track.length;
+  const wrapped = remainder < 0 ? remainder + track.length : remainder;
   const feature = track.elevations.find(feature => wrapped >= feature.start && wrapped <= feature.end);
   if (!feature) return 0;
   if (feature.kind === 'jump') return feature.height / (feature.end - feature.start);
@@ -218,7 +220,8 @@ export function trackSlope(progress: number, trackId = 'lagon'): number {
 /** Ramp geometry only; caller decides speed/direction and crossing of end. */
 export function trackJumpAt(progress: number, trackId = 'lagon'): TrackElevation | undefined {
   const track = getTrack(trackId);
-  const wrapped = ((progress % track.length) + track.length) % track.length;
+  const remainder = progress % track.length;
+  const wrapped = remainder < 0 ? remainder + track.length : remainder;
   return track.elevations.find(feature => feature.kind === 'jump' && wrapped >= feature.start && wrapped <= feature.end);
 }
 function pointOnTrack(progress: number, track: TrackDefinition): Vec2 & { angle: number } {

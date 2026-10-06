@@ -1,4 +1,4 @@
-import { isTrackId } from './track.js';
+import { isTrackId, TRACK_IDS } from './track.js';
 
 export type TournamentMode = 'single' | 'tournament';
 export type TrackSelection = 'manual' | 'random';
@@ -45,9 +45,9 @@ export function drawSchedule(pool: readonly string[], raceCount: number, random:
   return schedule;
 }
 
-function tracks(value: unknown, field: string): string[] {
-  if (!Array.isArray(value) || value.length === 0 || value.length > 8 || value.some(id => typeof id !== 'string' || !isTrackId(id))) {
-    throw new Error(`${field} : choisissez entre un et huit circuits valides.`);
+function tracks(value: unknown, field: string, maximum = 8): string[] {
+  if (!Array.isArray(value) || value.length === 0 || value.length > maximum || value.some(id => typeof id !== 'string' || !isTrackId(id))) {
+    throw new Error(`${field} : choisissez entre un et ${maximum} circuits valides.`);
   }
   return [...value] as string[];
 }
@@ -66,7 +66,7 @@ export function applyConfiguration(current: TournamentState, payload: unknown, c
   if (options.trackId !== undefined && (typeof options.trackId !== 'string' || !isTrackId(options.trackId))) {
     throw new Error('Ce circuit est inconnu.');
   }
-  const pool = options.trackPool === undefined ? undefined : tracks(options.trackPool, 'Sélection de circuits');
+  const pool = options.trackPool === undefined ? undefined : tracks(options.trackPool, 'Sélection de circuits', TRACK_IDS.length);
   const requestedSchedule = options.schedule === undefined ? undefined : tracks(options.schedule, 'Programme');
   if (pool && new Set(pool).size !== pool.length) throw new Error('La sélection aléatoire ne doit pas contenir de doublon.');
   if (mode === 'single') {

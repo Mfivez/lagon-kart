@@ -32,9 +32,9 @@ tailles sont vérifiées au chargement. La limite par défaut est de 5 000 profi
 | Premiers virages | Lagon, Lagon | 0 | 1 |
 | Les explorateurs | Lagon, Canyon | 1 | 1 |
 | La traversée | Canyon, Glacier, Mangrove | 1 | 2 |
-| Au millimètre | Néon, Dunes, Glacier | 2 | 2 |
-| Rien ne reste en place | Mangrove, Canyon, Dunes, Néon | 2 | 3 |
-| La grande tournée | Les six circuits | 3 | 3 |
+| Au millimètre | Néon, Dunes, Port | 2 | 2 |
+| Rien ne reste en place | Forêt, Volcan, Fonderie, Château | 2 | 3 |
+| La grande tournée | Néon, Glacier, Mangrove, Dunes, Volcan, Archipel céleste, Fonderie, Château | 3 | 3 |
 
 Le catalogue associe à chaque coupe les notions introduites : drift et objets,
 terrains et branches, météo, précision, transformations puis événements
@@ -88,9 +88,12 @@ Ce format constitue une trace visuelle de la course ; il ne prétend pas permett
 une resimulation exacte de tous les objets et collisions. Un ghost ne participe
 pas aux collisions ni au classement de la course observée.
 
-La rétention conserve 40 fichiers par défaut (configurable entre 16 et 100), en
-préservant le meilleur ghost ouvert et classé de chacun des six circuits avant
-les courses récentes. Les index sont atomiques et les noms ne permettent pas de
+La rétention conserve au maximum 40 fichiers par défaut (configurable entre 16 et
+100). Elle donne priorité aux meilleurs ghosts classés de chaque circuit, puis
+aux records ouverts et enfin aux courses récentes. Le plafond reste strict même
+si les douze circuits produisent davantage de records distincts que de places
+disponibles : dans ce cas, certains anciens records ouverts sont supprimés. Les
+index sont atomiques et les noms ne permettent pas de
 sortir du dossier des replays. Les résultats de course sont idempotents : un
 identifiant de manche ne compte qu’une fois. Le registre conserve 20 000 reçus et
 refuse les résultats antérieurs au seuil de rétention ; une clôture reçue avec
@@ -98,10 +101,19 @@ plus de 24 heures de retard est également rejetée.
 
 ## Tests exécutés
 
-`node --import tsx --test tests/progression.test.ts` : **11 tests réussis**.
-Le contrôle TypeScript ciblé des trois modules et du fichier de tests réussit.
+`node --import tsx --test tests/laps.test.ts tests/progression.test.ts tests/simulation.test.ts` :
+**57 tests réussis**, dont **13 tests de progression et persistance**.
 Les tests couvrent les récompenses répétées, verrous, concurrence, redémarrage,
 confidentialité des jetons, idempotence des résultats, MMR, saisons, matchmaking,
 expiration, traces quantisées, ghosts, rétention, fichier corrompu et échec
-d’écriture. Les tests HTTP, salon, navigateur et Docker de l’intégration complète
-sont distincts et figurent dans le rapport de livraison principal.
+d’écriture, y compris 24 records concurrents sur douze pistes avec un plafond de
+16 fichiers et une réouverture du registre.
+
+`node --import tsx --test tests/career-server.test.ts` : **7 tests réussis** sur
+un serveur privé et un répertoire temporaire. Ils vérifient les vrais échanges
+HTTP et Colyseus : identité, données forgées, verrous du garage et des coupes,
+réservations classées, annulation, lancement après arrivée de tous les inscrits,
+équipes et persistance. Les arrivées accélérées dans ces fixtures servent à
+tester les récompenses ; elles ne constituent pas une preuve de course conduite.
+Les vérifications navigateur et Docker restent distinctes et figurent dans le
+rapport de livraison principal.

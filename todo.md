@@ -4,29 +4,30 @@
 
 ## Couverture du cahier des charges ajouté à la racine
 
-Le fichier [to-do.md](to-do.md) contient les besoins de référence. Ce suivi avait été limité aux travaux de démo et omettait les ajouts de ce cahier des charges. **L'ensemble de ces besoins n'est pas implémenté.** L'audit ci-dessous repose sur la lecture du code actuel ; aucun nouveau test de fonctionnalité n'a été exécuté pour cet audit.
+Le fichier [to-do.md](to-do.md) reste le cahier des charges de référence. Les huit domaines sont désormais implémentés ; la validation finale et le déploiement sont suivis séparément ci-dessous. Les essais automatisés ne remplacent pas le ressenti des joueurs.
 
-| Besoin | État réel | Reste à réaliser |
+| Besoin | Implémentation et preuves | Limites / contrôle restant |
 | --- | --- | --- |
-| 1. Construction et personnalisation avancée | Non réalisé. Un kart visuel, huit couleurs et les mêmes paramètres de conduite pour tous. | Choix châssis, moteur, pneus, turbo, aileron et poids ; effets réels sur vitesse, accélération, maniabilité, adhérence, stabilité et terrains ; déblocages progressifs et interface simple. |
-| 2. Circuits évolutifs | Non réalisé. Les quatre tracés et leurs zones sont fixes pendant les trois tours. | Événements et transformations synchronisés : catastrophes/météo, routes ou ponts détruits, plateformes, obstacles mobiles, terrains et raccourcis changeants ; annonces et changements visuels compréhensibles. |
-| 3. Plusieurs stratégies par circuit | Non réalisé. Drift, surfaces et placements existent, mais chaque circuit possède un tracé unique sans branches. | Routes alternatives viables avec compromis risque, durée, objets, maîtrise du drift, poids et pneus ; disponibilité évoluant pendant la course. |
-| 4. Championnats et progression | Partiel. Tournois de 2 à 8 courses, choix manuel/aléatoire et classement cumulé disponibles dans un salon. | Progression durable du joueur, championnats gradués, apprentissage puis combinaison des routes, terrains, obstacles, météo et transformations ; difficulté fondée sur la maîtrise. |
-| 5. Personnages humoristiques | Non réalisé. Un pilote casqué générique est partagé par les karts. | Reine britannique, Barack Obama, Donald Trump et Kim Jong-un en caricatures cartoon ; véhicules, expressions et animations propres, réactions en course, victoire et impacts. |
-| 6. Mode équipes | Non réalisé. Courses et scores individuels ; aucun CPU intégré au jeu. | Mode distinct 4 contre 4, équipes humaines et/ou CPU, rôles stratégiques et score collectif sur plusieurs courses. |
-| 7. Ranked amélioré | Non réalisé. Les salons privés et tournois existants ne constituent pas un mode classé. | Bronze à Master, MMR, matchmaking compétitif, saisons, classement mondial, statistiques persistantes, replays, ghosts, tournois classés et circuits évolutifs. |
-| 8. Philosophie générale | Contrainte à vérifier à chaque ajout. Le projet existant est conservé ; aucun monde ouvert, récit complexe ou système RPG ajouté. | Vérifier accessibilité immédiate, lisibilité, rythme, profondeur de maîtrise et utilité de chaque mécanique avec des joueurs occasionnels et expérimentés. |
+| 1. Construction et personnalisation | Garage : six catégories, 18 pièces avec effets réels, compromis et déblocages ; trois modèles importés, huit couleurs et aperçu rapproché. Neuf tests du garage et parcours de reconnexion dans le navigateur. | Contrôle du dernier build à 12 circuits en cours. |
+| 2. Circuits évolutifs | 12 pistes ; phases partagées, surfaces/météo, route barrée au tour 2 et raccourci au tour 3. Six nouvelles pistes ont pont et tremplin physiques. [Circuits](docs/CIRCUITS.md). | Captures des nouveaux thèmes et ponts/sauts en cours. |
+| 3. Plusieurs stratégies par circuit | 36 branches de 12–14 m ; raccourcis 15–28 % plus courts que la route normale. 24 comparaisons sur kart standard et chargé montrent un gain réel, sans turbo artificiel. [Mesures](docs/branch-comparison.json). | Le confort de conduite au clavier reste à apprécier avec les joueurs. |
+| 4. Championnats et progression | Six coupes, paliers 0 à 3 et sauvegarde serveur ; les 12 pistes sont introduites progressivement, finale à huit courses. Tests HTTP, persistance et parcours UI avec arrivées de fixture explicitement signalées. | Aucune conduite humaine complète des six coupes n'est revendiquée. |
+| 5. Personnages humoristiques | Pilote, Reine, Obama, Trump et Kim en géométrie cartoon originale ; accessoires, expressions et animations. Sélections transmises entre deux clients. [Personnages](docs/CHARACTERS.md). | Lisibilité artistique à évaluer sur les machines de démo. |
+| 6. Mode équipes | 4 contre 4, humains et CPU, scores de tournoi cumulés, rôles CPU et absence de tirs alliés. Deux humains + six CPU contrôlés dans l'interface ; huit CPU finissent les 12 pistes en simulation. [Équipes](docs/TEAMS.md). | Course publique du dernier build à terminer. |
+| 7. Ranked amélioré | MMR Bronze à Master, matchmaking réservé aux profils attendus, saisons trimestrielles, statistiques, tournois, replays et fantômes. [Progression](docs/PROGRESSION.md). | Classement commun à cette instance, pas une fédération de serveurs ; essais de charge à grande échelle non exécutés. |
+| 8. Philosophie générale | Jeu existant conservé, modes avancés séparés, budget 0 €, aucune API payante ni nouvelle dépendance. | Facilité, équilibre, fluidité GPU et écoute musicale nécessitent un essai humain. |
 
-Points de contrôle dans le code : [modèle du kart et conduite](shared/game.ts), [tracés et surfaces](shared/track.ts), [tournois](shared/tournament.ts), [gestion des salons](server/RaceRoom.ts), [sélection du pilote](client/main.ts), [pilote visuel générique](client/kart-model.ts). Le pilote automatique de `shared/autopilot.ts` est utilisé par les tests et scripts de validation ; il n'est pas proposé comme adversaire CPU dans le jeu.
+## Derniers retours et validation intégrée
 
-- [ ] Besoin 1 : garage de pièces, caractéristiques et déblocages.
-- [ ] Besoin 2 : transformations de circuits pendant les courses.
-- [ ] Besoin 3 : branches et choix de routes stratégiques.
-- [ ] Besoin 4 : compléter les tournois par une progression de championnats.
-- [ ] Besoin 5 : quatre personnages et leurs animations/véhicules.
-- [ ] Besoin 6 : équipes 4 contre 4 et CPU jouables.
-- [ ] Besoin 7 : ensemble du mode classé et sa persistance.
-- [ ] Besoin 8 : validation de la philosophie sur les nouvelles fonctionnalités.
+- [x] Déviations plus larges et entrées progressives ; raccourcis réellement plus courts. 33 tests d'événements réussis, 96 arrivées sur 96 sans reset et 36 branches parcourues sans drift ni sortie de piste.
+- [x] Six pistes supplémentaires : volcan, forêt, port, ciel, fonderie, château, pour **12 circuits** au total. Ponts, rampes, décollage/atterrissage et prédiction déterministe ; 44 tests de pistes et sept tests de physique verticale réussis.
+- [x] Tours non comptés : portes adaptées aux accotements et aux branches, franchissement ordonné, ligne d'arrivée et passage en l'air ; reset à la bonne hauteur. [Correctif et tests](docs/LAPS.md).
+- [x] Build TypeScript/Vite et image Docker construits ; le tirage aléatoire accepte les 12 pistes avec une limite de huit manches.
+- [ ] Clore la suite complète du dernier état et les captures navigateur des nouvelles pistes.
+- [ ] Vérifier la persistance lors de la recréation d'un conteneur Docker, puis mettre à jour la démo quand les salons sont libres.
+- [ ] Rejouer une course complète via le tunnel avec quatre pilotes, deux navigateurs, trois modèles, personnages, sauts et profils enregistrés.
+
+Les réalisations ci-dessous concernent les lots de démo antérieurs ; elles restent des preuves historiques et ne valent pas validation automatique du lot en cours.
 
 ## Terminé et vérifié
 

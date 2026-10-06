@@ -54,7 +54,7 @@ export class GarageUI {
       <p class="garage-hint">Terminez les championnats pour débloquer des pièces. Chaque avantage a une contrepartie : essayez les pneus tout-terrain dans la boue ou une configuration vive dans les virages.</p><button id="garage-reset" class="secondary">Configuration équilibrée</button>`;
     try {
       this.preview ??= new GaragePreview();
-      void this.preview.show(this.dialog.querySelector<HTMLElement>('#garage-preview-slot')!, this.value, localStorage.getItem('lagon-color') ?? '#fc735d');
+      void this.preview.show(this.dialog.querySelector<HTMLElement>('#garage-preview-slot')!, this.value, localStorage.getItem('lagon-color') ?? '#fc735d').catch(() => { /* The selectors work even if the preview cannot render. */ });
     } catch { /* Selection remains available when a second WebGL context is unavailable. */ }
   }
 }

@@ -279,14 +279,19 @@ export class PlayerStore {
     } finally { await rm(temporary, { force: true }).catch(() => {}); }
   }
   private replayRetention(replays: ReplaySummary[]): Set<string> {
-    // Keep the fastest ghost for each track in open and ranked racing, followed
-    // by recent races. Six tracks require at most twelve protected files.
+    // Prefer each track's fastest ranked ghost, then its open ghost and recent
+    // races. The cap remains strict even when new circuits add more potential
+    // ghost records than the configured number of files.
     const fastest = new Map<string, { id: string; time: number }>();
     for (const replay of replays) for (const driver of replay.drivers) if (driver.finished && driver.finishTime > 0) {
       for (const key of [replay.trackId, ...(replay.ranked ? [replay.trackId + ':ranked'] : [])])
         if (driver.finishTime < (fastest.get(key)?.time ?? Infinity)) fastest.set(key, { id: replay.id, time: driver.finishTime });
     }
-    const keep = new Set([...fastest.values()].map(entry => entry.id));
+    const dates = new Map(replays.map(replay => [replay.id, replay.createdAt]));
+    const candidates = [...fastest.entries()].sort(([a, first], [b, second]) =>
+      Number(b.endsWith(':ranked')) - Number(a.endsWith(':ranked')) || (dates.get(second.id) ?? 0) - (dates.get(first.id) ?? 0));
+    const keep = new Set<string>();
+    for (const [, record] of candidates) { if (keep.size >= this.maxReplays) break; keep.add(record.id); }
     for (const replay of [...replays].sort((a, b) => b.createdAt - a.createdAt)) { if (keep.size >= this.maxReplays) break; keep.add(replay.id); }
     return keep;
   }

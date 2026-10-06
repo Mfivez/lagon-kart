@@ -1,17 +1,26 @@
 // Test driver: sends ordinary bounded commands through the same public input
 // contract. It never sets position, progress, inventory or race results.
-import { getTrack, nearestTrack, neutralInput, trackPoint, trackSurface, type Input, type Kart } from './game.js';
+import { getTrack, neutralInput, trackPoint, type Input, type Kart } from './game.js';
+import { dynamicSurface, eventRoutePoint, getTrackEvent, nearestDriveableTrack } from './track-events.js';
 
-export function autopilot(kart: Kart, seq: number, useItems = false): Input {
+export type AutopilotDriver = Pick<Kart, 'trackId' | 'x' | 'z' | 'speed' | 'angle' | 'nextCheckpoint' | 'resetCooldown' |
+  'resetLatch' | 'item' | 'itemLatch' | 'epoch'> & Partial<Pick<Kart, 'eventStage' | 'eventLevel'>>;
+
+export function autopilot(kart: AutopilotDriver, seq: number, useItems = false): Input {
   const track = getTrack(kart.trackId);
-  const near = nearestTrack(kart.x, kart.z, track.id);
-  const target = trackPoint(near.progress + Math.max(9, kart.speed * 0.58), track.id);
+  const stage = kart.eventStage ?? 0, level = kart.eventLevel ?? 0;
+  const near = nearestDriveableTrack(kart.x, kart.z, track.id, stage, level);
+  const event = getTrackEvent(track.id, stage, level);
+  const detour = event.branches.find(route => route.kind === 'detour');
+  const approachingDetour = Boolean(event.blockers.length && detour && near.progress >= detour.start - 30 && near.progress <= detour.end + 8);
+  const lookahead = approachingDetour ? Math.max(4, kart.speed * .28) : Math.max(9, kart.speed * .58);
+  const target = eventRoutePoint(near.progress + lookahead, track.id, stage, level);
   const desired = Math.atan2(target.x - kart.x, target.z - kart.z);
   const difference = Math.atan2(Math.sin(desired - kart.angle), Math.cos(desired - kart.angle));
   const ahead = trackPoint(near.progress + 25, track.id);
   const curvature = Math.abs(Math.atan2(Math.sin(ahead.angle - near.angle), Math.cos(ahead.angle - near.angle))) / 25;
-  const iceAhead = trackSurface(target.x, target.z, track.id).surface === 'ice';
-  const targetSpeed = curvature > .045 ? 21 : curvature > .03 ? 26 : iceAhead ? 28 : 46;
+  const iceAhead = dynamicSurface(target.x, target.z, track.id, stage, level).surface === 'ice';
+  const targetSpeed = approachingDetour ? 13 : curvature > .045 ? 21 : curvature > .03 ? 26 : iceAhead ? 28 : 46;
   let localProgress = near.progress;
   if (kart.nextCheckpoint === 1 && localProgress > track.length * .9) localProgress -= track.length;
   if (kart.nextCheckpoint === 0 && localProgress < track.length * .2) localProgress += track.length;

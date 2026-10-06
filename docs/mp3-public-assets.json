@@ -1,0 +1,26 @@
+{
+  "origin": "https://cube-dense-operator-dont.trycloudflare.com",
+  "checkedAt": "2026-10-06T13:27:10.754797+00:00",
+  "assets": [
+    {
+      "url": "https://cube-dense-operator-dont.trycloudflare.com/audio/lap-1-v1.mp3",
+      "status": 200,
+      "contentType": "audio/mpeg",
+      "bytes": 3916673,
+      "sha256": "7b91c112403a6d1eb66e7223f5bfceccb79733d7db52f7dfe940310199abb2db",
+      "matchesSource": true
+    },
+    {
+      "url": "https://cube-dense-operator-dont.trycloudflare.com/audio/lap-2-v1.mp3",
+      "status": 200,
+      "contentType": "audio/mpeg",
+      "bytes": 2323191,
+      "sha256": "742a73ba3c5e8df000be50e6cac0523caddfe128368f90cc5f1ec9949f3cf1c3",
+      "matchesSource": true
+    }
+  ],
+  "bundle": [
+    "/assets/index-BcLJLuu2.js"
+  ],
+  "updatedCredits": true
+}

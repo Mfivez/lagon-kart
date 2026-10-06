@@ -1,0 +1,364 @@
+{
+  "origin": "https://cube-dense-operator-dont.trycloudflare.com",
+  "clients": 4,
+  "kind": "SDK clients using ordinary inputs",
+  "durationSeconds": 280.726,
+  "checks": [
+    "Configuration réservée à l’hôte",
+    "Programme manuel de quatre circuits partagé par tous les clients",
+    "Île des Alizés : 4 pilotes, trois tours, classement et points synchronisés",
+    "Reconnexion en deuxième manche : identité, scores et programme conservés",
+    "Canyon solaire : 4 pilotes, trois tours, classement et points synchronisés",
+    "Banquise boréale : 4 pilotes, trois tours, classement et points synchronisés",
+    "Métropole néon : 4 pilotes, trois tours, classement et points synchronisés",
+    "Fin de tournoi et revanche : programme conservé, scores et course réinitialisés",
+    "Tirage aléatoire de huit manches : uniquement les circuits autorisés, sans répétition consécutive",
+    "Les choix de circuits restent indépendants entre salons"
+  ],
+  "raceResults": [
+    {
+      "trackId": "lagon",
+      "length": 611.0425591829925,
+      "results": {
+        "trackId": "lagon",
+        "results": [
+          {
+            "id": "S3UF5ieIU",
+            "name": "Tournoi 4",
+            "rank": 1,
+            "points": 15,
+            "finished": true,
+            "finishTime": 46.833333333333236
+          },
+          {
+            "id": "wqMrd4JL1",
+            "name": "Tournoi 3",
+            "rank": 2,
+            "points": 12,
+            "finished": true,
+            "finishTime": 49.366666666666426
+          },
+          {
+            "id": "va3fJhVT8",
+            "name": "Tournoi 2",
+            "rank": 3,
+            "points": 10,
+            "finished": true,
+            "finishTime": 49.46666666666642
+          },
+          {
+            "id": "slgJOYEQZ",
+            "name": "Tournoi 1",
+            "rank": 4,
+            "points": 8,
+            "finished": true,
+            "finishTime": 51.76666666666629
+          }
+        ]
+      },
+      "standings": [
+        {
+          "id": "S3UF5ieIU",
+          "name": "Tournoi 4",
+          "color": "#bca4ef",
+          "points": 15,
+          "wins": 1,
+          "totalTime": 46.833333333333236,
+          "racesCompleted": 1,
+          "rank": 1
+        },
+        {
+          "id": "wqMrd4JL1",
+          "name": "Tournoi 3",
+          "color": "#fed36a",
+          "points": 12,
+          "wins": 0,
+          "totalTime": 49.366666666666426,
+          "racesCompleted": 1,
+          "rank": 2
+        },
+        {
+          "id": "va3fJhVT8",
+          "name": "Tournoi 2",
+          "color": "#69cbd0",
+          "points": 10,
+          "wins": 0,
+          "totalTime": 49.46666666666642,
+          "racesCompleted": 1,
+          "rank": 3
+        },
+        {
+          "id": "slgJOYEQZ",
+          "name": "Tournoi 1",
+          "color": "#fc735d",
+          "points": 8,
+          "wins": 0,
+          "totalTime": 51.76666666666629,
+          "racesCompleted": 1,
+          "rank": 4
+        }
+      ]
+    },
+    {
+      "trackId": "canyon",
+      "length": 715.7091556236256,
+      "results": {
+        "trackId": "canyon",
+        "results": [
+          {
+            "id": "wqMrd4JL1",
+            "name": "Tournoi 3",
+            "rank": 1,
+            "points": 15,
+            "finished": true,
+            "finishTime": 61.96666666666571
+          },
+          {
+            "id": "va3fJhVT8",
+            "name": "Tournoi 2",
+            "rank": 2,
+            "points": 12,
+            "finished": true,
+            "finishTime": 68.76666666666533
+          },
+          {
+            "id": "S3UF5ieIU",
+            "name": "Tournoi 4",
+            "rank": 3,
+            "points": 10,
+            "finished": true,
+            "finishTime": 70.23333333333191
+          },
+          {
+            "id": "slgJOYEQZ",
+            "name": "Tournoi 1",
+            "rank": 4,
+            "points": 8,
+            "finished": true,
+            "finishTime": 70.29999999999858
+          }
+        ]
+      },
+      "standings": [
+        {
+          "id": "wqMrd4JL1",
+          "name": "Tournoi 3",
+          "color": "#fed36a",
+          "points": 27,
+          "wins": 1,
+          "totalTime": 111.33333333333213,
+          "racesCompleted": 2,
+          "rank": 1
+        },
+        {
+          "id": "S3UF5ieIU",
+          "name": "Tournoi 4",
+          "color": "#bca4ef",
+          "points": 25,
+          "wins": 1,
+          "totalTime": 117.06666666666516,
+          "racesCompleted": 2,
+          "rank": 2
+        },
+        {
+          "id": "va3fJhVT8",
+          "name": "Tournoi 2",
+          "color": "#69cbd0",
+          "points": 22,
+          "wins": 0,
+          "totalTime": 118.23333333333176,
+          "racesCompleted": 2,
+          "rank": 3
+        },
+        {
+          "id": "slgJOYEQZ",
+          "name": "Tournoi 1",
+          "color": "#fc735d",
+          "points": 16,
+          "wins": 0,
+          "totalTime": 122.06666666666487,
+          "racesCompleted": 2,
+          "rank": 4
+        }
+      ]
+    },
+    {
+      "trackId": "glacier",
+      "length": 697.2767947039456,
+      "results": {
+        "trackId": "glacier",
+        "results": [
+          {
+            "id": "wqMrd4JL1",
+            "name": "Tournoi 3",
+            "rank": 1,
+            "points": 15,
+            "finished": true,
+            "finishTime": 61.73333333333239
+          },
+          {
+            "id": "S3UF5ieIU",
+            "name": "Tournoi 4",
+            "rank": 2,
+            "points": 12,
+            "finished": true,
+            "finishTime": 65.09999999999887
+          },
+          {
+            "id": "slgJOYEQZ",
+            "name": "Tournoi 1",
+            "rank": 3,
+            "points": 10,
+            "finished": true,
+            "finishTime": 65.16666666666553
+          },
+          {
+            "id": "va3fJhVT8",
+            "name": "Tournoi 2",
+            "rank": 4,
+            "points": 8,
+            "finished": true,
+            "finishTime": 65.2333333333322
+          }
+        ]
+      },
+      "standings": [
+        {
+          "id": "wqMrd4JL1",
+          "name": "Tournoi 3",
+          "color": "#fed36a",
+          "points": 42,
+          "wins": 2,
+          "totalTime": 173.06666666666453,
+          "racesCompleted": 3,
+          "rank": 1
+        },
+        {
+          "id": "S3UF5ieIU",
+          "name": "Tournoi 4",
+          "color": "#bca4ef",
+          "points": 37,
+          "wins": 1,
+          "totalTime": 182.166666666664,
+          "racesCompleted": 3,
+          "rank": 2
+        },
+        {
+          "id": "va3fJhVT8",
+          "name": "Tournoi 2",
+          "color": "#69cbd0",
+          "points": 30,
+          "wins": 0,
+          "totalTime": 183.46666666666397,
+          "racesCompleted": 3,
+          "rank": 3
+        },
+        {
+          "id": "slgJOYEQZ",
+          "name": "Tournoi 1",
+          "color": "#fc735d",
+          "points": 26,
+          "wins": 0,
+          "totalTime": 187.2333333333304,
+          "racesCompleted": 3,
+          "rank": 4
+        }
+      ]
+    },
+    {
+      "trackId": "neon",
+      "length": 730.8198666099337,
+      "results": {
+        "trackId": "neon",
+        "results": [
+          {
+            "id": "va3fJhVT8",
+            "name": "Tournoi 2",
+            "rank": 1,
+            "points": 15,
+            "finished": true,
+            "finishTime": 66.46666666666546
+          },
+          {
+            "id": "S3UF5ieIU",
+            "name": "Tournoi 4",
+            "rank": 2,
+            "points": 12,
+            "finished": true,
+            "finishTime": 71.83333333333182
+          },
+          {
+            "id": "slgJOYEQZ",
+            "name": "Tournoi 1",
+            "rank": 3,
+            "points": 10,
+            "finished": true,
+            "finishTime": 71.89999999999849
+          },
+          {
+            "id": "wqMrd4JL1",
+            "name": "Tournoi 3",
+            "rank": 4,
+            "points": 8,
+            "finished": true,
+            "finishTime": 73.46666666666506
+          }
+        ]
+      },
+      "standings": [
+        {
+          "id": "wqMrd4JL1",
+          "name": "Tournoi 3",
+          "color": "#fed36a",
+          "points": 50,
+          "wins": 2,
+          "totalTime": 246.5333333333296,
+          "racesCompleted": 4,
+          "rank": 1
+        },
+        {
+          "id": "S3UF5ieIU",
+          "name": "Tournoi 4",
+          "color": "#bca4ef",
+          "points": 49,
+          "wins": 1,
+          "totalTime": 253.99999999999585,
+          "racesCompleted": 4,
+          "rank": 2
+        },
+        {
+          "id": "va3fJhVT8",
+          "name": "Tournoi 2",
+          "color": "#69cbd0",
+          "points": 45,
+          "wins": 1,
+          "totalTime": 249.93333333332941,
+          "racesCompleted": 4,
+          "rank": 3
+        },
+        {
+          "id": "slgJOYEQZ",
+          "name": "Tournoi 1",
+          "color": "#fc735d",
+          "points": 36,
+          "wins": 0,
+          "totalTime": 259.1333333333289,
+          "racesCompleted": 4,
+          "rank": 4
+        }
+      ]
+    }
+  ],
+  "randomSchedule": [
+    "canyon",
+    "neon",
+    "canyon",
+    "neon",
+    "canyon",
+    "neon",
+    "canyon",
+    "neon"
+  ],
+  "processExitCode": 143,
+  "executionNote": "All assertions and four races completed; report written before process received SIGTERM. Cause not established. A shorter reconnect/leave test subsequently exited 0; full two-driver rerun reported separately."
+}

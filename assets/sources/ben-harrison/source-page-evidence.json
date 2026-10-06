@@ -1,0 +1,42 @@
+{
+  "page": "https://poly.pizza/m/bKDlM4mH7rg",
+  "download": "https://static.poly.pizza/646175b3-44d3-4b1d-ac5c-a1ec478c2932.glb",
+  "retrievedDate": "2026-10-06",
+  "sourceSha256": "8e64e0d111a331bfe41002c1fad2bab3e8cf81145224828bd4bf36f5f6058949",
+  "modelMetadata": {
+    "Title": "Kart",
+    "Description": "\"Let'sa go\"",
+    "UploadDate": "2017-11-12T21:41:31.778Z",
+    "ResourceID": "646175b3-44d3-4b1d-ac5c-a1ec478c2932",
+    "PublicID": "bKDlM4mH7rg",
+    "Likes": 1,
+    "CommentCount": 0,
+    "Tris": 1916,
+    "Views": 833,
+    "Downloads": 229,
+    "Creator": {
+      "Username": "Ben Harrison",
+      "DPURL": "",
+      "Socials": {}
+    },
+    "Category": "Transport",
+    "Tags": [
+      "racing",
+      "racer"
+    ],
+    "Orbit": {
+      "phi": "1.29914",
+      "radius": "6.602875354374549",
+      "theta": "0.85119"
+    },
+    "Background": {
+      "one": "#5e35b1",
+      "two": "hsl(260deg, 54%, 15%)",
+      "type": "Radial"
+    },
+    "Visibility": "Public",
+    "Type": "obj",
+    "Licence": "CC-BY 3.0",
+    "Animated": false
+  }
+}

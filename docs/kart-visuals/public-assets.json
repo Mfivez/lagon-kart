@@ -1,0 +1,22 @@
+{
+  "origin": "https://forward-buses-were-mom.trycloudflare.com",
+  "model": {
+    "status": 200,
+    "mime": "model/gltf-binary",
+    "bytes": 94668,
+    "sha256": "c5bad88c4283d846f6a4bf3a02e97cc643897b149ed24334164127adf99ac29a",
+    "matchesLocal": true
+  },
+  "bundles": [
+    "/assets/index-2OYoI3xI.js",
+    "/assets/index-D3XtaGAo.css"
+  ],
+  "health": {
+    "status": "ok",
+    "rooms": 2,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  }
+}

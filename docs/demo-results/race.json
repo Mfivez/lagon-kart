@@ -1,0 +1,131 @@
+{
+  "origin": "https://cube-dense-operator-dont.trycloudflare.com",
+  "checks": [
+    "Quatre pilotes SDK conduisent par les commandes ordinaires",
+    "Deux sessions navigateur observent la course avec le GLB chargé",
+    "Musique du circuit active dans les deux navigateurs après interaction",
+    "Volume à zéro : musique arrêtée ; reprise au volume rétabli",
+    "Les quatre pilotes terminent trois tours ; les deux navigateurs affichent les mêmes résultats",
+    "GLB chargé une seule fois par page depuis la même origine, aucune erreur JavaScript",
+    "Crédits auteur et licence servis avec le jeu"
+  ],
+  "errors": [],
+  "durationSeconds": 65.036,
+  "drivers": 4,
+  "browserObservers": 2,
+  "inputMethod": "SDK autopilot through ordinary inputs; browsers are independent spectators, not keyboard drivers",
+  "renderer": "Chromium headless / SwiftShader",
+  "modelRequests": [
+    [
+      "https://cube-dense-operator-dont.trycloudflare.com/models/kart-zsky-v1.glb"
+    ],
+    [
+      "https://cube-dense-operator-dont.trycloudflare.com/models/kart-zsky-v1.glb"
+    ]
+  ],
+  "results": [
+    [
+      "vWilQCNJy",
+      2,
+      3,
+      true
+    ],
+    [
+      "UqrKeDATN",
+      3,
+      3,
+      true
+    ],
+    [
+      "-Sr5TOKxM",
+      4,
+      3,
+      true
+    ],
+    [
+      "ExnoTOc-J",
+      1,
+      3,
+      true
+    ]
+  ],
+  "itemTypesSeen": [
+    "shield",
+    "star",
+    "trap",
+    "tripleTurbo",
+    "turbo"
+  ],
+  "objectKindsSeen": [
+    "trap"
+  ],
+  "maximumItemCharges": 3,
+  "browserDiagnostics": [
+    {
+      "kartAssets": {
+        "status": "ready",
+        "loadCount": 1,
+        "modelUrl": "/models/kart-zsky-v1.glb",
+        "error": null,
+        "instanceCount": 7,
+        "importedCount": 7,
+        "fallbackCount": 0,
+        "sharedGeometryCount": 20,
+        "paintMaterialCount": 21,
+        "sourceMeshCount": 20,
+        "sourceTriangles": 4292,
+        "sourceBounds": {
+          "x": 2.2555237876350263,
+          "y": 1.5158349132889102,
+          "z": 3.8
+        }
+      },
+      "music": {
+        "title": "He’s a Kart",
+        "track": "lagon",
+        "running": false,
+        "step": 90,
+        "timerActive": false,
+        "lateResets": 1,
+        "voices": 3,
+        "peakVoices": 11,
+        "scheduledNotes": 656
+      },
+      "fps": 1.1215162900241107,
+      "quality": "light"
+    },
+    {
+      "kartAssets": {
+        "status": "ready",
+        "loadCount": 1,
+        "modelUrl": "/models/kart-zsky-v1.glb",
+        "error": null,
+        "instanceCount": 7,
+        "importedCount": 7,
+        "fallbackCount": 0,
+        "sharedGeometryCount": 20,
+        "paintMaterialCount": 21,
+        "sourceMeshCount": 20,
+        "sourceTriangles": 4292,
+        "sourceBounds": {
+          "x": 2.2555237876350263,
+          "y": 1.5158349132889102,
+          "z": 3.8
+        }
+      },
+      "music": {
+        "title": "He’s a Kart",
+        "track": "lagon",
+        "running": false,
+        "step": 20,
+        "timerActive": false,
+        "lateResets": 1,
+        "voices": 4,
+        "peakVoices": 11,
+        "scheduledNotes": 705
+      },
+      "fps": 1.579030475288175,
+      "quality": "light"
+    }
+  ]
+}

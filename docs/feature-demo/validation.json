@@ -1,0 +1,153 @@
+{
+  "origin": "http://127.0.0.1:43221",
+  "checks": [
+    "Accueil : six circuits sélectionnables, dont Mangrove et Dunes, et huit couleurs",
+    "Garage : trois modèles, cinq personnages, six catégories et douze pièces verrouillées au niveau zéro ; aperçus 3D et identités distinctes",
+    "Deux contextes indépendants rejoignent le même salon ; chacun reçoit et rend les modèles/personnages de l’autre",
+    "Changement de kart/personnage synchronisé en salon ; rechargement avec même place, identité, choix et préférences du garage",
+    "Réglages réservés à l’hôte : CPU, équipes quatre contre quatre avec six CPU, tournoi de deux manches et événements niveau trois",
+    "Conduite réelle : les deux humains avancent via les touches du navigateur, inputs reçus par le serveur et aucun déplacement injecté",
+    "Résultats et manche suivante vérifiés avec arrivées mises en scène : scores équipes, conservation des modèles/personnages et sauvegarde de deux courses",
+    "Coupe découverte lancée via l’interface : deux manches mises en scène, niveau un gagné, nouvelles coupes et pneus tout-terrain déverrouillés",
+    "Six coupes et niveaux zéro à trois : progression des menus vérifiée, paliers supérieurs simulés uniquement dans le stockage privé",
+    "Replay de trajectoires lu, mis en pause et parcouru ; identité, niveau et configuration restaurés après rechargement",
+    "Aucune erreur JavaScript ni ressource modèle/audio/asset manquante"
+  ],
+  "errors": [],
+  "fixtures": [
+    "Tournoi équipes, manche 1: résultats imposés dans le serveur privé après un départ normal ; tous les pilotes finissent, l’hôte premier. Aucune course complète réellement parcourue.",
+    "Tournoi équipes, manche 2: résultats imposés dans le serveur privé après un départ normal ; tous les pilotes finissent, l’hôte premier. Aucune course complète réellement parcourue.",
+    "Championnat découverte, manche 1: résultats imposés dans le serveur privé après un départ normal ; tous les pilotes finissent, l’hôte premier. Aucune course complète réellement parcourue.",
+    "Championnat découverte, manche 2: résultats imposés dans le serveur privé après un départ normal ; tous les pilotes finissent, l’hôte premier. Aucune course complète réellement parcourue.",
+    "Progression UI uniquement : store.completeChampionship(terrain, rank=1, finishedRaces=2) dans le stockage temporaire. Ces courses n’ont pas été parcourues.",
+    "Progression UI uniquement : store.completeChampionship(weather, rank=1, finishedRaces=3) dans le stockage temporaire. Ces courses n’ont pas été parcourues.",
+    "Progression UI uniquement : store.completeChampionship(precision, rank=1, finishedRaces=3) dans le stockage temporaire. Ces courses n’ont pas été parcourues.",
+    "Progression UI uniquement : store.completeChampionship(metamorphosis, rank=1, finishedRaces=4) dans le stockage temporaire. Ces courses n’ont pas été parcourues.",
+    "Progression UI uniquement : store.completeChampionship(masters, rank=1, finishedRaces=6) dans le stockage temporaire. Ces courses n’ont pas été parcourues."
+  ],
+  "captures": [
+    "home-six-tracks.png",
+    "garage-level-zero.png",
+    "lobby-two-humans.png",
+    "teams-eight-pilots.png",
+    "race-keyboard-two-humans.png",
+    "team-results-staged.png",
+    "career-six-cups-level-zero.png",
+    "garage-level-one-unlocked.png",
+    "career-level-three-staged.png",
+    "replay-private-race.png"
+  ],
+  "evidence": {
+    "trackIds": [
+      "lagon",
+      "canyon",
+      "glacier",
+      "neon",
+      "mangrove",
+      "dunes"
+    ],
+    "identities": [
+      {
+        "id": "af863ee7-8c0b-446d-8a0e-2a91591973d5",
+        "name": "Démo Reine",
+        "careerLevel": 0
+      },
+      {
+        "id": "bb3eb069-93c1-48cb-9a25-8e502a09af4a",
+        "name": "Démo Obama",
+        "careerLevel": 0
+      }
+    ],
+    "reconnection": {
+      "sessionPreserved": true,
+      "profilePreserved": true,
+      "modelId": "zsky",
+      "characterId": "trump"
+    },
+    "hostTransfer": {
+      "transferredOnReload": true
+    },
+    "keyboard": [
+      {
+        "name": "Démo Reine",
+        "distance": 3.9961218310044067,
+        "speed": 11.032930578763548,
+        "lastInputSequence": 77,
+        "modelId": "zsky",
+        "characterId": "trump"
+      },
+      {
+        "name": "Démo Obama",
+        "distance": 4.373451509903911,
+        "speed": 12.963962160772663,
+        "lastInputSequence": 257,
+        "modelId": "retro",
+        "characterId": "obama"
+      }
+    ],
+    "progressionFixtures": [
+      {
+        "cup": "terrain",
+        "level": 1,
+        "available": 3
+      },
+      {
+        "cup": "weather",
+        "level": 2,
+        "available": 5
+      },
+      {
+        "cup": "precision",
+        "level": 2,
+        "available": 5
+      },
+      {
+        "cup": "metamorphosis",
+        "level": 3,
+        "available": 6
+      },
+      {
+        "cup": "masters",
+        "level": 3,
+        "available": 6
+      }
+    ],
+    "finalProfile": {
+      "id": "af863ee7-8c0b-446d-8a0e-2a91591973d5",
+      "name": "Démo Reine",
+      "createdAt": 1791297000509,
+      "xp": 1890,
+      "careerLevel": 3,
+      "completedChampionships": [
+        "discovery",
+        "terrain",
+        "weather",
+        "precision",
+        "metamorphosis",
+        "masters"
+      ],
+      "stats": {
+        "races": 4,
+        "finishes": 4,
+        "wins": 4,
+        "podiums": 4,
+        "totalRaceTime": 10.633333333333317,
+        "bestTimes": {
+          "lagon": 1.0333333333333332,
+          "neon": 1.1
+        }
+      },
+      "season": "2026-Q4",
+      "mmr": 800,
+      "rank": "Bronze",
+      "ranked": {
+        "season": "2026-Q4",
+        "mmr": 800,
+        "races": 0,
+        "wins": 0,
+        "peakMmr": 800
+      }
+    }
+  },
+  "scope": "Deux contextes Chromium/SwiftShader sur le même hôte. Serveur éphémère et profils temporaires. Déplacements clavier réels ; arrivées et paliers supérieurs explicitement simulés, aucune course complète ni deux machines physiques."
+}

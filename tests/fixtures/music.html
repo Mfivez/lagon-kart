@@ -1,0 +1,8 @@
+<!doctype html><html lang="fr"><meta charset="utf-8"><title>Lecture des MP3 de course</title>
+<body><h1>Musique de course — fichiers locaux</h1>
+<p>Lap 1 au premier tour ; Lap 2 aux deuxième et troisième tours. Cette page est une fixture de validation locale.</p>
+<button id="start">Écouter</button><button id="stop">Arrêter</button>
+<label>Circuit <select id="track"><option>lagon</option><option>canyon</option><option>glacier</option><option>neon</option></select></label>
+<label>Tour <select id="lap"><option value="0">1</option><option value="1">2</option><option value="2">3</option></select></label>
+<label>Volume <input id="volume" type="range" min="0" max="100" value="75"></label>
+<pre id="status"></pre><script type="module" src="/tests/fixtures/music.ts"></script></body></html>

@@ -1,0 +1,96 @@
+{
+  "origin": "Two MP3 files supplied by the user in assets/audios; preserved byte-for-byte.",
+  "license": "No license inferred or assigned; inspect metadata below. User requested their integration.",
+  "conversion": "None: unchanged copies, same-origin playback, versioned filenames.",
+  "files": [
+    {
+      "format": "MPEG-1 Layer III (MP3)",
+      "id3Version": "2.4.0",
+      "id3TextFrames": {
+        "TIT2": "Lap 1",
+        "TPE1": "ancestraldrummers512",
+        "TSSE": "Lavf60.16.100",
+        "TXXX": "comment\u0000﻿made with suno; created=2026-10-06T12:07:21Z; id=725fb91c-6313-4803-be3c-8f957350e544",
+        "WOAS": "https://suno.com/song/725fb91c-6313-4803-be3c-8f957350e544",
+        "COMM": {
+          "bytes": 103
+        },
+        "APIC": {
+          "bytes": 14932
+        },
+        "GEOB": {
+          "bytes": 13702
+        }
+      },
+      "bytes": 3916673,
+      "sha256": "7b91c112403a6d1eb66e7223f5bfceccb79733d7db52f7dfe940310199abb2db",
+      "sampleRate": 48000,
+      "channelModes": [
+        "joint-stereo",
+        "stereo"
+      ],
+      "frameCount": 7270,
+      "encodedDurationSeconds": 174.48,
+      "bitrateKbps": [
+        32,
+        64,
+        112,
+        128,
+        160,
+        192,
+        224,
+        256,
+        320
+      ],
+      "averageFileBitrateKbps": 179.582,
+      "skippedNonFrameBytesAfterId3": 0,
+      "durationNote": "Frame duration includes encoder delay/padding; decoded browser duration may differ slightly.",
+      "source": "assets/audios/Lap 1.mp3",
+      "output": "client/public/audio/lap-1-v1.mp3"
+    },
+    {
+      "format": "MPEG-1 Layer III (MP3)",
+      "id3Version": "2.4.0",
+      "id3TextFrames": {
+        "TIT2": "Lap 1",
+        "TPE1": "ancestraldrummers512",
+        "TSSE": "Lavf60.16.100",
+        "TXXX": "comment\u0000﻿made with suno; created=2026-10-06T12:07:17Z; id=ee19be98-c47a-4961-802c-82581578e1e9",
+        "WOAS": "https://suno.com/song/ee19be98-c47a-4961-802c-82581578e1e9",
+        "COMM": {
+          "bytes": 103
+        },
+        "APIC": {
+          "bytes": 14042
+        },
+        "GEOB": {
+          "bytes": 13702
+        }
+      },
+      "bytes": 2323191,
+      "sha256": "742a73ba3c5e8df000be50e6cac0523caddfe128368f90cc5f1ec9949f3cf1c3",
+      "sampleRate": 48000,
+      "channelModes": [
+        "joint-stereo",
+        "stereo"
+      ],
+      "frameCount": 4155,
+      "encodedDurationSeconds": 99.72,
+      "bitrateKbps": [
+        32,
+        64,
+        128,
+        160,
+        192,
+        224,
+        256,
+        320
+      ],
+      "averageFileBitrateKbps": 186.377,
+      "skippedNonFrameBytesAfterId3": 0,
+      "durationNote": "Frame duration includes encoder delay/padding; decoded browser duration may differ slightly.",
+      "source": "assets/audios/Lap 2.mp3",
+      "output": "client/public/audio/lap-2-v1.mp3"
+    }
+  ]
+}

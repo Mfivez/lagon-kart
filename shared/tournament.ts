@@ -4,6 +4,7 @@ export type TournamentMode = 'single' | 'tournament';
 export type TrackSelection = 'manual' | 'random';
 export interface TournamentEntry {
   id: string; name: string; color: string; points: number; wins: number;
+  team?: 0 | 1;
   totalTime: number; racesCompleted: number; rank: number;
 }
 export interface RoundEntry {
@@ -17,6 +18,7 @@ export interface TournamentState {
 }
 export interface TournamentDriver {
   id: string; name: string; color: string; spectator?: boolean;
+  team?: 0 | 1;
   rank: number; finished: boolean; finishTime: number;
 }
 export const TOURNAMENT_POINTS = [15, 12, 10, 8, 6, 4, 2, 1] as const;
@@ -103,12 +105,13 @@ export function rankTournament(tournament: TournamentState): void {
   tournament.standings.forEach((entry, index) => { entry.rank = index + 1; });
 }
 
-export function registerTournamentDriver(tournament: TournamentState, driver: Pick<TournamentDriver, 'id' | 'name' | 'color'>): void {
+export function registerTournamentDriver(tournament: TournamentState, driver: Pick<TournamentDriver, 'id' | 'name' | 'color' | 'team'>): void {
   // A guest arriving after the last race waits for rematch; final ranks stay frozen.
   if (tournament.mode !== 'tournament' || tournament.completed) return;
   const existing = tournament.standings.find(entry => entry.id === driver.id);
-  if (existing) { existing.name = driver.name; existing.color = driver.color; }
+  if (existing) { existing.name = driver.name; existing.color = driver.color; if (driver.team === 0 || driver.team === 1) existing.team = driver.team; }
   else tournament.standings.push({ id: driver.id, name: driver.name, color: driver.color,
+    ...(driver.team === 0 || driver.team === 1 ? { team: driver.team } : {}),
     points: 0, wins: 0, totalTime: 0, racesCompleted: 0, rank: 0 });
   rankTournament(tournament);
 }

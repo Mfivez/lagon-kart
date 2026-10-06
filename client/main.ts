@@ -1,15 +1,28 @@
 import { Client, type Room } from 'colyseus.js';
 import { COLORS, TOTAL_LAPS, neutralInput, stepKart, type Input, type Kart, type World } from '../shared/game';
 import { TRACKS, getTrack, trackPoint } from '../shared/track';
-import { configurationMarkup, TournamentControls, trackCards, trackFeatures, standingsTable } from './tournament-ui';
+import { configurationMarkup, TournamentControls, trackCards, trackFeatures, standingsTable, teamsTable } from './tournament-ui';
 import { GameRenderer } from './renderer';
 import { GameAudio } from './audio';
+import { GarageUI } from './garage-ui';
+import { CareerUI } from './career-ui';
+import { showReplay } from './replay-view';
+import { getTrackEvent } from '../shared/track-events';
+import { CHARACTERS } from '../shared/characters';
+import type { GhostData } from '../shared/progression';
+import { KART_MODELS } from '../shared/kart-catalog';
 import './style.css';
 
 const escape = (value: string) => value.replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]!);
 const el = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
-const itemNames = { turbo: 'Turbo', trap: 'Piège', projectile: 'Projectile', '': 'Objet mystère' };
-const itemIcons = { turbo: '↗', trap: '△', projectile: '➤', '': '?' };
+const itemNames = { turbo: 'Turbo', tripleTurbo: 'Triple turbo', trap: 'Balise piège', projectile: 'Disque vert',
+  seeker: 'Fusée rouge', leaderBolt: 'Comète bleue', star: 'Étoile d’énergie', shield: 'Bouclier', '': 'Objet mystère' };
+const itemIcons = { turbo: '↗', tripleTurbo: '↗³', trap: '△', projectile: '➤', seeker: '⌖', leaderBolt: '☄', star: '★', shield: '◈', '': '?' };
+const itemColors = { turbo: '#ffbe5c', tripleTurbo: '#ffc66d', trap: '#f3ac48', projectile: '#68dd91',
+  seeker: '#ff737d', leaderBolt: '#74b8ff', star: '#ffe67c', shield: '#84e6ff', '': '#a2c8cd' };
+const itemHints = { turbo: 'Une accélération franche', tripleTurbo: 'Une pression par accélération', trap: 'Pose une balise derrière vous',
+  projectile: 'Lance un disque droit devant', seeker: 'Vise le pilote juste devant', leaderBolt: 'Poursuit le premier pilote',
+  star: 'Invincible + turbo pendant 5,5 s', shield: 'Absorbe un impact pendant 8 s', '': 'Attrapez un cube sur la piste' };
 const audio = new GameAudio();
 let chosenColor = localStorage.getItem('lagon-color') ?? COLORS[0];
 if (!COLORS.includes(chosenColor)) chosenColor = COLORS[0];
@@ -35,19 +48,23 @@ el('app').innerHTML = `
         <div class="name-field"><span>◉</span><input id="name-input" maxlength="18" autocomplete="nickname" placeholder="Votre nom de pilote" value="${escape(chosenName)}" aria-label="Pseudo" /></div>
         <div class="color-row"><span>Couleur du kart</span><div class="swatches" id="swatches">${COLORS.map((color, i) => `<button class="swatch ${color === chosenColor ? 'selected' : ''}" style="--swatch:${color}" data-color="${color}" aria-label="Couleur ${i + 1}" aria-pressed="${color === chosenColor}"></button>`).join('')}</div></div>
       </div>
+      <button id="career-button" class="secondary wide">Championnats, classement et replays <span>♜</span></button>
+      <button id="garage-button" class="secondary wide">Choisir mon kart et ses pièces <span>⚙</span></button>
       <button class="primary create-button" id="create-button"><span>Créer un salon</span><span class="button-arrow">↗</span></button>
       <div class="join-row"><input id="code-input" aria-label="Code du salon" maxlength="24" placeholder="CODE DU SALON" value="${escape(invitedCode)}" autocomplete="off" /><button id="join-button" class="secondary">Rejoindre <span>→</span></button></div>
       <button class="practice-button" id="practice-button"><span>⚑</span> Un tour pour s’échauffer <span class="practice-label">ENTRAÎNEMENT SOLO</span></button>
+      <label class="ghost-option"><input id="ghost-toggle" type="checkbox"> Fantôme du meilleur temps en entraînement</label>
       <p class="home-note"><span>●</span> 2 à 8 pilotes · 3 tours · Dans votre navigateur</p>
     </section>
     <aside class="island-card" id="island-card"><span class="island-number" id="track-number">01</span><div><span class="eyebrow">VOTRE PROCHAINE ESCALE</span><h2 id="track-name">Île des Alizés</h2><p id="track-description"></p><div class="track-tags" id="track-tags"></div></div></aside>
-    <aside class="home-circuit-picker" id="home-circuit-picker"><div class="eyebrow">QUATRE ESCALES. VOTRE TERRAIN DE JEU.</div><div class="track-card-grid" id="track-cards">${trackCards(chosenTrack)}</div><p>Une course ou un tournoi de 2 à 8 manches.<br>Composez votre programme dans le salon.</p></aside>
-    <section class="lobby-panel hidden" id="lobby-panel"><div class="eyebrow">LE DÉPART APPROCHE</div><h2>Tout le monde<br>sur la grille.</h2><p class="muted" id="lobby-description">Partagez le lien, rassemblez votre équipe.</p><div class="room-share"><div><span>CODE DU SALON</span><strong id="room-code">—</strong></div><button class="secondary" id="copy-button">Copier le lien ↗</button></div><input class="share-url" id="share-url" aria-label="Lien d’invitation du salon" readonly />${configurationMarkup}<div class="players-heading"><span>PILOTES</span><span id="player-count">0 / 8</span></div><div id="player-list" class="player-list"></div><button class="secondary wide" id="ready-button">Je suis prêt</button><button class="primary wide" id="start-button">Lancer la course <span>→</span></button><p class="lobby-hint muted" id="lobby-hint"></p></section>
+    <aside class="home-circuit-picker" id="home-circuit-picker"><div class="eyebrow">${TRACKS.length} CIRCUITS. VOTRE TERRAIN DE JEU.</div><div class="track-card-grid" id="track-cards">${trackCards(chosenTrack)}</div><p>Une course ou un tournoi de 2 à 8 manches.<br>Composez votre programme dans le salon.</p></aside>
+    <section class="lobby-panel hidden" id="lobby-panel"><div class="eyebrow">LE DÉPART APPROCHE</div><h2>Tout le monde<br>sur la grille.</h2><p class="muted" id="lobby-description">Partagez le lien, rassemblez votre équipe.</p><div class="room-share"><div><span>CODE DU SALON</span><strong id="room-code">—</strong></div><button class="secondary" id="copy-button">Copier le lien ↗</button></div><input class="share-url" id="share-url" aria-label="Lien d’invitation du salon" readonly />${configurationMarkup}<button id="lobby-garage-button" class="secondary wide">Mon kart et ses pièces ⚙</button><div class="players-heading"><span>PILOTES</span><span id="player-count">0 / 8</span></div><div id="player-list" class="player-list"></div><button class="secondary wide" id="ready-button">Je suis prêt</button><button class="primary wide" id="start-button">Lancer la course <span>→</span></button><p class="lobby-hint muted" id="lobby-hint"></p></section>
     <section class="results-panel hidden" id="results-panel"><div class="eyebrow">LE DRAPEAU EST TOMBÉ</div><div class="result-icon">⚑</div><h2 id="results-title">Bien joué,<br>les pilotes.</h2><p class="muted" id="results-subtitle">Même soleil, une nouvelle chance ?</p><div id="results-list" class="results-list"></div><div id="cup-standings" class="cup-standings hidden"></div><button class="primary wide hidden" id="next-race-button">Prochaine course <span>→</span></button><button class="primary wide" id="rematch-button">On remet ça <span>↻</span></button><p class="muted" id="results-hint"></p></section>
   </main>
-  <section class="race-hud hidden" id="race-hud" aria-label="Informations de course"><div class="race-top"><div class="position-card"><strong id="position">1<span>er</span></strong><span id="field-size">SUR 1 PILOTE</span></div><div class="lap-card"><span>TOUR</span><strong id="lap">1 <em>/ 3</em></strong><span id="race-time">00:00.0</span></div></div><div class="leaderboard" id="leaderboard"></div><div class="item-card" id="item-card"><span class="item-icon" id="item-icon">?</span><div><small>VOTRE OBJET</small><strong id="item-name">Objet mystère</strong><span id="item-hint">Attrapez un cube sur la piste</span></div><kbd>E</kbd></div><div class="speed-card"><div><strong id="speed">0</strong><span>KM/H</span></div><div class="boost-meter"><i id="boost-fill"></i></div><span id="boost-label">GARDEZ LE CAP</span><div class="draft-meter"><i id="draft-fill"></i></div><small id="draft-label">ASPIRATION</small></div><div class="minimap-card"><canvas id="minimap" width="240" height="180" aria-label="Mini-carte du circuit"></canvas><span id="minimap-name">ÎLE DES ALIZÉS</span></div></section>
+  <section class="race-hud hidden" id="race-hud" aria-label="Informations de course"><div class="race-top"><div class="position-card"><strong id="position">1<span>er</span></strong><span id="field-size">SUR 1 PILOTE</span></div><div class="lap-card"><span>TOUR</span><strong id="lap">1 <em>/ 3</em></strong><span id="race-time">00:00.0</span></div></div><div class="leaderboard" id="leaderboard"></div><div class="item-card" id="item-card"><span class="item-icon" id="item-icon">?</span><div><small>VOTRE OBJET</small><strong id="item-name">Objet mystère</strong><span id="item-hint">Attrapez un cube sur la piste</span><small id="item-effect" class="hidden" aria-live="off"></small></div><kbd>E</kbd></div><div class="speed-card"><div><strong id="speed">0</strong><span>KM/H</span></div><div class="boost-meter"><i id="boost-fill"></i></div><span id="boost-label">GARDEZ LE CAP</span><div class="draft-meter"><i id="draft-fill"></i></div><small id="draft-label">ASPIRATION</small></div><div class="minimap-card"><canvas id="minimap" width="240" height="180" aria-label="Mini-carte du circuit"></canvas><span id="minimap-name">ÎLE DES ALIZÉS</span></div></section>
+  <div id="event-banner" class="event-banner hidden" role="status"></div>
   <div class="countdown hidden" id="countdown"></div><div class="race-banner hidden" id="race-banner"></div>
-  <footer class="bottom-bar"><div class="controls"><span><kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd> <b>/ ZQSD / WASD</b></span><span><kbd>ESPACE</kbd> Drift</span><span><kbd>E</kbd> Objet</span><span><kbd>R</kbd> Replacer</span><span class="brake-help"><kbd>↓</kbd> Frein / recul</span></div><label class="volume" for="volume-input"><span aria-hidden="true">♫</span><input id="volume-input" type="range" min="0" max="100" value="${audio.level}" aria-label="Volume du jeu" /></label></footer>
+  <footer class="bottom-bar"><div class="controls"><span><kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd> <b>/ ZQSD / WASD</b></span><span><kbd>ESPACE</kbd> Drift</span><span><kbd>E</kbd> Objet</span><span><kbd>R</kbd> Replacer</span><span class="brake-help"><kbd>↓</kbd> Frein / recul</span></div><a class="credits-link" href="/credits.html" target="_blank" rel="noopener">Crédits</a><label class="volume" for="volume-input"><span aria-hidden="true">♫</span><input id="volume-input" type="range" min="0" max="100" value="${audio.level}" aria-label="Volume du jeu" /></label></footer>
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
   <div class="reconnect hidden" id="reconnect"><i></i><strong>On vous garde votre place.</strong><span>Connexion interrompue · tentative de reprise…</span></div>
   <div class="touch-controls hidden" id="touch-controls"><div><button data-key="ArrowLeft" aria-label="Gauche">←</button><button data-key="ArrowRight" aria-label="Droite">→</button></div><div><button data-key="Space" aria-label="Drift">DRIFT</button><button data-key="KeyE" aria-label="Objet">E</button><button data-key="ArrowUp" aria-label="Accélérer">↑</button><button data-key="ArrowDown" aria-label="Freiner">↓</button></div></div>
@@ -84,6 +101,21 @@ let resetPressed = false;
 type Snapshot = { world: World; serverTime: number; tick: number; simHz: number };
 const snapshots: { at: number; world: World }[] = [];
 let serverClockOffset = 0;
+const garage = new GarageUI(choice => {
+  renderer.setPreviewKart(chosenColor, choice.modelId, choice.characterId);
+  if (room && world?.phase === 'lobby') room.send('profile', choice);
+});
+renderer.setPreviewKart(chosenColor, garage.value.modelId, garage.value.characterId);
+const career = new CareerUI({
+  profile: saved => garage.setLevel(saved.careerLevel), error: toast, replay: showReplay,
+  championship: async id => {
+    if (busy || room) return;
+    audio.activate(); setBusy(true);
+    try { await career.ensure(profile().name); const next = await client.create('race', { ...profile(), token: career.authToken, practice: true, trackId: chosenTrack }); attachRoom(next); next.send('configure', { championshipId: id }); }
+    finally { setBusy(false); }
+  },
+  ranked: async id => { if (busy || room) return; audio.activate(); setBusy(true); try { attachRoom(await client.joinById(id, { ...profile(), token: career.authToken })); } finally { setBusy(false); } },
+});
 const tournamentControls = new TournamentControls((type, payload) => room?.send(type, payload));
 
 function previewTrack(id: string) {
@@ -115,7 +147,7 @@ function setBusy(value: boolean) {
 function profile() {
   chosenName = el<HTMLInputElement>('name-input').value.trim().slice(0, 18) || 'Pilote';
   localStorage.setItem('lagon-name', chosenName); localStorage.setItem('lagon-color', chosenColor);
-  return { name: chosenName, color: chosenColor };
+  return { name: chosenName, color: chosenColor, ...garage.value };
 }
 function clearControls() { keys.clear(); usePressed = false; resetPressed = false; }
 function resetPrediction() { pending = []; predicted = null; snapshots.length = 0; accumulator = 0; correction = { x: 0, z: 0 }; epoch = -1; sequence = 0; clearControls(); }
@@ -177,9 +209,15 @@ async function connect(mode: 'create' | 'join' | 'practice') {
   if (busy) return;
   audio.activate(); setBusy(true); connection('Connexion…', 'pending');
   try {
-    const options = profile(); autoPractice = mode === 'practice';
+    await career.ensure(profile().name);
+    const options = { ...profile(), token: career.authToken }; autoPractice = mode === 'practice';
     const code = el<HTMLInputElement>('code-input').value.trim().replace(/^.*\/room\//, '').replace(/[/?#].*$/, '').toUpperCase();
     if (mode === 'join' && !code) throw new Error('Saisissez le code du salon partagé par vos amis.');
+    renderer.setGhost(null);
+    if (mode === 'practice' && el<HTMLInputElement>('ghost-toggle').checked) {
+      const result = await fetch(`/api/ghost?track=${encodeURIComponent(chosenTrack)}&level=3`).then(response => response.json()) as { ghost?: GhostData | null };
+      if (result.ghost) renderer.setGhost(result.ghost); else toast('Aucun fantôme enregistré pour ce circuit et ces événements.');
+    }
     const next = mode === 'join' ? await client.joinById(code, options) : await client.create('race', { ...options, practice: mode === 'practice', trackId: chosenTrack });
     attachRoom(next);
   } catch (error) { autoPractice = false; toast(errorMessage(error)); connection('Hors ligne', 'offline'); setBusy(false); }
@@ -214,6 +252,9 @@ function returnHome() {
   history.replaceState(null, '', '/'); updateUI(performance.now(), true);
 }
 
+el('garage-button').addEventListener('click', () => { if (!busy) void career.ensure(profile().name).then(() => garage.open()).catch(error => toast(error.message)); });
+el('career-button').addEventListener('click', () => { if (!busy) void career.open(profile().name); });
+el('lobby-garage-button').addEventListener('click', () => { if (connected && world?.phase === 'lobby') garage.open(); });
 el('create-button').addEventListener('click', () => void connect('create'));
 el('join-button').addEventListener('click', () => void connect('join'));
 el('practice-button').addEventListener('click', () => void connect('practice'));
@@ -225,6 +266,7 @@ el('code-input').addEventListener('keydown', event => { if (event.key === 'Enter
 el('swatches').addEventListener('click', event => {
   const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-color]');
   if (!button) return; chosenColor = button.dataset.color!;
+  renderer.setPreviewKart(chosenColor, garage.value.modelId, garage.value.characterId);
   document.querySelectorAll<HTMLButtonElement>('[data-color]').forEach(swatch => { const selected = swatch.dataset.color === chosenColor; swatch.classList.toggle('selected', selected); swatch.setAttribute('aria-pressed', String(selected)); });
 });
 el('ready-button').addEventListener('click', () => { audio.activate(); room?.send('ready', { ready: !world?.players.find(p => p.id === room?.sessionId)?.ready }); });
@@ -301,6 +343,7 @@ function updateUI(now: number, force = false) {
   const me = world?.players.find(p => p.id === room?.sessionId);
   const players = [...(world?.players ?? [])].sort((a, b) => a.rank - b.rank);
   const competitors = players.filter(p => !p.spectator);
+  const tracked = me?.spectator ? competitors[0] : me;
   const displayedTrack = getTrack(world?.trackId ?? chosenTrack);
   document.body.dataset.theme = displayedTrack.theme;
   show('tournament-badge', !!world);
@@ -314,9 +357,9 @@ function updateUI(now: number, force = false) {
     el('player-count').textContent = `${players.length} PILOTE${players.length > 1 ? 'S' : ''}`;
     if (phase === 'lobby') {
       tournamentControls.update(world, room.sessionId);
-      const signature = players.map(p => `${p.id}:${p.name}:${p.color}:${p.ready}:${p.connected}:${p.spectator}`).join('|') + world.hostId;
+      const signature = players.map(p => `${p.id}:${p.name}:${p.color}:${p.team}:${p.cpu}:${p.modelId}:${p.characterId}:${JSON.stringify(p.build)}:${p.ready}:${p.connected}:${p.spectator}`).join('|') + world.hostId;
       if (signature !== lastLobbySignature) {
-        el('player-list').innerHTML = players.map((p, index) => `<div class="player-row"><span class="player-avatar" style="--kart:${escape(p.color)}">${String(index + 1).padStart(2, '0')}</span><div><strong>${escape(p.name)}${p.id === room?.sessionId ? '<small> VOUS</small>' : ''}</strong><span>${p.id === world?.hostId ? 'Créateur du salon' : 'Pilote'}</span></div><span class="ready-tag ${p.ready ? 'is-ready' : ''}">${!p.connected ? 'Reconnexion' : p.ready ? '✓ Prêt' : 'En préparation'}</span></div>`).join('');
+        el('player-list').innerHTML = players.map((p, index) => `<div class="player-row"><span class="player-avatar" style="--kart:${escape(p.color)}">${String(index + 1).padStart(2, '0')}</span><div><strong>${escape(p.name)}${p.id === room?.sessionId ? '<small> VOUS</small>' : ''}</strong><span>${p.id === world?.hostId ? 'Créateur du salon · ' : ''}${escape(KART_MODELS.find(model => model.id === p.modelId)?.name ?? 'Zsky')} · ${escape(CHARACTERS.find(character => character.id === p.characterId)?.name ?? 'Pilote')}${world?.teamMode ? ` · ${p.team === 0 ? 'Corail' : 'Lagon'}` : ''}${p.cpu ? ' · CPU' : ''}</span></div><span class="ready-tag ${p.ready ? 'is-ready' : ''}">${!p.connected ? 'Reconnexion' : p.ready ? '✓ Prêt' : 'En préparation'}</span></div>`).join('');
         lastLobbySignature = signature;
       }
       el('ready-button').textContent = me?.ready ? '✓ Prêt · Annuler' : 'Je suis prêt';
@@ -332,7 +375,7 @@ function updateUI(now: number, force = false) {
       if (signature !== lastResultSignature) {
         el('results-list').innerHTML = competitors.map(p => `<div class="result-row ${p.id === room?.sessionId ? 'is-you' : ''}"><strong>${p.rank}<small>${p.rank === 1 ? 'er' : 'e'}</small></strong><span class="result-swatch" style="background:${escape(p.color)}"></span><span>${escape(p.name)}</span><b>${p.finished ? formatTime(p.finishTime) : p.abandoned ? 'Abandon' : 'Non classé'}</b></div>`).join('');
         lastResultSignature = signature;
-        if (cup.mode === 'tournament') el('cup-standings').innerHTML = standingsTable(cup.standings, room.sessionId, cup.completed);
+        if (cup.mode === 'tournament') el('cup-standings').innerHTML = (world.teamMode ? teamsTable(cup.standings) : '') + standingsTable(cup.standings, room.sessionId, cup.completed);
       }
       const intermediate = cup.mode === 'tournament' && !cup.completed;
       show('cup-standings', cup.mode === 'tournament');
@@ -345,7 +388,6 @@ function updateUI(now: number, force = false) {
       el('results-hint').textContent = intermediate ? host ? 'Les points sont conservés. Tout le monde se prépare dans le prochain salon.' : 'Le créateur passera à la prochaine course.' : host ? 'Une revanche ramène tous les pilotes au salon.' : 'Le créateur du salon peut proposer une revanche.';
     }
     if (racing) {
-      const tracked = me?.spectator ? competitors[0] : me;
       const speed = tracked?.id === room.sessionId ? predicted?.speed ?? tracked?.speed ?? 0 : tracked?.speed ?? 0;
       const rank = tracked?.rank ?? 1;
       el('position').innerHTML = `${rank}<span>${rank === 1 ? 'er' : 'e'}</span>`;
@@ -354,8 +396,13 @@ function updateUI(now: number, force = false) {
       el('race-time').textContent = formatTime(world.raceTime);
       el('speed').textContent = String(Math.round(Math.abs(speed) * 3.6));
       const item = me?.item ?? '';
-      el('item-icon').textContent = itemIcons[item]; el('item-name').textContent = itemNames[item];
-      el('item-hint').textContent = item ? 'Appuyez sur E pour l’utiliser' : 'Attrapez un cube sur la piste'; el('item-card').classList.toggle('has-item', !!item);
+      el('item-icon').textContent = itemIcons[item]; el('item-icon').style.color = itemColors[item];
+      el('item-name').textContent = itemNames[item] + (item === 'tripleTurbo' ? ` · ${me?.itemCharges ?? 3}/3` : '');
+      el('item-hint').textContent = item ? `E · ${itemHints[item]}` : itemHints[''];
+      el('item-card').classList.toggle('has-item', !!item);
+      const effects = [me && me.invincible > 0 ? `★ Invincible ${me.invincible.toFixed(1)} s` : '',
+        me && me.shield > 0 ? `◈ Bouclier ${me.shield.toFixed(1)} s` : ''].filter(Boolean);
+      el('item-effect').textContent = effects.join(' · '); show('item-effect', effects.length > 0);
       el('boost-fill').style.width = `${Math.min(100, (predicted?.driftCharge ?? 0) / 2 * 100)}%`;
       const surfaceLabels = { road: 'GARDEZ LE CAP', offroad: 'HORS PISTE', boost: 'BANDE TURBO', ice: 'GLACE · ANTICIPEZ', mud: 'BOUE · RALENTISSEMENT' };
       el('boost-label').textContent = (predicted?.boost ?? 0) > 0 ? 'TURBO !' : (predicted?.driftCharge ?? 0) >= 0.65 ? 'RELÂCHEZ : MINI-TURBO' : (predicted?.driftCharge ?? 0) > 0 ? 'DRIFT EN CHARGE' : surfaceLabels[predicted?.surface ?? 'road'];
@@ -369,7 +416,10 @@ function updateUI(now: number, force = false) {
   const launchHint = world?.phase === 'countdown' ? me?.launchFault ? 'Trop tôt ! Vous prendrez un départ normal.' : world.countdown <= 1 ? 'MAINTENANT ! Maintenez l’accélérateur pour le départ turbo.' : 'Départ turbo : attendez la dernière seconde pour accélérer.' : '';
   const banner = me?.spectator && racing ? 'Vous arrivez en cours de route · À vous la prochaine course !' : me?.finished && racing ? `Arrivée ! ${me.rank}${me.rank === 1 ? 'er' : 'e'} · Les autres pilotes terminent…` : launchHint;
   show('race-banner', !!banner); el('race-banner').textContent = banner;
-  audio.update(predicted?.speed ?? 0, connected && phase === 'racing' && !me?.finished && !me?.spectator, me?.item ?? '', (predicted?.boost ?? 0) > 0, count);
+  audio.update(predicted?.speed ?? 0, connected && phase === 'racing' && !me?.finished && !me?.spectator, me?.item ?? '', (predicted?.boost ?? 0) > 0, count, world?.trackId, connected && phase === 'racing', tracked?.lap ?? 0);
+  show('event-banner', phase === 'racing' && (world?.eventLevel ?? 0) > 0);
+  if (world) { const event = getTrackEvent(world.trackId, world.eventStage, world.eventLevel); el('event-banner').textContent = event.title; el('event-banner').title = event.description; }
+  if (phase !== previousPhase && phase === 'finished') void career.refresh().catch(() => {});
   if (phase !== previousPhase) { if (!(previousPhase === 'countdown' && phase === 'racing')) clearControls(); previousPhase = phase; }
 }
 
@@ -439,6 +489,8 @@ Object.defineProperty(window, '__lagonDebug', { value: Object.freeze({
   get predicted() { return predicted ? structuredClone(predicted) : null; },
   get fps() { return renderer.fps; },
   get quality() { return renderer.quality; },
+  get kartAssets() { return structuredClone(renderer.kartAssets); },
+  get music() { return structuredClone(audio.musicStatus); },
   get connected() { return connected; },
   get pendingInputs() { return pending.length; }
 }) });

@@ -15,6 +15,9 @@ services:
       MAX_PLAYERS: ${MAX_PLAYERS:-8}
       RECONNECT_SECONDS: ${RECONNECT_SECONDS:-30}
       INPUT_TIMEOUT_MS: ${INPUT_TIMEOUT_MS:-250}
+      PLAYER_DATA_DIR: /app/data/players
+    volumes:
+      - player-data:/app/data
     stop_grace_period: 10s
   tunnel:
     image: cloudflare/cloudflared:2026.10.0
@@ -24,3 +27,5 @@ services:
     depends_on:
       app:
         condition: service_healthy
+volumes:
+  player-data:

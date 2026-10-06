@@ -2,6 +2,13 @@ import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { nearestTrack, type Kart, type World } from '../shared/game';
 import { getTrack, trackPoint, type TrackDefinition, type Vec2 } from '../shared/track';
+import { createKartContactShadow, createKartModel, kartAssetDiagnostics, type KartModelInstance } from './kart-model';
+import { DEFAULT_CHARACTER, normalizeCharacterId, type CharacterId } from '../shared/characters';
+import { DEFAULT_KART_MODEL, normalizeKartModelId, type KartModelId } from '../shared/kart-catalog';
+import { nearestDriveableTrack, getTrackEvent } from '../shared/track-events';
+import { TrackEventsView } from './track-events';
+import { GhostView } from './ghost-view';
+import type { GhostData } from '../shared/progression';
 
 const materials = new Map<string, THREE.MeshStandardMaterial>();
 function material(color: string | number, roughness = 0.85) {
@@ -12,6 +19,37 @@ function material(color: string | number, roughness = 0.85) {
 }
 const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
 const sphereGeometry = new THREE.IcosahedronGeometry(1, 1);
+const sparkGeometry = new THREE.OctahedronGeometry(0.16);
+const flameGeometry = new THREE.ConeGeometry(0.32, 2.1, 5);
+const trapGeometry = new THREE.ConeGeometry(1.1, 1.6, 5);
+const objectBaseGeometry = new THREE.CylinderGeometry(1.4, 1.4, 0.15, 8);
+const rocketGeometry = new THREE.ConeGeometry(0.6, 1.8, 6);
+const shieldGeometry = new THREE.SphereGeometry(1, 12, 8);
+const auraGeometry = new THREE.TorusGeometry(1.8, 0.07, 4, 24);
+const auraMaterial = new THREE.MeshBasicMaterial({ color: '#ffe67c', transparent: true, opacity: 0.8, depthWrite: false });
+const shieldMaterial = new THREE.MeshBasicMaterial({ color: '#66ddff', transparent: true, opacity: 0.13, depthWrite: false });
+const shieldRimMaterial = new THREE.MeshBasicMaterial({ color: '#8beeff', transparent: true, opacity: 0.7, depthWrite: false });
+const starShape = new THREE.Shape();
+for (let i = 0; i <= 10; i++) {
+  const radius = i % 2 ? 0.24 : 0.55;
+  const angle = Math.PI / 2 + i * Math.PI / 5;
+  if (i === 0) starShape.moveTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+  else starShape.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+}
+const starGeometry = new THREE.ExtrudeGeometry(starShape, { depth: 0.12, bevelEnabled: false });
+let mysteryMaterial: THREE.SpriteMaterial | undefined;
+function mysteryBadge() {
+  if (!mysteryMaterial) {
+    const canvas = document.createElement('canvas'); canvas.width = canvas.height = 64;
+    const ctx = canvas.getContext('2d')!;
+    ctx.font = 'bold 58px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#fff9ca'; ctx.strokeStyle = '#1c736f'; ctx.lineWidth = 5;
+    ctx.strokeText('?', 32, 33); ctx.fillText('?', 32, 33);
+    const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace;
+    mysteryMaterial = new THREE.SpriteMaterial({ map: texture, depthTest: true });
+  }
+  const sprite = new THREE.Sprite(mysteryMaterial); sprite.position.y = 1.45; sprite.scale.setScalar(1.4); return sprite;
+}
 function mesh(geometry: THREE.BufferGeometry, color: string | number, x: number, y: number, z: number, sx = 1, sy = 1, sz = 1) {
   const object = new THREE.Mesh(geometry, material(color));
   object.position.set(x, y, z);
@@ -59,15 +97,17 @@ function label(text: string) {
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, depthTest: false, transparent: true }));
-  sprite.scale.set(5.5, 1.15, 1); sprite.position.y = 4.2;
+  sprite.scale.set(4.4, 0.92, 1); sprite.position.y = 2.6;
   return sprite;
 }
 
-type KartVisual = { group: THREE.Group; body: THREE.Mesh; head: THREE.Mesh; sparks: THREE.Group; flames: THREE.Group; label: THREE.Sprite; name: string; color: string };
+type KartVisual = { group: THREE.Group; model: KartModelInstance | null; modelId: KartModelId; characterId: CharacterId; modelVersion: number; alive: boolean; sparks: THREE.Group; flames: THREE.Group; energy: THREE.Group; shield: THREE.Group; label: THREE.Sprite; name: string; color: string };
 
 export class GameRenderer {
   private readonly renderer: THREE.WebGLRenderer;
   private readonly scene = new THREE.Scene();
+  private readonly trackEvents = new TrackEventsView(this.scene);
+  private readonly ghost = new GhostView(this.scene);
   private readonly scenery = new THREE.Group();
   private readonly camera = new THREE.PerspectiveCamera(52, 1, 0.1, 900);
   private readonly karts = new Map<string, KartVisual>();
@@ -76,6 +116,7 @@ export class GameRenderer {
   private readonly cameraAim = new THREE.Vector3();
   private readonly cameraGoal = new THREE.Vector3();
   private lastCameraId = '';
+  private lastCameraFrame: number | null = null;
   private cameraAngle = 0;
   private readonly demo: KartVisual;
   private track: TrackDefinition = getTrack('lagon');
@@ -88,6 +129,8 @@ export class GameRenderer {
   public quality: 'standard' | 'light' = 'standard';
   private fpsTime = performance.now();
   private slowSeconds = 0;
+
+  get kartAssets() { return kartAssetDiagnostics(); }
 
   constructor(canvas: HTMLCanvasElement) {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
@@ -122,6 +165,12 @@ export class GameRenderer {
   }
 
   setPreviewTrack(id: string) { this.previewTrack = getTrack(id).id; }
+  setGhost(ghost: GhostData | null) { this.ghost.set(ghost); }
+
+  setPreviewKart(color: string, modelId: string, characterId: string = DEFAULT_CHARACTER) {
+    this.demo.color = color; this.demo.model?.setColor(color);
+    if (this.demo.modelId !== normalizeKartModelId(modelId) || this.demo.characterId !== normalizeCharacterId(characterId)) this.setKartModel(this.demo, modelId, characterId);
+  }
 
   private setTrack(id: string, force = false) {
     const next = getTrack(id);
@@ -145,7 +194,7 @@ export class GameRenderer {
     this.buildIsland();
     this.batchScenery();
     const start = trackPoint(0, next.id);
-    this.demo.group.position.set(start.x, 0.25, start.z);
+    this.demo.group.position.set(start.x, 0.055, start.z);
     this.demo.group.rotation.y = start.angle;
     this.lastCameraId = '';
   }
@@ -215,7 +264,8 @@ export class GameRenderer {
       for (let sideIndex = 0; sideIndex < 2; sideIndex++) {
         const side = sideIndex ? 1 : -1;
         transform.position.set((a.x + b.x) / 2 + Math.cos(angle) * side * (width / 2 + 5), 0.42, (a.z + b.z) / 2 - Math.sin(angle) * side * (width / 2 + 5));
-        transform.rotation.set(0, angle, 0); transform.scale.set(1, 1, length + 0.07); transform.updateMatrix(); guardrail.setMatrixAt(i * 2 + sideIndex, transform.matrix);
+        const gap = getTrackEvent(track.id, 2, 3).branches.some(branch => branch.points.some(point => Math.hypot(point.x - transform.position.x, point.z - transform.position.z) < branch.width / 2 + 2));
+        transform.rotation.set(0, angle, 0); transform.scale.set(gap ? 0 : 1, gap ? 0 : 1, gap ? 0 : length + 0.07); transform.updateMatrix(); guardrail.setMatrixAt(i * 2 + sideIndex, transform.matrix);
       }
     }
     guardrail.receiveShadow = true; scenery.add(guardrail);
@@ -242,7 +292,8 @@ export class GameRenderer {
     for (let i = 0; i < 82; i++) {
       const a = random() * Math.PI * 2, r = Math.sqrt(random()) * (radius - 13);
       const x = cx + Math.sin(a) * r, z = cz + Math.cos(a) * r;
-      if (nearestTrack(x, z, track.id).distance < width / 2 + 8) continue;
+      const route = nearestDriveableTrack(x, z, track.id, 2, 3);
+      if (route.distance < route.width / 2 + 8) continue;
       const prop = new THREE.Group(); prop.position.set(x, 0, z); prop.rotation.y = a;
       if (theme === 'tropical') {
         if (i % 4 === 0) prop.add(mesh(sphereGeometry, '#bac6a2', 0, 0.8, 0, 1.5 + random() * 2, 1 + random() * 2, 1.5 + random() * 2));
@@ -345,31 +396,65 @@ export class GameRenderer {
     }
   }
 
-  private buildKart(color: string, name: string): KartVisual {
+  private buildKart(color: string, name: string, modelId: string = DEFAULT_KART_MODEL, characterId: string = DEFAULT_CHARACTER): KartVisual {
     const group = new THREE.Group();
-    const body = box(color, 0, 0.75, 0, 1.9, 0.65, 3.1); group.add(body);
-    group.add(box('#f4eacb', 0, 0.5, 1.55, 2.1, 0.35, 0.4), box('#173a43', 0, 0.6, -1.5, 2.2, 0.3, 0.35));
-    group.add(box(color, 0, 1.1, -1.55, 2.4, 0.18, 0.65), box('#f8ebd3', 0, 1.08, 0.7, 0.35, 0.04, 1.3));
-    const wheelGeometry = new THREE.CylinderGeometry(0.53, 0.53, 0.42, 10);
-    for (const x of [-1.05, 1.05]) for (const z of [-1, 1]) {
-      const wheel = mesh(wheelGeometry, '#1e3037', x, 0.48, z); wheel.rotation.z = Math.PI / 2; group.add(wheel);
-      const hub = mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.45, 8), '#d3ded6', x, 0.48, z); hub.rotation.z = Math.PI / 2; group.add(hub);
-    }
-    group.add(mesh(sphereGeometry, color, 0, 1.4, -0.25, 0.6, 0.65, 0.5));
-    const head = mesh(sphereGeometry, '#fff1db', 0, 2.13, -0.15, 0.61, 0.59, 0.6); group.add(head);
-    group.add(box('#19404b', 0, 2.17, 0.35, 0.83, 0.25, 0.22));
+    group.userData.role = 'kart-instance';
+    group.add(createKartContactShadow());
     const sparks = new THREE.Group();
-    for (const x of [-1.1, 1.1]) for (let i = 0; i < 3; i++) sparks.add(mesh(new THREE.OctahedronGeometry(0.16), '#72eaff', x + (i % 2) * 0.13, 0.35 + i * 0.1, -1.5 - i * 0.45, 1, 1, 2));
+    for (const x of [-1.1, 1.1]) for (let i = 0; i < 3; i++) sparks.add(mesh(sparkGeometry, '#72eaff', x + (i % 2) * 0.13, 0.3 + i * 0.1, -1.5 - i * 0.45, 1, 1, 2));
     group.add(sparks); sparks.visible = false;
     const flames = new THREE.Group();
-    for (const x of [-0.65, 0.65]) { const flame = mesh(new THREE.ConeGeometry(0.4, 2.6, 5), '#ffcf63', x, 0.65, -2.2); flame.rotation.x = -Math.PI / 2; flames.add(flame); }
+    for (const x of [-0.48, 0.48]) { const flame = mesh(flameGeometry, '#ffcf63', x, 0.42, -2.25); flame.rotation.x = -Math.PI / 2; flames.add(flame); }
     group.add(flames); flames.visible = false;
+    // Effects have their own materials; shared imported kart materials are never
+    // recoloured or made transparent by another player's temporary protection.
+    const energy = new THREE.Group();
+    const ring = new THREE.Mesh(auraGeometry, auraMaterial); ring.rotation.x = Math.PI / 2; ring.position.y = 0.25;
+    energy.add(ring);
+    for (let i = 0; i < 3; i++) {
+      const star = new THREE.Mesh(starGeometry, auraMaterial);
+      star.position.set(Math.sin(i * Math.PI * 2 / 3) * 1.65, 1.5, Math.cos(i * Math.PI * 2 / 3) * 1.65);
+      star.scale.setScalar(0.7); energy.add(star);
+    }
+    energy.visible = false; group.add(energy);
+    const shield = new THREE.Group();
+    const bubble = new THREE.Mesh(shieldGeometry, shieldMaterial); bubble.position.y = 1; bubble.scale.set(1.6, 1.5, 2.4);
+    const rim = new THREE.Mesh(auraGeometry, shieldRimMaterial); rim.rotation.x = Math.PI / 2; rim.scale.set(0.85, 1.3, 1); rim.position.y = 0.35;
+    shield.add(bubble, rim); shield.visible = false; group.add(shield);
     const nameLabel = label(name); group.add(nameLabel);
-    return { group, body, head, sparks, flames, label: nameLabel, name, color };
+    const visual: KartVisual = { group, model: null, modelId: normalizeKartModelId(modelId), characterId: normalizeCharacterId(characterId), modelVersion: 0, alive: true, sparks, flames, energy, shield, label: nameLabel, name, color };
+    this.setKartModel(visual, modelId, characterId);
+    return visual;
+  }
+
+  private setKartModel(visual: KartVisual, modelId: string, characterId: string = DEFAULT_CHARACTER) {
+    visual.modelId = normalizeKartModelId(modelId); visual.characterId = normalizeCharacterId(characterId);
+    const version = ++visual.modelVersion;
+    void createKartModel(visual.color, visual.modelId, visual.characterId).then(model => {
+      // A selection can change again while its GLB is loading. Retain only the latest request.
+      if (!visual.alive || visual.modelVersion !== version) { model.dispose(); return; }
+      visual.model?.dispose(); model.setColor(visual.color);
+      visual.model = model; visual.group.add(model.group);
+    });
+  }
+
+  private removeKart(visual: KartVisual) {
+    visual.alive = false;
+    visual.group.removeFromParent(); visual.model?.dispose();
+    visual.label.material.map?.dispose(); visual.label.material.dispose();
   }
 
   render(world: World | null, players: Kart[], localId: string, dt: number, now: number) {
+    // Simulation dt is capped by the caller. Camera smoothing must follow the
+    // actual frame interval, otherwise slow rendering leaves it behind the kart.
+    const cameraElapsed = this.lastCameraFrame === null ? dt : (now - this.lastCameraFrame) / 1000;
+    const cameraDt = Math.max(0, Math.min(0.5, cameraElapsed));
+    this.lastCameraFrame = now;
+    // Re-anchor after an inactive tab instead of sweeping across an old position.
+    if (cameraElapsed > 0.5) this.lastCameraId = '';
     this.setTrack(world?.trackId ?? this.previewTrack);
+    this.trackEvents.update(world?.trackId ?? this.previewTrack, world?.eventStage ?? 0, world?.eventLevel ?? 3, now / 1000);
+    this.ghost.update(world);
     this.frames++;
     if (now - this.fpsTime >= 1000) {
       this.fps = this.frames * 1000 / (now - this.fpsTime); this.frames = 0; this.fpsTime = now;
@@ -383,42 +468,47 @@ export class GameRenderer {
       }
     }
     const ids = new Set(players.map(p => p.id));
-    for (const [id, visual] of this.karts) if (!ids.has(id)) { this.scene.remove(visual.group); visual.label.material.map?.dispose(); visual.label.material.dispose(); this.karts.delete(id); }
+    for (const [id, visual] of this.karts) if (!ids.has(id)) { this.removeKart(visual); this.karts.delete(id); }
     this.demo.group.visible = !world;
     for (const kart of players) {
       let visual = this.karts.get(kart.id);
-      if (!visual) { visual = this.buildKart(kart.color, kart.name); this.karts.set(kart.id, visual); this.scene.add(visual.group); }
-      if (visual.color !== kart.color) { visual.body.material = material(kart.color); visual.color = kart.color; }
+      if (!visual) { visual = this.buildKart(kart.color, kart.name, kart.modelId, kart.characterId); this.karts.set(kart.id, visual); this.scene.add(visual.group); }
+      if (visual.modelId !== normalizeKartModelId(kart.modelId) || visual.characterId !== normalizeCharacterId(kart.characterId)) this.setKartModel(visual, kart.modelId, kart.characterId);
+      if (visual.color !== kart.color) { visual.model?.setColor(kart.color); visual.color = kart.color; }
       if (visual.name !== kart.name) { visual.group.remove(visual.label); visual.label.material.map?.dispose(); visual.label.material.dispose(); visual.label = label(kart.name); visual.group.add(visual.label); visual.name = kart.name; }
       visual.group.visible = !kart.spectator && !kart.abandoned;
-      visual.group.position.set(kart.x, 0.15 + (kart.stun > 0 ? Math.sin(now * 0.025) * 0.16 : 0), kart.z);
-      visual.group.rotation.set(0, kart.angle, kart.driftCharge > 0.1 ? Math.sin(now * 0.02) * 0.025 : 0);
+      const groundY = kart.surface === 'offroad' ? 0.015
+        : kart.surface === 'boost' || kart.surface === 'ice' || kart.surface === 'mud' ? 0.09 : 0.055;
+      visual.group.position.set(kart.x, groundY, kart.z);
+      visual.group.rotation.set(0, kart.angle, 0);
+      visual.model?.animate(kart, dt, now);
       visual.label.visible = kart.id !== localId;
       visual.sparks.visible = kart.driftCharge > 0.1; visual.sparks.scale.setScalar(0.8 + (Math.sin(now * 0.08) + 1) * 0.4);
       visual.flames.visible = kart.boost > 0; visual.flames.scale.z = 0.85 + Math.sin(now * 0.1) * 0.2;
-      visual.head.rotation.z = kart.stun > 0 ? Math.sin(now * 0.015) * 0.5 : 0;
+      visual.energy.visible = kart.invincible > 0; visual.energy.rotation.y = now * 0.004;
+      visual.shield.visible = kart.shield > 0; visual.shield.scale.setScalar(1 + Math.sin(now * 0.006) * 0.025);
     }
     this.renderObjects(world, now);
     const local = players.find(k => k.id === localId && !k.spectator) ?? (world && world.phase !== 'lobby' ? players.find(k => !k.spectator) : undefined);
     const following = local && world && world.phase !== 'lobby' && world.phase !== 'finished';
     if (following) {
-      const blend = 1 - Math.exp(-dt * 5);
+      const blend = 1 - Math.exp(-cameraDt * 5);
       if (this.lastCameraId !== local.id) { this.cameraAngle = local.angle; this.cameraAim.set(local.x, 1, local.z); }
-      this.cameraAngle += Math.atan2(Math.sin(local.angle - this.cameraAngle), Math.cos(local.angle - this.cameraAngle)) * (1 - Math.exp(-dt * 4));
-      const distance = 14 + Math.min(3, Math.abs(local.speed) / 12);
-      this.cameraGoal.set(local.x - Math.sin(this.cameraAngle) * distance, 9, local.z - Math.cos(this.cameraAngle) * distance);
+      this.cameraAngle += Math.atan2(Math.sin(local.angle - this.cameraAngle), Math.cos(local.angle - this.cameraAngle)) * (1 - Math.exp(-cameraDt * 4));
+      const distance = 11.5 + Math.min(2.5, Math.abs(local.speed) / 16);
+      this.cameraGoal.set(local.x - Math.sin(this.cameraAngle) * distance, 6.3, local.z - Math.cos(this.cameraAngle) * distance);
       this.camera.position.lerp(this.cameraGoal, this.lastCameraId === local.id ? blend : 1);
-      this.cameraAim.lerp(new THREE.Vector3(local.x + Math.sin(this.cameraAngle) * 7, 1.2, local.z + Math.cos(this.cameraAngle) * 7), blend);
+      this.cameraAim.lerp(new THREE.Vector3(local.x + Math.sin(this.cameraAngle) * 5.5, 1.05, local.z + Math.cos(this.cameraAngle) * 5.5), blend);
       this.camera.lookAt(this.cameraAim); this.lastCameraId = local.id;
       const fov = local.boost > 0 ? 62 : 55; this.camera.fov += (fov - this.camera.fov) * blend; this.camera.updateProjectionMatrix();
     } else {
       const { centerX: x, centerZ: z, radius } = this.bounds;
       const angle = now * 0.000018 + 0.55;
       this.cameraGoal.set(x + Math.sin(angle) * radius * 1.05, radius * 1.25, z + Math.cos(angle) * radius * 1.25);
-      this.camera.position.lerp(this.cameraGoal, 1 - Math.exp(-dt * 2));
+      this.camera.position.lerp(this.cameraGoal, 1 - Math.exp(-cameraDt * 2));
       // Frame the island to the right of the home panel on desktop.
-      this.cameraAim.lerp(new THREE.Vector3(x - (innerWidth > 900 ? radius * 0.29 : 0), 0, z), 1 - Math.exp(-dt * 2));
-      this.camera.lookAt(this.cameraAim); this.camera.fov += (52 - this.camera.fov) * Math.min(1, dt * 3); this.camera.updateProjectionMatrix(); this.lastCameraId = '';
+      this.cameraAim.lerp(new THREE.Vector3(x - (innerWidth > 900 ? radius * 0.29 : 0), 0, z), 1 - Math.exp(-cameraDt * 2));
+      this.camera.lookAt(this.cameraAim); this.camera.fov += (52 - this.camera.fov) * Math.min(1, cameraDt * 3); this.camera.updateProjectionMatrix(); this.lastCameraId = '';
     }
     this.renderer.render(this.scene, this.camera);
   }
@@ -430,7 +520,7 @@ export class GameRenderer {
       if (!visual) {
         visual = new THREE.Group();
         const cube = box('#a5ffe9', 0, 0, 0, 1.7, 1.7, 1.7); (cube.material as THREE.MeshStandardMaterial) = material('#8ce8d0', 0.2);
-        visual.add(cube, box('#fff9ca', 0, 0, 0.88, 0.3, 1, 0.05), box('#fff9ca', 0, 0, -0.88, 0.3, 1, 0.05));
+        visual.add(cube, mysteryBadge());
         this.pickups.set(pickup.id, visual); this.scene.add(visual);
       }
       visual.visible = pickup.cooldown <= 0; visual.position.set(pickup.x, 1.6 + Math.sin(now * 0.003 + pickup.x) * 0.25, pickup.z); visual.rotation.set(0.15, now * 0.0009, 0.15);
@@ -444,8 +534,15 @@ export class GameRenderer {
       if (!visual) {
         visual = new THREE.Group();
         if (object.kind === 'trap') {
-          visual.add(mesh(new THREE.ConeGeometry(1.1, 1.6, 5), '#ffbf47', 0, 0.7, 0), mesh(new THREE.CylinderGeometry(1.4, 1.4, 0.15, 8), '#ee704a', 0, 0.15, 0));
-        } else visual.add(mesh(sphereGeometry, '#ef805f', 0, 0.85, 0, 0.85, 0.85, 1.2), box('#fff0cc', 0, 0.85, 0, 1.8, 0.15, 0.3));
+          visual.add(mesh(trapGeometry, '#ffbf47', 0, 0.7, 0), mesh(objectBaseGeometry, '#ee704a', 0, 0.15, 0));
+        } else if (object.kind === 'seeker') {
+          const rocket = mesh(rocketGeometry, '#ff5b67', 0, 0.85, 0); rocket.rotation.x = Math.PI / 2;
+          visual.add(rocket, box('#fff0cc', 0, 0.8, -0.45, 1.6, 0.14, 0.6), mesh(sphereGeometry, '#ffcf63', 0, 0.85, -1, 0.3, 0.3, 0.6));
+        } else if (object.kind === 'leaderBolt') {
+          visual.add(mesh(sphereGeometry, '#4c9dff', 0, 1.5, 0, 0.9, 0.9, 1.1),
+            box('#e7faff', 0, 1.5, 0, 2.1, 0.18, 0.4), mesh(sphereGeometry, '#9edcff', 0, 1.5, -1.3, 0.45, 0.45, 1));
+          const crown = mesh(starGeometry, '#fff28e', 0, 2.6, 0); visual.add(crown);
+        } else visual.add(mesh(sphereGeometry, '#62d982', 0, 0.85, 0, 0.85, 0.65, 1.2), box('#fff0cc', 0, 0.85, 0, 1.8, 0.15, 0.3));
         this.objects.set(object.id, visual); this.scene.add(visual);
       }
       visual.position.set(object.x, 0, object.z); visual.rotation.y = object.angle;

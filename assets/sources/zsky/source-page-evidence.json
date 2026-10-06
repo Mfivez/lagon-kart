@@ -1,0 +1,51 @@
+{
+  "retrieved": "2026-10-06",
+  "page": "https://poly.pizza/m/MkByxZCSMA",
+  "licenseAnchorHtml": "<a class=\"MuiTypography-root MuiLink-root MuiLink-underlineHover MuiTypography-colorTextSecondary\" href=\"https://creativecommons.org/licenses/by/3.0/\" target=\"blank\" style=\"margin-left:3px\">",
+  "modelMetadata": {
+    "Title": "Go Kart",
+    "Description": "For a modular kit and variations please check out https://zsky2000.itch.io/modular-karts-pack",
+    "UploadDate": "2021-07-31T09:11:50.107Z",
+    "ResourceID": "1cbbcb4d-0b62-487b-8c89-9e2a30710096",
+    "PublicID": "MkByxZCSMA",
+    "Likes": 6,
+    "CommentCount": 1,
+    "Tris": 804,
+    "Views": 833,
+    "Downloads": 388,
+    "Creator": {
+      "Username": "Zsky",
+      "DPURL": "https://static.poly.pizza/dp%2F0za45fd8-cea0-41bc-8d55-bbb814d32e3r.jpg",
+      "Socials": {
+        "Twitter": "Zsky_01",
+        "Pateron": "Zsky"
+      }
+    },
+    "Category": "Transport",
+    "Tags": [
+      "racing"
+    ],
+    "Orbit": {
+      "phi": "1.12680",
+      "radius": "25.391730808268942",
+      "theta": "0.83710"
+    },
+    "Background": {
+      "one": "#039be5",
+      "two": "hsl(200deg, 97%, 15%)",
+      "type": "Radial"
+    },
+    "Visibility": "Public",
+    "Type": "OBJ",
+    "Licence": "CC-BY 3.0",
+    "Animated": false
+  },
+  "glb": "https://static.poly.pizza/1cbbcb4d-0b62-487b-8c89-9e2a30710096.glb",
+  "sourceSha256": "7b3b06fa1841d1254888ec0443065e3cdbce58ff239bf9cd821b8daef234c0e4",
+  "modularPack": {
+    "page": "https://opengameart.org/content/modular-karts",
+    "license": "https://creativecommons.org/licenses/by/4.0/",
+    "download": "https://opengameart.org/sites/default/files/modularkartspackv1.zip",
+    "downloadResult": "HTTP403, archive not used"
+  }
+}

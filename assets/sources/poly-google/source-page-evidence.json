@@ -1,0 +1,41 @@
+{
+  "page": "https://poly.pizza/m/3hkutVs0AAV",
+  "download": "https://static.poly.pizza/b8d00b75-bdc5-4d05-9ce4-22358da13982.glb",
+  "retrievedDate": "2026-10-06",
+  "sourceSha256": "3e84c5499309d8582c5fe4d75c4c9f6f897ea59e91d0a82adf4dff016f9d8cad",
+  "modelMetadata": {
+    "Title": "Go kart",
+    "Description": "#racing",
+    "UploadDate": "2017-10-22T22:05:38.420Z",
+    "ResourceID": "b8d00b75-bdc5-4d05-9ce4-22358da13982",
+    "PublicID": "3hkutVs0AAV",
+    "Likes": 6,
+    "CommentCount": 0,
+    "Tris": 3828,
+    "Views": "1.98k",
+    "Downloads": 991,
+    "Creator": {
+      "Username": "Poly by Google",
+      "DPURL": "https://static.poly.pizza/dp%2Fpolygoogle.jpg",
+      "Socials": {}
+    },
+    "Category": "Transport",
+    "Tags": [
+      "racing"
+    ],
+    "Orbit": {
+      "phi": "1.24498",
+      "radius": "117.90229835267304",
+      "theta": "-0.82301"
+    },
+    "Background": {
+      "one": "#039be5",
+      "two": "hsl(200deg, 97%, 15%)",
+      "type": "Radial"
+    },
+    "Visibility": "Public",
+    "Type": "obj",
+    "Licence": "CC-BY 3.0",
+    "Animated": false
+  }
+}

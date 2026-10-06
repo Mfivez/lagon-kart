@@ -6,6 +6,7 @@ import { Server, matchMaker } from '@colyseus/core';
 import { WebSocketTransport } from '@colyseus/ws-transport';
 import { config } from './config.js';
 import { RaceRoom } from './RaceRoom.js';
+import { handleCareerRequest } from './career.js';
 
 const mime: Record<string, string> = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
@@ -114,6 +115,7 @@ export function createGameServer(clientDirectory = resolve(process.cwd(), 'dist/
     res.setHeader('Referrer-Policy', 'same-origin');
     const serve = async () => {
       const pathname = new URL(req.url || '/', 'http://internal.invalid').pathname;
+      if (pathname.startsWith('/api/')) { await handleCareerRequest(req, res, () => readOptions(req)); return; }
       if (pathname === '/healthz') {
         json(res, 200, { status: 'ok', rooms: RaceRoom.roomCount,
           maxRooms: config.maxRooms, maxPlayers: config.maxPlayers,

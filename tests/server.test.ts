@@ -130,12 +130,17 @@ test('live HTTP and Colyseus room boundaries', { timeout: 30000 }, async t => {
     await until(() => me(host)!.lastSeq === 10 && me(host)!.speed > 0, 'valid input acknowledgement');
     host.room.send('input', { ...neutralInput(11, epoch), throttle: 99 });
     host.room.send('input', { ...neutralInput(12, epoch), x: 50000, lap: 3, finished: true });
+    host.room.send('input', { ...neutralInput(12, epoch), item: 'star', itemCharges: 99, invincible: 999, shield: 999 });
+    host.room.send('useItem', { item: 'leaderBolt', targetId: 'opponent' });
     host.room.send('input', { ...neutralInput(13, epoch - 1), throttle: 1 });
     host.room.send('input', { ...neutralInput(10, epoch), throttle: -1 });
     host.room.send('finish', { rank: 1, lap: 3 });
     await pause(170);
     assert.equal(me(host)!.lastSeq, 10);
     assert.equal(me(host)!.lap, 0); assert.equal(me(host)!.finished, false);
+    assert.equal(me(host)!.item, ''); assert.equal(me(host)!.itemCharges, 0);
+    assert.equal(me(host)!.invincible, 0); assert.equal(me(host)!.shield, 0);
+    assert.equal(live(host).world.objects.length, 0);
     const accelerating = me(host)!.speed;
     assert.ok(accelerating > 0);
     await pause(650);

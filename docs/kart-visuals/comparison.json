@@ -1,0 +1,184 @@
+{
+  "baselineCommit": "51bbbab3c78cc5454124ae67682fad2fdfcd5dde",
+  "command": "node --import tsx scripts/kart-visual-check.ts",
+  "viewport": {
+    "width": 1280,
+    "height": 800,
+    "deviceScaleFactor": 1
+  },
+  "fixedTimeMs": 5000,
+  "positions": [
+    {
+      "id": "0",
+      "x": 24.936015255762772,
+      "z": -87.76690498566516,
+      "angle": 1.6010399517815943,
+      "color": "#fc735d"
+    },
+    {
+      "id": "1",
+      "x": 24.766676773590614,
+      "z": -93.36434408568722,
+      "angle": 1.6010399517815943,
+      "color": "#69cbd0"
+    },
+    {
+      "id": "2",
+      "x": 29.881137791542674,
+      "z": -87.87567782960366,
+      "angle": 1.5819476431086548,
+      "color": "#fed36a"
+    },
+    {
+      "id": "3",
+      "x": 29.818691714418666,
+      "z": -93.4753296480163,
+      "angle": 1.5819476431086548,
+      "color": "#bca4ef"
+    },
+    {
+      "id": "4",
+      "x": 34.76379385599686,
+      "z": -87.83335418247744,
+      "angle": 1.5402445632557922,
+      "color": "#92cf84"
+    },
+    {
+      "id": "5",
+      "x": 34.9348571168839,
+      "z": -93.4307408370489,
+      "angle": 1.5402445632557922,
+      "color": "#fa9ac4"
+    },
+    {
+      "id": "6",
+      "x": 39.69465547251543,
+      "z": -87.62089633143191,
+      "angle": 1.5173022480065765,
+      "color": "#638ce6"
+    },
+    {
+      "id": "7",
+      "x": 39.99407945993698,
+      "z": -93.21288571587789,
+      "angle": 1.5173022480065765,
+      "color": "#f4f1de"
+    }
+  ],
+  "camera": {
+    "position": [
+      56.011929704797794,
+      13,
+      -108.45934181033752
+    ],
+    "quaternion": [
+      -0.08689163757112892,
+      0.8794824955926259,
+      0.17630686079765379,
+      0.4334469680388262
+    ],
+    "fov": 47
+  },
+  "lighting": {
+    "sunPosition": [
+      -90,
+      150,
+      60
+    ],
+    "sunColor": "fff0ce",
+    "sunIntensity": 3.1,
+    "hemisphereIntensity": 2.7,
+    "exposure": 1.2
+  },
+  "model": {
+    "status": "ready",
+    "loadCount": 1,
+    "modelUrl": "/models/kart-zsky-v1.glb",
+    "error": null,
+    "instanceCount": 9,
+    "importedCount": 9,
+    "fallbackCount": 0,
+    "sharedGeometryCount": 20,
+    "paintMaterialCount": 27,
+    "sourceMeshCount": 20,
+    "sourceTriangles": 4292,
+    "sourceBounds": {
+      "x": 2.2555237876350263,
+      "y": 1.5158349132889102,
+      "z": 3.8
+    }
+  },
+  "clearance": {
+    "minimum": 0.06699999999999999,
+    "roadY": 0.05,
+    "positions": [
+      {
+        "id": "0",
+        "x": 24.936015255762772,
+        "z": -87.76690498566516,
+        "angle": 1.6010399517815943,
+        "color": "#22aa66"
+      },
+      {
+        "id": "1",
+        "x": 24.766676773590614,
+        "z": -93.36434408568722,
+        "angle": 1.6010399517815943,
+        "color": "#69cbd0"
+      },
+      {
+        "id": "2",
+        "x": 29.881137791542674,
+        "z": -87.87567782960366,
+        "angle": 1.5819476431086548,
+        "color": "#fed36a"
+      },
+      {
+        "id": "3",
+        "x": 29.818691714418666,
+        "z": -93.4753296480163,
+        "angle": 1.5819476431086548,
+        "color": "#bca4ef"
+      },
+      {
+        "id": "4",
+        "x": 34.76379385599686,
+        "z": -87.83335418247744,
+        "angle": 1.5402445632557922,
+        "color": "#92cf84"
+      },
+      {
+        "id": "5",
+        "x": 34.9348571168839,
+        "z": -93.4307408370489,
+        "angle": 1.5402445632557922,
+        "color": "#fa9ac4"
+      },
+      {
+        "id": "6",
+        "x": 39.69465547251543,
+        "z": -87.62089633143191,
+        "angle": 1.5173022480065765,
+        "color": "#638ce6"
+      },
+      {
+        "id": "7",
+        "x": 39.99407945993698,
+        "z": -93.21288571587789,
+        "angle": 1.5173022480065765,
+        "color": "#f4f1de"
+      }
+    ]
+  },
+  "checks": [
+    "Référence procédurale capturée : huit positions, caméra et éclairage fixes",
+    "Modèle GLB chargé une seule fois ; toutes les ressources restent sur la même origine",
+    "Huit couleurs indépendantes, géométries partagées, quatre pivots et ombres de contact",
+    "Comparaisons avant/après capturées avec transformations strictement identiques",
+    "Roues animées, braquage, inclinaison de carrosserie et changement de couleur sans modifier les positions physiques",
+    "La carrosserie reste au-dessus de la route en roulis maximal et au freinage",
+    "Départ et recréation : géométries partagées conservées et aucun second chargement du GLB",
+    "Une erreur 404 du GLB conserve huit karts de secours affichés sans nouvelle tentative en boucle"
+  ],
+  "pageErrors": []
+}

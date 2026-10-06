@@ -1,12 +1,14 @@
 import { TRACKS, getTrack, type TrackDefinition } from '../shared/track';
 import type { World } from '../shared/game';
 import type { TournamentEntry } from '../shared/tournament';
+import { teamStandings } from '../shared/teams';
 
 const escape = (value: string) => value.replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]!);
 const element = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 export const trackFeatures: Record<string, string> = {
   lagon: 'Courbes douces · Premiers turbos', canyon: 'Virages serrés · Boue',
   glacier: 'Glissades · Trajectoires larges', neon: 'Chicanes · Pistes turbo',
+  mangrove: 'Courbes en S · Boue alternée', dunes: 'Longues lignes droites · Quatre turbos',
 };
 export function trackOutline(track: TrackDefinition) {
   const minX = Math.min(...track.points.map(point => point.x)), maxX = Math.max(...track.points.map(point => point.x));
@@ -21,6 +23,10 @@ export function trackCards(selected: string) {
 export function standingsTable(entries: TournamentEntry[], me: string, final = false) {
   return `<div class="standings-heading"><span>${final ? 'CLASSEMENT FINAL DU TOURNOI' : 'CLASSEMENT DU TOURNOI'}</span><span>POINTS</span></div>${entries.map(entry => `<div class="standing-row ${entry.id === me ? 'is-you' : ''}"><b>${entry.rank}</b><i style="background:${escape(entry.color)}"></i><span>${escape(entry.name)}${entry.id === me ? '<small> VOUS</small>' : ''}</span><strong>${entry.points}<small> pts</small></strong></div>`).join('')}<p class="score-note" title="À égalité : victoires, courses terminées, puis temps cumulé.">15 · 12 · 10 · 8 · 6 · 4 · 2 · 1 points à l’arrivée. Abandon : 0.</p>`;
 }
+export function teamsTable(entries: TournamentEntry[]) {
+  const teams = teamStandings(entries, new Map(entries.filter(entry => entry.team !== undefined).map(entry => [entry.id, entry.team!])));
+  return `<div class="standings-heading"><span>CLASSEMENT DES ÉQUIPES · 4 CONTRE 4</span><span>POINTS</span></div>${teams.map(team => `<div class="standing-row"><b>${team.rank}</b><i style="background:${team.color}"></i><span>${team.name}</span><strong>${team.points}<small> pts</small></strong></div>`).join('')}<p class="score-note">Les points des quatre équipiers s’additionnent sur toutes les courses. Les objets offensifs épargnent les alliés.</p>`;
+}
 
 export const configurationMarkup = `<details id="race-configuration" class="race-configuration" open><summary>Choisir l’aventure <span id="configuration-summary">Une course</span></summary><div id="configuration-controls"></div><p id="configuration-note" class="configuration-note"></p></details><div id="schedule-list" class="schedule-list" aria-label="Programme des courses"></div><div id="lobby-cup-score" class="lobby-cup-score hidden"></div>`;
 
@@ -29,10 +35,17 @@ export class TournamentControls {
   private draft: Draft = { mode: 'single', selection: 'manual', trackId: 'lagon', raceCount: 4, schedule: TRACKS.map(track => track.id), trackPool: TRACKS.map(track => track.id) };
   private signature = '';
   private allowed = false;
+  private teamMode = false;
+  private cpuCount = 0;
+  private eventLevel = 3;
+  private championshipId = '';
   constructor(private readonly send: (type: string, payload: unknown) => void) {
     element('configuration-controls').addEventListener('change', event => {
       const input = event.target;
       if (!this.allowed || !(input instanceof HTMLInputElement || input instanceof HTMLSelectElement)) return;
+      if (input.id === 'teams-select') { this.send('configure', { teamMode: input.value === 'teams' }); return; }
+      if (input.id === 'cpu-select') { this.send('configure', { cpuCount: Number(input.value) }); return; }
+      if (input.id === 'events-select') { this.send('configure', { eventLevel: Number(input.value) }); return; }
       if (input.id === 'mode-select') this.draft.mode = input.value as Draft['mode'];
       else if (input.id === 'selection-select') this.draft.selection = input.value as Draft['selection'];
       else if (input.id === 'track-select') this.draft.trackId = input.value;
@@ -57,8 +70,10 @@ export class TournamentControls {
   update(world: World, sessionId: string) {
     const cup = world.tournament;
     const editable = world.phase === 'lobby' && cup.raceIndex === 0 && cup.rounds.length === 0;
-    const allowed = editable && world.hostId === sessionId;
-    const signature = JSON.stringify([cup.mode, cup.selection, cup.trackPool, cup.schedule, cup.raceCount, world.trackId]);
+    const allowed = editable && world.hostId === sessionId && !world.ranked;
+    this.teamMode = world.teamMode; this.cpuCount = world.players.filter(kart => kart.cpu).length;
+    this.eventLevel = world.eventLevel; this.championshipId = world.championshipId;
+    const signature = JSON.stringify([cup.mode, cup.selection, cup.trackPool, cup.schedule, cup.raceCount, world.trackId, this.teamMode, this.cpuCount, this.eventLevel, this.championshipId]);
     if (signature !== this.signature) {
       this.signature = signature;
       this.draft = { mode: cup.mode, selection: cup.selection, trackId: world.trackId,
@@ -73,7 +88,7 @@ export class TournamentControls {
     element('schedule-list').innerHTML = cup.schedule.map((id, index) => `<div class="schedule-stop ${index === cup.raceIndex ? 'current' : ''} ${index < cup.raceIndex ? 'done' : ''}" style="--track-accent:${getTrack(id).palette.accent}"><b>${index < cup.raceIndex ? '✓' : index + 1}</b><span>${escape(getTrack(id).name)}</span>${index === cup.raceIndex ? '<small>À SUIVRE</small>' : ''}</div>`).join('');
     const score = element('lobby-cup-score');
     score.classList.toggle('hidden', cup.mode !== 'tournament' || cup.rounds.length === 0);
-    if (cup.mode === 'tournament' && cup.rounds.length > 0) score.innerHTML = standingsTable(cup.standings, sessionId);
+    if (cup.mode === 'tournament' && cup.rounds.length > 0) score.innerHTML = (world.teamMode ? teamsTable(cup.standings) : '') + standingsTable(cup.standings, sessionId);
   }
 
   private render() {
@@ -88,6 +103,8 @@ export class TournamentControls {
       else controls += `<fieldset class="pool-editor"><legend>Les circuits possibles</legend>${TRACKS.map(track => `<label><input type="checkbox" data-pool-track="${track.id}" ${draft.trackPool.includes(track.id) ? 'checked' : ''}/><span>${escape(track.name)}</span></label>`).join('')}<p>Le programme sera tiré au sort pour tout le salon.</p></fieldset>`;
     }
     controls += `<button id="configure-button" class="secondary wide" ${draft.mode === 'tournament' && draft.selection === 'random' && draft.trackPool.length === 0 ? 'disabled' : ''}>${draft.mode === 'tournament' && draft.selection === 'random' ? 'Tirer le programme au sort' : 'Appliquer ce choix'} <span>✓</span></button>`;
+    controls += `<div class="config-columns">${select('teams-select', 'Participants', `<option value="solo" ${!this.teamMode ? 'selected' : ''}>Individuel</option><option value="teams" ${this.teamMode ? 'selected' : ''}>Équipes 4 contre 4</option>`)}${this.teamMode ? '<p class="garage-hint">Les places libres sont occupées par des CPU.</p>' : select('cpu-select', 'Adversaires CPU', Array.from({ length: 8 }, (_, index) => `<option value="${index}" ${this.cpuCount === index ? 'selected' : ''}>${index} CPU</option>`).join(''))}</div>`;
+    if (!this.championshipId) controls += select('events-select', 'Évolution du circuit', ['Classique', 'Routes alternatives', 'Météo et obstacles', 'Tous les événements'].map((name, level) => `<option value="${level}" ${this.eventLevel === level ? 'selected' : ''}>${name}</option>`).join(''));
     element('configuration-controls').innerHTML = controls;
   }
 }

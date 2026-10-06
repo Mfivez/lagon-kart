@@ -1,0 +1,12 @@
+{
+  "origin": "https://cube-dense-operator-dont.trycloudflare.com",
+  "bundle": "index-Bohhhwpf.js",
+  "css": "index-BwIgMnGH.css",
+  "model": {
+    "bytes": 94668,
+    "sha256": "c5bad88c4283d846f6a4bf3a02e97cc643897b149ed24334164127adf99ac29a",
+    "mime": "model/gltf-binary",
+    "sameAsLocal": true
+  },
+  "credits": true
+}

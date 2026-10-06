@@ -1,0 +1,95 @@
+{
+  "origin": "http://127.0.0.1:34259",
+  "checks": [
+    "Navigateur pilote et second client SDK connectés au serveur privé éphémère",
+    "Triple turbo : HUD 3 → 2 → 1 → vide après trois pressions E distinctes",
+    "Turbo, piège, projectile vert, fusée rouge et comète bleue : libellés HUD et activations reçues par le SDK",
+    "Étoile : durée serveur 5.53 s et compteur HUD qui disparaît à expiration",
+    "Bouclier : durée serveur 8.03 s et compteur HUD qui disparaît à expiration",
+    "Capture mise en scène : aura étoile, bouclier et projectiles vert/rouge/bleu dans le même rendu",
+    "Aucune erreur JavaScript ni ressource assets/modèles en erreur"
+  ],
+  "errors": [],
+  "fixtures": [
+    "Grant tripleTurbo to browser driver; positions 25 m / 130 m; remove pickups and previous objects.",
+    "Grant turbo to browser driver; positions 25 m / 130 m; remove pickups and previous objects.",
+    "Grant trap to browser driver; positions 25 m / 130 m; remove pickups and previous objects.",
+    "Grant projectile to browser driver; positions 25 m / 130 m; remove pickups and previous objects.",
+    "Grant seeker to browser driver; positions 25 m / 130 m; remove pickups and previous objects.",
+    "Grant leaderBolt to browser driver; positions 25 m / 130 m; remove pickups and previous objects.",
+    "Grant star to browser driver; positions 25 m / 130 m; remove pickups and previous objects.",
+    "Grant shield to browser driver; positions 25 m / 130 m; remove pickups and previous objects.",
+    "Screenshot only: pause private room simulation; star=4 s, shield=7 s, triple turbo=3; arrange green/red/blue objects 9 m ahead. These values do not measure duration or a complete race."
+  ],
+  "scope": "Private server fixtures and genuine E keyboard activations; no full race and no public Docker mutations.",
+  "clients": "One Chromium/SwiftShader browser driver and one independent Colyseus SDK client.",
+  "hudEvidence": {
+    "tripleTurbo": "↗³\nVOTRE OBJET\nTriple turbo · 3/3\nE · Une pression par accélération\nE",
+    "turbo": "↗\nVOTRE OBJET\nTurbo\nE · Une accélération franche\nE",
+    "trap": "△\nVOTRE OBJET\nBalise piège\nE · Pose une balise derrière vous\nE",
+    "projectile": "➤\nVOTRE OBJET\nDisque vert\nE · Lance un disque droit devant\nE",
+    "seeker": "⌖\nVOTRE OBJET\nFusée rouge\nE · Vise le pilote juste devant\nE",
+    "leaderBolt": "☄\nVOTRE OBJET\nComète bleue\nE · Poursuit le premier pilote\nE",
+    "star": "★\nVOTRE OBJET\nÉtoile d’énergie\nE · Invincible + turbo pendant 5,5 s\nE",
+    "invincible": "★ Invincible 3.6 s",
+    "shield": "◈ Bouclier 8.0 s"
+  },
+  "durations": {
+    "invincible": {
+      "first": 27.6666666666672,
+      "remaining": 5.5,
+      "end": 33.20000000000068,
+      "elapsed": 5.533333333333477
+    },
+    "shield": {
+      "first": 33.70000000000065,
+      "remaining": 8,
+      "end": 41.733333333333526,
+      "elapsed": 8.033333333332877
+    }
+  },
+  "activatedObjects": [
+    {
+      "id": "1-F2JaI2EhM-24033-305419896",
+      "kind": "trap",
+      "x": 18.483822409976497,
+      "z": -90.37298880295138,
+      "angle": 1.6010399517815943,
+      "owner": "F2JaI2EhM",
+      "ttl": 17.73333333333332
+    },
+    {
+      "id": "1-F2JaI2EhM-24833-305419896",
+      "kind": "projectile",
+      "x": 49.54562456260862,
+      "z": -91.31269682586448,
+      "angle": 1.6010399517815943,
+      "owner": "F2JaI2EhM",
+      "ttl": 3.6000000000000014
+    },
+    {
+      "id": "1-F2JaI2EhM-25600-305419896",
+      "kind": "seeker",
+      "x": 47.22121392174317,
+      "z": -89.32984015334263,
+      "angle": 1.4380213410494669,
+      "owner": "F2JaI2EhM",
+      "ttl": 8.666666666666668,
+      "targetId": "BpVpaOajz"
+    },
+    {
+      "id": "1-F2JaI2EhM-26633-305419896",
+      "kind": "leaderBolt",
+      "x": 76.18135414546956,
+      "z": -77.63515409414356,
+      "angle": 0.9132798072367339,
+      "owner": "F2JaI2EhM",
+      "ttl": 17.3333333333333,
+      "targetId": "BpVpaOajz"
+    }
+  ],
+  "screenshots": [
+    "items-triple.png",
+    "items-effects.png"
+  ]
+}

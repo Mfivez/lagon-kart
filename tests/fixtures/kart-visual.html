@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lagon Kart — comparaison des modèles</title>
+    <style>
+      *{box-sizing:border-box}body{margin:0;overflow:hidden;background:#cbe8df;font-family:system-ui,sans-serif}
+      canvas{display:block;width:100vw;height:100vh}.caption{position:fixed;left:28px;top:24px;pointer-events:none;color:#173a43;background:#fff9e5ed;padding:14px 19px;border-radius:12px;box-shadow:0 4px 20px #173a4312}
+      .caption b{display:block;font-size:19px;letter-spacing:-.5px}.caption span{display:block;margin-top:4px;font-size:11px;color:#617573}
+    </style>
+  </head>
+  <body>
+    <canvas id="game"></canvas>
+    <div class="caption"><b>Lagon Kart</b><span id="caption">Vue de comparaison déterministe</span></div>
+    <script type="module" src="./kart-visual.ts"></script>
+  </body>
+</html>

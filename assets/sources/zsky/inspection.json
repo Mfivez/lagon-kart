@@ -1,0 +1,241 @@
+{
+  "sourceFile": "go-kart-original.glb",
+  "sourceSha256": "7b3b06fa1841d1254888ec0443065e3cdbce58ff239bf9cd821b8daef234c0e4",
+  "sourceBytes": 127912,
+  "sourceMeshes": [
+    {
+      "mesh": 0,
+      "name": "Wheels1_Cylinder.004-Mesh",
+      "boundsMin": [
+        2.0562760829925537,
+        -1.1563600301742554,
+        2.358963966369629
+      ],
+      "boundsMax": [
+        3.3440139293670654,
+        1.002694010734558,
+        4.412345886230469
+      ],
+      "triangles": 76,
+      "primitives": 2,
+      "wheel": "Wheel_FL"
+    },
+    {
+      "mesh": 1,
+      "name": "Pedals1_Cylinder.007-Mesh",
+      "boundsMin": [
+        -1.9131629467010498,
+        -0.7119550108909607,
+        1.477715015411377
+      ],
+      "boundsMax": [
+        1.9131640195846558,
+        0.7451649904251099,
+        2.4857280254364014
+      ],
+      "triangles": 48,
+      "primitives": 1,
+      "wheel": null
+    },
+    {
+      "mesh": 2,
+      "name": "Wheels1.002_Cylinder.003-Mesh",
+      "boundsMin": [
+        2.6194119453430176,
+        -1.175915002822876,
+        -6.506387233734131
+      ],
+      "boundsMax": [
+        4.325181007385254,
+        1.6840200424194336,
+        -3.7864270210266113
+      ],
+      "triangles": 76,
+      "primitives": 2,
+      "wheel": "Wheel_RL"
+    },
+    {
+      "mesh": 3,
+      "name": "Wheels1.003_Cylinder.006-Mesh",
+      "boundsMin": [
+        -4.021768093109131,
+        -1.175915002822876,
+        -6.506387233734131
+      ],
+      "boundsMax": [
+        -2.315999984741211,
+        1.6840200424194336,
+        -3.7864270210266113
+      ],
+      "triangles": 76,
+      "primitives": 2,
+      "wheel": "Wheel_RR"
+    },
+    {
+      "mesh": 4,
+      "name": "Lights_Kart1.021_Cylinder.030-Mesh",
+      "boundsMin": [
+        -3.0406010150909424,
+        -1.1563600301742554,
+        2.358963966369629
+      ],
+      "boundsMax": [
+        -1.7528640031814575,
+        1.002694010734558,
+        4.412345886230469
+      ],
+      "triangles": 76,
+      "primitives": 2,
+      "wheel": "Wheel_FR"
+    },
+    {
+      "mesh": 5,
+      "name": "Lights_Kart1.018_Cylinder.049-Mesh",
+      "boundsMin": [
+        -1.0,
+        0.8671010136604309,
+        0.33423200249671936
+      ],
+      "boundsMax": [
+        1.0,
+        4.441073894500732,
+        3.5403499603271484
+      ],
+      "triangles": 132,
+      "primitives": 1,
+      "wheel": null
+    },
+    {
+      "mesh": 6,
+      "name": "Lights_Kart1.019_Cylinder.050-Mesh",
+      "boundsMin": [
+        -5.264523983001709,
+        -1.0084569454193115,
+        -10.275262832641602
+      ],
+      "boundsMax": [
+        5.264523983001709,
+        3.892642021179199,
+        7.463580131530762
+      ],
+      "triangles": 1196,
+      "primitives": 11,
+      "wheel": null
+    }
+  ],
+  "sourceMaterials": [
+    "Yellow_Wheel1",
+    "Black_Wheel1",
+    "LightGray_Pedals1",
+    "Black_SteeringWheel",
+    "Yellow_LightsKart1",
+    "Gray_LightsKart1",
+    "White_GasTank1",
+    "Yellow_GasTank1",
+    "Gray_Kart1",
+    "DarkRed_Chair1",
+    "Blue_Kart1",
+    "Blue_Hood1",
+    "DarkPurple_Catalyst_",
+    "Yellow_Catalyst",
+    "DarkBlue_Chair1"
+  ],
+  "sourceTriangleCount": 1680,
+  "sourcePrimitiveCount": 21,
+  "sourceBounds": {
+    "min": [
+      -5.264523983001709,
+      -1.175915002822876,
+      -10.275262832641602
+    ],
+    "max": [
+      5.264523983001709,
+      4.441073894500732,
+      7.463580131530762
+    ]
+  },
+  "sourcePivots": "All seven mesh nodes have identity transforms; wheel vertices are in world coordinates.",
+  "sourceTextures": 0,
+  "sourceAnimations": 0,
+  "sourceSkeletons": 0,
+  "orientation": {
+    "forward": "+Z",
+    "up": "+Y",
+    "wheelSpin": "+X",
+    "frontSteer": "+Y"
+  },
+  "scale": 0.21421915779258918,
+  "outputFile": "client/public/models/kart-zsky-v1.glb",
+  "outputSha256": "c5bad88c4283d846f6a4bf3a02e97cc643897b149ed24334164127adf99ac29a",
+  "outputBytes": 94668,
+  "outputSize": [
+    2.2555237876350263,
+    1.2032666309149875,
+    3.8
+  ],
+  "outputMaterials": [
+    "KartPaint",
+    "KartRim",
+    "KartTire",
+    "KartMetal",
+    "KartIvory",
+    "KartLamp",
+    "KartSeat"
+  ],
+  "outputTriangles": 1680,
+  "outputPrimitives": 15,
+  "wheelPivots": [
+    {
+      "name": "Wheel_FL",
+      "sourceMesh": 0,
+      "pivot": [
+        0.5784227891417043,
+        0.23544441890753082,
+        1.0264302969943053
+      ],
+      "radius": 0.23125536913608621
+    },
+    {
+      "name": "Wheel_RL",
+      "sourceMesh": 2,
+      "pivot": [
+        0.7438324267729002,
+        0.306326438366659,
+        -0.8013008503792232
+      ],
+      "radius": 0.306326438366659
+    },
+    {
+      "name": "Wheel_RR",
+      "sourceMesh": 3,
+      "pivot": [
+        -0.6788356699609285,
+        0.306326438366659,
+        -0.8013008503792232
+      ],
+      "radius": 0.306326438366659
+    },
+    {
+      "name": "Wheel_FR",
+      "sourceMesh": 4,
+      "pivot": [
+        -0.5134260195612758,
+        0.23544441890753082,
+        1.0264302969943053
+      ],
+      "radius": 0.23125536913608621
+    }
+  ],
+  "paintSourceMaterials": [
+    "Blue_Kart1",
+    "Blue_Hood1"
+  ],
+  "changes": [
+    "Uniform scale to length 3.8; preserve source proportions",
+    "Center X/Z and place lowest tire point at Y=0",
+    "Recenter each real source wheel at its own axle pivot",
+    "Name Body, four wheels, SeatMount and SteeringMount",
+    "Merge body primitives by material; remove unused UVs",
+    "Tune PBR materials and provide one shared paint slot"
+  ]
+}

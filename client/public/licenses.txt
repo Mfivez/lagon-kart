@@ -1,3 +1,28 @@
+
+Go kart — Poly by Google (Sprint adaptation)
+Source: https://poly.pizza/m/3hkutVs0AAV
+Kart — Ben Harrison (Retro adaptation)
+Source: https://poly.pizza/m/bKDlM4mH7rg
+Both models: Creative Commons Attribution 3.0 Unported
+https://creativecommons.org/licenses/by/3.0/
+Changes: orientation, scale, wheel component extraction and pivots,
+GLB hierarchy, player paint materials and runtime animations.
+Sources and license texts are retained in assets/sources.
+No endorsement by the source authors is implied.
+Characters and their accessories are original procedural creations.
+
+Go Kart — Zsky
+Source: https://poly.pizza/m/MkByxZCSMA
+Author credit: https://www.patreon.com/Zsky
+License: Creative Commons Attribution 3.0 Unported
+https://creativecommons.org/licenses/by/3.0/
+Adapted for Lagon Kart: orientation, scale, wheel pivots, GLB hierarchy,
+geometry grouping, materials and eight player colors. Runtime animation
+and the procedural driver are additions by Lagon Kart.
+Original source and conversion instructions are included in the repository.
+This adaptation does not imply endorsement by Zsky. No paid asset used.
+
+-----------------------------------------------------------------------
 three 0.186.1
 The MIT License
 

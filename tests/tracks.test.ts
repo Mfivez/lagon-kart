@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { TRACKS, TRACK, TRACK_LENGTH, ROAD_WIDTH, CHECKPOINTS, COLORS, TOTAL_LAPS,
+import { TRACKS, TRACK_IDS, TRACK, TRACK_LENGTH, ROAD_WIDTH, CHECKPOINTS, COLORS, TOTAL_LAPS,
   getTrack, isTrackId, nearestTrack, trackPoint, trackSurface, spawnPoint,
   createKart, createWorld, startRace, stepKart, stepWorld, resetKart, neutralInput,
   type Kart, type TrackDefinition, type TrackZone, type Vec2, type World } from '../shared/game.js';
@@ -22,8 +22,9 @@ function zonePoint(track: TrackDefinition, zone: TrackZone) {
 }
 function orient(a: Vec2, b: Vec2, c: Vec2) { return (b.x - a.x) * (c.z - a.z) - (b.z - a.z) * (c.x - a.x); }
 
-test('four original circuits expose bounded zones, closed nonintersecting routes and consistent arc coordinates', () => {
-  assert.deepEqual(TRACKS.map(track => track.id), ['lagon', 'canyon', 'glacier', 'neon']);
+test('six circuits expose bounded zones, closed nonintersecting routes and consistent arc coordinates', () => {
+  assert.deepEqual(TRACKS.map(track => track.id), ['lagon', 'canyon', 'glacier', 'neon', 'mangrove', 'dunes']);
+  assert.deepEqual(TRACKS.map(track => track.id), TRACK_IDS);
   assert.equal(TRACK, getTrack('lagon').points);
   assert.equal(TRACK_LENGTH, getTrack('lagon').length);
   assert.equal(ROAD_WIDTH, getTrack('lagon').width);
@@ -31,6 +32,7 @@ test('four original circuits expose bounded zones, closed nonintersecting routes
   assert.equal(isTrackId('lagon'), true); assert.equal(isTrackId('__proto__'), false);
   assert.equal(getTrack('missing').id, 'lagon');
   for (const track of TRACKS) {
+    assert.equal(isTrackId(track.id), true);
     assert.ok(track.length > 500 && track.length < 750, track.id);
     assert.ok(track.width >= 15 && track.width <= 18);
     assert.equal(track.checkpoints.length, 12);
@@ -61,8 +63,25 @@ test('four original circuits expose bounded zones, closed nonintersecting routes
   }
 });
 
+test('new circuits leave space between separate bends and a dry route beside each mud patch', () => {
+  for (const id of ['mangrove', 'dunes']) {
+    const track = getTrack(id);
+    const samples = Array.from({ length: 240 }, (_, i) => trackPoint(i * track.length / 240, id));
+    for (let i = 0; i < samples.length; i++) for (let j = i + 1; j < samples.length; j++) {
+      const arcDistance = Math.min(j - i, samples.length - j + i) * track.length / samples.length;
+      if (arcDistance < track.width * 3) continue;
+      const a = samples[i]!; const b = samples[j]!;
+      assert.ok(Math.hypot(a.x - b.x, a.z - b.z) > track.width * 1.5, id + ': separate bends overlap');
+    }
+    for (const zone of track.zones.filter(zone => zone.kind === 'mud')) {
+      const dryLine = trackPoint((zone.start + zone.end) / 2, id);
+      assert.equal(trackSurface(dryLine.x, dryLine.z, id).surface, 'road', id + ': mud must remain avoidable');
+    }
+  }
+});
+
 for (const track of TRACKS) {
-  test(track.id + ': eight ordinary input drivers finish three laps with items, zones and collisions', () => {
+  test(track.id + ': eight ordinary input drivers finish three laps with items, zones and collisions', t => {
     const world = racing(track.id, 8);
     for (let tick = 0; tick < 30 * 150 && world.phase === 'racing'; tick++)
       stepWorld(world, new Map(world.players.map(kart => [kart.id, autopilot(kart, tick, true)])), dt);
@@ -71,6 +90,7 @@ for (const track of TRACKS) {
     assert.ok(world.raceTime < 100, track.id + ': ' + world.raceTime);
     assert.equal(new Set(world.players.map(kart => kart.rank)).size, 8);
     assert.ok(world.players.every(kart => kart.trackId === track.id));
+    t.diagnostic(track.id + ': 8/8 finished in ' + world.raceTime.toFixed(2) + ' simulation seconds');
   });
 
   test(track.id + ': checkpoints use this circuit and reject skipped gates or reverse crossings', () => {

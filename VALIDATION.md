@@ -2,7 +2,50 @@
 
 Vérifications effectuées le 6 octobre 2026 dans WSL/Linux avec Docker Desktop 4.55.0, Docker Engine 29.1.3, Compose 2.40.3, Node 20.19.2 sur l'hôte et Node 22.21.1 dans l'image. Les résultats ci-dessous distinguent simulation, clients réseau automatisés et navigateur.
 
-## Extension : quatre circuits et tournois
+## Version actuelle : les deux MP3 fournis
+
+`Lap 1.mp3` joue au premier tour et `Lap 2.mp3` aux deuxième et troisième tours, sur les quatre circuits. Les originaux sont conservés et les copies versionnées servies depuis l'origine du jeu. Aucune dépendance ou dépense ajoutée ; moteur, effets, simulation et protocole réseau conservés.
+
+- **10 contrôles Chromium réussis** : lecture réelle, changement de tour, boucles, volume, pause/reprise, fin de course et fichier absent. Les deux MP3 sont décodables et identiques aux sources ; deux lecteurs au maximum, une piste active.
+- `python3 scripts/prepare-music.py --check`, `npm run typecheck`, `npm run build` et reconstruction de l'image Docker réussis.
+- Course complète via le tunnel public : **67,4 s, sortie 0**, quatre pilotes SDK par commandes ordinaires et deux sessions Chromium observatrices. Lecture de Lap 1 puis Lap 2, volume nul/rétabli et arrêt à l'arrivée vérifiés ; résultats communs et aucune erreur JavaScript. [Rapport](docs/mp3-public.json).
+- Les deux fichiers publics répondent en `audio/mpeg` et leurs SHA-256 sont identiques aux originaux. Bundle servi : `index-BcLJLuu2.js`. Client publié sans redémarrage du serveur ni du tunnel. [Intégrité publique](docs/mp3-public-assets.json).
+- [Détail des contrôles audio](docs/MUSIC.md) et [rapport JSON](docs/music-validation.json). L'écoute sur haut-parleurs réels et la reprise sur mobile restent à essayer.
+
+## Historique de l'intégration : karts, objets et première musique
+
+[Rapport complet et lien de démo](docs/DEMO.md).
+
+- **63 tests réussis**, build hôte et Docker valides ; dépendances et circuits inchangés.
+- Huit objets vérifiés dans un navigateur sur serveur privé : pressions E, ciblage, HUD et protections temporisées ; aucune erreur JavaScript.
+- Ancienne musique synthétique : **12 contrôles** navigateur/audio avaient validé quatre arrangements, boucle complète et libération des voix. Cette version a été remplacée par les MP3 ; aucune écoute humaine revendiquée.
+- Course publique complète en **65,036 s** : quatre pilotes SDK et deux navigateurs observateurs, résultats identiques, GLB chargé une fois par page, musique/volume/arrêt vérifiés.
+- Tournoi public complet en **303,565 s**, sortie 0 : deux pilotes SDK, quatre circuits, trois tours par circuit ; reconnexion, scores, revanche, sélection aléatoire et isolation des salons vérifiés. Le rapport complet distingue aussi un premier lancement interrompu après l'enregistrement de ses résultats.
+- Les essais sur deux machines physiques, les performances GPU et l'écoute sur le matériel de démo restent à faire.
+
+Rapports JSON conservés dans `docs/demo-results/`.
+
+## Lot visuel : kart Zsky avant extension des objets
+
+Le [rapport de démo](docs/KART_DEMO.md) rassemble la provenance, les captures
+avant/après à cadrage identique, les commandes et les limites des vérifications.
+
+- **50 tests réussis**, dont trois nouveaux contrôles du GLB ; construction TypeScript, Vite et Docker réussie.
+- Conversion reproductible vérifiée ; un modèle local de 94 668 octets, huit peintures indépendantes, géométries partagées et un seul chargement par page.
+- Huit contrôles visuels réussis, dont roues/braquage/inclinaison sans mutation des positions, garde au sol, suppression/recréation et secours après HTTP 404.
+- Course complète sur le tunnel public Docker : quatre pilotes SDK terminent trois tours ; deux sessions Chromium observatrices affichent les mêmes résultats, sans erreur JavaScript.
+- GLB et crédits servis sur la même origine ; HTTPS/WSS et SHA-256 du fichier public vérifiés.
+- Contrôle caméra à 3 FPS réussi, puis nouvelle course publique complète en 70,02 s avec la caméra corrigée.
+
+Deux sessions du même navigateur ne constituent pas deux machines physiques.
+Les essais clavier sur deux ordinateurs et la fluidité sur GPU restent à faire.
+Ce lot visuel conserve la simulation, les collisions, les circuits, Colyseus,
+les dépendances npm et les fichiers Docker. Les ajouts d'objets et de musique
+font l'objet d'une validation d'intégration distincte.
+
+Les sections suivantes conservent les résultats des versions antérieures.
+
+## Historique : quatre circuits et tournois
 
 `npm run build` réussit : vérification TypeScript, compilation Vite et serveur. Fichiers client de cette version : `index-zxG7bDV_.js` et `index-B4UmZrnT.css`.
 

@@ -2,6 +2,10 @@
 
 Un jeu de kart 3D arcade à partager entre amis : quatre circuits originaux, trois tours par course, drift et mini-turbo, objets, aspiration et tournois de deux à huit courses. L'interface est en français. Le serveur calcule les déplacements, collisions, objets et résultats ; le navigateur envoie les touches de conduite.
 
+Les karts utilisent désormais le modèle gratuit [Go Kart de Zsky](https://poly.pizza/m/MkByxZCSMA), avec huit peintures, roues animées, braquage et légère inclinaison visuelle de la carrosserie. Les crédits de [Zsky](https://www.patreon.com/Zsky) et la licence [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) sont accessibles depuis le jeu. Coût des assets et de la préparation : **0 €**.
+
+Voir la [démo intégrée, ses captures et ses tests](docs/DEMO.md), ainsi que le [suivi des tâches](todo.md).
+
 ## Lancer une partie avec Docker
 
 Seuls **Docker et Docker Compose** sont nécessaires sur l'ordinateur qui héberge la partie. Les amis utilisent un navigateur récent sur ordinateur (Chrome, Edge ou Firefox avec WebGL activé).
@@ -89,7 +93,9 @@ Les [Quick Tunnels Cloudflare](https://developers.cloudflare.com/tunnel/get-star
 | Utiliser l'objet | E |
 | Remettre le kart en piste | R |
 
-Les boîtes sur le circuit donnent un **turbo**, un **piège** à déposer derrière soi ou un **projectile** lancé devant. Le réglage du volume est dans l'interface ; le son démarre après une interaction avec la page. En quittant la fenêtre, les commandes sont relâchées automatiquement.
+Les boîtes mystères distribuent huit objets : **turbo**, **triple turbo**, **balise piège**, **projectile vert**, **fusée rouge guidée**, **comète bleue visant le leader**, **étoile d'énergie** et **bouclier**. Le triple turbo se consomme en trois pressions distinctes sur E ; le HUD indique les charges et les protections actives. Le tirage favorise les outils de rattrapage à l'arrière du peloton. Cibles, impacts et durées sont calculés par le serveur. Voir [les règles des objets](docs/ITEMS.md).
+
+Les musiques fournies **`Lap 1.mp3`** et **`Lap 2.mp3`** accompagnent tous les circuits : le premier fichier joue au premier tour, puis le second aux deuxième et troisième tours. Les originaux sont conservés dans `assets/audios/` et leurs copies versionnées sont servies par le jeu. Le réglage du volume s'applique à la musique et aux effets ; le son démarre après une interaction avec la page. En quittant la fenêtre, les commandes sont relâchées et la musique est suspendue. L'intégration ne nécessite aucun achat, service externe ou nouvelle dépendance. Voir [les fichiers et leur intégration](docs/MUSIC.md).
 
 Pour varier la conduite sans ajouter de touches :
 
@@ -115,6 +121,21 @@ Les valeurs par défaut fonctionnent sans fichier `.env`. Pour les changer, copi
 | `INPUT_TIMEOUT_MS` | 250 | Neutralisation après silence réseau |
 
 Dans le conteneur, le serveur écoute `0.0.0.0:3000`. Compose publie uniquement `127.0.0.1:3000` sur l'ordinateur ; le tunnel joint directement `http://app:3000` sur le réseau Docker. Aucun port de routeur ne doit être ouvert. `/healthz` vérifie que le serveur répond. Le service tunnel attend que ce contrôle réussisse.
+
+## Modèle du kart et préparation
+
+`client/public/models/kart-zsky-v1.glb` est inclus dans le projet et servi depuis la même origine que la page. `GLTFLoader` charge ce modèle une seule fois par page. Les instances partagent leurs géométries et leurs matériaux fixes ; les matériaux teintés sont propres à chaque pilote. Les roues ont des pivots préparés autour de leur axe, distincts du braquage. L'ancien kart procédural est conservé comme secours en cas d'échec de chargement.
+
+Le roulement des roues, leur braquage et l'inclinaison de carrosserie sont des effets de rendu : ils ne changent ni la position simulée, ni les collisions, ni les messages réseau. Une ombre de contact légère reste visible lorsque le jeu réduit les ombres dynamiques sur une machine lente.
+
+L'original, sa provenance et sa licence sont conservés dans `assets/sources/zsky/`. Pour reproduire la préparation, **facultativement**, avec Python 3 :
+
+```bash
+npm run prepare:kart
+npm run check:kart
+```
+
+La conversion utilise la bibliothèque standard Python, sans téléchargement. Ni Python ni Blender ne sont nécessaires pour construire l'image Docker ou jouer. Voir [l'inspection du modèle](docs/KART_ASSET.md), [les captures avant/après et la validation de la démo](docs/KART_DEMO.md) et [les notices](THIRD_PARTY_NOTICES.md).
 
 ## Développement et tests
 
@@ -149,6 +170,18 @@ npm run test:browser
 
 # Interface des tournois, sur un serveur de test privé (après npm run build)
 npm run test:browser-tournament
+
+# Comparatifs visuels et contrôles du modèle, sur un serveur de test isolé
+npm run test:kart-visual
+
+# Quatre pilotes SDK et deux navigateurs observateurs, contre un serveur actif
+BASE_URL=http://127.0.0.1:3000 npm run test:kart-demo
+
+# Nouveaux objets : clavier et HUD sur un serveur privé à fixtures (après build)
+npm run test:items-browser
+
+# Musique : lecture des MP3, changement de tour, volume et reprise
+npm run test:music
 ```
 
 Les scripts réseau et le test navigateur de course complète acceptent `BASE_URL` pour tester une URL publique. Le test réseau accepte `CLIENTS=2` ou `8`, ainsi que `LATENCY_MS=75` pour retarder les commandes et la réception des instantanés de 75 ms chacun. Le test de tournoi accepte `CLIENTS=2` à `8` et fait réellement parcourir trois tours sur les quatre circuits. Le test navigateur utilise deux contextes isolés dans un même Chromium, pilotés automatiquement par les commandes clavier ordinaires. Le test d'interface des tournois démarre son propre serveur et raccourcit les arrivées avec des fixtures serveur : il vérifie les écrans et transitions, pas des courses complètes. Exemple sous bash :
@@ -166,12 +199,12 @@ Sous PowerShell : `$env:BASE_URL="https://votre-adresse.trycloudflare.com"`, pui
 - `shared/game.ts` : conduite déterministe, surfaces, aspiration, départ turbo, progression, collisions et objets.
 - `shared/tournament.ts` : configuration, tirage des circuits, points et classement cumulé.
 - `server/` : salons Colyseus, règles d'accès, reconnexion, contrôles des messages et serveur HTTP statique.
-- `client/` : Three.js, caméra, interface, audio synthétique, prédiction locale et interpolation.
+- `client/` : Three.js, caméra, interface, musique MP3 et effets synthétiques, prédiction locale et interpolation.
 - `tests/` : tests ciblés des règles ; `scripts/` : vérifications de bout en bout.
 
 La simulation est autoritaire à pas fixe. Les commandes sont bornées et numérotées ; leur génération de connexion (`epoch`) invalide les anciennes commandes après reprise. Le serveur ne rejoue aucune file de commandes accumulées après une coupure. Le client réconcilie sa prédiction avec les commandes acquittées ; les autres karts sont interpolés et le rendu utilise `requestAnimationFrame` indépendamment du réseau. Les instantanés complets simplifient cette première version à huit joueurs, au prix d'une bande passante plus élevée que des deltas de schéma.
 
-L'audit de [react-racing-game](https://github.com/colyseus/react-racing-game) a montré que `movementData` y recopie les positions du client. Adapter sa physique Cannon côté serveur et ses anciennes dépendances économisait moins de travail qu'une conduite arcade commune. Le projet assemble donc Three.js et Colyseus, sans React ni moteur physique externe. Les packs [Kenney Car Kit](https://kenney.nl/assets/car-kit) et [Racing Kit](https://kenney.nl/assets/racing-kit), sous CC0, ont été examinés ; les modèles procéduraux correspondent ici directement aux dimensions de la simulation et ne nécessitent aucun téléchargement en jeu.
+L'audit de [react-racing-game](https://github.com/colyseus/react-racing-game) a montré que `movementData` y recopie les positions du client. Adapter sa physique Cannon côté serveur et ses anciennes dépendances économisait moins de travail qu'une conduite arcade commune. Le projet assemble donc Three.js et Colyseus, sans React ni moteur physique externe. Les packs [Kenney Car Kit](https://kenney.nl/assets/car-kit) et [Racing Kit](https://kenney.nl/assets/racing-kit), sous CC0, ont été examinés comme solutions possibles. Le kart retenu est celui de Zsky ; les circuits restent procéduraux. Toutes les ressources sont locales au serveur du jeu.
 
 Les licences et les versions figurent dans [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). L'usage de Colyseus 0.16 est volontaire et ses API sont vérifiées dans les sources installées ; les primitives netcode 0.18 ne sont pas utilisées. Toutes les dépendances npm sont figées dans `package-lock.json`, les images Docker ont des versions explicites.
 

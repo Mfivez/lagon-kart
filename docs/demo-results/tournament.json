@@ -1,0 +1,219 @@
+{
+  "origin": "https://cube-dense-operator-dont.trycloudflare.com",
+  "clients": 2,
+  "kind": "SDK clients using ordinary inputs",
+  "durationSeconds": 303.565,
+  "checks": [
+    "Configuration réservée à l’hôte",
+    "Programme manuel de quatre circuits partagé par tous les clients",
+    "Île des Alizés : 2 pilotes, trois tours, classement et points synchronisés",
+    "Reconnexion en deuxième manche : identité, scores et programme conservés",
+    "Canyon solaire : 2 pilotes, trois tours, classement et points synchronisés",
+    "Banquise boréale : 2 pilotes, trois tours, classement et points synchronisés",
+    "Métropole néon : 2 pilotes, trois tours, classement et points synchronisés",
+    "Fin de tournoi et revanche : programme conservé, scores et course réinitialisés",
+    "Tirage aléatoire de huit manches : uniquement les circuits autorisés, sans répétition consécutive",
+    "Les choix de circuits restent indépendants entre salons"
+  ],
+  "raceResults": [
+    {
+      "trackId": "lagon",
+      "length": 611.0425591829925,
+      "results": {
+        "trackId": "lagon",
+        "results": [
+          {
+            "id": "MJOd-5Lld",
+            "name": "Tournoi 1",
+            "rank": 1,
+            "points": 15,
+            "finished": true,
+            "finishTime": 48.633333333333134
+          },
+          {
+            "id": "ZTxH9raPw",
+            "name": "Tournoi 2",
+            "rank": 2,
+            "points": 12,
+            "finished": true,
+            "finishTime": 57.33333333333264
+          }
+        ]
+      },
+      "standings": [
+        {
+          "id": "MJOd-5Lld",
+          "name": "Tournoi 1",
+          "color": "#fc735d",
+          "points": 15,
+          "wins": 1,
+          "totalTime": 48.633333333333134,
+          "racesCompleted": 1,
+          "rank": 1
+        },
+        {
+          "id": "ZTxH9raPw",
+          "name": "Tournoi 2",
+          "color": "#69cbd0",
+          "points": 12,
+          "wins": 0,
+          "totalTime": 57.33333333333264,
+          "racesCompleted": 1,
+          "rank": 2
+        }
+      ]
+    },
+    {
+      "trackId": "canyon",
+      "length": 715.7091556236256,
+      "results": {
+        "trackId": "canyon",
+        "results": [
+          {
+            "id": "ZTxH9raPw",
+            "name": "Tournoi 2",
+            "rank": 1,
+            "points": 15,
+            "finished": true,
+            "finishTime": 69.73333333333194
+          },
+          {
+            "id": "MJOd-5Lld",
+            "name": "Tournoi 1",
+            "rank": 2,
+            "points": 12,
+            "finished": true,
+            "finishTime": 75.93333333333159
+          }
+        ]
+      },
+      "standings": [
+        {
+          "id": "MJOd-5Lld",
+          "name": "Tournoi 1",
+          "color": "#fc735d",
+          "points": 27,
+          "wins": 1,
+          "totalTime": 124.56666666666473,
+          "racesCompleted": 2,
+          "rank": 1
+        },
+        {
+          "id": "ZTxH9raPw",
+          "name": "Tournoi 2",
+          "color": "#69cbd0",
+          "points": 27,
+          "wins": 1,
+          "totalTime": 127.06666666666459,
+          "racesCompleted": 2,
+          "rank": 2
+        }
+      ]
+    },
+    {
+      "trackId": "glacier",
+      "length": 697.2767947039456,
+      "results": {
+        "trackId": "glacier",
+        "results": [
+          {
+            "id": "MJOd-5Lld",
+            "name": "Tournoi 1",
+            "rank": 1,
+            "points": 15,
+            "finished": true,
+            "finishTime": 63.233333333332304
+          },
+          {
+            "id": "ZTxH9raPw",
+            "name": "Tournoi 2",
+            "rank": 2,
+            "points": 12,
+            "finished": true,
+            "finishTime": 71.49999999999851
+          }
+        ]
+      },
+      "standings": [
+        {
+          "id": "MJOd-5Lld",
+          "name": "Tournoi 1",
+          "color": "#fc735d",
+          "points": 42,
+          "wins": 2,
+          "totalTime": 187.79999999999703,
+          "racesCompleted": 3,
+          "rank": 1
+        },
+        {
+          "id": "ZTxH9raPw",
+          "name": "Tournoi 2",
+          "color": "#69cbd0",
+          "points": 39,
+          "wins": 1,
+          "totalTime": 198.56666666666308,
+          "racesCompleted": 3,
+          "rank": 2
+        }
+      ]
+    },
+    {
+      "trackId": "neon",
+      "length": 730.8198666099337,
+      "results": {
+        "trackId": "neon",
+        "results": [
+          {
+            "id": "ZTxH9raPw",
+            "name": "Tournoi 2",
+            "rank": 1,
+            "points": 15,
+            "finished": true,
+            "finishTime": 68.49999999999868
+          },
+          {
+            "id": "MJOd-5Lld",
+            "name": "Tournoi 1",
+            "rank": 2,
+            "points": 12,
+            "finished": true,
+            "finishTime": 76.7999999999982
+          }
+        ]
+      },
+      "standings": [
+        {
+          "id": "MJOd-5Lld",
+          "name": "Tournoi 1",
+          "color": "#fc735d",
+          "points": 54,
+          "wins": 2,
+          "totalTime": 264.59999999999525,
+          "racesCompleted": 4,
+          "rank": 1
+        },
+        {
+          "id": "ZTxH9raPw",
+          "name": "Tournoi 2",
+          "color": "#69cbd0",
+          "points": 54,
+          "wins": 2,
+          "totalTime": 267.0666666666618,
+          "racesCompleted": 4,
+          "rank": 2
+        }
+      ]
+    }
+  ],
+  "randomSchedule": [
+    "canyon",
+    "neon",
+    "canyon",
+    "neon",
+    "canyon",
+    "neon",
+    "canyon",
+    "neon"
+  ],
+  "processExitCode": 0
+}

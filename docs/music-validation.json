@@ -1,0 +1,1077 @@
+{
+  "command": "node --import tsx scripts/music-check.ts",
+  "checks": [
+    "Avant le geste utilisateur : silence et aucun téléchargement MP3",
+    "Après clic : MP3 décodé par le lecteur et currentTime avance sans appels de rendu",
+    "Quatre circuits : Lap 1 au tour 1, Lap 2 aux tours 2 et 3 ; aucun redémarrage au troisième tour",
+    "1 200 mises à jour identiques : aucun nouveau play, load ou téléchargement",
+    "Les deux MP3 bouclent réellement après une recherche près de leur fin, sans nouvelle piste superposée",
+    "Volume zéro : pause réelle ; retour du volume : reprise à la position conservée",
+    "Visibilité simulée : pause puis reprise native sans empilement",
+    "Fin de course : pause et remise à zéro ; nouvelle course : retour au premier MP3",
+    "Décodage complet des deux fichiers fournis : données finies, signal non silencieux et SHA-256 identiques aux sources",
+    "MP3 404 : silence sans crash ni boucle de requêtes ; aucune ressource externe"
+  ],
+  "lifecycle": [
+    {
+      "stage": "start-lap1",
+      "status": {
+        "title": "Lap 1",
+        "track": "lagon",
+        "lap": 0,
+        "selected": "lap1",
+        "url": "/audio/lap-1-v1.mp3",
+        "wanted": true,
+        "running": true,
+        "status": "playing",
+        "currentTime": 0.109333,
+        "duration": 174.4135,
+        "readyState": 4,
+        "paused": false,
+        "volume": 0.75,
+        "mixGain": 1.5,
+        "elementCount": 1,
+        "activeElements": 1,
+        "playCount": 1,
+        "loadCount": 1,
+        "error": null,
+        "mediaError": null
+      },
+      "native": {
+        "calls": {
+          "play": 1,
+          "pause": 0,
+          "load": 0,
+          "peakActive": 1
+        },
+        "elements": [
+          {
+            "id": 0,
+            "url": "http://127.0.0.1:5173/audio/lap-1-v1.mp3",
+            "paused": false,
+            "currentTime": 0.109333,
+            "duration": 174.4135,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "stage": "play-without-render-ticks",
+      "status": {
+        "title": "Lap 1",
+        "track": "lagon",
+        "lap": 0,
+        "selected": "lap1",
+        "url": "/audio/lap-1-v1.mp3",
+        "wanted": true,
+        "running": true,
+        "status": "playing",
+        "currentTime": 1.021333,
+        "duration": 174.4135,
+        "readyState": 4,
+        "paused": false,
+        "volume": 0.75,
+        "mixGain": 1.5,
+        "elementCount": 1,
+        "activeElements": 1,
+        "playCount": 1,
+        "loadCount": 1,
+        "error": null,
+        "mediaError": null
+      },
+      "native": {
+        "calls": {
+          "play": 1,
+          "pause": 0,
+          "load": 0,
+          "peakActive": 1
+        },
+        "elements": [
+          {
+            "id": 0,
+            "url": "http://127.0.0.1:5173/audio/lap-1-v1.mp3",
+            "paused": false,
+            "currentTime": 1.021333,
+            "duration": 174.4135,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "stage": "lagon-lap2",
+      "status": {
+        "title": "Lap 2",
+        "track": "lagon",
+        "lap": 1,
+        "selected": "lap2",
+        "url": "/audio/lap-2-v1.mp3",
+        "wanted": true,
+        "running": true,
+        "status": "playing",
+        "currentTime": 0.101333,
+        "duration": 99.6535,
+        "readyState": 4,
+        "paused": false,
+        "volume": 0.75,
+        "mixGain": 1.5,
+        "elementCount": 2,
+        "activeElements": 1,
+        "playCount": 3,
+        "loadCount": 2,
+        "error": null,
+        "mediaError": null
+      },
+      "native": {
+        "calls": {
+          "play": 3,
+          "pause": 1,
+          "load": 0,
+          "peakActive": 1
+        },
+        "elements": [
+          {
+            "id": 0,
+            "url": "http://127.0.0.1:5173/audio/lap-1-v1.mp3",
+            "paused": true,
+            "currentTime": 0,
+            "duration": 174.4135,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          },
+          {
+            "id": 1,
+            "url": "http://127.0.0.1:5173/audio/lap-2-v1.mp3",
+            "paused": false,
+            "currentTime": 0.101333,
+            "duration": 99.6535,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "stage": "lagon-lap3",
+      "status": {
+        "title": "Lap 2",
+        "track": "lagon",
+        "lap": 2,
+        "selected": "lap2",
+        "url": "/audio/lap-2-v1.mp3",
+        "wanted": true,
+        "running": true,
+        "status": "playing",
+        "currentTime": 0.450667,
+        "duration": 99.6535,
+        "readyState": 4,
+        "paused": false,
+        "volume": 0.75,
+        "mixGain": 1.5,
+        "elementCount": 2,
+        "activeElements": 1,
+        "playCount": 3,
+        "loadCount": 2,
+        "error": null,
+        "mediaError": null
+      },
+      "native": {
+        "calls": {
+          "play": 3,
+          "pause": 1,
+          "load": 0,
+          "peakActive": 1
+        },
+        "elements": [
+          {
+            "id": 0,
+            "url": "http://127.0.0.1:5173/audio/lap-1-v1.mp3",
+            "paused": true,
+            "currentTime": 0,
+            "duration": 174.4135,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          },
+          {
+            "id": 1,
+            "url": "http://127.0.0.1:5173/audio/lap-2-v1.mp3",
+            "paused": false,
+            "currentTime": 0.459299,
+            "duration": 99.6535,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "stage": "canyon-lap2",
+      "status": {
+        "title": "Lap 2",
+        "track": "canyon",
+        "lap": 1,
+        "selected": "lap2",
+        "url": "/audio/lap-2-v1.mp3",
+        "wanted": true,
+        "running": true,
+        "status": "playing",
+        "currentTime": 0.109333,
+        "duration": 99.6535,
+        "readyState": 4,
+        "paused": false,
+        "volume": 0.75,
+        "mixGain": 1.5,
+        "elementCount": 2,
+        "activeElements": 1,
+        "playCount": 5,
+        "loadCount": 2,
+        "error": null,
+        "mediaError": null
+      },
+      "native": {
+        "calls": {
+          "play": 5,
+          "pause": 7,
+          "load": 0,
+          "peakActive": 1
+        },
+        "elements": [
+          {
+            "id": 0,
+            "url": "http://127.0.0.1:5173/audio/lap-1-v1.mp3",
+            "paused": true,
+            "currentTime": 0,
+            "duration": 174.4135,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          },
+          {
+            "id": 1,
+            "url": "http://127.0.0.1:5173/audio/lap-2-v1.mp3",
+            "paused": false,
+            "currentTime": 0.109333,
+            "duration": 99.6535,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "stage": "canyon-lap3",
+      "status": {
+        "title": "Lap 2",
+        "track": "canyon",
+        "lap": 2,
+        "selected": "lap2",
+        "url": "/audio/lap-2-v1.mp3",
+        "wanted": true,
+        "running": true,
+        "status": "playing",
+        "currentTime": 0.468853,
+        "duration": 99.6535,
+        "readyState": 4,
+        "paused": false,
+        "volume": 0.75,
+        "mixGain": 1.5,
+        "elementCount": 2,
+        "activeElements": 1,
+        "playCount": 5,
+        "loadCount": 2,
+        "error": null,
+        "mediaError": null
+      },
+      "native": {
+        "calls": {
+          "play": 5,
+          "pause": 7,
+          "load": 0,
+          "peakActive": 1
+        },
+        "elements": [
+          {
+            "id": 0,
+            "url": "http://127.0.0.1:5173/audio/lap-1-v1.mp3",
+            "paused": true,
+            "currentTime": 0,
+            "duration": 174.4135,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          },
+          {
+            "id": 1,
+            "url": "http://127.0.0.1:5173/audio/lap-2-v1.mp3",
+            "paused": false,
+            "currentTime": 0.469333,
+            "duration": 99.6535,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "stage": "glacier-lap2",
+      "status": {
+        "title": "Lap 2",
+        "track": "glacier",
+        "lap": 1,
+        "selected": "lap2",
+        "url": "/audio/lap-2-v1.mp3",
+        "wanted": true,
+        "running": true,
+        "status": "playing",
+        "currentTime": 0.114759,
+        "duration": 99.6535,
+        "readyState": 4,
+        "paused": false,
+        "volume": 0.75,
+        "mixGain": 1.5,
+        "elementCount": 2,
+        "activeElements": 1,
+        "playCount": 7,
+        "loadCount": 2,
+        "error": null,
+        "mediaError": null
+      },
+      "native": {
+        "calls": {
+          "play": 7,
+          "pause": 13,
+          "load": 0,
+          "peakActive": 1
+        },
+        "elements": [
+          {
+            "id": 0,
+            "url": "http://127.0.0.1:5173/audio/lap-1-v1.mp3",
+            "paused": true,
+            "currentTime": 0,
+            "duration": 174.4135,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          },
+          {
+            "id": 1,
+            "url": "http://127.0.0.1:5173/audio/lap-2-v1.mp3",
+            "paused": false,
+            "currentTime": 0.116305,
+            "duration": 99.6535,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "stage": "glacier-lap3",
+      "status": {
+        "title": "Lap 2",
+        "track": "glacier",
+        "lap": 2,
+        "selected": "lap2",
+        "url": "/audio/lap-2-v1.mp3",
+        "wanted": true,
+        "running": true,
+        "status": "playing",
+        "currentTime": 0.469333,
+        "duration": 99.6535,
+        "readyState": 4,
+        "paused": false,
+        "volume": 0.75,
+        "mixGain": 1.5,
+        "elementCount": 2,
+        "activeElements": 1,
+        "playCount": 7,
+        "loadCount": 2,
+        "error": null,
+        "mediaError": null
+      },
+      "native": {
+        "calls": {
+          "play": 7,
+          "pause": 13,
+          "load": 0,
+          "peakActive": 1
+        },
+        "elements": [
+          {
+            "id": 0,
+            "url": "http://127.0.0.1:5173/audio/lap-1-v1.mp3",
+            "paused": true,
+            "currentTime": 0,
+            "duration": 174.4135,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          },
+          {
+            "id": 1,
+            "url": "http://127.0.0.1:5173/audio/lap-2-v1.mp3",
+            "paused": false,
+            "currentTime": 0.469333,
+            "duration": 99.6535,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "stage": "neon-lap2",
+      "status": {
+        "title": "Lap 2",
+        "track": "neon",
+        "lap": 1,
+        "selected": "lap2",
+        "url": "/audio/lap-2-v1.mp3",
+        "wanted": true,
+        "running": true,
+        "status": "playing",
+        "currentTime": 0.12,
+        "duration": 99.6535,
+        "readyState": 4,
+        "paused": false,
+        "volume": 0.75,
+        "mixGain": 1.5,
+        "elementCount": 2,
+        "activeElements": 1,
+        "playCount": 9,
+        "loadCount": 2,
+        "error": null,
+        "mediaError": null
+      },
+      "native": {
+        "calls": {
+          "play": 9,
+          "pause": 19,
+          "load": 0,
+          "peakActive": 1
+        },
+        "elements": [
+          {
+            "id": 0,
+            "url": "http://127.0.0.1:5173/audio/lap-1-v1.mp3",
+            "paused": true,
+            "currentTime": 0,
+            "duration": 174.4135,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          },
+          {
+            "id": 1,
+            "url": "http://127.0.0.1:5173/audio/lap-2-v1.mp3",
+            "paused": false,
+            "currentTime": 0.12,
+            "duration": 99.6535,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "stage": "neon-lap3",
+      "status": {
+        "title": "Lap 2",
+        "track": "neon",
+        "lap": 2,
+        "selected": "lap2",
+        "url": "/audio/lap-2-v1.mp3",
+        "wanted": true,
+        "running": true,
+        "status": "playing",
+        "currentTime": 0.472,
+        "duration": 99.6535,
+        "readyState": 4,
+        "paused": false,
+        "volume": 0.75,
+        "mixGain": 1.5,
+        "elementCount": 2,
+        "activeElements": 1,
+        "playCount": 9,
+        "loadCount": 2,
+        "error": null,
+        "mediaError": null
+      },
+      "native": {
+        "calls": {
+          "play": 9,
+          "pause": 19,
+          "load": 0,
+          "peakActive": 1
+        },
+        "elements": [
+          {
+            "id": 0,
+            "url": "http://127.0.0.1:5173/audio/lap-1-v1.mp3",
+            "paused": true,
+            "currentTime": 0,
+            "duration": 174.4135,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          },
+          {
+            "id": 1,
+            "url": "http://127.0.0.1:5173/audio/lap-2-v1.mp3",
+            "paused": false,
+            "currentTime": 0.478242,
+            "duration": 99.6535,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "stage": "1200-render-updates",
+      "status": {
+        "title": "Lap 2",
+        "track": "neon",
+        "lap": 2,
+        "selected": "lap2",
+        "url": "/audio/lap-2-v1.mp3",
+        "wanted": true,
+        "running": true,
+        "status": "playing",
+        "currentTime": 0.890012,
+        "duration": 99.6535,
+        "readyState": 4,
+        "paused": false,
+        "volume": 0.75,
+        "mixGain": 1.5,
+        "elementCount": 2,
+        "activeElements": 1,
+        "playCount": 9,
+        "loadCount": 2,
+        "error": null,
+        "mediaError": null
+      },
+      "native": {
+        "calls": {
+          "play": 9,
+          "pause": 19,
+          "load": 0,
+          "peakActive": 1
+        },
+        "elements": [
+          {
+            "id": 0,
+            "url": "http://127.0.0.1:5173/audio/lap-1-v1.mp3",
+            "paused": true,
+            "currentTime": 0,
+            "duration": 174.4135,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          },
+          {
+            "id": 1,
+            "url": "http://127.0.0.1:5173/audio/lap-2-v1.mp3",
+            "paused": false,
+            "currentTime": 0.890667,
+            "duration": 99.6535,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "stage": "native-loop-lap1",
+      "status": {
+        "title": "Lap 1",
+        "track": "neon",
+        "lap": 0,
+        "selected": "lap1",
+        "url": "/audio/lap-1-v1.mp3",
+        "wanted": true,
+        "running": true,
+        "status": "playing",
+        "currentTime": 0.038907,
+        "duration": 174.72842,
+        "readyState": 4,
+        "paused": false,
+        "volume": 0.75,
+        "mixGain": 1.5,
+        "elementCount": 2,
+        "activeElements": 1,
+        "playCount": 10,
+        "loadCount": 2,
+        "error": null,
+        "mediaError": null
+      },
+      "native": {
+        "calls": {
+          "play": 10,
+          "pause": 21,
+          "load": 0,
+          "peakActive": 1
+        },
+        "elements": [
+          {
+            "id": 0,
+            "url": "http://127.0.0.1:5173/audio/lap-1-v1.mp3",
+            "paused": false,
+            "currentTime": 0.04,
+            "duration": 174.72842,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          },
+          {
+            "id": 1,
+            "url": "http://127.0.0.1:5173/audio/lap-2-v1.mp3",
+            "paused": true,
+            "currentTime": 0,
+            "duration": 99.6535,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "stage": "native-loop-lap2",
+      "status": {
+        "title": "Lap 2",
+        "track": "neon",
+        "lap": 1,
+        "selected": "lap2",
+        "url": "/audio/lap-2-v1.mp3",
+        "wanted": true,
+        "running": true,
+        "status": "playing",
+        "currentTime": 0.030278,
+        "duration": 99.87602,
+        "readyState": 4,
+        "paused": false,
+        "volume": 0.75,
+        "mixGain": 1.5,
+        "elementCount": 2,
+        "activeElements": 1,
+        "playCount": 11,
+        "loadCount": 2,
+        "error": null,
+        "mediaError": null
+      },
+      "native": {
+        "calls": {
+          "play": 11,
+          "pause": 23,
+          "load": 0,
+          "peakActive": 1
+        },
+        "elements": [
+          {
+            "id": 0,
+            "url": "http://127.0.0.1:5173/audio/lap-1-v1.mp3",
+            "paused": true,
+            "currentTime": 0,
+            "duration": 174.72842,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          },
+          {
+            "id": 1,
+            "url": "http://127.0.0.1:5173/audio/lap-2-v1.mp3",
+            "paused": false,
+            "currentTime": 0.031509,
+            "duration": 99.87602,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "stage": "volume-zero",
+      "status": {
+        "title": "Lap 2",
+        "track": "neon",
+        "lap": 1,
+        "selected": "lap2",
+        "url": "/audio/lap-2-v1.mp3",
+        "wanted": true,
+        "running": false,
+        "status": "paused",
+        "currentTime": 0.621333,
+        "duration": 99.87602,
+        "readyState": 4,
+        "paused": true,
+        "volume": 0,
+        "mixGain": 1.5,
+        "elementCount": 2,
+        "activeElements": 0,
+        "playCount": 11,
+        "loadCount": 2,
+        "error": null,
+        "mediaError": null
+      },
+      "native": {
+        "calls": {
+          "play": 11,
+          "pause": 24,
+          "load": 0,
+          "peakActive": 1
+        },
+        "elements": [
+          {
+            "id": 0,
+            "url": "http://127.0.0.1:5173/audio/lap-1-v1.mp3",
+            "paused": true,
+            "currentTime": 0,
+            "duration": 174.72842,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          },
+          {
+            "id": 1,
+            "url": "http://127.0.0.1:5173/audio/lap-2-v1.mp3",
+            "paused": true,
+            "currentTime": 0.621333,
+            "duration": 99.87602,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "stage": "hidden",
+      "status": {
+        "title": "Lap 2",
+        "track": "neon",
+        "lap": 1,
+        "selected": "lap2",
+        "url": "/audio/lap-2-v1.mp3",
+        "wanted": true,
+        "running": false,
+        "status": "paused",
+        "currentTime": 0.629333,
+        "duration": 99.87602,
+        "readyState": 4,
+        "paused": true,
+        "volume": 0.75,
+        "mixGain": 1.5,
+        "elementCount": 2,
+        "activeElements": 0,
+        "playCount": 12,
+        "loadCount": 2,
+        "error": null,
+        "mediaError": null
+      },
+      "native": {
+        "calls": {
+          "play": 12,
+          "pause": 25,
+          "load": 0,
+          "peakActive": 1
+        },
+        "elements": [
+          {
+            "id": 0,
+            "url": "http://127.0.0.1:5173/audio/lap-1-v1.mp3",
+            "paused": true,
+            "currentTime": 0,
+            "duration": 174.72842,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          },
+          {
+            "id": 1,
+            "url": "http://127.0.0.1:5173/audio/lap-2-v1.mp3",
+            "paused": true,
+            "currentTime": 0.629333,
+            "duration": 99.87602,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "stage": "race-finished",
+      "status": {
+        "title": "Lap 2",
+        "track": "neon",
+        "lap": 1,
+        "selected": "lap2",
+        "url": "/audio/lap-2-v1.mp3",
+        "wanted": false,
+        "running": false,
+        "status": "paused",
+        "currentTime": 0,
+        "duration": 99.87602,
+        "readyState": 4,
+        "paused": true,
+        "volume": 0.75,
+        "mixGain": 1.5,
+        "elementCount": 2,
+        "activeElements": 0,
+        "playCount": 13,
+        "loadCount": 2,
+        "error": null,
+        "mediaError": null
+      },
+      "native": {
+        "calls": {
+          "play": 13,
+          "pause": 27,
+          "load": 0,
+          "peakActive": 1
+        },
+        "elements": [
+          {
+            "id": 0,
+            "url": "http://127.0.0.1:5173/audio/lap-1-v1.mp3",
+            "paused": true,
+            "currentTime": 0,
+            "duration": 174.72842,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          },
+          {
+            "id": 1,
+            "url": "http://127.0.0.1:5173/audio/lap-2-v1.mp3",
+            "paused": true,
+            "currentTime": 0,
+            "duration": 99.87602,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "stage": "new-race-lap1",
+      "status": {
+        "title": "Lap 1",
+        "track": "lagon",
+        "lap": 0,
+        "selected": "lap1",
+        "url": "/audio/lap-1-v1.mp3",
+        "wanted": true,
+        "running": true,
+        "status": "playing",
+        "currentTime": 0.101333,
+        "duration": 174.72842,
+        "readyState": 4,
+        "paused": false,
+        "volume": 0.75,
+        "mixGain": 1.5,
+        "elementCount": 2,
+        "activeElements": 1,
+        "playCount": 14,
+        "loadCount": 2,
+        "error": null,
+        "mediaError": null
+      },
+      "native": {
+        "calls": {
+          "play": 14,
+          "pause": 29,
+          "load": 0,
+          "peakActive": 1
+        },
+        "elements": [
+          {
+            "id": 0,
+            "url": "http://127.0.0.1:5173/audio/lap-1-v1.mp3",
+            "paused": false,
+            "currentTime": 0.101333,
+            "duration": 174.72842,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          },
+          {
+            "id": 1,
+            "url": "http://127.0.0.1:5173/audio/lap-2-v1.mp3",
+            "paused": true,
+            "currentTime": 0,
+            "duration": 99.87602,
+            "readyState": 4,
+            "loop": true,
+            "ended": false,
+            "error": null
+          }
+        ]
+      }
+    },
+    {
+      "stage": "mp3-404",
+      "status": {
+        "title": "Lap 1",
+        "track": "lagon",
+        "lap": 0,
+        "selected": "lap1",
+        "url": "/audio/lap-1-v1.mp3",
+        "wanted": true,
+        "running": false,
+        "status": "error",
+        "currentTime": 0,
+        "duration": null,
+        "readyState": 0,
+        "paused": true,
+        "volume": 0.75,
+        "mixGain": 1.5,
+        "elementCount": 1,
+        "activeElements": 0,
+        "playCount": 1,
+        "loadCount": 1,
+        "error": "Impossible de lire /audio/lap-1-v1.mp3 (code 4)",
+        "mediaError": 4
+      },
+      "native": {
+        "calls": {
+          "play": 1,
+          "pause": 1,
+          "load": 0,
+          "peakActive": 1
+        },
+        "elements": [
+          {
+            "id": 0,
+            "url": "http://127.0.0.1:5173/audio/lap-1-v1.mp3",
+            "paused": true,
+            "currentTime": 0,
+            "duration": null,
+            "readyState": 0,
+            "loop": true,
+            "ended": false,
+            "error": 4
+          }
+        ]
+      }
+    }
+  ],
+  "decoded": [
+    {
+      "url": "/audio/lap-1-v1.mp3",
+      "bytes": 3916673,
+      "seconds": 174.41349206349207,
+      "sampleRate": 44100,
+      "channels": 2,
+      "samples": 15383270,
+      "peak": 1.0061148405075073,
+      "rms": 0.12994829892023316,
+      "nonFinite": 0,
+      "sha256": "7b91c112403a6d1eb66e7223f5bfceccb79733d7db52f7dfe940310199abb2db",
+      "sourceSha256": "7b91c112403a6d1eb66e7223f5bfceccb79733d7db52f7dfe940310199abb2db"
+    },
+    {
+      "url": "/audio/lap-2-v1.mp3",
+      "bytes": 2323191,
+      "seconds": 99.65349206349207,
+      "sampleRate": 44100,
+      "channels": 2,
+      "samples": 8789438,
+      "peak": 0.9839844107627869,
+      "rms": 0.1171541755271125,
+      "nonFinite": 0,
+      "sha256": "742a73ba3c5e8df000be50e6cac0523caddfe128368f90cc5f1ec9949f3cf1c3",
+      "sourceSha256": "742a73ba3c5e8df000be50e6cac0523caddfe128368f90cc5f1ec9949f3cf1c3"
+    }
+  ],
+  "requests": [
+    {
+      "url": "http://127.0.0.1:5173/tests/fixtures/music.html"
+    },
+    {
+      "url": "http://127.0.0.1:5173/@vite/client"
+    },
+    {
+      "url": "http://127.0.0.1:5173/tests/fixtures/music.ts"
+    },
+    {
+      "url": "http://127.0.0.1:5173/node_modules/vite/dist/client/env.mjs"
+    },
+    {
+      "url": "http://127.0.0.1:5173/client/audio.ts"
+    },
+    {
+      "url": "http://127.0.0.1:5173/client/music.ts"
+    },
+    {
+      "url": "http://127.0.0.1:5173/audio/lap-1-v1.mp3",
+      "range": "bytes=0-"
+    },
+    {
+      "url": "http://127.0.0.1:5173/audio/lap-2-v1.mp3",
+      "range": "bytes=0-"
+    },
+    {
+      "url": "http://127.0.0.1:5173/audio/lap-1-v1.mp3?validation=decode"
+    },
+    {
+      "url": "http://127.0.0.1:5173/audio/lap-2-v1.mp3?validation=decode"
+    }
+  ],
+  "failureRequests": [
+    "http://127.0.0.1:5173/audio/lap-1-v1.mp3"
+  ],
+  "errors": [],
+  "scope": "Real Chromium HTMLMediaElement playback plus complete Web Audio decoding on local Vite. Visibility and seek are fixture-controlled; no production Range support, physical speaker listening, phone lock, full race or public Docker mutation claimed."
+}

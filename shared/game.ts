@@ -1,27 +1,36 @@
 import { COLORS, TOTAL_LAPS, getTrack, nearestTrack, spawnPoint, trackPoint, trackSurface, type Surface } from './track.js';
 import { createTournament, type TournamentState } from './tournament.js';
+import { DEFAULT_KART_MODEL, normalizeKartModelId, type KartModelId } from './kart-catalog.js';
+import { DEFAULT_CHARACTER, normalizeCharacterId, type CharacterId } from './characters.js';
+import { DEFAULT_BUILD, normalizeBuild, getKartStats, type KartBuild } from './garage.js';
+import { nearestDriveableTrack, dynamicSurface, constrainTrackEvent, trackEventPickups, eventRoutePoint } from './track-events.js';
 export { CHECKPOINTS, COLORS, ROAD_WIDTH, TOTAL_LAPS, TRACK, TRACK_LENGTH, TRACKS, TRACK_IDS,
   getTrack, isTrackId, nearestTrack, spawnPoint, trackPoint, trackSurface } from './track.js';
 export type { Vec2, TrackDefinition, TrackId, TrackZone, Surface } from './track.js';
 
-export type Item = '' | 'turbo' | 'trap' | 'projectile';
+export const ITEMS = ['turbo', 'tripleTurbo', 'trap', 'projectile', 'seeker', 'leaderBolt', 'star', 'shield'] as const;
+export type Item = '' | typeof ITEMS[number];
 export interface Input {
   seq: number; epoch: number; throttle: number; steer: number;
   brake: boolean; drift: boolean; use: boolean; reset: boolean;
 }
 export interface Kart {
   id: string; name: string; color: string; x: number; z: number; angle: number; speed: number;
+  modelId: KartModelId; characterId: CharacterId; build: KartBuild; playerId: string; careerLevel: number;
+  eventStage: number; eventLevel: number; team: 0 | 1; cpu: boolean;
   trackId: string; surface: Surface; turnVelocity: number; padCooldown: number; padZone: string;
   padLaps: Record<string, number>; launchCharge: number; launchArmed: boolean; launchPressed: boolean;
   launchFault: boolean; draftCharge: number; draftCooldown: number;
   driftCharge: number; boost: number; stun: number; lap: number; nextCheckpoint: number;
   progress: number; finished: boolean; finishTime: number; rank: number; item: Item;
+  itemCharges: number; invincible: number; shield: number; hitGrace: number;
   ready: boolean; connected: boolean; spectator: boolean; abandoned: boolean; lastSeq: number; epoch: number;
   driftDirection: number; lateralVelocity: number; respawnX: number; respawnZ: number;
   respawnAngle: number; resetCooldown: number; itemLatch: boolean; resetLatch: boolean;
 }
 export interface WorldObject {
-  id: string; kind: 'trap' | 'projectile'; x: number; z: number; angle: number; owner: string; ttl: number;
+  id: string; kind: 'trap' | 'projectile' | 'seeker' | 'leaderBolt';
+  x: number; z: number; angle: number; owner: string; ttl: number; targetId?: string;
 }
 export interface Pickup { id: string; x: number; z: number; cooldown: number }
 export interface World {
@@ -29,11 +38,15 @@ export interface World {
   objects: WorldObject[]; pickups: Pickup[]; hostId: string; practice: boolean;
   round: number; time: number; countdown: number; raceTime: number; finishTimeout: number; seed: number;
   trackId: string; tournament: TournamentState;
+  eventStage: number; eventLevel: number; teamMode: boolean; ranked: boolean; championshipId: string;
 }
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 export const MAX_RACE_SECONDS = 300;
 export const FINISH_GRACE_SECONDS = 25;
+export const MAX_WORLD_OBJECTS = 32;
+export const STAR_SECONDS = 5.5;
+export const SHIELD_SECONDS = 8;
 
 export function neutralInput(seq = 0, epoch = 0): Input {
   return { seq, epoch, throttle: 0, steer: 0, brake: false, drift: false, use: false, reset: false };
@@ -54,13 +67,16 @@ export function validateInput(data: unknown): Input | null {
     drift: input.drift as boolean, use: input.use as boolean, reset: input.reset as boolean };
 }
 
-export function createKart(id: string, name: string, color: string, index: number, trackId = 'lagon'): Kart {
+export function createKart(id: string, name: string, color: string, index: number, trackId = 'lagon', modelId: string = DEFAULT_KART_MODEL, build: KartBuild = DEFAULT_BUILD, characterId: string = DEFAULT_CHARACTER): Kart {
   trackId = getTrack(trackId).id;
   const spawn = spawnPoint(index, trackId);
   return { id, name, color: COLORS.includes(color) ? color : COLORS[index % COLORS.length]!,
+    modelId: normalizeKartModelId(modelId), characterId: normalizeCharacterId(characterId), build: normalizeBuild(build, 3), playerId: '', careerLevel: 0,
+    eventStage: 0, eventLevel: 0, team: index % 2 as 0 | 1, cpu: false,
     ...spawn, speed: 0, driftCharge: 0, boost: 0, stun: 0, lap: 0, nextCheckpoint: 1,
     progress: -6 - Math.floor(index / 2) * 5, finished: false, finishTime: 0, rank: index + 1,
-    item: '', ready: false, connected: true, spectator: false, abandoned: false, lastSeq: -1, epoch: 0,
+    item: '', itemCharges: 0, invincible: 0, shield: 0, hitGrace: 0,
+    ready: false, connected: true, spectator: false, abandoned: false, lastSeq: -1, epoch: 0,
     driftDirection: 0, lateralVelocity: 0, respawnX: spawn.x, respawnZ: spawn.z,
     respawnAngle: spawn.angle, resetCooldown: 0, itemLatch: false, resetLatch: false,
     trackId, surface: 'road', turnVelocity: 0, padCooldown: 0, padZone: '', padLaps: {},
@@ -71,7 +87,7 @@ export function createWorld(practice = false, trackId = 'lagon'): World {
   trackId = getTrack(trackId).id;
   return { phase: 'lobby', players: [], objects: [], pickups: makePickups(trackId), hostId: '',
     practice, round: 0, time: 0, countdown: 0, raceTime: 0, finishTimeout: 0, seed: 0x12345678,
-    trackId, tournament: createTournament(trackId) };
+    trackId, tournament: createTournament(trackId), eventStage: 0, eventLevel: 0, teamMode: false, ranked: false, championshipId: '' };
 }
 
 function makePickups(trackId: string): Pickup[] {
@@ -89,13 +105,14 @@ export function startRace(world: World): void {
   world.raceTime = 0;
   world.finishTimeout = 0;
   world.objects = [];
+  world.eventStage = 0;
   world.trackId = getTrack(world.trackId).id;
-  world.pickups = makePickups(world.trackId);
+  world.pickups = [...makePickups(world.trackId), ...trackEventPickups(world.trackId, 0, world.eventLevel)];
   let index = 0;
   for (const kart of world.players) {
     if (kart.spectator || kart.abandoned) continue;
-    const { ready, connected, lastSeq, epoch } = kart;
-    Object.assign(kart, createKart(kart.id, kart.name, kart.color, index++, world.trackId), { ready, connected, lastSeq, epoch });
+    const { ready, connected, lastSeq, epoch, playerId, careerLevel, team, cpu } = kart;
+    Object.assign(kart, createKart(kart.id, kart.name, kart.color, index++, world.trackId, kart.modelId, kart.build, kart.characterId), { ready, connected, lastSeq, epoch, playerId, careerLevel, team, cpu, eventStage: 0, eventLevel: world.eventLevel });
   }
 }
 
@@ -112,7 +129,7 @@ export function resetKart(kart: Kart): void {
   kart.resetCooldown = 1.5;
   kart.turnVelocity = 0;
   kart.draftCharge = 0;
-  kart.surface = trackSurface(kart.x, kart.z, kart.trackId).surface;
+  kart.surface = dynamicSurface(kart.x, kart.z, kart.trackId, kart.eventStage, kart.eventLevel).surface;
   // Keep padLaps and its cooldown: a reset never renews the same pad's reward.
 }
 
@@ -121,14 +138,19 @@ export function resetKart(kart: Kart): void {
 export function stepKart(kart: Kart, input: Input, dt: number): void {
   if (!Number.isFinite(dt) || dt <= 0 || kart.spectator || kart.finished || kart.abandoned) return;
   dt = Math.min(dt, 0.1);
+  const stats = getKartStats(kart.build);
   kart.resetCooldown = Math.max(0, kart.resetCooldown - dt);
   if (input.reset && !kart.resetLatch && kart.resetCooldown === 0) resetKart(kart);
   kart.resetLatch = input.reset;
+  const previousX = kart.x, previousZ = kart.z;
   kart.boost = Math.max(0, kart.boost - dt);
   kart.stun = Math.max(0, kart.stun - dt);
+  kart.invincible = Math.max(0, kart.invincible - dt);
+  kart.shield = Math.max(0, kart.shield - dt);
+  kart.hitGrace = Math.max(0, kart.hitGrace - dt);
   const track = getTrack(kart.trackId);
-  const position = nearestTrack(kart.x, kart.z, track.id);
-  const contact = trackSurface(kart.x, kart.z, track.id, position);
+  const position = nearestDriveableTrack(kart.x, kart.z, track.id, kart.eventStage, kart.eventLevel);
+  const contact = dynamicSurface(kart.x, kart.z, track.id, kart.eventStage, kart.eventLevel, position);
   kart.surface = contact.surface;
   const offroad = kart.surface === 'offroad';
   const mud = kart.surface === 'mud';
@@ -150,15 +172,15 @@ export function stepKart(kart: Kart, input: Input, dt: number): void {
     kart.driftCharge = Math.min(2, kart.driftCharge + dt);
   } else {
     if (kart.driftCharge >= 0.65 && kart.stun === 0 && !offroad)
-      kart.boost = Math.max(kart.boost, 0.55 + kart.driftCharge * 0.4);
+      kart.boost = Math.max(kart.boost, (0.55 + kart.driftCharge * 0.4) * stats.turbo);
     kart.driftCharge = 0;
     kart.driftDirection = 0;
   }
-  const maximumSpeed = offroad ? 12 : mud ? 16 : kart.boost > 0 ? 46 : 32;
+  const maximumSpeed = offroad ? stats.offroad : mud ? stats.mud : kart.boost > 0 ? 46 : stats.speed;
   if (input.brake) {
     kart.speed = Math.sign(kart.speed) * Math.max(0, Math.abs(kart.speed) - 42 * dt);
   } else if (throttle !== 0) {
-    kart.speed += throttle * (mud ? 13 : kart.boost > 0 ? 38 : 22) * dt;
+    kart.speed += throttle * (mud ? stats.acceleration * 13 / 22 : kart.boost > 0 ? stats.acceleration + 16 : stats.acceleration) * dt;
   } else {
     kart.speed *= Math.exp(-(kart.stun > 0 ? 4.5 : ice ? 0.38 : 1.25) * dt);
   }
@@ -167,21 +189,23 @@ export function stepKart(kart: Kart, input: Input, dt: number): void {
   kart.speed = clamp(kart.speed, -9, 46);
   if (Math.abs(kart.speed) < 0.025) kart.speed = 0;
   const steerPower = Math.min(Math.abs(kart.speed) / 12, 1);
-  const grip = track.grip * (ice ? 0.38 : mud ? 0.85 : 1);
-  const turn = steer * 1.32 * steerPower * (drifting ? 1.35 : 1) * Math.sign(kart.speed);
+  const grip = track.grip * stats.grip * (ice ? 0.38 : mud ? 0.85 : 1);
+  const turn = steer * stats.handling * steerPower * (drifting ? 1.35 : 1) * Math.sign(kart.speed);
   kart.turnVelocity += (turn - kart.turnVelocity) * Math.min(1, dt * 11 * grip);
   kart.angle += kart.turnVelocity * dt;
   kart.angle = Math.atan2(Math.sin(kart.angle), Math.cos(kart.angle));
-  const sideways = drifting ? -steer * Math.min(kart.speed * 0.24, 7) : ice ? -steer * Math.min(kart.speed * 0.1, 4) : 0;
+  const sideways = (drifting ? -steer * Math.min(kart.speed * 0.24, 7) : ice ? -steer * Math.min(kart.speed * 0.1, 4) : 0) / stats.stability;
   kart.lateralVelocity += (sideways - kart.lateralVelocity) * Math.min(1, dt * 5 * grip);
   kart.x += (Math.sin(kart.angle) * kart.speed + Math.cos(kart.angle) * kart.lateralVelocity) * dt;
   kart.z += (Math.cos(kart.angle) * kart.speed - Math.sin(kart.angle) * kart.lateralVelocity) * dt;
   constrainToTrack(kart);
+  const constrained = constrainTrackEvent(kart.x, kart.z, previousX, previousZ, kart.speed, kart.trackId, kart.eventStage, kart.eventLevel);
+  kart.x = constrained.x; kart.z = constrained.z; kart.speed = constrained.speed;
 }
 
 function constrainToTrack(kart: Kart): void {
-  const near = nearestTrack(kart.x, kart.z, kart.trackId);
-  const limit = getTrack(kart.trackId).width / 2 + 5;
+  const near = nearestDriveableTrack(kart.x, kart.z, kart.trackId, kart.eventStage, kart.eventLevel);
+  const limit = near.width / 2 + 5;
   if (near.distance > limit) {
     kart.x = near.x + (kart.x - near.x) / near.distance * limit;
     kart.z = near.z + (kart.z - near.z) / near.distance * limit;
@@ -225,7 +249,7 @@ function advanceCheckpoint(kart: Kart, before: { x: number; z: number }, world: 
     }
   }
   if (!kart.finished) {
-    const near = nearestTrack(kart.x, kart.z, track.id);
+    const near = nearestDriveableTrack(kart.x, kart.z, track.id, kart.eventStage, kart.eventLevel);
     // Bound ranking to the checkpoint interval already validated. Driving back
     // over the finish, skipping a gate or resetting cannot manufacture a lap.
     const last = kart.nextCheckpoint === 0 ? checkpoints.length - 1 : kart.nextCheckpoint - 1;
@@ -237,61 +261,151 @@ function advanceCheckpoint(kart: Kart, before: { x: number; z: number }, world: 
   }
 }
 
-function useItem(world: World, kart: Kart): void {
-  if (!kart.item) return;
-  if (kart.item === 'turbo') kart.boost = Math.max(kart.boost, 2.2);
-  else {
-    const forward = kart.item === 'projectile';
-    const distance = forward ? 3 : -3;
-    world.objects.push({ id: `${world.round}-${kart.id}-${Math.floor(world.time * 1000)}-${world.seed}`,
-      kind: kart.item, x: kart.x + Math.sin(kart.angle) * distance,
-      z: kart.z + Math.cos(kart.angle) * distance, angle: kart.angle, owner: kart.id, ttl: forward ? 4 : 18 });
-  }
-  kart.item = '';
+function activeOpponent(kart: Kart, ownerId: string, world?: World): boolean {
+  const owner = world?.teamMode ? world.players.find(player => player.id === ownerId) : undefined;
+  return kart.id !== ownerId && (!owner || owner.team !== kart.team) && kart.connected && !kart.finished && !kart.spectator && !kart.abandoned;
 }
 
-function collideKarts(players: Kart[]): void {
+/** Uses checkpoint-validated progress (including laps), never a client rank. */
+function itemTarget(world: World, owner: Kart, leader: boolean): Kart | undefined {
+  return world.players.filter(kart => activeOpponent(kart, owner.id, world) && kart.progress > owner.progress + 0.1)
+    .sort((a, b) => (leader ? b.progress - a.progress : a.progress - b.progress) || a.id.localeCompare(b.id))[0];
+}
+
+function awardItem(world: World, kart: Kart): void {
+  const active = world.players.filter(player => !player.spectator && !player.finished && !player.abandoned && player.connected);
+  const ahead = active.filter(player => player.progress > kart.progress + 0.1).length;
+  // Front runners get defensive tools; trailing drivers have more recovery tools.
+  // A solo driver never receives a projectile that requires another racer.
+  const trailing = ahead > 0 && ahead >= (active.length - 1) / 2;
+  const weights = ahead === 0 ? [35, 10, 20, 20, 0, 0, 3, 12]
+    : trailing ? [12, 25, 5, 8, 18, 12, 14, 6] : [22, 18, 12, 15, 18, 5, 5, 5];
+  let roll = random(world) * 100;
+  let item: typeof ITEMS[number] = 'turbo';
+  for (let i = 0; i < ITEMS.length; i++) { roll -= weights[i]!; if (roll < 0) { item = ITEMS[i]!; break; } }
+  kart.item = item;
+  kart.itemCharges = item === 'tripleTurbo' ? 3 : 1;
+}
+
+function useItem(world: World, kart: Kart): void {
+  if (!kart.item) return;
+  if (kart.item === 'turbo' || kart.item === 'tripleTurbo') {
+    kart.boost = Math.max(kart.boost, kart.item === 'turbo' ? 2.2 : 1.65);
+    if (kart.item === 'tripleTurbo') {
+      kart.itemCharges = Math.max(0, kart.itemCharges - 1);
+      if (kart.itemCharges > 0) return;
+    }
+  } else if (kart.item === 'star') {
+    kart.invincible = STAR_SECONDS; kart.stun = 0; kart.hitGrace = 0;
+    kart.boost = Math.max(kart.boost, STAR_SECONDS);
+  } else if (kart.item === 'shield') kart.shield = SHIELD_SECONDS;
+  else {
+    const forward = kart.item !== 'trap';
+    const target = kart.item === 'seeker' || kart.item === 'leaderBolt'
+      ? itemTarget(world, kart, kart.item === 'leaderBolt') : undefined;
+    if ((kart.item === 'seeker' || kart.item === 'leaderBolt') && !target) {
+      // The opponent may have finished or disconnected while this item was held.
+      kart.boost = Math.max(kart.boost, 1.2);
+    } else {
+      // Bounded server state even when all eight drivers save traps for one area.
+      const ownObjects = world.objects.filter(object => object.owner === kart.id);
+      if (ownObjects.length >= 4) world.objects = world.objects.filter(object => object !== ownObjects[0]);
+      if (world.objects.length >= MAX_WORLD_OBJECTS) world.objects.shift();
+      const distance = forward ? 3 : -3;
+      world.objects.push({ id: `${world.round}-${kart.id}-${Math.floor(world.time * 1000)}-${world.seed}`,
+        kind: kart.item, x: kart.x + Math.sin(kart.angle) * distance,
+        z: kart.z + Math.cos(kart.angle) * distance, angle: kart.angle, owner: kart.id,
+        ttl: kart.item === 'projectile' ? 4 : kart.item === 'seeker' ? 9 : 18,
+        ...(target ? { targetId: target.id } : {}) });
+    }
+  }
+  kart.item = ''; kart.itemCharges = 0;
+}
+
+function hitKart(kart: Kart): void {
+  if (kart.invincible > 0 || kart.hitGrace > 0) return;
+  if (kart.shield > 0) { kart.shield = 0; kart.hitGrace = 0.6; return; }
+  kart.stun = 1.05; kart.hitGrace = 1.7;
+  kart.speed *= 0.2; kart.boost = 0; kart.driftCharge = 0;
+}
+
+function collideKarts(players: Kart[], teamMode = false): void {
   for (let i = 0; i < players.length; i++) for (let j = i + 1; j < players.length; j++) {
     const a = players[i]!;
     const b = players[j]!;
+    const beforeA = { x: a.x, z: a.z }, beforeB = { x: b.x, z: b.z };
     const dx = b.x - a.x;
     const dz = b.z - a.z;
     const distance = Math.hypot(dx, dz);
     if (distance >= 2.5) continue;
+    if (a.invincible > 0 || b.invincible > 0) {
+      if (a.invincible > 0 && b.invincible === 0 && (!teamMode || a.team !== b.team)) hitKart(b);
+      if (b.invincible > 0 && a.invincible === 0 && (!teamMode || a.team !== b.team)) hitKart(a);
+      // Energy lets the protected kart pass through traffic without changing
+      // its trajectory; ordinary karts keep the existing collision response.
+      continue;
+    }
     const nx = distance < 0.001 ? 1 : dx / distance;
     const nz = distance < 0.001 ? 0 : dz / distance;
-    const push = (2.5 - distance) / 2;
-    a.x -= nx * push; a.z -= nz * push;
-    b.x += nx * push; b.z += nz * push;
+    const massA = getKartStats(a.build).mass, massB = getKartStats(b.build).mass;
+    const shareA = massB / (massA + massB), shareB = 1 - shareA;
+    const push = 2.5 - distance;
+    a.x -= nx * push * shareA; a.z -= nz * push * shareA;
+    b.x += nx * push * shareB; b.z += nz * push * shareB;
     const aNormal = Math.sin(a.angle) * nx + Math.cos(a.angle) * nz;
     const bNormal = Math.sin(b.angle) * nx + Math.cos(b.angle) * nz;
     const closingSpeed = a.speed * aNormal - b.speed * bNormal;
     // Equal-speed neighbours retain momentum. Only approaching karts exchange
     // an impulse, preventing traffic jams caused by damping on every tick.
     if (closingSpeed > 0) {
-      a.speed = clamp(a.speed - closingSpeed * 0.5 * aNormal, -9, 46);
-      b.speed = clamp(b.speed + closingSpeed * 0.5 * bNormal, -9, 46);
+      a.speed = clamp(a.speed - closingSpeed * shareA * aNormal, -9, 46);
+      b.speed = clamp(b.speed + closingSpeed * shareB * bNormal, -9, 46);
     }
     constrainToTrack(a); constrainToTrack(b);
+    for (const [kart, before] of [[a, beforeA], [b, beforeB]] as const) {
+      const constrained = constrainTrackEvent(kart.x, kart.z, before.x, before.z, kart.speed, kart.trackId, kart.eventStage, kart.eventLevel);
+      kart.x = constrained.x; kart.z = constrained.z; kart.speed = constrained.speed;
+    }
   }
 }
 
 function stepObjects(world: World, racers: Kart[], dt: number): void {
   for (const object of world.objects) {
     object.ttl -= dt;
+    const before = { x: object.x, z: object.z };
     if (object.kind === 'projectile') {
       object.x += Math.sin(object.angle) * 62 * dt;
       object.z += Math.cos(object.angle) * 62 * dt;
-      if (nearestTrack(object.x, object.z, world.trackId).distance > getTrack(world.trackId).width / 2 + 5) object.ttl = 0;
+      const road = nearestDriveableTrack(object.x, object.z, world.trackId, world.eventStage, world.eventLevel);
+      if (road.distance > road.width / 2 + 5) object.ttl = 0;
+    } else if (object.kind === 'seeker' || object.kind === 'leaderBolt') {
+      const owner = world.players.find(kart => kart.id === object.owner);
+      let target = racers.find(kart => kart.id === object.targetId && activeOpponent(kart, object.owner, world));
+      if (object.kind === 'leaderBolt' && owner) target = itemTarget(world, owner, true);
+      if (!target) { object.ttl = 0; continue; }
+      object.targetId = target.id;
+      const near = nearestDriveableTrack(object.x, object.z, world.trackId, world.eventStage, world.eventLevel);
+      const close = Math.hypot(target.x - object.x, target.z - object.z) < 22;
+      const waypoint = close ? target : eventRoutePoint(near.progress + 11, world.trackId, world.eventStage, world.eventLevel);
+      const desired = Math.atan2(waypoint.x - object.x, waypoint.z - object.z);
+      const turn = Math.atan2(Math.sin(desired - object.angle), Math.cos(desired - object.angle));
+      object.angle += clamp(turn, -7 * dt, 7 * dt);
+      const speed = object.kind === 'leaderBolt' ? 82 : 64;
+      object.x += Math.sin(object.angle) * speed * dt;
+      object.z += Math.cos(object.angle) * speed * dt;
     }
     if (object.ttl <= 0) continue;
-    const victim = racers.find(kart => kart.id !== object.owner && kart.stun === 0 &&
-      Math.hypot(kart.x - object.x, kart.z - object.z) < 2.5);
+    const dx = object.x - before.x, dz = object.z - before.z;
+    const distanceSquared = dx * dx + dz * dz;
+    const victim = racers.find(kart => {
+      if (!activeOpponent(kart, object.owner, world) || (object.kind === 'leaderBolt' && kart.id !== object.targetId)) return false;
+      // Swept intersection prevents fast projectiles from tunnelling through a
+      // kart during a capped 100 ms tick. Protected karts still absorb the shot.
+      const t = distanceSquared ? clamp(((kart.x - before.x) * dx + (kart.z - before.z) * dz) / distanceSquared, 0, 1) : 0;
+      return Math.hypot(kart.x - before.x - t * dx, kart.z - before.z - t * dz) < 2.5;
+    });
     if (victim) {
-      victim.stun = 1.05;
-      victim.speed *= 0.2;
-      victim.boost = 0;
-      victim.driftCharge = 0;
+      hitKart(victim);
       object.ttl = 0;
     }
   }
@@ -360,6 +474,8 @@ export function stepWorld(world: World, inputs: Map<string, Input>, dt: number):
     return;
   }
   if (world.phase !== 'racing') return;
+  world.eventStage = Math.max(world.eventStage, Math.min(2, Math.max(0, ...world.players.filter(kart => !kart.spectator && !kart.abandoned).map(kart => kart.lap))));
+  for (const kart of world.players) { kart.eventStage = world.eventStage; kart.eventLevel = world.eventLevel; }
   world.raceTime += dt;
   if (world.finishTimeout > 0) world.finishTimeout = Math.max(1e-8, world.finishTimeout - dt);
   const racers = world.players.filter(kart => !kart.spectator && !kart.finished && !kart.abandoned);
@@ -375,14 +491,14 @@ export function stepWorld(world: World, inputs: Map<string, Input>, dt: number):
     if (input.use && !kart.itemLatch) useItem(world, kart);
     kart.itemLatch = input.use;
   }
-  collideKarts(racers);
+  collideKarts(racers, world.teamMode);
   for (const kart of racers) advanceCheckpoint(kart, previousPositions.get(kart.id)!, world);
   stepObjects(world, racers.filter(kart => !kart.finished), dt);
   for (const pickup of world.pickups) {
     pickup.cooldown = Math.max(0, pickup.cooldown - dt);
     if (pickup.cooldown > 0) continue;
-    const kart = racers.find(player => !player.finished && !player.item && Math.hypot(player.x - pickup.x, player.z - pickup.z) < 2.8);
-    if (kart) { kart.item = (['turbo', 'trap', 'projectile'] as const)[Math.floor(random(world) * 3)]!; pickup.cooldown = 7; }
+    const kart = racers.find(player => player.connected && !player.finished && !player.item && Math.hypot(player.x - pickup.x, player.z - pickup.z) < 2.8);
+    if (kart) { awardItem(world, kart); pickup.cooldown = 7; }
   }
   const ordered = standings(world);
   ordered.forEach((kart, index) => { kart.rank = index + 1; });

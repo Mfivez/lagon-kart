@@ -15,7 +15,20 @@
     "test:network": "node --import tsx scripts/network-check.ts",
     "test:browser": "node --import tsx scripts/browser-check.ts",
     "test:tournament": "node --import tsx scripts/tournament-check.ts",
-    "test:browser-tournament": "node --import tsx scripts/browser-tournament-check.ts"
+    "test:browser-tournament": "node --import tsx scripts/browser-tournament-check.ts",
+    "test:kart-visual": "node --import tsx scripts/kart-visual-check.ts",
+    "test:kart-demo": "node --import tsx scripts/kart-demo-check.ts",
+    "test:music": "node --import tsx scripts/music-check.ts",
+    "prepare:music": "python3 scripts/prepare-music.py",
+    "check:music": "python3 scripts/prepare-music.py --check",
+    "test:items-browser": "node --import tsx scripts/items-browser-check.ts",
+    "prepare:kart": "python3 scripts/prepare-kart.py",
+    "check:kart": "python3 scripts/prepare-kart.py --check",
+    "prepare:kart-library": "python3 scripts/prepare-kart-library.py",
+    "check:kart-library": "python3 scripts/prepare-kart-library.py --check",
+    "test:kart-library": "node --import tsx scripts/kart-library-check.ts",
+    "test:characters": "node --import tsx scripts/characters-check.ts",
+    "test:features-browser": "node --import tsx scripts/features-browser-check.ts"
   },
   "dependencies": {
     "@colyseus/core": "0.16.26",

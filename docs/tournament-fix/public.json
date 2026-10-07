@@ -1,0 +1,160 @@
+{
+  "success": true,
+  "origin": "https://miles-blades-tulsa-citizens.trycloudflare.com",
+  "executedAt": "2026-10-07T12:07:15.055Z",
+  "initialHealth": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "finalHealth": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "checks": [
+    "Le brouillon de huit courses survit aux changements de CPU, événements et équipes ; Prêt et départ restent désactivés avant application.",
+    "Le serveur public reçoit le programme de huit courses, affiché dans le salon.",
+    "La course 1/8 démarre avec sept CPU ; les touches ordinaires déplacent le kart après le vrai décompte.",
+    "Aucune erreur JavaScript ni réponse HTTP en échec pour les assets chargés."
+  ],
+  "pendingMessage": "Programme choisi : 8 courses ; programme appliqué : 2 courses. Appliquez votre choix avant de vous déclarer prêt ou de lancer la course.",
+  "applied": {
+    "mode": "tournament",
+    "selection": "manual",
+    "trackPool": [
+      "lagon",
+      "canyon",
+      "glacier",
+      "neon",
+      "mangrove",
+      "dunes",
+      "volcan",
+      "forest"
+    ],
+    "schedule": [
+      "lagon",
+      "canyon",
+      "glacier",
+      "neon",
+      "mangrove",
+      "dunes",
+      "volcan",
+      "forest"
+    ],
+    "raceCount": 8,
+    "raceIndex": 0,
+    "completed": false,
+    "standings": [
+      {
+        "id": "cpu-44c1255f-22fd-4e6b-a548-c62be1c82675",
+        "name": "CPU 6",
+        "color": "#fa9ac4",
+        "team": 1,
+        "points": 0,
+        "wins": 0,
+        "totalTime": 0,
+        "racesCompleted": 0,
+        "rank": 1
+      },
+      {
+        "id": "cpu-472596f0-c095-48a8-9966-928e063b87a6",
+        "name": "CPU 3",
+        "color": "#fed36a",
+        "team": 0,
+        "points": 0,
+        "wins": 0,
+        "totalTime": 0,
+        "racesCompleted": 0,
+        "rank": 2
+      },
+      {
+        "id": "cpu-56719b30-12e0-4eee-9942-511776aa3ba7",
+        "name": "CPU 2",
+        "color": "#69cbd0",
+        "team": 1,
+        "points": 0,
+        "wins": 0,
+        "totalTime": 0,
+        "racesCompleted": 0,
+        "rank": 3
+      },
+      {
+        "id": "cpu-bfbeb851-ee81-406a-888d-5ac801b6cbde",
+        "name": "CPU 8",
+        "color": "#f4f1de",
+        "team": 1,
+        "points": 0,
+        "wins": 0,
+        "totalTime": 0,
+        "racesCompleted": 0,
+        "rank": 4
+      },
+      {
+        "id": "cpu-d924d972-714c-46c7-a117-2f8d50919526",
+        "name": "CPU 5",
+        "color": "#92cf84",
+        "team": 0,
+        "points": 0,
+        "wins": 0,
+        "totalTime": 0,
+        "racesCompleted": 0,
+        "rank": 5
+      },
+      {
+        "id": "cpu-e10864d6-ab3c-46b5-867b-84cf8015fedb",
+        "name": "CPU 4",
+        "color": "#bca4ef",
+        "team": 1,
+        "points": 0,
+        "wins": 0,
+        "totalTime": 0,
+        "racesCompleted": 0,
+        "rank": 6
+      },
+      {
+        "id": "cpu-e39f55b1-fedb-412f-9ec7-59f946bfeebf",
+        "name": "CPU 7",
+        "color": "#638ce6",
+        "team": 0,
+        "points": 0,
+        "wins": 0,
+        "totalTime": 0,
+        "racesCompleted": 0,
+        "rank": 7
+      },
+      {
+        "id": "s1YNMcudb",
+        "name": "Vérif tournoi",
+        "color": "#fc735d",
+        "team": 0,
+        "points": 0,
+        "wins": 0,
+        "totalTime": 0,
+        "racesCompleted": 0,
+        "rank": 8
+      }
+    ],
+    "rounds": []
+  },
+  "distanceDriven": 34.125791011304905,
+  "loadedAssets": [
+    "/assets/index-D1bdMCxt.js",
+    "/assets/index-Jqpo2WEV.css",
+    "/audio/lap-1-v1.mp3",
+    "/models/kart-retro-v1.glb",
+    "/models/kart-sprint-v1.glb",
+    "/models/kart-zsky-v1.glb",
+    "/models/scenery/kenney-tree-v1.glb"
+  ],
+  "errors": [],
+  "assetErrors": [],
+  "cleanup": "No rooms before or after this smoke check.",
+  "scope": "Public browser smoke test over same-origin HTTPS/WSS. One new guest profile, eight-race configuration, natural start and ordinary keyboard driving in race 1/8. No forced results and no complete public race."
+}

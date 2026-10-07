@@ -16,6 +16,7 @@
     "test:browser": "node --import tsx scripts/browser-check.ts",
     "test:tournament": "node --import tsx scripts/tournament-check.ts",
     "test:browser-tournament": "node --import tsx scripts/browser-tournament-check.ts",
+    "test:tournament-configuration": "node --import tsx scripts/tournament-configuration-check.ts",
     "test:kart-visual": "node --import tsx scripts/kart-visual-check.ts",
     "test:kart-demo": "node --import tsx scripts/kart-demo-check.ts",
     "test:music": "node --import tsx scripts/music-check.ts",

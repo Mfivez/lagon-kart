@@ -346,8 +346,8 @@ el('swatches').addEventListener('click', event => {
   renderer.setPreviewKart(chosenColor, garage.value.modelId, garage.value.characterId);
   document.querySelectorAll<HTMLButtonElement>('[data-color]').forEach(swatch => { const selected = swatch.dataset.color === chosenColor; swatch.classList.toggle('selected', selected); swatch.setAttribute('aria-pressed', String(selected)); });
 });
-el('ready-button').addEventListener('click', () => { audio.activate(); room?.send('ready', { ready: !world?.players.find(p => p.id === room?.sessionId)?.ready }); });
-el('start-button').addEventListener('click', () => { audio.activate(); room?.send('start', {}); });
+el('ready-button').addEventListener('click', () => { if (tournamentControls.hasPendingChanges) { toast(tournamentControls.pendingMessage); return; } audio.activate(); room?.send('ready', { ready: !world?.players.find(p => p.id === room?.sessionId)?.ready }); });
+el('start-button').addEventListener('click', () => { if (tournamentControls.hasPendingChanges) { toast(tournamentControls.pendingMessage); return; } audio.activate(); room?.send('start', {}); });
 el('rematch-button').addEventListener('click', () => room?.send('rematch', {}));
 el('next-race-button').addEventListener('click', () => room?.send('nextRace', {}));
 el('leave-button').addEventListener('click', async () => {
@@ -442,11 +442,13 @@ function updateUI(now: number, force = false) {
       }
       el('ready-button').textContent = me?.ready ? '✓ Prêt · Annuler' : 'Je suis prêt';
       el('ready-button').classList.toggle('is-ready', !!me?.ready);
+      const pendingConfiguration = host && tournamentControls.hasPendingChanges;
+      el<HTMLButtonElement>('ready-button').disabled = !connected || pendingConfiguration;
       show('start-button', host);
       const connectedCompetitors = competitors.filter(p => p.connected);
-      el<HTMLButtonElement>('start-button').disabled = !connected || connectedCompetitors.length < (world.practice ? 1 : 2) || connectedCompetitors.some(p => !p.ready);
+      el<HTMLButtonElement>('start-button').disabled = !connected || pendingConfiguration || connectedCompetitors.length < (world.practice ? 1 : 2) || connectedCompetitors.some(p => !p.ready);
       el('lobby-description').textContent = `${displayedTrack.name} · ${trackFeatures[displayedTrack.id]}`;
-      el('lobby-hint').textContent = host ? 'Chaque pilote doit être prêt pour lancer la course.' : 'Le créateur lancera la course quand tout le monde sera prêt.';
+      el('lobby-hint').textContent = pendingConfiguration ? tournamentControls.pendingMessage : host ? 'Chaque pilote doit être prêt pour lancer la course.' : 'Le créateur lancera la course quand tout le monde sera prêt.';
     }
     if (phase === 'finished') {
       const signature = JSON.stringify([players.map(p => [p.id, p.rank, p.finishTime, p.finished, p.spectator, p.name]), cup]);

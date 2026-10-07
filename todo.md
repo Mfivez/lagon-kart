@@ -2,6 +2,13 @@
 
 État au **7 octobre 2026**. `[x]` = réalisé avec preuve ; `[ ]` = travail ou validation restant à terminer. [Démo intégrée et rapports](docs/DEMO.md).
 
+## Tournois : nombre de courses conservé
+
+- [x] Bug reproduit : un tournoi de huit courses non encore appliqué revenait à deux lors de l’activation des équipes. Le brouillon survit désormais aux réglages CPU/événements/équipes ; un message et les boutons Prêt/Départ évitent de partir sur l’ancien programme. [Détails](docs/tournament-fix/README.md).
+- [x] **9 tests ciblés**, **8 contrôles navigateur de configuration** et **quatre vraies courses complètes** à deux clients SDK réussis ; aucun changement du moteur de course.
+- [x] **15 contrôles navigateur des huit manches** réussis : départs et touches ordinaires, arrivées synthétiques déclarées, bouton suivant après la deuxième jusqu’à la huitième, podium, revanche et huit replays privés relus. [Rapport](docs/tournament-fix/browser-transitions.json).
+- [x] Docker corrigé, données et tunnel conservés ; **4 contrôles publics** confirment huit courses après réglages, application et départ réel 1/8 avec sept CPU. Aucune erreur JS/asset, zéro salon restant. [Rapport](docs/tournament-fix/public.json).
+
 ## Éditeur de circuits et bibliothèque de la classe
 
 - [x] Atelier visuel : points manipulables, ajout/suppression, départ déplaçable, annuler/rétablir, dix thèmes, largeur et zones turbo/glace/boue. Brouillon local par profil, erreurs de tracé expliquées et publication bloquée si la piste est invalide. [Mode d’emploi](docs/TRACK_EDITOR.md).

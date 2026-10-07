@@ -2,6 +2,45 @@
 
 Vérifications des 6 et 7 octobre 2026 dans WSL/Linux avec Docker Desktop 4.55.0, Docker Engine 29.1.3, Compose 2.40.3, Node 20.19.2 sur l'hôte et Node 22.21.1 dans l'image. Les résultats ci-dessous distinguent simulation, clients réseau automatisés et navigateur ; chaque lot conserve ses preuves et sa date.
 
+## 7 octobre 2026 — tournoi ramené à deux courses
+
+Bug reproduit dans Chromium : choisir huit courses puis activer les équipes
+écrasait le programme non appliqué avec les deux courses par défaut du serveur.
+Changer CPU/événements pouvait aussi effacer les choix. Le formulaire conserve
+désormais son programme, signale les modifications à appliquer et bloque le
+départ de l’hôte jusqu’à leur confirmation. Un nouveau salon repart avec ses
+propres réglages. Simulation et format classé inchangés.
+[Cause, captures et protocole](docs/tournament-fix/README.md).
+
+- **9/9 tests ciblés** réussis : règles du tournoi et quatre/huit manches avec
+  départs et arrivées synthétiques sur serveur privé.
+- **Quatre courses complètes à deux clients SDK**, trois tours chacune, sans
+  arrivée imposée, en **300,428 s**. Reconnexion pendant la deuxième, troisième
+  et quatrième courses, scores, podium et revanche réussis. Ce contrôle du
+  serveur inchangé confirme l’absence de plafond dans le moteur.
+  [Rapport](docs/tournament-fix/network-four-races.json).
+- **8 contrôles navigateur** sur le formulaire corrigé : CPU, événements,
+  équipes, brouillon, blocage du départ, application pour les deux clients,
+  tirage aléatoire et changement de salon ; aucune erreur JavaScript.
+  [Rapport](docs/tournament-fix/configuration-after.json).
+- **15 contrôles navigateur** sur deux sessions, deux humains et six CPU :
+  huit départs et déplacements clavier réels, transitions **2 → 3 jusqu’à 8**,
+  podium, revanche, pool aléatoire et huit replays privés sauvegardés puis relus.
+  **Arrivées et chronos synthétiques explicitement imposés** pour tester ces
+  transitions ; ce ne sont pas huit courses complètes. Aucune erreur JS,
+  ressource manquante ou erreur de sauvegarde dans l’exécution finale.
+  [Rapport](docs/tournament-fix/browser-transitions.json) ·
+  [Passage vers la troisième](docs/tournament-fix/after-race-two-next-course.png).
+
+Build, TypeScript et Docker réussis ; client `index-D1bdMCxt.js` et CSS
+`index-Jqpo2WEV.css` publics identiques au build. Les 22 fichiers de données,
+29 profils présents et le circuit personnalisé sont conservés lors du
+déploiement ; tunnel inchangé. [Preuve](docs/tournament-fix/deployment.json).
+Le contrôle public Chromium passe ensuite : **4 contrôles**, programme de huit
+conservé puis appliqué, vrai départ **1/8** avec sept CPU et **34,13 m** parcourus
+au clavier ; aucune erreur JS/HTTP d’asset et zéro salon avant/après. Ce contrôle
+ne termine pas de course publique. [Rapport](docs/tournament-fix/public.json).
+
 ## 7 octobre 2026 — atelier des circuits
 
 Éditeur visuel intégré à l’accueil : tracé lissé, ajout/déplacement/suppression

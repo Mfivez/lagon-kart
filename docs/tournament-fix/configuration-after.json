@@ -1,0 +1,167 @@
+{
+  "success": true,
+  "at": "2026-10-07T11:59:34.409Z",
+  "clientAssets": [
+    "/assets/index-D1bdMCxt.js",
+    "/assets/index-Jqpo2WEV.css"
+  ],
+  "origin": "http://127.0.0.1:3012",
+  "inputMethod": "Browser select, checkbox and button interactions through real HTTP/WebSocket; no race fixtures.",
+  "pendingTeams": {
+    "chosenRaceCount": 8,
+    "applied": {
+      "mode": "tournament",
+      "selection": "manual",
+      "trackPool": [
+        "lagon",
+        "neon"
+      ],
+      "schedule": [
+        "lagon",
+        "neon"
+      ],
+      "raceCount": 2,
+      "raceIndex": 0,
+      "completed": false,
+      "standings": [
+        {
+          "id": "cpu-6f043765-2a25-458d-bd8f-9ced7ad5241a",
+          "name": "CPU 7",
+          "color": "#638ce6",
+          "team": 0,
+          "points": 0,
+          "wins": 0,
+          "totalTime": 0,
+          "racesCompleted": 0,
+          "rank": 1
+        },
+        {
+          "id": "cpu-6f14ad1c-ff34-4291-9327-fcf7bbe76825",
+          "name": "CPU 5",
+          "color": "#92cf84",
+          "team": 0,
+          "points": 0,
+          "wins": 0,
+          "totalTime": 0,
+          "racesCompleted": 0,
+          "rank": 2
+        },
+        {
+          "id": "cpu-72016784-39ac-400c-95d4-a33a411b6200",
+          "name": "CPU 3",
+          "color": "#fed36a",
+          "team": 0,
+          "points": 0,
+          "wins": 0,
+          "totalTime": 0,
+          "racesCompleted": 0,
+          "rank": 3
+        },
+        {
+          "id": "cpu-d19369c8-33bf-43e7-8fdf-221ac54bf6b9",
+          "name": "CPU 6",
+          "color": "#fa9ac4",
+          "team": 1,
+          "points": 0,
+          "wins": 0,
+          "totalTime": 0,
+          "racesCompleted": 0,
+          "rank": 4
+        },
+        {
+          "id": "cpu-dabe9fc5-a6f5-484e-ac8b-f71222f96f06",
+          "name": "CPU 8",
+          "color": "#f4f1de",
+          "team": 1,
+          "points": 0,
+          "wins": 0,
+          "totalTime": 0,
+          "racesCompleted": 0,
+          "rank": 5
+        },
+        {
+          "id": "cpu-db225615-7d7c-4799-983c-ba0569df5b7f",
+          "name": "CPU 4",
+          "color": "#bca4ef",
+          "team": 1,
+          "points": 0,
+          "wins": 0,
+          "totalTime": 0,
+          "racesCompleted": 0,
+          "rank": 6
+        }
+      ],
+      "rounds": []
+    },
+    "message": "Programme choisi : 8 courses ; programme appliqué : 2 courses. Appliquez votre choix avant de vous déclarer prêt ou de lancer la course."
+  },
+  "random": {
+    "mode": "tournament",
+    "selection": "random",
+    "trackPool": [
+      "canyon",
+      "glacier"
+    ],
+    "schedule": [
+      "canyon",
+      "glacier",
+      "canyon",
+      "glacier",
+      "canyon",
+      "glacier",
+      "canyon",
+      "glacier"
+    ],
+    "raceCount": 8,
+    "raceIndex": 0,
+    "completed": false,
+    "standings": [
+      {
+        "id": "cpu-cbd04a1b-2c23-4718-b072-157722c0514e",
+        "name": "CPU 3",
+        "color": "#fed36a",
+        "team": 0,
+        "points": 0,
+        "wins": 0,
+        "totalTime": 0,
+        "racesCompleted": 0,
+        "rank": 1
+      },
+      {
+        "id": "kJ-tqtnBJ",
+        "name": "Tournoi Invité",
+        "color": "#fc735d",
+        "team": 1,
+        "points": 0,
+        "wins": 0,
+        "totalTime": 0,
+        "racesCompleted": 0,
+        "rank": 2
+      },
+      {
+        "id": "w_xtZ6oAx",
+        "name": "Tournoi Hôte",
+        "color": "#fc735d",
+        "team": 0,
+        "points": 0,
+        "wins": 0,
+        "totalTime": 0,
+        "racesCompleted": 0,
+        "rank": 3
+      }
+    ],
+    "rounds": []
+  },
+  "checks": [
+    "Le brouillon de huit courses et son ordre survivent aux changements de CPU, météo et équipes ; le défaut serveur de deux courses reste clairement distingué.",
+    "Prêt et départ sont bloqués pour l’hôte tant que le programme choisi reste non appliqué ; l’invité garde ses propres commandes.",
+    "Appliquer publie réellement les huit courses pour les deux navigateurs et réactive Prêt.",
+    "Un programme déjà appliqué de huit courses peut devenir quatre courses sans perdre le brouillon lorsque les équipes ou CPU changent.",
+    "Changer seulement un circuit exige aussi une application ; revenir exactement au programme appliqué débloque Prêt sans nouvelle requête.",
+    "Le tirage de huit courses conserve les deux circuits cochés pendant un changement météo ; les réglages CPU ultérieurs conservent le tirage appliqué.",
+    "Quitter un salon avec un brouillon puis créer un autre salon initialise les réglages du nouveau salon sans réutiliser l’ancien brouillon.",
+    "Aucune erreur JavaScript dans les deux navigateurs."
+  ],
+  "errors": [],
+  "raceCompletion": "Aucune fin de course forcée ni course complète dans ce test ciblé de configuration."
+}

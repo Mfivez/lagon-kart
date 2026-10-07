@@ -1,0 +1,147 @@
+{
+  "passed": true,
+  "at": "2026-10-07T12:06:03.267Z",
+  "checks": [
+    "12 circuits disponibles : le contrôle utilise le catalogue actuel.",
+    "Brouillon de huit courses conservé après modification des CPU, des événements et du mode équipes.",
+    "Programme de huit courses reçu dans deux navigateurs ; deux humains et six CPU en équipes.",
+    "Course 1/8 : départ, commande clavier et transition vers la course 2 dans les deux navigateurs.",
+    "Course 2/8 : départ, commande clavier et transition vers la course 3 dans les deux navigateurs.",
+    "Course 3/8 : départ, commande clavier et transition vers la course 4 dans les deux navigateurs.",
+    "Course 4/8 : départ, commande clavier et transition vers la course 5 dans les deux navigateurs.",
+    "Course 5/8 : départ, commande clavier et transition vers la course 6 dans les deux navigateurs.",
+    "Course 6/8 : départ, commande clavier et transition vers la course 7 dans les deux navigateurs.",
+    "Course 7/8 : départ, commande clavier et transition vers la course 8 dans les deux navigateurs.",
+    "Course 8/8 : podium final, huit résultats et bouton de revanche.",
+    "La revanche conserve huit courses et remet les points à zéro pour les deux pilotes.",
+    "Tirage de huit courses limité aux deux circuits cochés parmi 12, identique pour l’invité.",
+    "Huit replays synthétiques valides sauvegardés puis relus dans le stockage privé.",
+    "Aucune erreur JavaScript ou ressource graphique/audio manquante."
+  ],
+  "captures": [
+    "draft-eight-after-teams.png",
+    "lobby-eight-races.png",
+    "race-1-lagon.png",
+    "after-race-two-next-course.png",
+    "race-3-glacier.png",
+    "race-8-forest.png",
+    "podium-eight-races.png",
+    "random-eight-two-circuits.png"
+  ],
+  "errors": [],
+  "scope": "Deux contextes Chromium indépendants et un vrai serveur HTTP/Colyseus privé. Stockages joueurs et circuits temporaires sous /tmp ; aucune donnée du jeu public utilisée.",
+  "raceCompletion": "Arrivées et temps de classement imposés sur le serveur privé après départ normal et déplacement clavier de chaque manche ; les temps synthétiques restent inférieurs à la durée écoulée. Vérifie les transitions, le score, les interfaces et la sauvegarde de ces fixtures ; ne valide pas huit courses complètes ni le comptage réel de tous les tours.",
+  "renderer": "Chromium headless / SwiftShader",
+  "rounds": [
+    {
+      "race": 1,
+      "trackId": "lagon",
+      "movement": 29.44,
+      "results": 1,
+      "completed": false,
+      "nextButton": true
+    },
+    {
+      "race": 2,
+      "trackId": "canyon",
+      "movement": 30.42,
+      "results": 2,
+      "completed": false,
+      "nextButton": true
+    },
+    {
+      "race": 3,
+      "trackId": "glacier",
+      "movement": 36.01,
+      "results": 3,
+      "completed": false,
+      "nextButton": true
+    },
+    {
+      "race": 4,
+      "trackId": "neon",
+      "movement": 29.09,
+      "results": 4,
+      "completed": false,
+      "nextButton": true
+    },
+    {
+      "race": 5,
+      "trackId": "mangrove",
+      "movement": 29.44,
+      "results": 5,
+      "completed": false,
+      "nextButton": true
+    },
+    {
+      "race": 6,
+      "trackId": "dunes",
+      "movement": 31.92,
+      "results": 6,
+      "completed": false,
+      "nextButton": true
+    },
+    {
+      "race": 7,
+      "trackId": "volcan",
+      "movement": 29.77,
+      "results": 7,
+      "completed": false,
+      "nextButton": true
+    },
+    {
+      "race": 8,
+      "trackId": "forest",
+      "movement": 27,
+      "results": 8,
+      "completed": true,
+      "nextButton": false
+    }
+  ],
+  "evidence": {
+    "origin": "http://127.0.0.1:35609",
+    "clientAssets": [
+      "/assets/index-D1bdMCxt.js",
+      "/assets/index-Jqpo2WEV.css"
+    ],
+    "catalog": [
+      "lagon",
+      "canyon",
+      "glacier",
+      "neon",
+      "mangrove",
+      "dunes",
+      "volcan",
+      "forest",
+      "harbor",
+      "sky",
+      "foundry",
+      "castle"
+    ],
+    "manualSchedule": [
+      "lagon",
+      "canyon",
+      "glacier",
+      "neon",
+      "mangrove",
+      "dunes",
+      "volcan",
+      "forest"
+    ],
+    "randomPool": [
+      "canyon",
+      "glacier"
+    ],
+    "randomSchedule": [
+      "glacier",
+      "canyon",
+      "glacier",
+      "canyon",
+      "glacier",
+      "canyon",
+      "glacier",
+      "canyon"
+    ],
+    "privateFixtureReplays": 8
+  }
+}

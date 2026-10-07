@@ -1,0 +1,239 @@
+{
+  "origin": "http://127.0.0.1:3012",
+  "clients": 2,
+  "kind": "SDK clients using ordinary inputs",
+  "durationSeconds": 300.428,
+  "checks": [
+    "Configuration réservée à l’hôte",
+    "Programme manuel de quatre circuits partagé par tous les clients",
+    "Île des Alizés : 2 pilotes, trois tours, classement et points synchronisés",
+    "Reconnexion en deuxième manche : identité, scores et programme conservés",
+    "Canyon solaire : 2 pilotes, trois tours, classement et points synchronisés",
+    "Banquise boréale : 2 pilotes, trois tours, classement et points synchronisés",
+    "Métropole néon : 2 pilotes, trois tours, classement et points synchronisés",
+    "Fin de tournoi et revanche : programme conservé, scores et course réinitialisés",
+    "Tirage aléatoire de huit manches : uniquement les circuits autorisés, sans répétition consécutive",
+    "Les choix de circuits restent indépendants entre salons"
+  ],
+  "raceResults": [
+    {
+      "trackId": "lagon",
+      "length": 627.5317602433004,
+      "results": {
+        "trackId": "lagon",
+        "results": [
+          {
+            "id": "IktbcIsJH",
+            "name": "Tournoi 1",
+            "rank": 1,
+            "points": 15,
+            "finished": true,
+            "finishTime": 58.5666666666659
+          },
+          {
+            "id": "hhESsi9J3",
+            "name": "Tournoi 2",
+            "rank": 2,
+            "points": 12,
+            "finished": true,
+            "finishTime": 68.56666666666534
+          }
+        ]
+      },
+      "standings": [
+        {
+          "id": "IktbcIsJH",
+          "name": "Tournoi 1",
+          "color": "#fc735d",
+          "team": 0,
+          "points": 15,
+          "wins": 1,
+          "totalTime": 58.5666666666659,
+          "racesCompleted": 1,
+          "rank": 1
+        },
+        {
+          "id": "hhESsi9J3",
+          "name": "Tournoi 2",
+          "color": "#69cbd0",
+          "team": 1,
+          "points": 12,
+          "wins": 0,
+          "totalTime": 68.56666666666534,
+          "racesCompleted": 1,
+          "rank": 2
+        }
+      ]
+    },
+    {
+      "trackId": "canyon",
+      "length": 687.8046111887685,
+      "results": {
+        "trackId": "canyon",
+        "results": [
+          {
+            "id": "IktbcIsJH",
+            "name": "Tournoi 1",
+            "rank": 1,
+            "points": 15,
+            "finished": true,
+            "finishTime": 59.066666666665874
+          },
+          {
+            "id": "hhESsi9J3",
+            "name": "Tournoi 2",
+            "rank": 2,
+            "points": 12,
+            "finished": true,
+            "finishTime": 70.33333333333191
+          }
+        ]
+      },
+      "standings": [
+        {
+          "id": "IktbcIsJH",
+          "name": "Tournoi 1",
+          "color": "#fc735d",
+          "team": 0,
+          "points": 30,
+          "wins": 2,
+          "totalTime": 117.63333333333178,
+          "racesCompleted": 2,
+          "rank": 1
+        },
+        {
+          "id": "hhESsi9J3",
+          "name": "Tournoi 2",
+          "color": "#69cbd0",
+          "team": 1,
+          "points": 24,
+          "wins": 0,
+          "totalTime": 138.89999999999725,
+          "racesCompleted": 2,
+          "rank": 2
+        }
+      ]
+    },
+    {
+      "trackId": "glacier",
+      "length": 689.3729237419103,
+      "results": {
+        "trackId": "glacier",
+        "results": [
+          {
+            "id": "IktbcIsJH",
+            "name": "Tournoi 1",
+            "rank": 1,
+            "points": 15,
+            "finished": true,
+            "finishTime": 65.39999999999885
+          },
+          {
+            "id": "hhESsi9J3",
+            "name": "Tournoi 2",
+            "rank": 2,
+            "points": 12,
+            "finished": true,
+            "finishTime": 72.03333333333181
+          }
+        ]
+      },
+      "standings": [
+        {
+          "id": "IktbcIsJH",
+          "name": "Tournoi 1",
+          "color": "#fc735d",
+          "team": 0,
+          "points": 45,
+          "wins": 3,
+          "totalTime": 183.03333333333063,
+          "racesCompleted": 3,
+          "rank": 1
+        },
+        {
+          "id": "hhESsi9J3",
+          "name": "Tournoi 2",
+          "color": "#69cbd0",
+          "team": 1,
+          "points": 36,
+          "wins": 0,
+          "totalTime": 210.93333333332907,
+          "racesCompleted": 3,
+          "rank": 2
+        }
+      ]
+    },
+    {
+      "trackId": "neon",
+      "length": 690.9778041450388,
+      "results": {
+        "trackId": "neon",
+        "results": [
+          {
+            "id": "hhESsi9J3",
+            "name": "Tournoi 2",
+            "rank": 1,
+            "points": 15,
+            "finished": true,
+            "finishTime": 65.69999999999884
+          },
+          {
+            "id": "IktbcIsJH",
+            "name": "Tournoi 1",
+            "rank": 2,
+            "points": 12,
+            "finished": true,
+            "finishTime": 74.73333333333166
+          }
+        ]
+      },
+      "standings": [
+        {
+          "id": "IktbcIsJH",
+          "name": "Tournoi 1",
+          "color": "#fc735d",
+          "team": 0,
+          "points": 57,
+          "wins": 3,
+          "totalTime": 257.7666666666623,
+          "racesCompleted": 4,
+          "rank": 1
+        },
+        {
+          "id": "hhESsi9J3",
+          "name": "Tournoi 2",
+          "color": "#69cbd0",
+          "team": 1,
+          "points": 51,
+          "wins": 1,
+          "totalTime": 276.6333333333279,
+          "racesCompleted": 4,
+          "rank": 2
+        }
+      ]
+    }
+  ],
+  "randomSchedule": [
+    "canyon",
+    "neon",
+    "canyon",
+    "neon",
+    "canyon",
+    "neon",
+    "canyon",
+    "neon"
+  ],
+  "scope": "Private isolated server. Four complete three-lap races driven by two Colyseus SDK clients sending ordinary autopilot controls. No forced positions, countdowns or finish fixtures. Server tournament logic unchanged by the UI configuration fix.",
+  "script": "scripts/tournament-check.ts",
+  "configuration": {
+    "raceCount": 4,
+    "selection": "manual",
+    "schedule": [
+      "lagon",
+      "canyon",
+      "glacier",
+      "neon"
+    ]
+  },
+  "executedAt": "2026-10-07"
+}

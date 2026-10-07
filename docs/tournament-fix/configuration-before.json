@@ -1,0 +1,203 @@
+[
+  {
+    "field": "cpu-select",
+    "before": {
+      "count": "8",
+      "mode": "tournament",
+      "world": {
+        "mode": "single",
+        "selection": "manual",
+        "trackPool": [
+          "lagon"
+        ],
+        "schedule": [
+          "lagon"
+        ],
+        "raceCount": 1,
+        "raceIndex": 0,
+        "completed": false,
+        "standings": [],
+        "rounds": []
+      }
+    },
+    "after": {
+      "mode": "single",
+      "world": {
+        "mode": "single",
+        "selection": "manual",
+        "trackPool": [
+          "lagon"
+        ],
+        "schedule": [
+          "lagon"
+        ],
+        "raceCount": 1,
+        "raceIndex": 0,
+        "completed": false,
+        "standings": [],
+        "rounds": []
+      }
+    }
+  },
+  {
+    "field": "events-select",
+    "before": {
+      "count": "8",
+      "mode": "tournament",
+      "world": {
+        "mode": "single",
+        "selection": "manual",
+        "trackPool": [
+          "lagon"
+        ],
+        "schedule": [
+          "lagon"
+        ],
+        "raceCount": 1,
+        "raceIndex": 0,
+        "completed": false,
+        "standings": [],
+        "rounds": []
+      }
+    },
+    "after": {
+      "mode": "single",
+      "world": {
+        "mode": "single",
+        "selection": "manual",
+        "trackPool": [
+          "lagon"
+        ],
+        "schedule": [
+          "lagon"
+        ],
+        "raceCount": 1,
+        "raceIndex": 0,
+        "completed": false,
+        "standings": [],
+        "rounds": []
+      }
+    }
+  },
+  {
+    "field": "teams-select",
+    "before": {
+      "count": "8",
+      "mode": "tournament",
+      "world": {
+        "mode": "single",
+        "selection": "manual",
+        "trackPool": [
+          "lagon"
+        ],
+        "schedule": [
+          "lagon"
+        ],
+        "raceCount": 1,
+        "raceIndex": 0,
+        "completed": false,
+        "standings": [],
+        "rounds": []
+      }
+    },
+    "after": {
+      "count": "2",
+      "mode": "tournament",
+      "world": {
+        "mode": "tournament",
+        "selection": "manual",
+        "trackPool": [
+          "lagon",
+          "neon"
+        ],
+        "schedule": [
+          "lagon",
+          "neon"
+        ],
+        "raceCount": 2,
+        "raceIndex": 0,
+        "completed": false,
+        "standings": [
+          {
+            "id": "cpu-039bf55d-e25f-448a-963f-c7a4b7a27122",
+            "name": "CPU 3",
+            "color": "#fed36a",
+            "team": 0,
+            "points": 0,
+            "wins": 0,
+            "totalTime": 0,
+            "racesCompleted": 0,
+            "rank": 1
+          },
+          {
+            "id": "cpu-2c107ec6-9299-4f5f-8342-ee47dcb024e3",
+            "name": "CPU 2",
+            "color": "#69cbd0",
+            "team": 1,
+            "points": 0,
+            "wins": 0,
+            "totalTime": 0,
+            "racesCompleted": 0,
+            "rank": 2
+          },
+          {
+            "id": "cpu-67ef209c-85e3-42fd-8657-fac43cd75ecf",
+            "name": "CPU 4",
+            "color": "#bca4ef",
+            "team": 1,
+            "points": 0,
+            "wins": 0,
+            "totalTime": 0,
+            "racesCompleted": 0,
+            "rank": 3
+          },
+          {
+            "id": "cpu-6d496aee-751a-40a2-92dc-4b56a6cf8393",
+            "name": "CPU 6",
+            "color": "#fa9ac4",
+            "team": 1,
+            "points": 0,
+            "wins": 0,
+            "totalTime": 0,
+            "racesCompleted": 0,
+            "rank": 4
+          },
+          {
+            "id": "cpu-ac422a40-5f79-4ef8-b26b-3dd9c8776e9b",
+            "name": "CPU 7",
+            "color": "#638ce6",
+            "team": 0,
+            "points": 0,
+            "wins": 0,
+            "totalTime": 0,
+            "racesCompleted": 0,
+            "rank": 5
+          },
+          {
+            "id": "cpu-d3a1145f-09c0-4a85-b383-ee47a764af21",
+            "name": "CPU 5",
+            "color": "#92cf84",
+            "team": 0,
+            "points": 0,
+            "wins": 0,
+            "totalTime": 0,
+            "racesCompleted": 0,
+            "rank": 6
+          },
+          {
+            "id": "cpu-e18fb14c-01c9-4ec5-9bcf-088b484bd68c",
+            "name": "CPU 8",
+            "color": "#f4f1de",
+            "team": 1,
+            "points": 0,
+            "wins": 0,
+            "totalTime": 0,
+            "racesCompleted": 0,
+            "rank": 7
+          }
+        ],
+        "rounds": []
+      }
+    }
+  }
+]

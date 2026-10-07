@@ -31,9 +31,14 @@ export function teamsTable(entries: TournamentEntry[]) {
   return `<div class="standings-heading"><span>CLASSEMENT DES ÉQUIPES · 4 CONTRE 4</span><span>POINTS</span></div>${teams.map(team => `<div class="standing-row"><b>${team.rank}</b><i style="background:${team.color}"></i><span>${team.name}</span><strong>${team.points}<small> pts</small></strong></div>`).join('')}<p class="score-note">Les points des quatre équipiers s’additionnent sur toutes les courses. Les objets offensifs épargnent les alliés.</p>`;
 }
 
-export const configurationMarkup = `<details id="race-configuration" class="race-configuration" open><summary>Choisir l’aventure <span id="configuration-summary">Une course</span></summary><div id="configuration-controls"></div><p id="configuration-note" class="configuration-note"></p></details><div id="schedule-list" class="schedule-list" aria-label="Programme des courses"></div><div id="lobby-cup-score" class="lobby-cup-score hidden"></div>`;
+export const configurationMarkup = `<details id="race-configuration" class="race-configuration" open><summary>Choisir l’aventure <span id="configuration-summary">Une course</span></summary><div id="configuration-controls"></div><p id="configuration-note" class="configuration-note" aria-live="polite"></p></details><div id="schedule-list" class="schedule-list" aria-label="Programme des courses"></div><div id="lobby-cup-score" class="lobby-cup-score hidden"></div>`;
 
 type Draft = { mode: 'single' | 'tournament'; selection: 'manual' | 'random'; trackId: string; raceCount: number; schedule: string[]; trackPool: string[] };
+function programKey(draft: Draft): string {
+  if (draft.mode === 'single') return JSON.stringify(['single', draft.trackId]);
+  return JSON.stringify(['tournament', draft.selection, draft.raceCount,
+    draft.selection === 'manual' ? draft.schedule.slice(0, draft.raceCount) : [...draft.trackPool].sort()]);
+}
 export class TournamentControls {
   private draft: Draft = { mode: 'single', selection: 'manual', trackId: 'lagon', raceCount: 4, schedule: getAvailableTracks().map(track => track.id), trackPool: getAvailableTracks().map(track => track.id) };
   private signature = '';
@@ -42,6 +47,16 @@ export class TournamentControls {
   private cpuCount = 0;
   private eventLevel = 3;
   private championshipId = '';
+  private sessionId = '';
+  private appliedProgram = '';
+  private appliedRaceCount = 1;
+  get hasPendingChanges() { return this.allowed && programKey(this.draft) !== this.appliedProgram; }
+  get pendingMessage() {
+    const count = this.draft.mode === 'single' ? 1 : this.draft.raceCount;
+    const courses = (value: number) => `${value} course${value > 1 ? 's' : ''}`;
+    if (count === this.appliedRaceCount) return `Le choix des circuits a été modifié. Appliquez ce programme de ${courses(count)} avant de vous déclarer prêt ou de lancer la course.`;
+    return `Programme choisi : ${courses(count)} ; programme appliqué : ${courses(this.appliedRaceCount)}. Appliquez votre choix avant de vous déclarer prêt ou de lancer la course.`;
+  }
   constructor(private readonly send: (type: string, payload: unknown) => void) {
     element('configuration-controls').addEventListener('change', event => {
       const input = event.target;
@@ -74,20 +89,27 @@ export class TournamentControls {
     const cup = world.tournament;
     const editable = world.phase === 'lobby' && cup.raceIndex === 0 && cup.rounds.length === 0;
     const allowed = editable && world.hostId === sessionId && !world.ranked;
+    const pending = this.hasPendingChanges;
+    const nextDraft: Draft = { mode: cup.mode, selection: cup.selection, trackId: world.trackId,
+      raceCount: cup.mode === 'tournament' ? cup.raceCount : 4,
+      schedule: cup.mode === 'tournament' ? [...cup.schedule] : getAvailableTracks().map(track => track.id),
+      trackPool: cup.mode === 'tournament' ? [...cup.trackPool] : getAvailableTracks().map(track => track.id) };
+    const appliedProgram = programKey(nextDraft);
     this.teamMode = world.teamMode; this.cpuCount = world.players.filter(kart => kart.cpu).length;
     this.eventLevel = world.eventLevel; this.championshipId = world.championshipId;
     const signature = JSON.stringify([cup.mode, cup.selection, cup.trackPool, cup.schedule, cup.raceCount, world.trackId, this.teamMode, this.cpuCount, this.eventLevel, this.championshipId, getAvailableTracks().map(track => track.id)]);
-    if (signature !== this.signature) {
+    if (signature !== this.signature || sessionId !== this.sessionId || allowed !== this.allowed) {
       this.signature = signature;
-      this.draft = { mode: cup.mode, selection: cup.selection, trackId: world.trackId,
-        raceCount: cup.mode === 'tournament' ? cup.raceCount : 4,
-        schedule: cup.mode === 'tournament' ? [...cup.schedule] : getAvailableTracks().map(track => track.id),
-        trackPool: cup.mode === 'tournament' ? [...cup.trackPool] : getAvailableTracks().map(track => track.id) };
+      // CPU, weather and team updates are immediate; the programme has its own
+      // Apply action. In particular, enabling teams can create a default two-
+      // race cup on the server without replacing the host's longer draft.
+      if (sessionId !== this.sessionId || !allowed || !pending || programKey(this.draft) === appliedProgram) this.draft = nextDraft;
+      this.sessionId = sessionId; this.appliedProgram = appliedProgram; this.appliedRaceCount = cup.raceCount;
       this.allowed = allowed; this.render();
-    } else if (allowed !== this.allowed) { this.allowed = allowed; this.render(); }
+    }
     element('configuration-summary').textContent = cup.mode === 'single' ? 'Une course' : `${cup.raceCount} courses · ${cup.selection === 'random' ? 'Au hasard' : 'À la carte'}`;
     element('configuration-controls').classList.toggle('hidden', !allowed);
-    element('configuration-note').textContent = !editable ? 'Le programme reste le même jusqu’à la fin du tournoi.' : allowed ? 'Appliquez votre choix avant que les pilotes se déclarent prêts.' : 'Le créateur du salon choisit le circuit et la formule.';
+    element('configuration-note').textContent = !editable ? 'Le programme reste le même jusqu’à la fin du tournoi.' : allowed ? this.hasPendingChanges ? this.pendingMessage : 'Appliquez votre choix avant que les pilotes se déclarent prêts.' : 'Le créateur du salon choisit le circuit et la formule.';
     element('schedule-list').innerHTML = cup.schedule.map((id, index) => `<div class="schedule-stop ${index === cup.raceIndex ? 'current' : ''} ${index < cup.raceIndex ? 'done' : ''}" style="--track-accent:${getTrack(id).palette.accent}"><b>${index < cup.raceIndex ? '✓' : index + 1}</b><span>${escape(getTrack(id).name)}</span>${index === cup.raceIndex ? '<small>À SUIVRE</small>' : ''}</div>`).join('');
     const score = element('lobby-cup-score');
     score.classList.toggle('hidden', cup.mode !== 'tournament' || cup.rounds.length === 0);
@@ -111,5 +133,6 @@ export class TournamentControls {
     controls += `<div class="config-columns">${select('teams-select', 'Participants', `<option value="solo" ${!this.teamMode ? 'selected' : ''}>Individuel</option><option value="teams" ${this.teamMode ? 'selected' : ''}>Équipes 4 contre 4</option>`)}${this.teamMode ? '<p class="garage-hint">Les places libres sont occupées par des CPU.</p>' : select('cpu-select', 'Adversaires CPU', Array.from({ length: 8 }, (_, index) => `<option value="${index}" ${this.cpuCount === index ? 'selected' : ''}>${index} CPU</option>`).join(''))}</div>`;
     if (!this.championshipId && !draft.trackId.startsWith('custom-')) controls += select('events-select', 'Évolution du circuit', ['Classique', 'Routes alternatives', 'Météo et obstacles', 'Tous les événements'].map((name, level) => `<option value="${level}" ${this.eventLevel === level ? 'selected' : ''}>${name}</option>`).join(''));
     element('configuration-controls').innerHTML = controls;
+    if (this.allowed) element('configuration-note').textContent = this.hasPendingChanges ? this.pendingMessage : 'Appliquez votre choix avant que les pilotes se déclarent prêts.';
   }
 }

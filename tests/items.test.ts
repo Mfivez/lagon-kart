@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { COLORS, ITEMS, MAX_WORLD_OBJECTS, SHIELD_SECONDS, STAR_SECONDS, createKart, createWorld,
+import { COLORS, ITEMS, MAX_WORLD_OBJECTS, PROJECTILE_TTL, SHIELD_SECONDS, STAR_SECONDS, createKart, createWorld,
   getTrack, neutralInput, startRace, stepKart, stepWorld, trackPoint, validateInput,
   type Item, type Kart, type World, type WorldObject } from '../shared/game.js';
 
@@ -192,3 +192,64 @@ test('clients cannot forge items, charges, protections, targets or objects throu
     { targetId: 'p1' }, { objects: [trap(createKart('p1', 'Target', COLORS[1]!, 1))] }])
     assert.equal(validateInput({ ...neutralInput(), ...forged }), null);
 });
+
+test('projectiles bounce off track boundary walls and reflect their angle', () => {
+  const world = race(1);
+  const track = getTrack(world.trackId);
+  const center = trackPoint(50, track.id);
+  const boundary = track.width / 2 + 5;
+  const nx = Math.cos(center.angle), nz = -Math.sin(center.angle);
+  const projX = center.x + nx * (boundary - 1);
+  const projZ = center.z + nz * (boundary - 1);
+  const angle = center.angle + Math.PI / 4;
+  world.objects = [{ id: 'shell-bounce', kind: 'projectile', x: projX, z: projZ, angle, owner: 'p0', ttl: PROJECTILE_TTL }];
+  stepWorld(world, new Map(), dt);
+  assert.equal(world.objects.length, 1);
+  const shell = world.objects[0]!;
+  assert.notEqual(shell.angle, angle);
+  const dotBefore = Math.sin(angle) * nx + Math.cos(angle) * nz;
+  const dotAfter = Math.sin(shell.angle) * nx + Math.cos(shell.angle) * nz;
+  assert.ok(dotBefore > 0, 'was heading outward into the wall');
+  assert.ok(dotAfter < 0, 'is now heading inward away from the wall');
+});
+
+test('projectiles bounce repeatedly and remain alive for their full 5-second duration', () => {
+  const world = race(1);
+  const kart = world.players[0]!;
+  kart.item = 'projectile';
+  kart.itemCharges = 1;
+  stepWorld(world, new Map([[kart.id, { ...neutralInput(), use: true }]]), dt);
+  assert.equal(world.objects.length, 1);
+  assert.equal(world.objects[0]!.kind, 'projectile');
+  assert.ok(Math.abs(world.objects[0]!.ttl - (PROJECTILE_TTL - dt)) < 1e-5);
+  for (let t = dt; t < 4.5; t += dt) {
+    stepWorld(world, new Map(), dt);
+    assert.equal(world.objects.length, 1, `shell should still be alive at ${t.toFixed(2)}s`);
+  }
+  for (let t = 4.5; t <= 5.2; t += dt) {
+    stepWorld(world, new Map(), dt);
+  }
+  assert.equal(world.objects.length, 0, 'shell should expire after 5 seconds');
+});
+
+test('a shell hitting a wall can stun an opponent on the rebound', () => {
+  const world = race(2);
+  const [owner, victim] = world.players;
+  const track = getTrack(world.trackId);
+  const center = trackPoint(60, track.id);
+  const nx = Math.cos(center.angle), nz = -Math.sin(center.angle);
+  const boundary = track.width / 2 + 5;
+  Object.assign(owner!, center);
+  Object.assign(victim!, { x: center.x + nx * 4, z: center.z + nz * 4 });
+  const wallX = center.x + nx * boundary;
+  const wallZ = center.z + nz * boundary;
+  const aimAngle = Math.atan2(wallX - center.x, wallZ - center.z);
+  world.objects = [{ id: 'trickshot', kind: 'projectile', x: center.x, z: center.z, angle: aimAngle, owner: owner!.id, ttl: PROJECTILE_TTL }];
+  let hit = false;
+  for (let tick = 0; tick < 30 * 2 && world.objects.length; tick++) {
+    stepWorld(world, new Map(), dt);
+    if (victim!.stun > 0) { hit = true; break; }
+  }
+  assert.ok(hit, 'victim should be stunned by the shell rebound');
+});
+

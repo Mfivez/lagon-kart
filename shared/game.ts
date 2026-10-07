@@ -49,6 +49,7 @@ export const FINISH_GRACE_SECONDS = 25;
 export const MAX_WORLD_OBJECTS = 32;
 export const STAR_SECONDS = 5.5;
 export const SHIELD_SECONDS = 8;
+export const PROJECTILE_TTL = 5;
 // The checkpoint corridor must match the shoulder that movement really allows.
 // A smaller gate silently loses an otherwise legal lap at an outside corner.
 
@@ -403,7 +404,7 @@ function useItem(world: World, kart: Kart): void {
       world.objects.push({ id: `${world.round}-${kart.id}-${Math.floor(world.time * 1000)}-${world.seed}`,
         kind: kart.item, x: kart.x + Math.sin(kart.angle) * distance,
         z: kart.z + Math.cos(kart.angle) * distance, angle: kart.angle, owner: kart.id,
-        ttl: kart.item === 'projectile' ? 4 : kart.item === 'seeker' ? 9 : 18,
+        ttl: kart.item === 'projectile' ? PROJECTILE_TTL : kart.item === 'seeker' ? 9 : 18,
         ...(target ? { targetId: target.id } : {}) });
     }
   }
@@ -462,11 +463,92 @@ function stepObjects(world: World, racers: Kart[], dt: number): void {
   for (const object of world.objects) {
     object.ttl -= dt;
     const before = { x: object.x, z: object.z };
+    const pathSegments: Array<{ from: { x: number; z: number }; to: { x: number; z: number } }> = [];
     if (object.kind === 'projectile') {
-      object.x += Math.sin(object.angle) * 62 * dt;
-      object.z += Math.cos(object.angle) * 62 * dt;
-      const road = nearestDriveableTrack(object.x, object.z, world.trackId, world.eventStage, world.eventLevel);
-      if (road.distance > road.width / 2 + 5) object.ttl = 0;
+      let currentX = object.x, currentZ = object.z;
+      let remainingDistance = 62 * dt;
+      for (let bounce = 0; bounce < 2 && remainingDistance > 1e-4; bounce++) {
+        const segFrom = { x: currentX, z: currentZ };
+        const stepDist = remainingDistance;
+        const candX = currentX + Math.sin(object.angle) * stepDist;
+        const candZ = currentZ + Math.cos(object.angle) * stepDist;
+        const road = nearestDriveableTrack(candX, candZ, world.trackId, world.eventStage, world.eventLevel);
+        const boundary = road.width / 2 + trackBoundaryShoulder(road.progress, world.trackId, road.branchId);
+
+        const blockerCheck = constrainTrackEvent(candX, candZ, currentX, currentZ, 62, world.trackId, world.eventStage, world.eventLevel);
+        if (blockerCheck.blocked) {
+          const blocker = getTrackEvent(world.trackId, world.eventStage, world.eventLevel).blockers[0];
+          if (blocker) {
+            const sine = Math.sin(blocker.angle), cosine = Math.cos(blocker.angle);
+            const dx = currentX - blocker.x, dz = currentZ - blocker.z;
+            const along = dx * sine + dz * cosine;
+            const across = dx * cosine - dz * sine;
+            let nx: number, nz: number;
+            if (Math.abs(along) / (blocker.halfLength + .95) >= Math.abs(across) / (blocker.halfWidth + .95)) {
+              const sign = along >= 0 ? 1 : -1;
+              nx = sign * sine; nz = sign * cosine;
+            } else {
+              const sign = across >= 0 ? 1 : -1;
+              nx = sign * cosine; nz = -sign * sine;
+            }
+            const vx = Math.sin(object.angle), vz = Math.cos(object.angle);
+            const dot = vx * nx + vz * nz;
+            if (dot > 0) {
+              const rx = vx - 2 * dot * nx, rz = vz - 2 * dot * nz;
+              const rLen = Math.hypot(rx, rz);
+              if (rLen > 1e-6) object.angle = Math.atan2(rx / rLen, rz / rLen);
+            }
+          }
+          currentX = blockerCheck.x; currentZ = blockerCheck.z;
+          pathSegments.push({ from: segFrom, to: { x: currentX, z: currentZ } });
+          const traveled = Math.hypot(currentX - segFrom.x, currentZ - segFrom.z);
+          remainingDistance = Math.max(0, remainingDistance - traveled);
+          continue;
+        }
+
+        if (road.distance > boundary) {
+          if (road.distance > boundary + 10) {
+            object.ttl = 0;
+            currentX = candX; currentZ = candZ;
+            pathSegments.push({ from: segFrom, to: { x: currentX, z: currentZ } });
+            break;
+          }
+          const dx = candX - road.x;
+          const dz = candZ - road.z;
+          const dist = road.distance || Math.hypot(dx, dz);
+          const nx = dx / dist;
+          const nz = dz / dist;
+          const vx = Math.sin(object.angle);
+          const vz = Math.cos(object.angle);
+          const dot = vx * nx + vz * nz;
+
+          if (dot > 0) {
+            const rx = vx - 2 * dot * nx;
+            const rz = vz - 2 * dot * nz;
+            const rLen = Math.hypot(rx, rz);
+            if (rLen > 1e-6) {
+              object.angle = Math.atan2(rx / rLen, rz / rLen);
+            }
+            remainingDistance = Math.max(0, Math.min(road.distance - boundary, remainingDistance));
+          } else {
+            remainingDistance = 0;
+          }
+
+          const safeDist = boundary - 0.15;
+          const contactX = road.x + nx * safeDist;
+          const contactZ = road.z + nz * safeDist;
+          pathSegments.push({ from: segFrom, to: { x: contactX, z: contactZ } });
+          currentX = contactX;
+          currentZ = contactZ;
+        } else {
+          currentX = candX;
+          currentZ = candZ;
+          pathSegments.push({ from: segFrom, to: { x: currentX, z: currentZ } });
+          remainingDistance = 0;
+        }
+      }
+      object.x = currentX;
+      object.z = currentZ;
     } else if (object.kind === 'seeker' || object.kind === 'leaderBolt') {
       const owner = world.players.find(kart => kart.id === object.owner);
       let target = racers.find(kart => kart.id === object.targetId && activeOpponent(kart, object.owner, world));
@@ -482,16 +564,20 @@ function stepObjects(world: World, racers: Kart[], dt: number): void {
       const speed = object.kind === 'leaderBolt' ? 82 : 64;
       object.x += Math.sin(object.angle) * speed * dt;
       object.z += Math.cos(object.angle) * speed * dt;
+      pathSegments.push({ from: before, to: { x: object.x, z: object.z } });
+    } else {
+      pathSegments.push({ from: before, to: { x: object.x, z: object.z } });
     }
     if (object.ttl <= 0) continue;
-    const dx = object.x - before.x, dz = object.z - before.z;
-    const distanceSquared = dx * dx + dz * dz;
+    if (pathSegments.length === 0) pathSegments.push({ from: before, to: { x: object.x, z: object.z } });
     const victim = racers.find(kart => {
       if (!activeOpponent(kart, object.owner, world) || (object.kind === 'leaderBolt' && kart.id !== object.targetId)) return false;
-      // Swept intersection prevents fast projectiles from tunnelling through a
-      // kart during a capped 100 ms tick. Protected karts still absorb the shot.
-      const t = distanceSquared ? clamp(((kart.x - before.x) * dx + (kart.z - before.z) * dz) / distanceSquared, 0, 1) : 0;
-      return Math.hypot(kart.x - before.x - t * dx, kart.z - before.z - t * dz) < 2.5;
+      return pathSegments.some(seg => {
+        const dx = seg.to.x - seg.from.x, dz = seg.to.z - seg.from.z;
+        const distanceSquared = dx * dx + dz * dz;
+        const t = distanceSquared > 1e-7 ? clamp(((kart.x - seg.from.x) * dx + (kart.z - seg.from.z) * dz) / distanceSquared, 0, 1) : 0;
+        return Math.hypot(kart.x - seg.from.x - t * dx, kart.z - seg.from.z - t * dz) < 2.5;
+      });
     });
     if (victim) {
       hitKart(victim);

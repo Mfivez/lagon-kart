@@ -24,7 +24,16 @@ async function ready(page: Page) {
   await page.goto(origin, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => !!(window as unknown as { __lagonDebug?: unknown }).__lagonDebug);
 }
-async function capture(page: Page, name: string) { await page.screenshot({ path: join(destination, name) }); captures.push(name); }
+async function capture(page: Page, name: string) {
+  // Capture the real viewport: the paused canvas beneath an opaque editor can
+  // leave Playwright's compositor screenshot waiting under SwiftShader.
+  const cdp = await page.context().newCDPSession(page); let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const result = await Promise.race([cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false, fromSurface: false }),
+      new Promise<never>((_, reject) => { timer = setTimeout(() => reject(Error('Capture viewport : délai de 35 s dépassé')), 35000); })]);
+    await writeFile(join(destination, name), Buffer.from(result.data, 'base64')); captures.push(name);
+  } finally { clearTimeout(timer); await cdp.detach(); }
+}
 async function pointPosition(page: Page, index: number) {
   return page.locator(`#editor-canvas [data-point="${index}"] circle`).first().evaluate(circle => {
     const svg = circle.closest('svg')!; const point = new DOMPoint(Number(circle.getAttribute('cx')), Number(circle.getAttribute('cy'))).matrixTransform(svg.getScreenCTM()!);
@@ -38,9 +47,12 @@ async function drag(page: Page, index: number, dx: number, dy: number) {
 async function allTracks(): Promise<StoredCustomTrack[]> { return (await fetch(`${origin}/api/tracks`).then(response => response.json()) as { tracks: StoredCustomTrack[] }).tracks; }
 async function save(page: Page) {
   await page.locator('#editor-save').click();
-  await until(async () => /Circuit sauvegardé/.test(await page.locator('#editor-status').innerText()), 'Sauvegarde visible attendue');
+  await until(async () => /Circuit publié/.test(await page.locator('#editor-status').innerText()), 'Publication explicite visible attendue');
 }
-async function readWorld(page: Page) { return await page.evaluate(() => (window as unknown as { __lagonDebug: { world: World | null; sessionId: string | null } }).__lagonDebug); }
+async function readWorld(page: Page) { return page.evaluate(() => {
+  const debug = (window as unknown as { __lagonDebug: { world: World | null; sessionId: string | null } }).__lagonDebug;
+  return { world: debug.world, sessionId: debug.sessionId };
+}); }
 try {
   const health = await fetch(`${origin}/healthz`); assert.equal(health.status, 200);
   const desktop = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
@@ -77,7 +89,7 @@ try {
   evidence.created = { id: saved.id, revision: saved.revision, name: saved.draft.name, authorName: saved.authorName };
   await capture(host, 'editor-desktop.png'); record('Sauvegarde HTTP : erreur réseau simulée sans perte, réessai réussi, circuit et zones relus dans l’API.');
 
-  await host.locator('#editor-name').fill(`${title} brouillon`); await host.locator('#editor-close').click(); await host.locator('[data-action="pending-confirm"]').click();
+  await host.locator('#editor-name').fill(`${title} brouillon`); await host.locator('#editor-close').click(); await host.locator('#track-editor-dialog').waitFor({ state: 'hidden' });
   await host.reload({ waitUntil: 'domcontentloaded' }); await host.waitForFunction(() => !!(window as unknown as { __lagonDebug?: unknown }).__lagonDebug);
   await host.locator('#track-editor-button').click(); assert.equal(await host.locator('#editor-name').inputValue(), `${title} brouillon`);
   record('Un brouillon non publié survit à la fermeture de l’éditeur et au rechargement de la page.');
@@ -91,8 +103,11 @@ try {
   await host.locator('#editor-name').fill(title); await host.locator('#editor-name').blur();
   record('Des points collés sont autorisés et réellement sauvegardés en version 2 ; Annuler rétablit la piste sans perdre la version publiée.');
 
+  const catalogueBeforeTrial = await allTracks();
   await host.locator('#editor-try').click(); await until(async () => (await readWorld(host)).world?.phase === 'racing', 'Démarrage de la course d’essai');
-  const trial = await readWorld(host); assert.equal(trial.world?.trackId, `${saved.id}-v3`);
+  const trial = await readWorld(host); assert.match(trial.world?.trackId ?? '', /^custom-private-/);
+  assert.equal(trial.world?.workshop?.selection.group, 'track'); assert.equal(await host.locator('#lap').innerText(), 'LIBRE');
+  assert.deepEqual(await allTracks(), catalogueBeforeTrial, 'trying does not publish another revision');
   assert.equal(await host.locator('#leave-button').innerText(), 'Retour à l’éditeur');
   const initialKart = trial.world?.players.find(player => player.id === trial.sessionId); assert.ok(initialKart);
   await host.keyboard.down('ArrowUp');
@@ -103,10 +118,11 @@ try {
     }, 'Accélération et déplacement réels pendant l’appui');
     const driven = await readWorld(host); const kart = driven.world?.players.find(player => player.id === driven.sessionId)!;
     evidence.trial = { trackId:driven.world?.trackId, speed:kart.speed, distance:Math.hypot(kart.x-initialKart.x,kart.z-initialKart.z) };
-    await capture(host, 'editor-trial-race.png');
   } finally { await host.keyboard.up('ArrowUp'); }
+  await capture(host, 'editor-trial-race.png');
   await host.locator('#leave-button').click(); await host.locator('#track-editor-dialog').waitFor({ state: 'visible' }); assert.equal(await host.locator('#editor-name').inputValue(), title);
-  record('Sauvegarder et essayer ouvre le vrai circuit en entraînement ; accélération réelle et retour dans l’éditeur sans perte.');
+  assert.deepEqual(await allTracks(), catalogueBeforeTrial, 'the published version stays intact after the private trial');
+  record('Essayer en privé ouvre le brouillon sans publier de version3 ; accélération réelle, version2 intacte et retour dans l’éditeur sans perte.');
 
   const mobile = await browser.newContext({ viewport: { width: 320, height: 568 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1 });
   const guest = await mobile.newPage(); await ready(guest); await guest.locator('#name-input').fill('Créatrice mobile'); await guest.locator('#track-editor-button').click();
@@ -121,10 +137,10 @@ try {
   const touchPoint = await pointPosition(guest, 2); const cdp = await mobile.newCDPSession(guest);
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: touchPoint.x, y: touchPoint.y, id: 1 }] });
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: touchPoint.x + 3, y: touchPoint.y + 2, id: 1 }] });
-  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); await cdp.detach();
   await guest.locator('#editor-name').fill('La boucle de mon téléphone'); await guest.locator('#editor-theme').selectOption('neon'); await capture(guest, 'editor-mobile-settings-320.png');
   await save(guest); const duplicate = (await allTracks()).find(item => item.draft.name === 'La boucle de mon téléphone'); assert.ok(duplicate); assert.notEqual(duplicate.id, saved.id); assert.notEqual(duplicate.authorId, saved.authorId);
-  assert.equal((await allTracks()).find(item => item.id === saved.id)?.draft.name, title);
+  assert.deepEqual((await allTracks()).find(item => item.id === saved.id), tightSaved, 'duplication preserves the published source, not the owner’s private draft');
   evidence.duplicate = { id: duplicate.id, name: duplicate.draft.name }; record('Mobile 320×568 : aucun débordement, contrôles ≥44 px, vrai geste tactile, copie d’un autre joueur et sauvegarde indépendante.');
   assert.deepEqual(errors, []); await host.locator('#editor-close').click(); await guest.locator('#editor-close').click();
   await until(async () => (await fetch(`${origin}/healthz`).then(response => response.json()) as { rooms: number }).rooms === 0, 'Fermeture des salons de test');

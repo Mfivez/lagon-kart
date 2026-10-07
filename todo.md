@@ -2,6 +2,18 @@
 
 État au **7 octobre 2026**. `[x]` = réalisé avec preuve ; `[ ]` = travail ou validation restant à terminer. [Démo intégrée et rapports](docs/DEMO.md).
 
+## Accueil classé et ergonomie
+
+- [x] Grade et MMR réels sur l’accueil ; recherche et annulation classées directes, file unique, actualisation après résultat et connexion.
+- [x] Créer, Rejoindre et Entraînement sans scroll à 320×568 ; barre Prêt fixe avec pilotes attendus, au-dessus des réglages du bas.
+- [x] Invitations par partage/copie et QR local réellement décodé et suivi par un second navigateur.
+- [x] Modes tactiles explicites, aide en course, HUD dégagé ; graphismes Auto/Fluide/Détaillé mémorisés, menu plafonné et scène suspendue derrière les dialogues.
+- [x] Modules déplacés directement sur le plan ; essais privés sans publication ni progression, puis publication explicite pour la classe.
+- [x] **426/426 tests**, **19 parcours navigateur privés** répartis entre ranked/QR, éditeur, conduite et audit final ; captures avant/après et limites distinctes. [Preuves](docs/ux-home/README.md) · [Validation](VALIDATION.md#7-octobre-2026--accueil-classé-et-ergonomie).
+- [x] Docker déployé sans salon actif : 42 fichiers/39 profils préservés, bundles/modules vérifiés. Tunnel Cloudflare invalide rétabli avec un nouveau lien. [Déploiement](docs/ux-home/deployment.json).
+- [x] **3 parcours publics** passent à deux profils : QR/Prêt, départ et déplacement WSS, essai privé sans publication, MMR inchangé ; aucun salon d’autres joueurs interrompu. [Rapport](docs/ux-ranked/public/browser-validation.json).
+- [ ] Téléphones physiques, Safari iOS, fluidité GPU et partage natif réel.
+
 ## Conduite, atelier et soirées
 
 - [x] Contacts de mur selon l’angle, sans avantage à rouler contre le rail ; enchaînements de drift, saut, looping et réception avec bonus plafonnés.

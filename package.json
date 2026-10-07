@@ -52,19 +52,25 @@
     "test:custom-track-race": "node --import tsx scripts/custom-track-race-check.ts",
     "test:experience": "node --import tsx scripts/experience-audit.ts",
     "test:workshop-browser": "node --import tsx scripts/interactive-workshop-browser-check.ts",
-    "test:party-browser": "node --import tsx scripts/party-crown-browser-check.ts"
+    "test:party-browser": "node --import tsx scripts/party-crown-browser-check.ts",
+    "test:ux-ranked": "node --import tsx scripts/ux-ranked-browser-check.ts",
+    "test:ux-editor": "node --import tsx scripts/ux-editor-browser-check.ts",
+    "test:ux-driving": "node --import tsx scripts/ux-driving-check.ts",
+    "test:ux-public": "node --import tsx scripts/ux-public-check.ts"
   },
   "dependencies": {
     "@colyseus/core": "0.16.26",
     "@colyseus/schema": "3.0.76",
     "@colyseus/ws-transport": "0.16.5",
     "colyseus.js": "0.16.22",
+    "qrcode-generator": "2.0.4",
     "three": "0.186.1"
   },
   "devDependencies": {
     "@types/node": "22.19.1",
     "@types/three": "0.183.1",
     "concurrently": "9.2.4",
+    "jsqr": "1.4.0",
     "playwright": "1.58.2",
     "tsx": "4.23.15",
     "typescript": "5.9.3",

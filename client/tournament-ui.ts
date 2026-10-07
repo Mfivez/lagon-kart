@@ -31,7 +31,7 @@ export function teamsTable(entries: TournamentEntry[]) {
   return `<div class="standings-heading"><span>CLASSEMENT DES ÉQUIPES · 4 CONTRE 4</span><span>POINTS</span></div>${teams.map(team => `<div class="standing-row"><b>${team.rank}</b><i style="background:${team.color}"></i><span>${team.name}</span><strong>${team.points}<small> pts</small></strong></div>`).join('')}<p class="score-note">Les points des quatre équipiers s’additionnent sur toutes les courses. Les objets offensifs épargnent les alliés.</p>`;
 }
 
-export const configurationMarkup = `<details id="race-configuration" class="race-configuration" open><summary>Choisir l’aventure <span id="configuration-summary">Une course</span></summary><div id="configuration-controls"></div><p id="configuration-note" class="configuration-note" aria-live="polite"></p></details><div id="schedule-list" class="schedule-list" aria-label="Programme des courses"></div><div id="lobby-cup-score" class="lobby-cup-score hidden"></div>`;
+export const configurationMarkup = `<details id="race-configuration" class="race-configuration"><summary>Choisir l’aventure <span id="configuration-summary">Une course</span></summary><div id="configuration-controls"></div><p id="configuration-note" class="configuration-note" aria-live="polite"></p></details><div id="schedule-list" class="schedule-list" aria-label="Programme des courses"></div><div id="lobby-cup-score" class="lobby-cup-score hidden"></div>`;
 
 type Draft = { mode: 'single' | 'tournament'; selection: 'manual' | 'random'; trackId: string; raceCount: number; schedule: string[]; trackPool: string[] };
 function programKey(draft: Draft): string {

@@ -18,18 +18,32 @@ abonnement, service externe ou dépendance supplémentaire : **0 €**.
    en pourcentage du tour. Les décors du thème sont générés autour de la piste.
    Ouvrir les sections **Durée**, **Reliefs et loopings** et **Événements** pour
    personnaliser aussi le nombre de tours et le déroulement de la course.
-5. **Sauvegarder** publie le circuit pour la classe. **Sauvegarder et essayer**
-   ouvre un entraînement réel. **Retour à l’éditeur** ramène au même brouillon.
+5. **Essayer en privé** ouvre un atelier solo sur le brouillon, sans publication
+   et sans XP, record ou replay. **Essayer ce passage** commence avant le module
+   choisi. **Retour à l’éditeur** ramène au même brouillon et à ses réglages.
+   **Publier pour la classe** crée explicitement une version partagée.
 6. Pour jouer ensemble, quitter l’atelier, sélectionner la création à l’accueil
    et créer un salon. Les autres joueurs utilisent son lien habituel. Dans le
    salon, l’hôte peut aussi mélanger créations et circuits officiels en tournoi.
    **Actualiser les circuits** charge les dernières publications des collègues.
 
 Le brouillon reste local à ce navigateur et à ce profil, même après rechargement.
-Seule la sauvegarde serveur rend un circuit visible aux autres. Fermer ou
-remplacer un brouillon modifié affiche un choix explicite. Les commandes du
-plan fonctionnent au pointeur, au tactile et au clavier : tabulation, flèches,
-Maj pour affiner, Ctrl/Cmd+Z et Ctrl/Cmd+S.
+Seule **Publier pour la classe** rend un circuit visible aux autres. Fermer
+l’éditeur conserve le brouillon ; remplacer un brouillon modifié demande un
+choix explicite. Si le stockage local est indisponible, la fermeture avertit
+avant de perdre les modifications. Les commandes du plan fonctionnent au
+pointeur, au tactile et au clavier : tabulation, flèches, Maj pour affiner et
+Ctrl/Cmd+Z. **Ctrl/Cmd+S sauvegarde uniquement le brouillon local**.
+
+Faites glisser les repères colorés pour déplacer directement les zones,
+reliefs, loopings, événements et cibles d’interrupteurs en conservant leur
+longueur. Le cercle d’une plaque se déplace indépendamment de sa cible.
+Un toucher, un clic ou Entrée ouvre les réglages du module sélectionné ; les
+champs numériques restent disponibles. Un glissement s’annule en une action.
+
+Chaque essai privé valide le brouillon côté serveur et ouvre un salon solo
+éphémère. Il n’ajoute aucun fichier à `data/tracks` et ne modifie pas une version
+déjà publiée. Sa définition disparaît lorsque le salon est fermé.
 
 Un auteur peut modifier ses propres créations. **Dupliquer** ouvre une copie
 de la création d’un autre joueur. Deux onglets qui modifient la même version
@@ -52,7 +66,7 @@ permettent d’expérimenter. Jusqu’à 16 ponts/tremplins et 16 loopings sont 
 Les loopings utilisent la piste magnétique du jeu : le kart suit réellement
 la boucle en trois dimensions. Ponts et tremplins reprennent la hauteur et les
 sauts de la simulation serveur. Des modules superposés ou un tracé extrême
-peuvent être difficiles à parcourir : **Sauvegarder et essayer** sert à ajuster
+peuvent être difficiles à parcourir : **Essayer en privé** sert à ajuster
 le résultat. Le niveau de détail visuel est plafonné pour les très longs modules,
 sans réduire leurs dimensions ni modifier leur physique.
 
@@ -143,3 +157,8 @@ L’assouplissement des tracés possède ses propres preuves :
 [duplication à 320 px](creative-tracks/editor-mobile-320.png). La sauvegarde
 des points collés est relue via l’API ; après annulation, une version suivante
 est essayée en jeu. Ce parcours vérifie le déplacement, pas une course complète.
+
+Les évolutions de l’éditeur (brouillons privés et manipulation directe des
+modules) sont documentées et vérifiées séparément dans
+[docs/ux-editor](ux-editor/README.md). Les captures des lots précédents restent
+des preuves historiques de leurs parcours respectifs.

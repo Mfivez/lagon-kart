@@ -2,6 +2,70 @@
 
 Vérifications des 6 et 7 octobre 2026 dans WSL/Linux avec Docker Desktop 4.55.0, Docker Engine 29.1.3, Compose 2.40.3, Node 20.19.2 sur l'hôte et Node 22.21.1 dans l'image. Les résultats ci-dessous distinguent simulation, clients réseau automatisés et navigateur ; chaque lot conserve ses preuves et sa date.
 
+## 7 octobre 2026 — accueil classé et ergonomie
+
+Grade et MMR du serveur affichés dès l’accueil, avec recherche/annulation
+classée directe et un état de file unique. Créer, Rejoindre et Entraînement sont
+visibles à **320 × 568 sans défilement**. La barre Prêt reste fixe dans le salon,
+avec indication des pilotes attendus. Invitations QR locales, modes tactiles
+explicites, aide en course, réglages graphiques mémorisés, placement direct des
+modules et essais privés avant publication complètent ce lot.
+[Parcours et comparaison avant/après](docs/ux-home/README.md).
+
+- **426/426 tests** passent en **135,856 s**, sans échec ni test ignoré.
+  [Rapport de la suite](docs/ux-home/unit-validation.json).
+- **6 parcours ranked/QR** passent : profil restauré, recherche unique,
+  annulation avant salon/éditeur, QR réellement décodé et rejoint, vrai
+  appariement à deux, départ automatique, MMR actualisé et reconnexion au compte.
+  L’arrivée classée seule est une fixture sur serveur privé ; aucun MMR public
+  n’est modifié artificiellement. [Preuves](docs/ux-ranked/README.md).
+- **4 parcours éditeur** passent : cinq familles de modules déplacées, plaque
+  indépendante, clavier/undo/redo, trois essais avec conduite réelle, aucun
+  fichier ni catalogue modifié avant publication explicite, ancienne version
+  intacte et manipulation tactile à 320px. [Preuves](docs/ux-editor/README.md).
+- **7 parcours conduite/rendu** passent : joystick et multitouch, frein
+  prioritaire, modes mémorisés, trois qualités effectives, aide suspendant la
+  scène 3D pendant que les snapshots continuent, HUD dégagé à 320×568 et 667×375.
+  [Preuves et captures](docs/ux-driving/README.md).
+- **2 parcours d’audit final** passent sur `index-DNUBohE_.js` /
+  `index-CpYYGxpj.css` : accès aux actions sans scroll, vraie courte conduite,
+  éditeur et barre Prêt stable sur ordinateur et mobile, au-dessus du footer.
+  Le défilement jusqu’à Entraînement passe de **827 px à 0 px**.
+  [Rapport final](docs/ux-home/audit.json).
+
+Le scénario ranked débute sur `index-C8l90P50.js` / `index-D0i0Td0K.css` ; les
+seuls changements produit suivants concernent la police du réglage graphique
+mobile et la hauteur du menu pour éviter le recouvrement du footer. Éditeur,
+conduite et audit final utilisent le build final. Les prises de vue sont des
+captures Chromium de la fenêtre ; le CDP direct contourne un blocage de l’API
+Playwright de capture sans modifier le produit. Les scénarios historiques de
+l’éditeur sont adaptés mais non rejoués ; leurs anciens rapports restent datés.
+
+Déploiement Docker à zéro salon : **42 fichiers et 39 profils** conservés par
+SHA-256, montage identique, 19 modules serveur et 3 bundles JS/CSS + licences
+identiques au build. L’ancien tunnel était refusé par Cloudflare avant ce
+redémarrage ; sa relance séparée a rétabli l’accès sous
+[une nouvelle adresse](https://yoga-unlikely-div-converted.trycloudflare.com).
+Un 40e profil apparu ensuite relève de l’activité ultérieure, pas du contrôle
+immédiat de persistance. [Déploiement](docs/ux-home/deployment.json).
+
+Les **3 parcours publics** passent sur le nouveau tunnel : deux profils de test
+rejoignent le même salon via un QR réellement décodé, confirment Prêt et se
+déplacent avec les commandes ordinaires en WSS. Le mode Fluide est actif ; un
+brouillon est conduit en privé puis retrouvé dans l’éditeur, sans publication
+ni variation de MMR. Zéro erreur JS/HTTP, chunks locaux et cinq captures.
+Aucune recherche ranked ni fixture de simulation en public. Les tests quittent
+leurs propres salons ; un autre salon actif avant/après est laissé intact.
+Ce contrôle démarre une course à deux mais ne la termine pas.
+[Rapport public](docs/ux-ranked/public/browser-validation.json).
+
+Budget ajouté **0 €** : `qrcode-generator` MIT, servi localement et chargé à la
+première ouverture du QR ; `jsQR` sert seulement à décoder dans les tests.
+Le partage natif a un contrat simulé dans le navigateur privé ; panneau système,
+caméra de téléphone, Safari iOS, deux machines physiques et fluidité GPU restent
+à essayer sur les appareils réels. Aucun 60 FPS ni course classée complète sur
+le tunnel n’est revendiqué par ces tests.
+
 ## 7 octobre 2026 — conduite, atelier et soirées
 
 Huit améliorations intégrées : frôlements moins pénalisants selon l’angle,

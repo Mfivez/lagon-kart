@@ -6,13 +6,21 @@ Les **trois modèles gratuits**, Zsky, Sprint et Rétro, acceptent chacun huit p
 
 Voir la [démo intégrée, ses captures et ses tests](docs/DEMO.md), ainsi que le [suivi des tâches](todo.md).
 
+L’accueil affiche **votre grade, votre MMR et la recherche de course classée**.
+Créer, Rejoindre et Entraînement sont accessibles sans défilement à 320 × 568.
+Dans le salon, la barre **Prêt** reste visible et un **QR code** permet d’inviter
+un téléphone. Les graphismes **Auto / Fluide / Détaillé** sont mémorisés ; l’aide
+de conduite explique les modes tactiles automatique et manuel.
+[Parcours, captures et validation](docs/ux-home/README.md).
+
 ## Créer et partager un circuit
 
 Depuis l’accueil, **Créer un circuit** ouvre l’atelier : déplacer/ajouter des
 points, choisir la largeur et le thème, puis ajouter des bandes turbo, glace
-ou boue. **Sauvegarder et essayer** lance l’entraînement ; **Retour à l’éditeur**
-permet de reprendre le tracé. Les créations sauvegardées apparaissent dans la
-sélection des circuits et les programmes de tournoi de tous les joueurs.
+ou boue. Les repères des modules se déplacent aussi directement sur le plan.
+**Essayer en privé** lance le brouillon sans le publier ; **Retour à l’éditeur**
+permet de reprendre le tracé. **Publier pour la classe** ajoute explicitement la
+création à la sélection des circuits et aux programmes de tournoi des joueurs.
 
 Les fichiers sont conservés sur la machine hôte dans **`data/tracks/`**, à côté
 des comptes. Chaque modification crée une version : les courses déjà ouvertes
@@ -126,11 +134,11 @@ Le bouton **Championnats, classement et replays** ouvre les six coupes :
 
 Il faut terminer toutes les manches et finir dans les trois premiers du classement final pour valider une coupe. La progression introduit les terrains, les bifurcations, les événements, puis les ponts et les sauts à partir du niveau 2. Chaque coupe accorde une seule fois sa récompense et son déblocage.
 
-**Trouver une rencontre classée** recherche au moins deux profils humains de niveau proche pour deux courses. Le MMR évolue selon les résultats face aux autres joueurs ; les rangs vont de Bronze à Master. Le classement concerne cette instance du serveur. Une saison dure un trimestre UTC ; le changement de saison ajuste le MMR et conserve la carrière.
+**Rechercher une course classée**, directement sur l’accueil, recherche au moins deux profils humains de niveau proche pour deux courses. Le MMR et le grade affichés viennent du serveur : Bronze, Argent, Or, Platine, Diamant et Maître. La recherche continue lorsqu’on ferme le menu Carrière ; entrer dans un salon ou l’éditeur l’annule. Le MMR évolue selon les résultats face aux autres joueurs. Le classement concerne cette instance du serveur. Une saison dure un trimestre UTC ; le changement de saison ajuste le MMR et conserve la carrière.
 
 **Mes replays** relit les trajectoires enregistrées par le serveur, en vue de dessus, avec pause et curseur. Sur l'accueil, **Fantôme du meilleur temps en entraînement** affiche un ghost disponible pour le circuit choisi et le niveau 3 des événements de l'entraînement. Ce fantôme n'a pas de collisions et ne participe pas au classement. Les replays sont des traces de position, pas une resimulation exacte des objets et des contacts.
 
-À l'accueil, **Sauvegarder mon pilote** crée un compte avec un nom d'utilisateur et un mot de passe, en conservant la progression de l'invité actuel. **Se connecter** retrouve ce même pilote depuis un autre navigateur, téléphone ou lien de tunnel : XP, coupes, déblocages, classement et replays. Aucun courriel ni compte externe n'est nécessaire. Le nom d'utilisateur comporte 3 à 24 lettres, chiffres, points, tirets ou `_`, et le mot de passe au moins 6 caractères. Les mots de passe sont dérivés avec scrypt et un sel individuel, jamais enregistrés en clair.
+À l’accueil, dans **Mon compte et ma couleur**, **Sauvegarder mon pilote** crée un compte avec un nom d'utilisateur et un mot de passe, en conservant la progression de l'invité actuel. **Se connecter** retrouve ce même pilote depuis un autre navigateur, téléphone ou lien de tunnel : XP, coupes, déblocages, classement et replays. Aucun courriel ni compte externe n'est nécessaire. Le nom d'utilisateur comporte 3 à 24 lettres, chiffres, points, tirets ou `_`, et le mot de passe au moins 6 caractères. Les mots de passe sont dérivés avec scrypt et un sel individuel, jamais enregistrés en clair.
 
 Le jeu invité reste disponible. Sans compte, son accès dépend de la clé conservée par le navigateur pour cette adresse du site : créer le compte avant d'effacer cette clé ou de changer de tunnel. Les choix visuels du garage restent propres au navigateur. Voir [les comptes et sauvegardes](docs/ACCOUNTS_STORAGE.md) et [la progression](docs/PROGRESSION.md).
 

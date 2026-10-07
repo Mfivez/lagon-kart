@@ -227,9 +227,21 @@ export const TRACKS: TrackDefinition[] = [
 ];
 const customTracks = new Map<string, TrackDefinition>();
 const latestCustomTracks = new Map<string, { revision: number; track: TrackDefinition }>();
+// Ephemeral definitions are usable by their owning room, never by catalogue
+// selection, matchmaking or tournament validation through isTrackId().
+const previewTracks = new Map<string, TrackDefinition>();
+export function registerPreviewTrackDefinition(track:TrackDefinition):TrackDefinition {
+  if (!/^custom-private-[a-f0-9-]{36}-v1$/.test(track.id)||!arcTables.has(track)) throw new Error('Aperçu de circuit invalide.');
+  const existing=previewTracks.get(track.id);
+  if(existing&&JSON.stringify(existing)!==JSON.stringify(track)) throw new Error('Cet aperçu appartient à une autre version du brouillon.');
+  if(!existing)previewTracks.set(track.id,track);
+  return existing??track;
+}
+export function isPreviewTrackId(id:unknown):id is TrackId {return typeof id==='string'&&previewTracks.has(id);}
+export function releasePreviewTrackDefinition(id:string):void {previewTracks.delete(id);}
 /** Retain old immutable versions for races and saved replays while advertising the latest revision. */
 export function registerTrackDefinition(track: TrackDefinition, logicalId: string, revision: number): TrackDefinition {
-  if (!/^custom-[a-z0-9-]{1,64}$/.test(logicalId) || !Number.isInteger(revision) || revision < 1 || revision > 10000 ||
+  if (!/^custom-[a-z0-9-]{1,64}$/.test(logicalId) || logicalId.startsWith('custom-private-') || !Number.isInteger(revision) || revision < 1 || revision > 10000 ||
     track.id !== `${logicalId}-v${revision}` || !arcTables.has(track)) throw new Error('Identifiant de circuit personnalisé invalide.');
   const existing = customTracks.get(track.id);
   if (existing && JSON.stringify(existing) !== JSON.stringify(track)) throw new Error('Cette version de circuit est déjà publiée.');
@@ -245,7 +257,7 @@ export function getAvailableTracks(): TrackDefinition[] {
 export function isTrackId(id: unknown): id is TrackId {
   return typeof id === 'string' && ((TRACK_IDS as readonly string[]).includes(id) || customTracks.has(id));
 }
-export function getTrack(id = 'lagon'): TrackDefinition { return customTracks.get(id) ?? TRACKS.find(track => track.id === id) ?? TRACKS[0]!; }
+export function getTrack(id = 'lagon'): TrackDefinition { return previewTracks.get(id) ?? customTracks.get(id) ?? TRACKS.find(track => track.id === id) ?? TRACKS[0]!; }
 export function trackElevation(progress: number, trackId = 'lagon'): number {
   const track = getTrack(trackId);
   const remainder = progress % track.length;

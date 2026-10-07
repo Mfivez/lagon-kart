@@ -1,0 +1,178 @@
+{
+  "passed": true,
+  "timestamp": "2026-10-07T19:48:28.253Z",
+  "checks": [
+    "Cinq types de modules et plaque déplacés directement sur le plan ; longueur conservée, annuler/rétablir en une action, réglages et flèches accessibles.",
+    "Deux essais privés module/circuit entier : conduite réelle, sources éphémères libérées, aucun circuit ni fichier publié ; brouillon retrouvé après rechargement.",
+    "Publication volontaire version1, puis modification et nouvel essai : la version publique et la progression restent intactes.",
+    "Mobile320 : vrai glisser tactile, toucher vers réglages, commandes ≥44px et aucun débordement ; seule la publication explicite crée la version2."
+  ],
+  "errors": [],
+  "captures": [
+    "direct-module-placement.png",
+    "private-draft-workshop.png",
+    "mobile-touch-module-settings.png"
+  ],
+  "captureFailures": [],
+  "evidence": {
+    "origin": "http://127.0.0.1:39099",
+    "assets": [
+      "/assets/index-DNUBohE_.js",
+      "/assets/index-CpYYGxpj.css"
+    ],
+    "movements": [
+      {
+        "group": "zones",
+        "handle": "target",
+        "before": 0.18,
+        "after": 0.22475725106921732,
+        "length": 0.024999999999999994,
+        "touch": false
+      },
+      {
+        "group": "elevations",
+        "handle": "target",
+        "before": 0.3,
+        "after": 0.3463304707889661,
+        "length": 0.08000000000000002,
+        "touch": false
+      },
+      {
+        "group": "loops",
+        "handle": "target",
+        "before": 0.55,
+        "after": 0.5947638931684524,
+        "length": 0.08999999999999997,
+        "touch": false
+      },
+      {
+        "group": "events",
+        "handle": "target",
+        "before": 0.72,
+        "after": 0.766536955600733,
+        "length": 0.040000000000000036,
+        "touch": false
+      },
+      {
+        "group": "interactions",
+        "handle": "target",
+        "before": 0.88,
+        "after": 0.9249906037255001,
+        "length": 0.030000000000000027,
+        "touch": false
+      },
+      {
+        "group": "interactions",
+        "handle": "trigger",
+        "before": 0.82,
+        "after": 0.8647800515935052,
+        "length": 0.030000000000000027,
+        "touch": false
+      }
+    ],
+    "progressionBefore": {
+      "xp": 0,
+      "stats": {
+        "races": 0,
+        "finishes": 0,
+        "wins": 0,
+        "podiums": 0,
+        "totalRaceTime": 0,
+        "bestTimes": {}
+      },
+      "mmr": 800,
+      "careerLevel": 0,
+      "replays": []
+    },
+    "privateTrials": [
+      {
+        "initial": {
+          "phase": "racing",
+          "trackId": "custom-private-209ca0d1-33e3-4524-8559-8adaf4952c3a-v1",
+          "workshop": "Looping 1",
+          "x": -48.56411412912017,
+          "z": 104.55495859325914,
+          "speed": 0
+        },
+        "moving": {
+          "phase": "racing",
+          "trackId": "custom-private-209ca0d1-33e3-4524-8559-8adaf4952c3a-v1",
+          "workshop": "Looping 1",
+          "x": -49.639098933243844,
+          "z": 104.32170407368204,
+          "speed": 6.6
+        },
+        "catalogueCount": 0
+      },
+      {
+        "initial": {
+          "phase": "racing",
+          "trackId": "custom-private-d245fcd2-397a-4b2b-9a4f-19636c1c25ce-v1",
+          "workshop": "Circuit entier · brouillon privé",
+          "x": 0,
+          "z": -110,
+          "speed": 0
+        },
+        "moving": {
+          "phase": "racing",
+          "trackId": "custom-private-d245fcd2-397a-4b2b-9a4f-19636c1c25ce-v1",
+          "workshop": "Circuit entier · brouillon privé",
+          "x": 1.4199299172542714,
+          "z": -109.97992674652764,
+          "speed": 5.177315161829626
+        },
+        "catalogueCount": 0
+      },
+      {
+        "initial": {
+          "phase": "racing",
+          "trackId": "custom-private-b163ce2d-c9c6-4dc7-9add-b684c4a1cc9b-v1",
+          "workshop": "Looping 1",
+          "x": -48.56411412912017,
+          "z": 104.55495859325914,
+          "speed": 0
+        },
+        "moving": {
+          "phase": "racing",
+          "trackId": "custom-private-b163ce2d-c9c6-4dc7-9add-b684c4a1cc9b-v1",
+          "workshop": "Looping 1",
+          "x": -49.639098933243844,
+          "z": 104.32170407368204,
+          "speed": 6.6
+        },
+        "catalogueCount": 1
+      }
+    ],
+    "progressionAfter": {
+      "xp": 0,
+      "stats": {
+        "races": 0,
+        "finishes": 0,
+        "wins": 0,
+        "podiums": 0,
+        "totalRaceTime": 0,
+        "bestTimes": {}
+      },
+      "mmr": 800,
+      "careerLevel": 0,
+      "replays": []
+    },
+    "touchMove": {
+      "group": "zones",
+      "handle": "target",
+      "before": 0.22475725106921732,
+      "after": 0.26950675281499104,
+      "length": 0.025000000000000133,
+      "touch": true
+    },
+    "published": {
+      "id": "custom-9ba343fc-0bbd-4abb-b02e-0b3e8d24654f",
+      "revisions": 2
+    }
+  },
+  "scope": "Serveur privé, données temporaires. UI souris/clavier/toucher uniquement ; lecture des brouillons locaux et API. Aucune mutation de simulation. Données et serveur nettoyés.",
+  "remaining": [
+    "Téléphone physique et Safari iOS non testés.",
+    "La publication de ce scénario ne concerne que son serveur privé."
+  ]
+}

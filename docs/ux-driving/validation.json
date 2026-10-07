@@ -1,0 +1,253 @@
+{
+  "passed": true,
+  "at": "2026-10-07T19:54:23.469Z",
+  "checks": [
+    "Menus : rendu plafonné à15FPS, sans prétendre mesurer une fluidité GPU.",
+    "Auto / Fluide / Détaillé : choix réel, ombres/résolution/décor réduits, préférence conservée au rechargement.",
+    "Modes nommés : joystick2axes, diagonale+drift, frein/recul prioritaire sur automatique et relâchements indépendants.",
+    "320×568 : commandes≥44px sans chevauchement ; vitesse hors du kart rendu.",
+    "Aide réelle : rendu3D suspendu, simulation/snapshots/entrées neutres actifs, reprise tactile volontaire et mode mémorisé.",
+    "667×375 : commandes≥44px sans chevauchement ; vitesse hors du kart rendu.",
+    "Orientation pendant multitouch neutralise les appuis ; clavier conserve accélération et relâchement."
+  ],
+  "errors": [],
+  "evidence": {
+    "origin": "http://127.0.0.1:45347",
+    "assets": [
+      "/assets/index-DNUBohE_.js",
+      "/assets/index-CpYYGxpj.css"
+    ],
+    "menuRendering": {
+      "before": 6,
+      "after": 24,
+      "milliseconds": 1200
+    },
+    "quality": {
+      "detailed": {
+        "camera": {
+          "position": [
+            229.97584424555973,
+            526.1163047500036,
+            351.87241270138355
+          ],
+          "target": [
+            2.815758952293556,
+            0,
+            -1.9382421003321961
+          ],
+          "fov": 52,
+          "near": 67.34978275191216
+        },
+        "tracked": null,
+        "calls": 118,
+        "triangles": 38546,
+        "compact": true,
+        "qualityMode": "detailed",
+        "quality": "standard",
+        "pixelRatio": 1,
+        "shadows": true,
+        "sceneryDetails": {
+          "optional": 0,
+          "visible": 0
+        },
+        "renderedFrames": 6,
+        "renderState": "menu",
+        "menuFpsLimit": 15
+      },
+      "smooth": {
+        "camera": {
+          "position": [
+            267.11295294412264,
+            595.2787521515713,
+            378.6403378716502
+          ],
+          "target": [
+            3.3136793357405585,
+            0,
+            -2.2809881471926428
+          ],
+          "fov": 52,
+          "near": 75.43526044816345
+        },
+        "tracked": null,
+        "calls": 73,
+        "triangles": 29644,
+        "compact": true,
+        "qualityMode": "smooth",
+        "quality": "light",
+        "pixelRatio": 0.8,
+        "shadows": false,
+        "sceneryDetails": {
+          "optional": 18,
+          "visible": 6
+        },
+        "renderedFrames": 26,
+        "renderState": "menu",
+        "menuFpsLimit": 15
+      }
+    },
+    "layout320x568": {
+      "boxes": [
+        {
+          "id": "touch-auto",
+          "x": 10,
+          "y": 372,
+          "w": 145,
+          "h": 44
+        },
+        {
+          "id": "reset",
+          "x": 264,
+          "y": 372,
+          "w": 46,
+          "h": 44
+        },
+        {
+          "id": "touch-steer",
+          "x": 10,
+          "y": 440,
+          "w": 128,
+          "h": 116
+        },
+        {
+          "id": "drift",
+          "x": 178,
+          "y": 424,
+          "w": 62,
+          "h": 62
+        },
+        {
+          "id": "touch-item",
+          "x": 248,
+          "y": 424,
+          "w": 62,
+          "h": 62
+        },
+        {
+          "id": "brake",
+          "x": 178,
+          "y": 494,
+          "w": 62,
+          "h": 62
+        },
+        {
+          "id": "accelerate",
+          "x": 248,
+          "y": 494,
+          "w": 62,
+          "h": 62
+        },
+        {
+          "id": "driving-help",
+          "x": 212,
+          "y": 372,
+          "w": 44,
+          "h": 44
+        }
+      ],
+      "kart": {
+        "x": 160.03198620592198,
+        "y": 283.23824130059273
+      },
+      "speed": {
+        "x": 140.796875,
+        "y": 60,
+        "width": 64,
+        "height": 38
+      }
+    },
+    "help": {
+      "frameBefore": 139,
+      "frameAfter": 139,
+      "timeBefore": 11.733333333333302,
+      "timeAfter": 12.633333333333299,
+      "inputSequenceBefore": 251,
+      "inputSequenceAfter": 279
+    },
+    "layout667x375": {
+      "boxes": [
+        {
+          "id": "touch-auto",
+          "x": 16,
+          "y": 199,
+          "w": 145,
+          "h": 44
+        },
+        {
+          "id": "reset",
+          "x": 605,
+          "y": 199,
+          "w": 46,
+          "h": 44
+        },
+        {
+          "id": "touch-steer",
+          "x": 16,
+          "y": 259,
+          "w": 128,
+          "h": 108
+        },
+        {
+          "id": "drift",
+          "x": 532,
+          "y": 248,
+          "w": 56,
+          "h": 56
+        },
+        {
+          "id": "touch-item",
+          "x": 595,
+          "y": 248,
+          "w": 56,
+          "h": 56
+        },
+        {
+          "id": "brake",
+          "x": 532,
+          "y": 311,
+          "w": 56,
+          "h": 56
+        },
+        {
+          "id": "accelerate",
+          "x": 595,
+          "y": 311,
+          "w": 56,
+          "h": 56
+        },
+        {
+          "id": "driving-help",
+          "x": 553,
+          "y": 199,
+          "w": 44,
+          "h": 44
+        }
+      ],
+      "kart": {
+        "x": 333.4999999999996,
+        "y": 227.76300545946435
+      },
+      "speed": {
+        "x": 288.5,
+        "y": 327,
+        "width": 90,
+        "height": 38
+      }
+    }
+  },
+  "captures": [
+    "race-mobile-320-after.png",
+    "driving-help-mobile-320.png",
+    "race-mobile-landscape-after.png"
+  ],
+  "baseline": "../fun-experience/baseline/race-mobile-320.png",
+  "fixtures": [
+    "Serveur et stockage privés temporaires.",
+    "Préférence manuelle initiale dans localStorage. Aucune position, vitesse ou arrivée modifiée."
+  ],
+  "limitations": [
+    "Chromium tactile émulé avec SwiftShader ; aucun téléphone physique ni Safari iOS.",
+    "Le scénario prouve les choix de rendu et leur suspension, pas un débit de60FPS sur GPU.",
+    "Document caché couvert par les tests purs du planificateur ; aucune manipulation synthétique de visibilité dans ce parcours."
+  ]
+}

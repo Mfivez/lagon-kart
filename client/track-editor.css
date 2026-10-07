@@ -122,3 +122,14 @@
 .editor-test-passage { min-height: 44px; border-color: #218b7a; color: #15594e; font-weight: 700; }
 .editor-feature .editor-section-heading { flex-wrap: wrap; }
 .editor-feature .editor-section-heading > strong { flex: 1 1 120px; }
+.editor-map-module{cursor:grab;touch-action:none}
+.editor-map-module:active{cursor:grabbing}
+.editor-module-selection{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px;border:1px solid #79aa91;border-radius:12px;background:#e6f0df}
+.editor-module-selection[hidden]{display:none}
+.editor-module-selection>div{flex:1 1 170px;min-width:0}
+.editor-module-selection strong,.editor-module-selection small{display:block;font-size:11px;line-height:1.5}
+.editor-module-selection small{color:var(--editor-muted)}
+.editor-selected-feature{outline:3px solid #218b7a;outline-offset:2px}
+.editor-feature-legend>.editor-legend-interaction::before{background:#218b7a}
+.editor-feature-legend>.editor-legend-zone::before{background:#ffc951}
+@media(max-width:680px){.editor-module-selection .editor-button{flex:1 1 100px}.editor-footer-actions{grid-template-columns:1fr 1fr}.editor-footer-actions .editor-button{font-size:10px!important}}

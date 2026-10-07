@@ -25,7 +25,7 @@ export class PartyUi {
     return crown && party ? { crown: crown.checked, party: party.checked, choices: [...document.querySelectorAll<HTMLSelectElement>('[data-party-choice]')].map(select => select.value) } : undefined;
   }
   constructor(private readonly options: Options) {
-    document.getElementById('lobby-panel')?.insertBefore(document.getElementById('party-lobby')!, document.getElementById('lobby-garage-button'));
+    document.getElementById('lobby-party-options')?.append(document.getElementById('party-lobby')!);
     document.getElementById('results-panel')?.insertBefore(document.getElementById('party-results')!, document.getElementById('results-list'));
     document.getElementById('race-hud')?.append(document.getElementById('crown-status')!);
     document.getElementById('party-lobby')!.addEventListener('click', event => {

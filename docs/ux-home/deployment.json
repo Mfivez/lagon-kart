@@ -1,0 +1,242 @@
+{
+  "origin": "https://yoga-unlikely-div-converted.trycloudflare.com",
+  "initial": {
+    "at": "2026-10-07T19:57:57.767371+00:00",
+    "localDeploymentPassed": true,
+    "previousAppId": "3c3541cd73485cc680eec5273c0a57942f2ceb1ad19c8945404efe6b0618b5be",
+    "app": {
+      "id": "76c7ca59a78b0a709d534cde1123e0a42cd705f51e333d961cc237cf83686774",
+      "startedAt": "2026-10-07T19:56:47.623919178Z",
+      "image": "sha256:4a6c0ac0c8ba6368e0e7e148c864ce8341f620428accc167dde5d70192cf7fdc",
+      "state": "running",
+      "health": "healthy",
+      "user": "node",
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "/mnt/c/Users/bstorm_user/Desktop/project/data",
+          "Destination": "/app/data",
+          "RW": true
+        }
+      ]
+    },
+    "savedFileCount": 42,
+    "profiles": 39,
+    "savedFileHashesUnchanged": true,
+    "savedFilesDigest": "4de7fdfc79e0fb9514ef2b46c6a54a7cc3cac76e657dc7c22273e0150669f5b8",
+    "savedFiles": {
+      "players/players.json": "ceebca91d9ea07b1efbf09b55208ebb7d78e41ea94dbcb1cbd9181c20655a571",
+      "players/replays/013d43ed-e448-49b3-8084-306ce5309900.json": "19352b12961ab64756516ab96660d7db0aa020036d6d55e0550b5a6b3b42ee56",
+      "players/replays/068660ad-a130-45c6-b540-3cc8c871d82e.json": "4d06eb75f48231476b58736019ca509d5ebb734c6d08dde9d16744e05781164f",
+      "players/replays/11fa396b-bc40-4ba7-a369-8e4d6fa2be9f.json": "d191502c9e226fd6f33ecdfda163483ba94eb8ef1b6bce66f9275a7f38516475",
+      "players/replays/211bbb23-a4fd-438e-9f64-85f1f5883725.json": "52e748980b38364c9440cae108c24ec3911c007a44df9356a4f6796b9bfbe844",
+      "players/replays/235b2a15-6794-4007-b51c-d995f1dc3ffc.json": "f2362d017ca6ab233094c85395a543b36ca47ce2c14f7be7737490fedcf99f56",
+      "players/replays/282e7d60-b672-4b56-84fb-6003ea9cd04e.json": "570810c7969f6b7234f4e5b4106ce0deb45bd48ae704bd5c05c71d6bb76349c6",
+      "players/replays/2896a0b0-d8f4-4b82-b7e5-52f8eccbade0.json": "28ba367b8de930bf099ac854ac4dfc9b2db9ef49708c68a8750c2f3bc14c6c1b",
+      "players/replays/4121cc8f-6a61-4aee-b8d9-b48e61f6747d.json": "a3c401bc5920588f76bd8bfea19d82c87b4c1b01bb0f8dda0921f9a3c8b7697e",
+      "players/replays/41d8fa6e-f317-4352-976b-b32d09b541a3.json": "178addaeb5949e2c1ab3d744e4a18cadead569088e9f3d15cde5bd72ca1d7774",
+      "players/replays/43e59290-9835-4c29-a104-af16eb722f9d.json": "bf5bebf997536585df40e452d9b22ee706f13286e20d39a621b6595d010f1fcc",
+      "players/replays/511190b0-87fa-42de-b7aa-72e55fbaeb99.json": "ed03736757cfa00e883827540d7129d53b163f2ec484f04d5f264e3af3fd704c",
+      "players/replays/609aec27-fcf6-4b47-a999-a117482fccc6.json": "10b39a3d0f8b7af5d8016a3421188bcb11ea2d73b8834f172b9ac53e850bccf1",
+      "players/replays/62c2d57d-16fc-4b3c-be8d-a65529e4f0ca.json": "d1d4704db635f491dafe2d42c3a863a7738e28b0e5166855d922eacbac867eef",
+      "players/replays/65ea2cab-0c7e-4da4-91d5-c2a2a9437f8b.json": "8df4a291fe46cb513c181b99c55aec9209149b981dc62d920f1560f635f7430e",
+      "players/replays/77a0dae3-ff24-457d-9e5a-c0d78c56e5aa.json": "ae4c19b5c5ac397ebf6344990e97f8887a44631f3780b6e349e067e557ea50ef",
+      "players/replays/7ba74ae1-7a79-4980-8b1c-3b1cfa461219.json": "9d532d2c5718c86ab3822748b4a869c4cbe8848f4ec71d737c1b39f1c8244e5b",
+      "players/replays/8e115dc4-f0aa-4ed0-88d9-c7b6c679c362.json": "f31861013bd57f2845ec69279e39e1f6e4326c970f989ba957ce9cb68bbcd891",
+      "players/replays/9221cdb9-a8a5-46e9-b3fc-fced41bedea6.json": "dbaebd6258c5f205e2ea4157ff3c8570b87d52ea8a2300ca030b05f647b639f7",
+      "players/replays/94eb05cb-eea0-43a6-8f72-7edda3d0db6c.json": "263331b72b213a75847fd8f4cfa8f49e072bd390bdbfe27ac25a747af8771816",
+      "players/replays/97d03719-2e15-4e7b-a6d1-d4dd082272de.json": "a44fca0213aa849da00eb073691de98f2cd069c5c5c39565805fdb9c2478b4b8",
+      "players/replays/99cd71ee-aac3-45e4-9ef9-5087428b5b0c.json": "76511d8e369ab4b586eb669fac491cc9adcf59c6d9c5e6217f3401acda5a95e0",
+      "players/replays/9efc5fb8-3341-4d6c-a348-3ab24d015dc4.json": "cc2ef2e60f4c9f93326a34e46560b8e24d89de90b238cdd761a3f5016abd9f76",
+      "players/replays/a03d8f61-ae0d-40b6-b5de-92017f5a6bb1.json": "7bddded21aebe2e941851c8773bc0dd5ac5808a6ba55c373709a3eadcca4a083",
+      "players/replays/b06b746a-b13f-49c8-9c74-474e1c71c178.json": "19f9e383e45796a8e4bf04a964805e62601c10c4f9c5d8187b7c3977da446ed3",
+      "players/replays/b2d14808-0c04-47d4-8863-86d535bd17cd.json": "02a1f3e1d2ab34f3240953ceff77e125ac61fce38b72e4e6bdddf3ce56377a66",
+      "players/replays/ca418c85-1c51-4541-8a5e-ddeebfd3e6d6.json": "00aac6b01b829ca4cba9ee089ce534417fae371754666be01eca2bddaa684aae",
+      "players/replays/d6f97f9d-d093-4f06-aa84-cce0cf8ddb2c.json": "cd1053ffcedebdb356373be992a0605641f5f99a58f78dd0d38c46051ea35dc4",
+      "players/replays/d80cbc78-408c-402d-bdfd-026696cc0d1c.json": "f68b2ce06833109c33e0d65367c01bd89abd01c49bbf90d26694972aba23eab0",
+      "players/replays/d921ff93-584d-4340-a69d-d134ce480986.json": "daaa0828b9173a3653a2a0d352cc6791c782836551c271b70c7f7afa760b96d0",
+      "players/replays/e196af29-8b91-46a8-a121-e2d7701c617a.json": "35243bc30b5fcbb13559f7f83081edf98ee8e4c1ae47913d036d4756dbcead20",
+      "players/replays/e1f4cf65-0222-494b-a267-4c29d3acf65c.json": "cf2849d78c0873ea413f0069f0539e5f603218c98aea1f6dbffd28d95f266a7a",
+      "players/replays/ed65e059-287e-433f-b904-7a0db9d6289a.json": "97eb9eb507631e2c17a422a21160a159eddfe75000f16c2576c4d02692dd2504",
+      "players/replays/f1d797f1-1e9c-4b5f-9385-429d78e052a9.json": "cfb9fb5fdc7f53386ac62de438b31e475693c51e5a245d8c600393d434f72492",
+      "players/replays/feb18a09-d955-4564-b212-9c6d003a8f60.json": "78997cce28ea9b1ce38abed02d7629dbf620be483e07136c8306fa97fcb1566a",
+      "tracks/custom-08dda018-51ea-4019-bbb4-5e08a95b5af1-v1.json": "d2e81ba20764346c141d2fc41ff2d3e77b014cb5cb62b4ba1d48a1383fa614da",
+      "tracks/custom-08dda018-51ea-4019-bbb4-5e08a95b5af1-v2.json": "43090b629a849a78dc27cf851f3efccef23a2843e50010d646a4aae4c46f99fd",
+      "tracks/custom-26140903-573d-4b02-9da7-ec4c8d589058-v1.json": "d37633dd96dd0373c6306f41d7bdc08c207b6d701133f5ac96061b487eb2ac24",
+      "tracks/custom-7a868adf-9f0b-43f0-a336-11f0ca43a03b-v1.json": "02572b97047e1f09a07698da017a6de77804199eb44b4de68ecbd42ac9303b0c",
+      "tracks/custom-7a868adf-9f0b-43f0-a336-11f0ca43a03b-v2.json": "c7331a47d7539e75f4e3b63f7851f154aba59cf1fc25dc4039b2f9daddf96b8d",
+      "tracks/custom-a5fa183b-257e-4a63-b983-d581bea62376-v1.json": "28373fea2467ec44d06380cac1c9737f180447bc546e32ac20adbfd3169f0907",
+      "tracks/custom-fa7c993a-0140-4d91-a5e8-35e4feb12f89-v1.json": "706006ca85353a672a23cf6d06fdab757c589f936418735ef2ca7b41d19d5fcc"
+    },
+    "tunnelUnchangedDuringAppDeployment": true,
+    "tunnelId": "1dc0cee3485156687d71717db0a07c90be5b7b3ecb64476a0ff6861eac62205c",
+    "tunnelStartedAt": "2026-10-07T09:11:41.01608771Z",
+    "modules": [
+      {
+        "path": "shared/custom-track-editing.js",
+        "sha256": "edcea432263693e2e06c8c65cb777e40462188dd577a4d736ad140dc9488a269",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "shared/crown.js",
+        "sha256": "aec7d7de915123d051f1b6fc3a2952d2a5ddf7bdc53c8c9cfcd656a43f59556f",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "shared/party.js",
+        "sha256": "cab83714accce6a4fbc3286524067bde6a3a7312956f79092630b04f9a1f485f",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "shared/race-fun.js",
+        "sha256": "7b1b68c5f7a2ebbb1be085265e4ffa770e9e07989d12f920f4e70f5e4ddd936b",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "shared/track-interactions.js",
+        "sha256": "fb76497e17482d20e53ea2408e7b5083fdccd4fe50372bfbc4a8bbe098b8402f",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "shared/custom-tracks.js",
+        "sha256": "a0307fb88d5985e038238d897c84daa39f54a40e3b3be2c2009f03322fa12947",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "shared/track.js",
+        "sha256": "bd2eee928db5fc28d4b985daf3e54256a947de39e96ac174730ea74176b85afe",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "shared/track-events.js",
+        "sha256": "f08ef9b71d57c4e231a7a7fb4350b6c0f92e7aae7d8719ad285c3bad0b19f280",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "shared/tournament.js",
+        "sha256": "316f369206aa8e79fddc93140da88c844af749b22238b09916cfca4d134cffcd",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "server/app.js",
+        "sha256": "094cdbd82dc328731dc80601cec30fb5003ea7b7fed6f387be3ae8fdbda50a5f",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "server/RaceRoom.js",
+        "sha256": "a4b4ec7a7021c3267eeca7676927ba3438b9bddb3719b55faf229fca3e621046",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "server/custom-track-store.js",
+        "sha256": "7c0aff68138394318370ef16eae5895ce9c9120d82dfbc896dfdd20571e7734b",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "server/custom-tracks-api.js",
+        "sha256": "aa02a2db8fd466b3a9c68abeafb9878ffab2d6c6b87bff3e34a900c54e0dc19f",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "server/player-store.js",
+        "sha256": "be6f26e39271d4b6ca80f1209f763aeacb5500e343911f411cf3ea2df2ce3c68",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "shared/game.js",
+        "sha256": "ee1991514e1ce72d2f0f984baa9d5460da5ce9917a3baea86955999f7d421a41",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "shared/presence.js",
+        "sha256": "0e803b6b401f6f16491773b0e267f319eec73d39ea125fe9fb82890dc5c47a94",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "server/presence.js",
+        "sha256": "6a9ea99db637bddd4682f1827efcf7e931d2e5fd852ecfe575e95cec574e511c",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "server/presence-api.js",
+        "sha256": "4d357aa5c34e4588e750e39d66e1f4cc2a6efc7a1bc29999f1119bfe4dd78e61",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "server/competitive.js",
+        "sha256": "113cff37434ce091fa7e3180c2790c1fb64f8111601d83f7565c5cca8121b017",
+        "containerMatchesDist": true
+      }
+    ],
+    "health": {
+      "status": "ok",
+      "rooms": 0,
+      "maxRooms": 16,
+      "maxPlayers": 8,
+      "simHz": 30,
+      "snapshotHz": 20
+    },
+    "publicFailure": "Old URL DNS lookup fails; existing cloudflared logs report Unauthorized: Tunnel not found before app deployment."
+  },
+  "previousOrigin": "https://miles-blades-tulsa-citizens.trycloudflare.com",
+  "passed": true,
+  "tunnelRecovery": {
+    "at": "2026-10-07T19:59:35.080124+00:00",
+    "command": [
+      "docker",
+      "compose",
+      "-p",
+      "lagon-kart",
+      "restart",
+      "tunnel"
+    ],
+    "reason": "Cloudflare returned Unauthorized: Tunnel not found before app deployment; old hostname no longer resolved.",
+    "tunnelId": "1dc0cee3485156687d71717db0a07c90be5b7b3ecb64476a0ff6861eac62205c",
+    "startedAt": "2026-10-07T19:58:01.689089936Z",
+    "appUnchangedDuringRecovery": true,
+    "health": {
+      "status": "ok",
+      "rooms": 0,
+      "maxRooms": 16,
+      "maxPlayers": 8,
+      "simHz": 30,
+      "snapshotHz": 20
+    },
+    "dataObservation": {
+      "profilesAfterAppDeployment": 39,
+      "profilesNow": 40,
+      "changedFilesSinceDeployment": [
+        "players/players.json"
+      ],
+      "missingFiles": [],
+      "note": "The immediate before/after application restart comparison was identical. A new profile appeared later in the live application; recovery does not claim the player file stayed frozen during live use."
+    }
+  },
+  "assets": [
+    {
+      "path": "/assets/index-CpYYGxpj.css",
+      "sha256": "e53cda9079856e2f8c0b657ea8530d506e76b5719a2e9ea2c07b5e138b576959",
+      "publicAndLocalMatchDist": true,
+      "entryInHtml": true
+    },
+    {
+      "path": "/assets/index-DNUBohE_.js",
+      "sha256": "21be714390a95da802269895fc73208a21fbf278fc1c480d732cdbc81d542280",
+      "publicAndLocalMatchDist": true,
+      "entryInHtml": true
+    },
+    {
+      "path": "/assets/invitation-qr-DsiXEY4X.js",
+      "sha256": "6df16d354945d0e245c0a495174aa34277b2ab1920df3925aa4bead7dbe6cd4e",
+      "publicAndLocalMatchDist": true,
+      "entryInHtml": false
+    },
+    {
+      "path": "/licenses.txt",
+      "sha256": "5133a96edcbebaf5115d0bf442763027d58f3be5d88466b18d3582259d8ddcbb",
+      "publicAndLocalMatchDist": true,
+      "entryInHtml": false
+    }
+  ],
+  "customTracksInCatalogue": 5
+}

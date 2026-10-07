@@ -1,4 +1,5 @@
-import { TRACKS, MAX_CUSTOM_TRACK_LAPS, getTrack, makeTrack, registerTrackDefinition, sampleTrackAnchors, type TrackDefinition, type TrackLapEventKind, type TrackId, type TrackZone, type TrackInteraction, type Vec2 } from './track.js';
+import { TRACKS, MAX_CUSTOM_TRACK_LAPS, getTrack, makeTrack, registerTrackDefinition, registerPreviewTrackDefinition, releasePreviewTrackDefinition, sampleTrackAnchors, type TrackDefinition, type TrackLapEventKind, type TrackId, type TrackZone, type TrackInteraction, type Vec2 } from './track.js';
+import {clearTrackEventCache} from './track-events.js';
 
 export interface CustomTrackZone {
   kind: TrackZone['kind'];
@@ -13,7 +14,7 @@ export interface CustomTrackElevation {
 export interface CustomTrackLoop { start: number; end: number; height: number; lateralSpread: number }
 export interface CustomTrackLapEvent { lap: number; kind: TrackLapEventKind; start: number; end: number }
 export type CustomTrackInteraction = Omit<TrackInteraction, 'id' | 'elevationId'>;
-export interface TrackWorkshopSelection { group: 'elevations' | 'loops' | 'events' | 'zones' | 'interactions'; index: number }
+export interface TrackWorkshopSelection { group: 'track' | 'elevations' | 'loops' | 'events' | 'zones' | 'interactions'; index: number }
 export const CUSTOM_TRACK_EVENT_KINDS: ReadonlyArray<{id: TrackLapEventKind; label: string}> = [
   {id:'rain',label:'Pluie et flaques'}, {id:'snow',label:'Neige et verglas'}, {id:'ash',label:'Cendres'},
   {id:'storm',label:'Tempête'}, {id:'clear',label:'Éclaircie'}, {id:'boost',label:'Turbo temporaire'},
@@ -28,6 +29,15 @@ export interface StoredCustomTrack {
   id: string; revision: number; draft: CustomTrackDraft; createdAt: string; updatedAt: string;
   runtimeId?: string; authorId?: string; authorName?: string;
 }
+export interface CustomTrackPreview {id:string;draft:CustomTrackDraft}
+/** A private source has no logical published id, revision, author or disk file. */
+export function registerCustomTrackPreview(preview:CustomTrackPreview):TrackDefinition {
+  if(!preview||!/^custom-private-[a-f0-9-]{36}-v1$/.test(preview.id))throw new Error('Aperçu de circuit invalide.');
+  const validation=validateCustomTrackDraft(preview.draft);
+  if(!validation.ok||!validation.draft)throw new Error(validation.errors.join(' '));
+  return registerPreviewTrackDefinition(build(validation.draft,preview.id as TrackId));
+}
+export function releaseCustomTrackPreview(id:string):void {releasePreviewTrackDefinition(id);clearTrackEventCache(id);}
 export type SavedCustomTrack = StoredCustomTrack;
 export interface CustomTrackValidation { ok: boolean; errors: string[]; draft?: CustomTrackDraft; track?: TrackDefinition }
 /** Capacity bounds keep untrusted drafts and generated geometry finite; they do not rate the layout. */
@@ -83,11 +93,12 @@ function build(draft: CustomTrackDraft, id: TrackId): TrackDefinition {
   return track;
 }
 
-/** Server-owned workshop placement, derived only from a published definition. */
+/** Server-owned workshop placement, derived only from a validated definition. */
 export function getTrackWorkshopStart(trackId: string, selection: unknown): {progress:number;end:number;label:string;eventStage?:number} | undefined {
   if (!object(selection) || !Number.isInteger(selection.index) || (selection.index as number)<0) return;
   const track=getTrack(trackId); if (track.id!==trackId || !track.id.startsWith('custom-')) return;
   const group=selection.group as TrackWorkshopSelection['group'];
+  if(group==='track')return selection.index===0?{progress:0,end:track.length,label:'Circuit entier · brouillon privé'}:undefined;
   const features=group==='events'?track.lapEvents:group==='elevations'?track.elevations.filter(feature=>!track.interactions?.some(module=>module.elevationId===feature.id))
     :group==='loops'?track.loops:group==='zones'?track.zones:group==='interactions'?track.interactions:undefined;
   const feature=features?.[selection.index as number]; if (!feature) return;

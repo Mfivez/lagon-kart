@@ -1,0 +1,381 @@
+{
+  "passed": true,
+  "at": "2026-10-07T19:55:22.275Z",
+  "origin": "http://127.0.0.1:3108",
+  "checks": [
+    "Accueil ordinateur, création de salon et sortie par interface.",
+    "Mobile320 : accès à l’entraînement, départ réel, conduite AUTO, sortie et ouverture/fermeture de l’éditeur."
+  ],
+  "errors": [],
+  "evidence": {
+    "assets": [
+      "/assets/index-DNUBohE_.js",
+      "/assets/index-CpYYGxpj.css"
+    ],
+    "desktopHome": {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "scrollHeight": 736,
+      "actions": [
+        {
+          "id": "name-input",
+          "x": 108.09375,
+          "y": 171.03125,
+          "width": 241.625,
+          "height": 42,
+          "initiallyInView": true
+        },
+        {
+          "id": "home-ranked",
+          "x": 72,
+          "y": 224.03125,
+          "width": 390,
+          "height": 115.390625,
+          "initiallyInView": true
+        },
+        {
+          "id": "home-ranked-action",
+          "x": 85,
+          "y": 264.421875,
+          "width": 364,
+          "height": 44,
+          "initiallyInView": true
+        },
+        {
+          "id": "create-button",
+          "x": 72,
+          "y": 349.421875,
+          "width": 191,
+          "height": 46,
+          "initiallyInView": true
+        },
+        {
+          "id": "join-button",
+          "x": 259.390625,
+          "y": 404.421875,
+          "width": 202.609375,
+          "height": 44,
+          "initiallyInView": true
+        },
+        {
+          "id": "practice-button",
+          "x": 271,
+          "y": 349.421875,
+          "width": 191,
+          "height": 46,
+          "initiallyInView": true
+        },
+        {
+          "id": "track-editor-button",
+          "x": 271,
+          "y": 457.421875,
+          "width": 191,
+          "height": 44,
+          "initiallyInView": true
+        },
+        {
+          "id": "career-button",
+          "x": 72,
+          "y": 567.421875,
+          "width": 390,
+          "height": 44,
+          "initiallyInView": true
+        }
+      ],
+      "title": {
+        "right": 462,
+        "text": "À vous la piste."
+      }
+    },
+    "fixedReadyBar": {
+      "x": 481,
+      "y": 685.703125,
+      "width": 478,
+      "height": 117.296875
+    },
+    "lobby": {
+      "text": "LE DÉPART APPROCHE\nSur la grille.\n\nÎle des Alizés · 3 tours · Courbes douces · Premiers turbos\n\nCODE DU SALON\n7AGXMR\nCopier le lien ↗\nPartager le salon ↗\nQR code\nPILOTES\n1 PILOTE\n01\nEssai expérience VOUS\nCréateur du salon · Zsky · Pilote\nEn préparation\nMon kart et ses pièces ⚙\nChoisir l’aventure Une course\n1\nÎle des Alizés\nÀ SUIVRE\nSoirée et mode Couronne\n\n0/1 pilotes prêts\n\nJe suis prêt\nLancer la course\n→\n\nInvitez un autre pilote ou ajoutez un CPU dans les réglages."
+    },
+    "mobileHome": {
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "scrollHeight": 1168,
+      "actions": [
+        {
+          "id": "name-input",
+          "x": 48.09375,
+          "y": 129.890625,
+          "width": 147.625,
+          "height": 42,
+          "initiallyInView": true
+        },
+        {
+          "id": "home-ranked",
+          "x": 12,
+          "y": 180.890625,
+          "width": 296,
+          "height": 115.390625,
+          "initiallyInView": true
+        },
+        {
+          "id": "home-ranked-action",
+          "x": 25,
+          "y": 221.28125,
+          "width": 270,
+          "height": 44,
+          "initiallyInView": true
+        },
+        {
+          "id": "create-button",
+          "x": 12,
+          "y": 304.28125,
+          "width": 144,
+          "height": 44,
+          "initiallyInView": true
+        },
+        {
+          "id": "join-button",
+          "x": 156.15625,
+          "y": 356.28125,
+          "width": 151.84375,
+          "height": 44,
+          "initiallyInView": true
+        },
+        {
+          "id": "practice-button",
+          "x": 164,
+          "y": 304.28125,
+          "width": 144,
+          "height": 44,
+          "initiallyInView": true
+        },
+        {
+          "id": "track-editor-button",
+          "x": 164,
+          "y": 408.28125,
+          "width": 144,
+          "height": 44,
+          "initiallyInView": true
+        },
+        {
+          "id": "career-button",
+          "x": 12,
+          "y": 518.28125,
+          "width": 296,
+          "height": 44,
+          "initiallyInView": true
+        }
+      ],
+      "title": {
+        "right": 308,
+        "text": "À vous la piste."
+      }
+    },
+    "scrollToPlay": 0,
+    "mobileReadyBar": {
+      "x": 13,
+      "y": 353.609375,
+      "width": 294,
+      "height": 125.390625
+    },
+    "mobileRace": {
+      "fpsSoftwareRendererOnly": 6.885020163273331,
+      "quality": "light",
+      "speed": 2.0216946661387833,
+      "renderCalls": 41,
+      "triangles": 21852,
+      "controls": [
+        {
+          "label": "Accélération automatique. Appuyer pour passer en conduite manuelle.",
+          "rect": {
+            "x": 10,
+            "y": 372,
+            "width": 145,
+            "height": 44,
+            "top": 372,
+            "right": 155,
+            "bottom": 416,
+            "left": 10
+          }
+        },
+        {
+          "label": "Replacer le kart sur la piste",
+          "rect": {
+            "x": 264,
+            "y": 372,
+            "width": 46,
+            "height": 44,
+            "top": 372,
+            "right": 310,
+            "bottom": 416,
+            "left": 264
+          }
+        },
+        {
+          "label": "Joystick : haut pour accélérer, bas pour freiner et reculer, gauche et droite pour tourner",
+          "rect": {
+            "x": 10,
+            "y": 440,
+            "width": 128,
+            "height": 116,
+            "top": 440,
+            "right": 138,
+            "bottom": 556,
+            "left": 10
+          }
+        },
+        {
+          "label": "Maintenir pour déraper",
+          "rect": {
+            "x": 178,
+            "y": 424,
+            "width": 62,
+            "height": 62,
+            "top": 424,
+            "right": 240,
+            "bottom": 486,
+            "left": 178
+          }
+        },
+        {
+          "label": "Aucun objet, attrapez un cube sur la piste",
+          "rect": {
+            "x": 248,
+            "y": 424,
+            "width": 62,
+            "height": 62,
+            "top": 424,
+            "right": 310,
+            "bottom": 486,
+            "left": 248
+          }
+        },
+        {
+          "label": "Freiner, puis reculer en maintenant",
+          "rect": {
+            "x": 178,
+            "y": 494,
+            "width": 62,
+            "height": 62,
+            "top": 494,
+            "right": 240,
+            "bottom": 556,
+            "left": 178
+          }
+        },
+        {
+          "label": "Accélérer, maintenir à la dernière seconde pour le départ turbo",
+          "rect": {
+            "x": 248,
+            "y": 494,
+            "width": 62,
+            "height": 62,
+            "top": 494,
+            "right": 310,
+            "bottom": 556,
+            "left": 248
+          }
+        }
+      ]
+    },
+    "mobileEditor": {
+      "width": 320,
+      "scrollWidth": 320,
+      "text": "ATELIER DES CIRCUITS\nVotre prochaine piste\nFermer ✕\n↔ Déplacer\n+ Ajouter un point\n↶\nAnnuler\n↷\nRétablir\n＋\n−\nTout voir\n\nGlissez un point blanc ou un module coloré. Touchez un module pour ses réglages.\n\n⚑\n2\n3\n4\n5\n6\n7\n8\nZ1\nPont / tremplin\nLooping\nÉvénement · T = tour\nPlaque / cible · I\nZone · Z\nPoint 1 / 8 · Départ\nDépart ici\nSupprimer le point\n886 m par tour\n3 tours\n22 m de large\n8 points\n1 zones\n0 reliefs\n0 événements\n✓ La piste est prête à rouler\nTracé libre : virages serrés, points collés et croisements autorisés. Essayez la piste pour ajuster la conduite.\nComment créer un circuit agréable ?\n1. Donnez-lui un style\nNom du circuit\nAmbiance\nÎle tropicale\nCanyon\nBanquise\nVille néon\nVolcan\nForêt\nPort\nCiel\nFonderie\nChâteau\nLargeur de la route\n22 m\nUne route large facilite les dépassements.\n2. Pimentez le tour\n+ Zone\n\nFacultatif : des bandes colorées sur la route. En cas de superposition, la première zone de la liste agit.\n\nZone 1\nTurbo\nGlace\nBoue\n✕\nPosition (%)\nLongueur (%)\nPlacement\nAu centre\nCôté droit\nCôté gauche\nToute la largeur\nEssayer ce passage\n3. Durée de la course\nNombre de tours\nDe 1 à 20 tours. Ce nombre est conservé pour les courses et les manches de tournoi sur ce circuit.\n4"
+    },
+    "landscapeHome": {
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "scrollHeight": 1159,
+      "actions": [
+        {
+          "id": "name-input",
+          "x": 154.59375,
+          "y": -87.75,
+          "width": 281.625,
+          "height": 42,
+          "initiallyInView": false
+        },
+        {
+          "id": "home-ranked",
+          "x": 118.5,
+          "y": -36.75,
+          "width": 430,
+          "height": 115.390625,
+          "initiallyInView": false
+        },
+        {
+          "id": "home-ranked-action",
+          "x": 131.5,
+          "y": 3.640625,
+          "width": 404,
+          "height": 44,
+          "initiallyInView": true
+        },
+        {
+          "id": "create-button",
+          "x": 118.5,
+          "y": 86.640625,
+          "width": 211,
+          "height": 44,
+          "initiallyInView": true
+        },
+        {
+          "id": "join-button",
+          "x": 324.296875,
+          "y": 138.640625,
+          "width": 224.203125,
+          "height": 44,
+          "initiallyInView": true
+        },
+        {
+          "id": "practice-button",
+          "x": 337.5,
+          "y": 86.640625,
+          "width": 211,
+          "height": 44,
+          "initiallyInView": true
+        },
+        {
+          "id": "track-editor-button",
+          "x": 337.5,
+          "y": 190.640625,
+          "width": 211,
+          "height": 44,
+          "initiallyInView": true
+        },
+        {
+          "id": "career-button",
+          "x": 118.5,
+          "y": 300.640625,
+          "width": 430,
+          "height": 44,
+          "initiallyInView": true
+        }
+      ],
+      "title": {
+        "right": 548.5,
+        "text": "À vous la piste."
+      }
+    },
+    "healthAfter": {
+      "status": "ok",
+      "rooms": 0,
+      "maxRooms": 32,
+      "maxPlayers": 8,
+      "simHz": 30,
+      "snapshotHz": 20
+    }
+  },
+  "limitations": [
+    "Chromium avec rendu logiciel SwiftShader, pas une mesure de fluidité sur GPU.",
+    "Gestes mobiles émulés ; aucun téléphone physique.",
+    "Ce parcours bref ne mesure pas le plaisir humain et ne termine aucune course."
+  ]
+}

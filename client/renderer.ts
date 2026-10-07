@@ -18,6 +18,8 @@ import { trackLoopAt, trackLoopPose, kartLoopPose } from '../shared/track-loop';
 import { buildLoopStructures, applyLoopOrientation } from './track-loops';
 import { ROAD_RAIL_HEIGHT, ROAD_RAIL_CENTER_Y, isBridgeProgress, trackBoundaryShoulder, driveableGroundHeight } from '../shared/obstacle-heights';
 import type { GhostData } from '../shared/progression';
+import { GRAPHICS_STORAGE_KEY, graphicsMode, GraphicsPolicy, RenderPacer, type GraphicsMode, type RenderContext } from './graphics-policy';
+import { reduceSceneryDetails } from './graphics-scenery';
 
 const materials = new Map<string, THREE.MeshStandardMaterial>();
 function material(color: string | number, roughness = 0.85) {
@@ -159,10 +161,15 @@ export class GameRenderer {
   public fps = 60;
   public quality: 'standard' | 'light' = 'standard';
   private fpsTime = performance.now();
-  private slowSeconds = 0;
+  private readonly graphics = new GraphicsPolicy();
+  private readonly pacer = new RenderPacer();
+  private renderedFrames = 0;
+  private renderState: 'race' | 'menu' | 'hidden' | 'dialog' = 'menu';
+  private sceneryDetails = { optional: 0, visible: 0 };
 
   get kartAssets() { return kartAssetDiagnostics(); }
   get sceneryAssets() { return sceneryAssetDiagnostics(); }
+  get qualityMode() { return this.graphics.mode; }
   get viewDiagnostics() {
     const tracked = this.karts.get(this.lastCameraId)?.group;
     const point = tracked?.getWorldPosition(new THREE.Vector3());
@@ -170,13 +177,18 @@ export class GameRenderer {
     const projected = point?.clone().addScaledVector(normal!, 1).project(this.camera);
     return { camera: { position: this.camera.position.toArray(), target: this.cameraAim.toArray(), fov: this.camera.fov, near: this.camera.near },
       tracked: point ? { id: this.lastCameraId, position: point.toArray(), up: normal!.toArray(), projected: projected!.toArray() } : null,
-      calls: this.renderer.info.render.calls, triangles: this.renderer.info.render.triangles, compact: this.compactViewport };
+      calls: this.renderer.info.render.calls, triangles: this.renderer.info.render.triangles, compact: this.compactViewport,
+      qualityMode: this.qualityMode, quality: this.quality, pixelRatio: this.renderer.getPixelRatio(),
+      shadows: this.renderer.shadowMap.enabled, sceneryDetails: { ...this.sceneryDetails },
+      renderedFrames: this.renderedFrames, renderState: this.renderState, menuFpsLimit: this.pacer.menuFps };
   }
 
   constructor(canvas: HTMLCanvasElement) {
+    try { this.graphics.setMode(graphicsMode(localStorage.getItem(GRAPHICS_STORAGE_KEY))); } catch { /* Optional local preference. */ }
+    this.quality = this.graphics.quality;
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-    this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.6));
-    this.renderer.shadowMap.enabled = true;
+    this.renderer.setPixelRatio(this.graphics.pixelRatio(devicePixelRatio));
+    this.renderer.shadowMap.enabled = this.quality === 'standard';
     this.renderer.shadowMap.type = THREE.PCFShadowMap;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -205,6 +217,26 @@ export class GameRenderer {
     this.camera.aspect = innerWidth / innerHeight;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(innerWidth, innerHeight);
+    this.pacer.invalidate();
+  }
+
+  setQualityMode(mode: GraphicsMode) {
+    this.graphics.setMode(mode); this.applyQuality(); this.pacer.invalidate();
+  }
+
+  private applyQuality() {
+    const changed = this.quality !== this.graphics.quality;
+    this.quality = this.graphics.quality;
+    this.renderer.setPixelRatio(this.graphics.pixelRatio(devicePixelRatio));
+    this.renderer.shadowMap.enabled = this.quality === 'standard';
+    if (changed) {
+      // Rebuild only for a real detail change, keeping road/collision markers.
+      this.setTrack(this.track.id, true);
+      this.scene.traverse(object => {
+        if (object instanceof THREE.Mesh) for (const material of Array.isArray(object.material) ? object.material : [object.material]) material.needsUpdate = true;
+      });
+    }
+    this.resize();
   }
 
   setPreviewTrack(id: string) { this.previewTrack = getTrack(id).id; }
@@ -220,7 +252,10 @@ export class GameRenderer {
     const trackChanged = next.id !== this.track.id;
     if (!force && next.id === this.track.id) return;
     const geometries = new Set<THREE.BufferGeometry>();
-    this.scenery.traverse(object => { if (object instanceof THREE.Mesh) geometries.add(object.geometry); });
+    this.scenery.traverse(object => {
+      if (object instanceof THREE.Mesh) geometries.add(object.geometry);
+      if (object instanceof THREE.InstancedMesh) object.dispose();
+    });
     this.scenery.clear();
     for (const geometry of geometries) if (geometry !== boxGeometry && geometry !== sphereGeometry) geometry.dispose();
     this.track = next;
@@ -236,6 +271,7 @@ export class GameRenderer {
     this.sun.color.set(next.theme === 'ice' ? '#d3edff' : night ? '#bd82ff' : '#fff0ce');
     this.sun.intensity = night ? 1.5 : 3.1;
     this.buildIsland();
+    this.sceneryDetails = this.quality === 'light' ? reduceSceneryDetails(this.scenery) : { optional: 0, visible: 0 };
     this.batchScenery();
     const start = trackPoint(0, next.id);
     this.demo.group.position.set(start.x, 0.055, start.z);
@@ -248,7 +284,7 @@ export class GameRenderer {
     const batches = new Map<string, { material: THREE.Material; cast: boolean; receive: boolean; geometries: THREE.BufferGeometry[] }>();
     const originals: THREE.Mesh[] = [];
     this.scene.updateMatrixWorld(true);
-    this.scenery.traverse(object => {
+    this.scenery.traverseVisible(object => {
       if (!(object instanceof THREE.Mesh) || object instanceof THREE.InstancedMesh || Array.isArray(object.material)) return;
       const key = `${object.material.uuid}:${object.castShadow}:${object.receiveShadow}`;
       let batch = batches.get(key);
@@ -478,14 +514,22 @@ export class GameRenderer {
     visual.label.material.map?.dispose(); visual.label.material.dispose();
   }
 
-  render(world: World | null, players: Kart[], localId: string, dt: number, now: number) {
+  render(world: World | null, players: Kart[], localId: string, dt: number, now: number, context: RenderContext = {}) {
+    const racing = world?.phase === 'racing' || world?.phase === 'countdown';
+    const hidden = context.hidden ?? document.hidden;
+    this.renderState = hidden ? 'hidden' : context.opaqueDialog ? 'dialog' : racing ? 'race' : 'menu';
+    if (!this.pacer.shouldRender(now, racing, { ...context, hidden })) {
+      if (hidden || context.opaqueDialog) { this.frames = 0; this.fpsTime = now; this.lastCameraFrame = null; this.lastCameraId = ''; this.graphics.observeFps(0, false); }
+      return false;
+    }
+    if (!racing) this.graphics.observeFps(0, false);
     // Simulation dt is capped by the caller. Camera smoothing must follow the
     // actual frame interval, otherwise slow rendering leaves it behind the kart.
     const cameraElapsed = this.lastCameraFrame === null ? dt : (now - this.lastCameraFrame) / 1000;
     const cameraDt = Math.max(0, Math.min(0.5, cameraElapsed));
     this.lastCameraFrame = now;
     // Re-anchor after an inactive tab instead of sweeping across an old position.
-    if (cameraElapsed > 0.5) this.lastCameraId = '';
+    if (cameraElapsed > 0.5) { this.lastCameraId = ''; this.frames = 0; this.fpsTime = now; }
     const eventStage = world?.eventStage ?? 0, eventLevel = world?.eventLevel ?? 3;
     const openingsChanged = eventStage !== this.eventStage || eventLevel !== this.eventLevel;
     this.eventStage = eventStage; this.eventLevel = eventLevel;
@@ -496,14 +540,8 @@ export class GameRenderer {
     this.frames++;
     if (now - this.fpsTime >= 1000) {
       this.fps = this.frames * 1000 / (now - this.fpsTime); this.frames = 0; this.fpsTime = now;
-      this.slowSeconds = this.fps < 20 ? this.slowSeconds + 1 : 0;
-      if (this.slowSeconds >= 3 && this.quality === 'standard') {
-        this.quality = 'light';
-        this.renderer.setPixelRatio(Math.min(devicePixelRatio, 0.8));
-        this.renderer.shadowMap.enabled = false;
-        for (const material of materials.values()) material.needsUpdate = true;
-        this.resize();
-      }
+      // A deliberately capped menu must never look like a slow GPU to Auto.
+      if (this.graphics.observeFps(this.fps, racing)) this.applyQuality();
     }
     const ids = new Set(players.map(p => p.id));
     for (const [id, visual] of this.karts) if (!ids.has(id)) { this.removeKart(visual); this.karts.delete(id); }
@@ -602,6 +640,8 @@ export class GameRenderer {
     }
     this.trackEvents.updateCamera(this.camera);
     this.renderer.render(this.scene, this.camera);
+    this.renderedFrames++;
+    return true;
   }
 
   private renderObjects(world: World | null, now: number) {

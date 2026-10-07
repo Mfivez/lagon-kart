@@ -64,3 +64,8 @@ La documentation netcode actuelle expose des API propres à Colyseus 0.18 (`Pred
 **Go kart — Poly by Google**, [source](https://poly.pizza/m/3hkutVs0AAV), and **Kart — Ben Harrison**, [source](https://poly.pizza/m/bKDlM4mH7rg), under [CC BY 3.0 Unported](https://creativecommons.org/licenses/by/3.0/). Adapted as Sprint and Rétro: orientation, scale, component-based wheel separation, pivots, GLB hierarchy, materials and animation. Original files, provenance and license texts are retained in `assets/sources/poly-google/` and `assets/sources/ben-harrison/`. No endorsement is implied. [Inspection and preparation](docs/KART_MODELS.md).
 
 The cartoon characters and their vehicle accessories are original procedural geometry; they do not use additional external assets. [Character details](docs/CHARACTERS.md).
+
+## Invitations par QR code
+
+- `qrcode-generator` **2.0.4**, Kazuhiko Arase, licence **MIT** : [dépôt officiel](https://github.com/kazuhikoarase/qrcode-generator), [licence](https://github.com/kazuhikoarase/qrcode-generator/blob/master/LICENSE). Génération locale dans le navigateur ; aucune API, aucun CDN, aucune dépendance transitive. Texte de licence distribué dans `client/public/licenses.txt`.
+- `jsqr` **1.4.0**, licence **Apache-2.0** : [décodeur officiel](https://github.com/cozmo/jsQR). Outil de test uniquement, utilisé pour décoder réellement les QR générés ; absent du client distribué.

@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "timestamp": "2026-10-07T19:55:02.430649+00:00",
+  "command": "npm test",
+  "exitCode": 0,
+  "tests": 426,
+  "suites": 0,
+  "pass": 426,
+  "fail": 0,
+  "cancelled": 0,
+  "skipped": 0,
+  "todo": 0,
+  "duration_ms": 135856.465183,
+  "scope": "Full simulation, authoritative Colyseus, accounts, persistence, circuits, tournaments, queue cancellation, private previews, module editing and graphics policies. Browser and physical-device checks are separate."
+}

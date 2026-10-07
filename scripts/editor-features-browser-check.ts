@@ -7,7 +7,7 @@ import { createGameServer } from '../server/app.js';
 import type { StoredCustomTrack } from '../shared/custom-tracks.js';
 import type { World } from '../shared/game.js';
 
-const destination = resolve('docs/editor-features'); await mkdir(destination, { recursive: true });
+const destination = resolve(process.env.REPORT_DIR ?? 'docs/editor-features'); await mkdir(destination, { recursive: true });
 const directory = await mkdtemp(join(tmpdir(), 'lagon-editor-features-'));
 process.env.PLAYER_DATA_DIR = join(directory, 'players'); process.env.CUSTOM_TRACK_DATA_DIR = join(directory, 'tracks');
 const { gameServer, httpServer, ready } = createGameServer(resolve('dist/client')); await ready; await gameServer.listen(0, '127.0.0.1');
@@ -31,9 +31,18 @@ async function open(page: Page) {
 }
 async function field(page: Page, selector: string, value: string) { await page.locator(selector).fill(value); await page.locator(selector).press('Tab'); }
 async function section(page: Page, id: string) { if (!await page.locator(id).getAttribute('open').then(value => value !== null)) await page.locator(`${id} > summary`).click(); }
-async function capture(page: Page, name: string) { await page.screenshot({ path: join(destination, name), timeout: 20000 }); captures.push(name); }
+async function capture(page: Page, name: string) {
+  // Capture the real viewport: the paused canvas beneath an opaque editor can
+  // leave Playwright's compositor screenshot waiting under SwiftShader.
+  const cdp = await page.context().newCDPSession(page); let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const result = await Promise.race([cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false, fromSurface: false }),
+      new Promise<never>((_, reject) => { timer = setTimeout(() => reject(Error('Capture viewport : délai de 35 s dépassé')), 35000); })]);
+    await writeFile(join(destination, name), Buffer.from(result.data, 'base64')); captures.push(name);
+  } finally { clearTimeout(timer); await cdp.detach(); }
+}
 async function allTracks(): Promise<StoredCustomTrack[]> { return (await fetch(`${origin}/api/tracks`).then(response => response.json()) as { tracks: StoredCustomTrack[] }).tracks; }
-async function save(page: Page) { await page.locator('#editor-save').click(); await until(async () => /Circuit sauvegardé/.test(await page.locator('#editor-status').innerText()), 'Confirmation de sauvegarde'); }
+async function save(page: Page) { await page.locator('#editor-save').click(); await until(async () => /Circuit publié/.test(await page.locator('#editor-status').innerText()), 'Confirmation de publication explicite'); }
 const feature = (group: string, index: number, name: string) => `[data-group="${group}"][data-index="${index}"][data-feature-field="${name}"]`;
 try {
   const html = await fetch(origin).then(response => response.text()); evidence.clientAssets = [...html.matchAll(/(?:src|href)="([^"]*assets[^"]+)"/g)].map(match => match[1]);
@@ -65,7 +74,7 @@ try {
   assert.match(await host.locator('#editor-status').innerText(), /tour|événement/i);
   await field(host, '#editor-laps', '6'); assert.equal(await host.locator('#editor-save').isEnabled(), true);
   record('Six tours, pont, tremplin, looping et événements aux tours1/4/5 ajoutés par UI ; suppression/annuler/rétablir et validation de tour hors course.');
-  await host.locator('#editor-close').click(); await host.locator('[data-action="pending-confirm"]').click();
+  await host.locator('#editor-close').click(); await host.locator('#track-editor-dialog').waitFor({ state: 'hidden' });
   await host.reload({ waitUntil: 'domcontentloaded' }); await host.locator('#track-editor-button').click();
   assert.equal(await host.locator('#editor-laps').inputValue(), '6');
   await section(host, '#editor-relief-options'); await section(host, '#editor-event-options');
@@ -79,15 +88,23 @@ try {
   record('Brouillon rechargé intact ; options relues dans l’API et dans le fichier de révision du répertoire data privé.');
   await host.locator('[data-feature-card="loops-0"]').scrollIntoViewIfNeeded(); await capture(host, 'editor-features-desktop.png');
   await host.locator('#editor-event-options > summary').scrollIntoViewIfNeeded(); await capture(host, 'editor-events-desktop.png');
+  const catalogueBeforeTrial = await allTracks();
   await host.locator('#editor-try').click(); await until(async () => (await state(host)).world?.phase === 'racing', 'Essai du circuit enrichi');
-  const trial = await state(host); assert.equal(trial.world?.trackId, `${saved.id}-v2`);
-  assert.match(await host.locator('.lap-card').innerText(), /6/);
-  await host.keyboard.down('ArrowUp'); await pause(2200); await host.keyboard.up('ArrowUp');
-  const driven = await state(host); const kart = driven.world?.players.find(player => player.id === driven.sessionId); assert.ok(kart && kart.speed > 0);
-  evidence.trial = { trackId: driven.world?.trackId, speed: kart.speed, lapCounter: await host.locator('.lap-card').innerText() };
+  const trial = await state(host); assert.match(trial.world?.trackId ?? '', /^custom-private-/);
+  assert.equal(trial.world?.workshop?.selection.group, 'track'); assert.equal(await host.locator('#lap').innerText(), 'LIBRE');
+  const initialKart = trial.world?.players.find(player => player.id === trial.sessionId); assert.ok(initialKart);
+  await host.keyboard.down('ArrowUp');
+  try {
+    await until(async () => { const driven = await state(host), kart = driven.world?.players.find(player => player.id === driven.sessionId);
+      return !!kart && kart.speed > 1 && Math.hypot(kart.x-initialKart.x, kart.z-initialKart.z) > 1; }, 'Déplacement normal du brouillon privé');
+    const driven = await state(host), kart = driven.world!.players.find(player => player.id === driven.sessionId)!;
+    evidence.trial = { trackId: driven.world?.trackId, speed: kart.speed, distance: Math.hypot(kart.x-initialKart.x, kart.z-initialKart.z), lapCounter: await host.locator('#lap').innerText() };
+  } finally { await host.keyboard.up('ArrowUp'); }
   await capture(host, 'editor-features-trial.png');
   await host.locator('#leave-button').click(); await host.locator('#track-editor-dialog').waitFor({ state: 'visible' });
-  record('Vraie course d’essai : circuit enrichi chargé, compteur sur6tours, accélération normale et retour à l’éditeur.');
+  assert.deepEqual(await allTracks(), catalogueBeforeTrial, 'the trial keeps the published catalogue unchanged');
+  assert.deepEqual(JSON.parse(await readFile(join(directory, 'tracks', `${saved.id}-v2.json`), 'utf8')), disk);
+  record('Atelier privé : brouillon enrichi chargé, essai libre, accélération normale et retour à l’éditeur ; publication et fichier v2 inchangés.');
 
   const mobile = await browser.newContext({ viewport: { width: 320, height: 568 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1 });
   const guest = await mobile.newPage(); await open(guest); await guest.locator('#name-input').fill('Copie mobile'); await guest.locator('#track-editor-button').click();
@@ -117,7 +134,11 @@ try {
   const hostWorld = (await state(host)).world!, guestWorld = (await state(guest)).world!;
   assert.equal(hostWorld.trackId, `${saved.id}-v2`); assert.equal(guestWorld.trackId, hostWorld.trackId);
   evidence.shared = { hostTrackId: hostWorld.trackId, guestTrackId: guestWorld.trackId, playerCount: hostWorld.players.length };
-  record('Deux navigateurs de profils différents rejoignent le même salon sur la révision du circuit sauvegardé.');
+  await host.locator('#ready-button').click(); await guest.locator('#ready-button').tap(); await host.locator('#start-button').click();
+  await until(async () => (await state(host)).world?.phase === 'racing' && (await state(guest)).world?.phase === 'racing', 'Course partagée sur six tours');
+  assert.match(await host.locator('#lap').innerText(), /\/\s*6/); assert.match(await guest.locator('#lap').innerText(), /\/\s*6/);
+  evidence.shared = { ...(evidence.shared as object), hostLap: await host.locator('#lap').innerText(), guestLap: await guest.locator('#lap').innerText() };
+  record('Deux profils dans la même course publiée v2 ; compteur /6 vérifié des deux côtés, distinct de l’essai privé libre.');
   await guest.locator('#leave-button').click(); await host.locator('#leave-button').click();
   await until(async () => (await fetch(`${origin}/healthz`).then(response => response.json()) as { rooms: number }).rooms === 0, 'Salons privés fermés');
   assert.deepEqual(errors, []);

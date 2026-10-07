@@ -1,0 +1,110 @@
+{
+  "origin": "https://yoga-unlikely-div-converted.trycloudflare.com",
+  "startedAt": "2026-10-07T20:01:50.619Z",
+  "checks": [
+    "Accueil 320 px avec vrai grade/MMR, QR HTTPS décodé, deuxième profil connecté et bouton Prêt fixe après défilement.",
+    "Deux pilotes conduisent réellement via HTTPS/WSS ; qualité Fluide choisie ; retour à l’accueil sans arrivée imposée.",
+    "Essai du brouillon non publié, retour éditeur intact, catalogue et MMR inchangés ; chunks servis par la même origine sans erreur."
+  ],
+  "errors": [],
+  "captures": [
+    "public-home-mobile-320.png",
+    "public-qr-desktop.png",
+    "public-lobby-mobile-320.png",
+    "public-driving-mobile-320.png",
+    "public-private-draft.png"
+  ],
+  "fixtures": [],
+  "healthBefore": {
+    "status": "ok",
+    "rooms": 1,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "catalogueBefore": [
+    [
+      "custom-08dda018-51ea-4019-bbb4-5e08a95b5af1",
+      2
+    ],
+    [
+      "custom-7a868adf-9f0b-43f0-a336-11f0ca43a03b",
+      2
+    ],
+    [
+      "custom-a5fa183b-257e-4a63-b983-d581bea62376",
+      1
+    ],
+    [
+      "custom-fa7c993a-0140-4d91-a5e8-35e4feb12f89",
+      1
+    ],
+    [
+      "custom-26140903-573d-4b02-9da7-ec4c8d589058",
+      1
+    ]
+  ],
+  "grade": {
+    "server": "Bronze",
+    "displayed": "Bronze",
+    "mmr": 800
+  },
+  "roomId": "8LTRT9",
+  "qrDecoded": "https://yoga-unlikely-div-converted.trycloudflare.com/room/8LTRT9",
+  "movement": [
+    {
+      "name": "Démo Couronne 1",
+      "progress": -1.7768545578759358,
+      "speed": 13.199999999999994
+    },
+    {
+      "name": "Démo Couronne 2",
+      "progress": 4.639493817574977,
+      "speed": 13.048936426383479
+    }
+  ],
+  "quality": "light",
+  "previewTrackId": "custom-private-6c255174-6622-449e-b75b-f64530841366-v1",
+  "catalogueAfter": [
+    [
+      "custom-08dda018-51ea-4019-bbb4-5e08a95b5af1",
+      2
+    ],
+    [
+      "custom-7a868adf-9f0b-43f0-a336-11f0ca43a03b",
+      2
+    ],
+    [
+      "custom-a5fa183b-257e-4a63-b983-d581bea62376",
+      1
+    ],
+    [
+      "custom-fa7c993a-0140-4d91-a5e8-35e4feb12f89",
+      1
+    ],
+    [
+      "custom-26140903-573d-4b02-9da7-ec4c8d589058",
+      1
+    ]
+  ],
+  "healthAfter": {
+    "status": "ok",
+    "rooms": 1,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "chunks": [
+    "https://yoga-unlikely-div-converted.trycloudflare.com/assets/index-DNUBohE_.js",
+    "https://yoga-unlikely-div-converted.trycloudflare.com/assets/invitation-qr-DsiXEY4X.js"
+  ],
+  "websockets": [
+    "wss://yoga-unlikely-div-converted.trycloudflare.com/Vc9GbjYtc/8LTRT9?sessionId=fWOto-Yd-",
+    "wss://yoga-unlikely-div-converted.trycloudflare.com/Vc9GbjYtc/8LTRT9?sessionId=QWRWbP52m",
+    "wss://yoga-unlikely-div-converted.trycloudflare.com/Vc9GbjYtc/B3HM4Q?sessionId=xRhbkYuEU"
+  ],
+  "passed": true,
+  "finishedAt": "2026-10-07T20:03:00.603Z"
+}

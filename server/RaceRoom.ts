@@ -3,7 +3,7 @@ import { Room, ServerError, type Client } from '@colyseus/core';
 import { createKart, createWorld, neutralInput, startRace, stepWorld, validateInput,
   type Input, type Kart, type World } from '../shared/game.js';
 import { isTrackId, getTrack, trackPoint, trackElevation } from '../shared/track.js';
-import { isCustomTrackRuntimeId, customTrackRuntimeId, getTrackWorkshopStart, type TrackWorkshopSelection, type StoredCustomTrack } from '../shared/custom-tracks.js';
+import { isCustomTrackRuntimeId, customTrackRuntimeId, getTrackWorkshopStart, registerCustomTrackPreview, releaseCustomTrackPreview, validateCustomTrackDraft, type CustomTrackPreview, type TrackWorkshopSelection, type StoredCustomTrack } from '../shared/custom-tracks.js';
 import { customTrackStore, type CustomTrackStore } from './custom-track-store.js';
 import { DEFAULT_KART_MODEL, isKartModelId } from '../shared/kart-catalog.js';
 import { DEFAULT_CHARACTER, isCharacterId } from '../shared/characters.js';
@@ -59,17 +59,31 @@ export class RaceRoom extends Room {
   private readonly knownTracks = new Map<string, Set<string>>();
   private trackPayloadKey = '';
   private trackPayload: StoredCustomTrack[] = [];
+  private previewTrack?:CustomTrackPreview;
 
   static get roomCount() { return activeRoomIds.size; }
 
-  async onCreate(options: { practice?: boolean; trackId?: string; internalKey?: string; rankedPlayers?: string[]; rankedMatchId?: string; workshop?: TrackWorkshopSelection } = {}) {
+  async onCreate(options: { practice?: boolean; trackId?: string; internalKey?: string; rankedPlayers?: string[]; rankedMatchId?: string; workshop?: TrackWorkshopSelection; previewDraft?:unknown } = {}) {
     this.customStore = await customTrackStore();
-    const trackId = options.trackId ?? 'lagon';
-    if (!isTrackId(trackId) || isCustomTrackRuntimeId(trackId) && !this.customStore.get(trackId)) throw new ServerError(4216, 'Ce circuit est inconnu.');
-    const workshop = options.workshop === undefined ? undefined : getTrackWorkshopStart(trackId, options.workshop);
-    if (options.workshop !== undefined && (!workshop || options.practice !== true || options.rankedPlayers?.length)) throw new ServerError(4216, 'Choisissez un module existant pour un essai solo.');
     if (activeRoomIds.size >= config.maxRooms) {
       throw new ServerError(4210, 'Le serveur a atteint sa limite de salons. Réessayez plus tard.');
+    }
+    let trackId=options.trackId??'lagon';
+    let selection=options.workshop;
+    if(options.previewDraft!==undefined){
+      if(options.practice!==true||options.rankedPlayers?.length||options.rankedMatchId)throw new ServerError(4216,'Un brouillon se teste uniquement dans un atelier solo privé.');
+      if(Buffer.byteLength(JSON.stringify(options.previewDraft),'utf8')>32*1024)throw new ServerError(4216,'Le brouillon dépasse 32 Kio.');
+      const validation=validateCustomTrackDraft(options.previewDraft);
+      if(!validation.ok||!validation.draft)throw new ServerError(4216,validation.errors.join(' '));
+      this.previewTrack={id:`custom-private-${randomUUID()}-v1`,draft:validation.draft};
+      trackId=this.previewTrack.id;
+      registerCustomTrackPreview(this.previewTrack);
+      selection??={group:'track',index:0};
+    }else if(!isTrackId(trackId)||isCustomTrackRuntimeId(trackId)&&!this.customStore.get(trackId))throw new ServerError(4216,'Ce circuit est inconnu.');
+    const workshop=selection===undefined?undefined:getTrackWorkshopStart(trackId,selection);
+    if(selection!==undefined&&(!workshop||options.practice!==true||options.rankedPlayers?.length)){
+      if(this.previewTrack){releaseCustomTrackPreview(this.previewTrack.id);this.previewTrack=undefined;}
+      throw new ServerError(4216,'Choisissez un module existant pour un essai solo.');
     }
     let code: string;
     do {
@@ -80,7 +94,7 @@ export class RaceRoom extends Room {
     this.counted = true;
     this.world = createWorld(options.practice === true, trackId);
     this.world.eventLevel = 3;
-    if (workshop && options.workshop) this.world.workshop = { selection: structuredClone(options.workshop), label: workshop.label, startProgress: workshop.progress, endProgress: workshop.end, eventStage: workshop.eventStage };
+    if (workshop && selection) this.world.workshop = { selection: structuredClone(selection), label: workshop.label, startProgress: workshop.progress, endProgress: workshop.end, eventStage: workshop.eventStage };
     if (options.internalKey === INTERNAL_ROOM_KEY && options.rankedPlayers?.length) {
       this.rankedPlayers = [...options.rankedPlayers];
       this.rankedMatchId = options.rankedMatchId ?? '';
@@ -102,7 +116,7 @@ export class RaceRoom extends Room {
     this.onMessage('tracksReady', (client, data) => {
       if (!this.authorize(client) || !Array.isArray(data?.ids) || data.ids.length > 16) return;
       const known = this.knownTracks.get(client.sessionId) ?? new Set<string>();
-      for (const id of data.ids) if (typeof id === 'string' && this.customStore.get(id)) known.add(id);
+      for (const id of data.ids) if (typeof id === 'string' && (this.customStore.get(id)||id===this.previewTrack?.id)) known.add(id);
       this.knownTracks.set(client.sessionId, known);
     });
     this.onMessage('ready', (client, data) => {
@@ -247,6 +261,7 @@ export class RaceRoom extends Room {
   }
 
   onDispose() {
+    if(this.previewTrack){releaseCustomTrackPreview(this.previewTrack.id);this.previewTrack=undefined;}
     if (this.rankedMatchId) rankedQueue.releaseMatch(this.rankedMatchId);
     for (const id of this.rankedPlayers) activeRankedPlayers.delete(id);
     if (this.counted) activeRoomIds.delete(this.roomId);
@@ -594,7 +609,8 @@ export class RaceRoom extends Room {
       const tracks = this.trackPayload.filter(record => !known?.has(customTrackRuntimeId(record)));
       // Repeat definitions until acknowledged: the first message can precede the
       // client's subscription, especially when joining or restoring a session.
-      client.send('snapshot', tracks.length ? { ...snapshot, tracks } : snapshot);
+      const previewTrack=this.previewTrack&&!known?.has(this.previewTrack.id)?this.previewTrack:undefined;
+      client.send('snapshot', { ...snapshot,...(tracks.length?{tracks}:{}),...(previewTrack?{previewTrack}:{}) });
     }
   }
 

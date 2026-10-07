@@ -25,6 +25,11 @@ export type DriveablePosition = ReturnType<typeof nearestTrack> & {
 };
 const layouts = new Map<string, { branches: TrackBranch[]; blocker: TrackBlocker }>();
 const events = new Map<string, TrackEventInfo>();
+/** Preview rooms release every derived phase together with their definition. */
+export function clearTrackEventCache(trackId:string):void {
+  layouts.delete(trackId);
+  for(const key of events.keys())if(key.startsWith(trackId+':'))events.delete(key);
+}
 const clampLevel = (value: number): EventLevel => Math.max(0, Math.min(3, Math.floor(Number.isFinite(value) ? value : 0))) as EventLevel;
 const clampStage = (value: number): EventStage => Math.max(0, Math.min(2, Math.floor(Number.isFinite(value) ? value : 0))) as EventStage;
 

@@ -16,10 +16,11 @@ async function open(page: Page) {
   page.on('pageerror', error => errors.push(error.message));
   await page.goto(origin, { waitUntil: 'domcontentloaded', timeout: 40_000 });
   await page.waitForFunction(() => !!(window as unknown as { __lagonDebug?: unknown }).__lagonDebug);
+  if (await page.locator('#home-ranked').count()) await page.locator('[data-ranked-mmr]').filter({ hasText: /MMR/ }).waitFor();
 }
 async function layout(page: Page) {
   return page.evaluate(() => {
-    const ids = ['name-input', 'create-button', 'join-button', 'practice-button', 'track-editor-button', 'career-button'];
+    const ids = ['name-input', 'home-ranked', 'home-ranked-action', 'create-button', 'join-button', 'practice-button', 'track-editor-button', 'career-button'].filter(id => document.getElementById(id));
     const menu = document.getElementById('menu')!;
     return { viewport: { width: innerWidth, height: innerHeight }, scrollHeight: menu.scrollHeight,
       actions: ids.map(id => { const element = document.getElementById(id)!; const r = element.getBoundingClientRect();
@@ -27,7 +28,17 @@ async function layout(page: Page) {
       title: { right: document.querySelector('h1')!.getBoundingClientRect().right, text: document.querySelector('h1')!.innerText } };
   });
 }
-async function capture(page: Page, name: string) { await page.screenshot({ path: resolve(destination, name), timeout: 20_000 }); }
+async function capture(page: Page, name: string) {
+  const session = await page.context().newCDPSession(page);
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const shot = await Promise.race([
+      session.send('Page.captureScreenshot', { format: 'png', fromSurface: false, captureBeyondViewport: false }),
+      new Promise<never>((_, reject) => { timeout = setTimeout(() => reject(new Error(`Capture timeout: ${name}`)), 35000); }),
+    ]);
+    await writeFile(resolve(destination, name), Buffer.from(shot.data, 'base64'));
+  } finally { clearTimeout(timeout); await session.detach(); }
+}
 try {
   const html = await fetch(origin).then(response => response.text());
   evidence.assets = [...html.matchAll(/(?:src|href)="([^"]*assets[^"]+)"/g)].map(match => match[1]);
@@ -37,6 +48,14 @@ try {
   await desktop.locator('#name-input').fill('Essai expérience');
   await desktop.locator('#create-button').click();
   await desktop.locator('#room-code').waitFor({ state: 'visible' });
+  if (process.env.VALIDATE_HOME === '1') {
+    const before = await desktop.locator('.lobby-ready-bar').boundingBox(); assert.ok(before);
+    await desktop.locator('.lobby-scroll').evaluate(element => { element.scrollTop = element.scrollHeight; });
+    const after = await desktop.locator('.lobby-ready-bar').boundingBox(); assert.deepEqual(after, before);
+    assert.ok(after.y >= 0 && after.y + after.height <= 900, 'Readiness stays in view');
+    await desktop.locator('.lobby-scroll').evaluate(element => { element.scrollTop = 0; });
+    evidence.fixedReadyBar = before;
+  }
   await capture(desktop, 'lobby-desktop.png');
   evidence.lobby = { text: (await desktop.locator('#lobby-panel').innerText()).slice(0, 3500) };
   await desktop.locator('#leave-button').click();
@@ -45,10 +64,28 @@ try {
 
   const mobileContext = await browser.newContext({ viewport: { width: 320, height: 568 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
   const mobile = await mobileContext.newPage(); await open(mobile);
-  evidence.mobileHome = await layout(mobile); await capture(mobile, 'home-mobile-320.png');
+  const mobileHome = await layout(mobile); evidence.mobileHome = mobileHome;
+  if (process.env.VALIDATE_HOME === '1') {
+    assert.ok(mobileHome.title.right <= 320, 'Title fits320');
+    for (const id of ['home-ranked', 'home-ranked-action', 'create-button', 'join-button', 'practice-button']) assert.ok(mobileHome.actions.find(action => action.id === id)?.initiallyInView, `${id} visible without scrolling`);
+  }
+  await capture(mobile, 'home-mobile-320.png');
   await mobile.locator('#practice-button').scrollIntoViewIfNeeded();
   evidence.scrollToPlay = await mobile.locator('#menu').evaluate(element => element.scrollTop);
   await capture(mobile, 'home-mobile-actions.png');
+  if (process.env.VALIDATE_HOME === '1') {
+    await mobile.locator('#create-button').tap();
+    await mobile.locator('#room-code').waitFor({ state: 'visible' });
+    const readyBefore = await mobile.locator('.lobby-ready-bar').boundingBox(); assert.ok(readyBefore);
+    await mobile.locator('.lobby-scroll').evaluate(element => { element.scrollTop = element.scrollHeight; });
+    const readyAfter = await mobile.locator('.lobby-ready-bar').boundingBox(); assert.deepEqual(readyAfter, readyBefore);
+    const footer = await mobile.locator('footer').boundingBox();
+    assert.ok(readyAfter.y >= 0 && readyAfter.y + readyAfter.height <= (footer?.y ?? 568), 'Mobile readiness stays above footer');
+    evidence.mobileReadyBar = readyAfter;
+    await capture(mobile, 'lobby-mobile-320.png');
+    await mobile.locator('#leave-button').tap();
+    await mobile.locator('#practice-button').waitFor({ state: 'visible' });
+  }
   await mobile.locator('#practice-button').tap();
   await mobile.waitForFunction(() => (window as unknown as { __lagonDebug?: { world?: { phase: string } } }).__lagonDebug?.world?.phase === 'racing');
   await pause(2000); await capture(mobile, 'race-mobile-320.png');

@@ -1,0 +1,63 @@
+/* Imported after style.css. Keep the centre of the road free on small phones. */
+.graphics-setting{display:flex;align-items:center;gap:6px;pointer-events:auto;color:#315c58;font-size:10px;font-weight:750}
+.graphics-setting select{width:100px;min-height:44px;border:1px solid #b8cdbb;border-radius:10px;background:#fff9e9;color:#23494b;padding:5px 8px;font:inherit;cursor:pointer}
+.graphics-help{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media(max-width:680px){.graphics-setting{gap:0}.graphics-setting>span:first-child{display:none}.graphics-setting select{width:100px;font-size:16px}}
+
+body.touch-device .touch-settings .touch-auto{width:145px;min-width:145px;flex-direction:column;gap:0;padding:4px 8px;line-height:1.2}
+body.touch-device .touch-settings .touch-auto>span{font-size:10px;letter-spacing:0;font-weight:600}
+body.touch-device .touch-settings .touch-auto>strong{font-size:12px;font-weight:850}
+body.touch-device .touch-settings .touch-reset{width:46px;min-width:46px;margin-left:auto;padding:0;font-size:22px}
+body.touch-device .touch-settings .touch-reset>span{display:none}
+body.touch-device .touch-settings .touch-resume{position:absolute;top:-52px;left:50%;transform:translateX(-50%)!important;min-width:100px;padding:0 7px;font-size:10px}
+body.touch-device .touch-caption{font-size:7px;letter-spacing:0}
+body.touch-device .touch-controls button:focus-visible{outline:3px solid #fff1b9;outline-offset:2px}
+.driving-help{position:fixed;right:30px;top:94px;z-index:13;min-width:44px;min-height:44px;border:1px solid #eaf9f371;border-radius:12px;background:#153c49e6;color:#fff8e2;font-size:20px;font-weight:850;touch-action:manipulation}
+body.touch-device .driving-help{top:auto;bottom:calc(max(12px,env(safe-area-inset-bottom)) + 140px);right:calc(max(12px,env(safe-area-inset-right)) + 54px)}
+@media(max-width:350px){body.touch-device .driving-help{right:calc(max(10px,env(safe-area-inset-right)) + 54px)}}
+.driving-help-dialog{width:min(490px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto;padding:20px;font-size:13px;line-height:1.55}
+.driving-help-dialog .garage-heading{gap:8px}.driving-help-dialog .garage-heading h2{font-size:24px}
+.driving-help-dialog button{min-height:44px;cursor:pointer}.driving-help-warning{background:#fff0c3;border:1px solid #e1c685;border-radius:8px;padding:9px;font-weight:750}
+.driving-mode-options{border:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.driving-mode-options legend{font-weight:800;margin-bottom:7px}.driving-mode-options button{background:#e3ebdf;color:#23494b;border:1px solid #b8cdbb;border-radius:9px;padding:8px;font-size:12px;font-weight:750}
+.driving-mode-options button[aria-pressed=true]{background:#23494b;color:#fff9df;border-color:#23494b}
+.driving-help-dialog dt{font-weight:800;margin-top:10px}.driving-help-dialog dd{margin:3px 0 0;color:#526d68}
+body.touch-device.in-race .race-top{top:calc(max(8px,env(safe-area-inset-top)) + 48px);gap:7px;padding:6px 7px}
+body.touch-device.in-race .position-card>strong{font-size:29px;letter-spacing:-1.5px}
+body.touch-device.in-race .position-card>strong>span{font-size:12px}
+body.touch-device.in-race .position-card>span{font-size:5px;letter-spacing:.3px}
+body.touch-device.in-race .lap-card{padding-left:7px}
+body.touch-device.in-race .lap-card>strong{font-size:19px}
+body.touch-device.in-race .lap-card>span{font-size:7px!important}
+body.touch-device.in-race .minimap-card{top:calc(max(8px,env(safe-area-inset-top)) + 48px);width:75px;padding:3px;border-radius:9px}
+body.touch-device.in-race .minimap-card canvas{width:67px;height:50px}
+body.touch-device.in-race .speed-card{top:calc(max(8px,env(safe-area-inset-top)) + 52px);bottom:auto;left:54%;min-width:64px;width:64px;transform:translateX(-50%);padding:3px 0;text-shadow:0 1px 4px #183b43}
+body.touch-device.in-race .speed-card strong{font-size:23px;letter-spacing:-1px}
+body.touch-device.in-race .speed-card>div:first-child{gap:2px}
+body.touch-device.in-race .speed-card>div>span{font-size:5px;letter-spacing:0}
+body.touch-device.in-race .boost-meter{width:57px;height:3px;margin:3px auto;background:#163b4370}
+body.touch-device.in-race .speed-card>span{display:none}
+body.touch-device.in-race .event-banner{top:calc(max(8px,env(safe-area-inset-top)) + 113px);font-size:8px;padding:5px 8px;border-radius:7px}
+body.touch-device.in-race .race-banner{top:calc(max(8px,env(safe-area-inset-top)) + 140px);font-size:9px;padding:7px 9px}
+body.touch-device.in-race .race-feedback{top:calc(max(8px,env(safe-area-inset-top)) + 145px);bottom:auto}
+body.touch-device.in-crown #crown-status{top:calc(max(8px,env(safe-area-inset-top)) + 112px);max-width:calc(100% - 24px);font-size:9px;padding:6px 8px}
+body.touch-device.in-crown .event-banner{top:calc(max(8px,env(safe-area-inset-top)) + 151px)}
+body.touch-device.in-crown .race-feedback{top:calc(max(8px,env(safe-area-inset-top)) + 181px)}
+body.touch-device.in-workshop .workshop-controls{top:calc(max(8px,env(safe-area-inset-top)) + 110px)}
+body.touch-device.in-workshop .event-banner{top:calc(max(8px,env(safe-area-inset-top)) + 170px)}
+
+@media(orientation:landscape) and (max-height:500px){
+  body.touch-device .touch-settings .touch-resume{position:absolute;left:50%;transform:translateX(-50%)!important;min-width:100px}
+  body.touch-device .driving-help{bottom:calc(max(8px,env(safe-area-inset-bottom)) + 124px);right:calc(max(16px,env(safe-area-inset-right)) + 54px)}
+  body.touch-device .touch-settings .touch-auto{width:145px;min-width:145px}
+  body.touch-device.in-race .race-top{top:calc(max(8px,env(safe-area-inset-top)) + 44px)}
+  body.touch-device.in-race .minimap-card{top:calc(max(8px,env(safe-area-inset-top)) + 43px)}
+  body.touch-device.in-race .speed-card{top:auto;bottom:max(10px,env(safe-area-inset-bottom));left:50%;width:90px}
+  body.touch-device.in-race .event-banner{top:calc(max(8px,env(safe-area-inset-top)) + 49px);max-width:calc(100% - 320px)}
+  body.touch-device.in-race .race-banner{top:calc(max(8px,env(safe-area-inset-top)) + 77px);max-width:calc(100% - 300px)}
+  body.touch-device.in-race .race-feedback{top:calc(max(8px,env(safe-area-inset-top)) + 107px);max-width:calc(100% - 300px)}
+  body.touch-device.in-crown #crown-status{top:calc(max(8px,env(safe-area-inset-top)) + 78px);max-width:calc(100% - 300px)}
+  body.touch-device.in-crown .race-feedback{top:calc(max(8px,env(safe-area-inset-top)) + 124px)}
+  body.touch-device.in-workshop .workshop-controls{top:calc(max(8px,env(safe-area-inset-top)) + 80px)}
+  body.touch-device.in-workshop .event-banner{top:calc(max(8px,env(safe-area-inset-top)) + 49px)}
+}

@@ -1,5 +1,6 @@
 import { isTrackId } from '../shared/track';
 import { customTrackRuntimeId, registerCustomTrack, type CustomTrackDraft, type StoredCustomTrack } from '../shared/custom-tracks';
+export {registerCustomTrackPreview,releaseCustomTrackPreview,type CustomTrackPreview} from '../shared/custom-tracks';
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(path, { ...options, signal: AbortSignal.timeout(20000) });

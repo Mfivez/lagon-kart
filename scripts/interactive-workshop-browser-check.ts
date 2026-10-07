@@ -76,7 +76,7 @@ try{
     await field(page,feature(index!,'width'),'16');await field(page,feature(index!,'activeSeconds'),'10');
   }
   await field(page,feature(1,'height'),'2');await field(page,feature(1,'launchSpeed'),'9');
-  await page.locator('#editor-save').click();await until(async()=>/Circuit sauvegardé/.test(await page.locator('#editor-status').innerText()),'Sauvegarde UI');
+  await page.locator('#editor-save').click();await until(async()=>/Circuit publié/.test(await page.locator('#editor-status').innerText()),'Publication UI explicite');
   const record=(await records()).find(item=>item.draft.name==='L’atelier des plaques');assert.ok(record);assert.equal(record.draft.interactions?.length,2);
   assert.deepEqual(JSON.parse(await readFile(join(directory,'tracks',`${record.id}-v1.json`),'utf8')).draft,record.draft);
   evidence.source={id:record.id,revision:record.revision,interactions:record.draft.interactions};
@@ -85,7 +85,7 @@ try{
   mark('Plaque turbo et plaque tremplin créées et configurées uniquement par UI ; source API et fichier privé identiques.');
 
   await page.locator(tryButton(0)).click();await until(async()=>{const value=await state(page);return value.phase==='racing'&&value.workshop?.selection.index===0;},'Atelier turbo démarré');
-  const initial=await state(page);assert.ok(initial.kart&&initial.workshop);assert.equal(initial.players,1);assert.match(await page.locator('#workshop-title').innerText(),/Interrupteur 1/);
+  const initial=await state(page);assert.ok(initial.kart&&initial.workshop);assert.match(initial.trackId,/^custom-private-/);assert.equal(initial.players,1);assert.match(await page.locator('#workshop-title').innerText(),/Interrupteur 1/);
   const turbo=await drive(page,value=>value.kart!.boost>0&&value.interactions.some(item=>value.time>=item.activeAt&&value.time<item.expiresAt),'turbo temporaire');
   assert.ok(turbo.active&&turbo.maxSpeed>5);evidence.turbo=turbo;await capture(page,'workshop-shared-turbo.png');
   await page.locator('#workshop-restart').click();await until(async()=>{const value=await state(page);return !!value.kart&&Math.hypot(value.kart.x-initial.kart!.x,value.kart.z-initial.kart!.z)<.1&&value.interactions.length===0;},'Retour à la même approche et réarmement');
@@ -101,7 +101,8 @@ try{
   await drive(page,value=>!value.kart!.airborne&&value.kart!.progress>jump.state.kart!.progress+5,'réception du tremplin');
   await page.locator('#leave-button').click();await page.locator('#track-editor-dialog').waitFor({state:'visible'});
   const after=await progression(page);assert.deepEqual(after,before);evidence.progressionAfter=after;
-  assert.equal((await records()).length,1);assert.equal((await records())[0]!.revision,1,'tries do not publish duplicate revisions');
+  assert.equal((await records()).length,1);assert.equal((await records())[0]!.revision,1,'private trials never publish another revision');
+  assert.deepEqual((await records())[0]!.draft,record.draft,'the explicit publication remains unchanged during the private trials');
   mark('Impulsion active réelle et réception observées ; aucune progression, statistique, MMR ni replay modifiés après les séances.');
 
   await desktop.close();

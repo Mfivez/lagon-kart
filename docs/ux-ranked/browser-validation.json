@@ -1,0 +1,62 @@
+{
+  "origin": "http://127.0.0.1:36419",
+  "executedAt": "2026-10-07T14:56:25.139Z",
+  "checks": [
+    "Accueil : grade et MMR serveur, chargement réel sans classement inventé, carte lisible sur mobile 320 px.",
+    "Recherche unique continue après fermeture du menu ; annulation réelle, erreur récupérable et annulation avant un salon libre.",
+    "QR du canvas réellement décodé puis lien ouvert par le second profil ; copie locale et contrat de partage natif vérifiés.",
+    "Entrer dans l’éditeur annule aussi la recherche serveur avant d’ouvrir l’atelier.",
+    "Deux profils appariés par la vraie file, même salon classé et départ ; après résultat privé déclaré, le MMR serveur actualise l’accueil.",
+    "Déconnexion retire l’ancien classement ; connexion au compte rétablit le MMR sauvegardé sans recharger la page."
+  ],
+  "errors": [],
+  "captures": [
+    "home-ranked-mobile-320.png",
+    "home-ranked-search.png",
+    "invitation-qr-desktop.png",
+    "invitation-qr-mobile-320.png",
+    "home-ranked-updated.png"
+  ],
+  "assets": [
+    "/assets/index-C8l90P50.js",
+    "/assets/index-D0i0Td0K.css"
+  ],
+  "mobileHomeBoxes": {
+    "home-ranked": {
+      "x": 12,
+      "y": 180.890625,
+      "width": 296,
+      "height": 115.390625
+    },
+    "create-button": {
+      "x": 12,
+      "y": 304.28125,
+      "width": 144,
+      "height": 44
+    },
+    "join-button": {
+      "x": 156.15625,
+      "y": 356.28125,
+      "width": 151.84375,
+      "height": 44
+    },
+    "practice-button": {
+      "x": 164,
+      "y": 304.28125,
+      "width": 144,
+      "height": 44
+    }
+  },
+  "qrDecoded": "http://127.0.0.1:36419/room/U7A4JB",
+  "result": {
+    "mmr": 780,
+    "rank": "Bronze"
+  },
+  "passed": true,
+  "fixtures": [
+    "Profil temporaire et serveur isolés dans /tmp.",
+    "GET profil retenu et POST recherche 503 intercepté pour états chargement/erreur.",
+    "navigator.share simulé uniquement pour son contrat ; pas de panneau système natif dans Chromium headless.",
+    "Arrivée classée privée raccourcie : horloge 60 s puis pilotes finis ; calcul MMR et actualisation restent serveur/client réels. Aucun classement public modifié."
+  ]
+}

@@ -55,7 +55,7 @@ export class TouchDriveState {
 export const mobileControlsMarkup = `
   <section class="touch-controls hidden" id="touch-controls" aria-label="Commandes tactiles de course">
     <div class="touch-settings">
-      <button class="touch-auto" id="touch-auto" type="button" aria-pressed="true" aria-label="Accélération automatique">AUTO <span>ON</span></button>
+      <button class="touch-auto" id="touch-auto" type="button" aria-pressed="true" aria-label="Accélération automatique. Appuyer pour passer en conduite manuelle."><span>Accélération</span><strong>automatique</strong></button>
       <button class="touch-resume hidden" id="touch-resume" type="button">Reprendre</button>
       <button class="touch-reset" data-touch="reset" type="button" aria-label="Replacer le kart sur la piste">↺ <span>REPLACER</span></button>
     </div>
@@ -66,7 +66,8 @@ export const mobileControlsMarkup = `
       <button class="touch-brake" data-touch="brake" type="button" aria-label="Freiner, puis reculer en maintenant"><b aria-hidden="true">Ⅱ</b><span>FREIN / RECUL</span></button>
       <button class="touch-gas" data-touch="accelerate" type="button" aria-label="Accélérer, maintenir à la dernière seconde pour le départ turbo"><b aria-hidden="true">↑</b><span>ACCÉLÉRER</span></button>
     </div>
-  </section>`;
+  </section>
+  <button id="driving-help" class="driving-help hidden" type="button" aria-label="Aide : commandes de conduite" title="Commandes">?</button>`;
 
 export class MobileControls {
   readonly state = new TouchDriveState();
@@ -77,6 +78,7 @@ export class MobileControls {
   private readonly steer = document.getElementById('touch-steer')!;
   private readonly auto = document.getElementById('touch-auto')!;
   private readonly resume = document.getElementById('touch-resume')!;
+  private readonly help = document.getElementById('driving-help')!;
   constructor(private readonly activateAudio: () => void) {
     try { this.state.autoAccelerate = localStorage.getItem('lagon-touch-auto') !== 'false'; } catch { /* Storage may be unavailable in private browsing. */ }
     this.updatePreference();
@@ -88,11 +90,10 @@ export class MobileControls {
     };
     media.addEventListener('change', detect); detect();
     this.auto.addEventListener('click', () => {
-      this.state.autoAccelerate = !this.state.autoAccelerate;
-      try { localStorage.setItem('lagon-touch-auto', String(this.state.autoAccelerate)); } catch { /* Optional preference. */ }
-      this.updatePreference(); this.activateAudio();
+      this.setAutoAcceleration(!this.state.autoAccelerate); this.activateAudio();
     });
     this.resume.addEventListener('click', () => { this.state.suspended = false; this.paint(); this.activateAudio(); });
+    this.help.addEventListener('click', () => this.openHelp());
     for (const button of this.root.querySelectorAll<HTMLButtonElement>('[data-touch]')) {
       button.addEventListener('contextmenu', event => event.preventDefault());
       button.addEventListener('pointerdown', event => {
@@ -120,9 +121,39 @@ export class MobileControls {
     window.addEventListener('resize', () => { const next = innerWidth > innerHeight; if (next !== landscape) this.clear(true); landscape = next; });
   }
   private updatePreference() {
-    this.auto.setAttribute('aria-pressed', String(this.state.autoAccelerate));
-    this.auto.querySelector('span')!.textContent = this.state.autoAccelerate ? 'ON' : 'OFF';
-    this.root.classList.toggle('auto-accelerate', this.state.autoAccelerate);
+    const automatic = this.state.autoAccelerate;
+    this.auto.setAttribute('aria-pressed', String(automatic));
+    this.auto.querySelector('span')!.textContent = automatic ? 'Accélération' : 'Conduite';
+    this.auto.querySelector('strong')!.textContent = automatic ? 'automatique' : 'manuelle';
+    this.auto.setAttribute('aria-label', automatic ? 'Accélération automatique. Appuyer pour passer en conduite manuelle.' : 'Conduite manuelle. Appuyer pour activer l’accélération automatique.');
+    this.auto.title = automatic ? 'Le kart avance seul. Joystick pour tourner, ↓ pour freiner puis reculer.' : 'Joystick ↑ pour avancer, ↓ pour freiner puis reculer. Les pédales restent disponibles.';
+    this.root.querySelector('.touch-caption')!.textContent = automatic ? 'DIRIGEZ · ↓ FREIN / RECUL' : '↑ AVANCE · ↓ FREIN / RECUL';
+    this.root.classList.toggle('auto-accelerate', automatic);
+  }
+  setAutoAcceleration(enabled: boolean) {
+    // Changing mode is deliberate, but must not retain an old captured thumb
+    // or queued item edge from the previous mode.
+    this.clear(); this.state.autoAccelerate = enabled;
+    try { localStorage.setItem('lagon-touch-auto', String(enabled)); } catch { /* Optional preference. */ }
+    this.updatePreference();
+  }
+  private openHelp() {
+    this.clear(true);
+    const dialog = document.createElement('dialog'); dialog.id = 'driving-help-dialog'; dialog.className = 'garage-dialog driving-help-dialog';
+    dialog.setAttribute('aria-labelledby', 'driving-help-title');
+    dialog.innerHTML = `<div class="garage-heading"><h2 id="driving-help-title">Commandes</h2><button class="secondary" type="button" data-help-close>Fermer ✕</button></div>
+      <p class="driving-help-warning">La course continue pendant l’aide.</p>
+      <fieldset class="driving-mode-options"><legend>Votre conduite tactile</legend><button type="button" data-drive-mode="automatic">Accélération automatique</button><button type="button" data-drive-mode="manual">Conduite manuelle</button></fieldset>
+      <p>En automatique, le kart avance seul. En manuel, poussez le joystick vers le haut ou maintenez Accélérer.</p>
+      <dl><dt>Joystick</dt><dd>← → tourner · ↑ avancer · ↓ freiner, puis reculer. Les diagonales combinent les deux.</dd><dt>Drift + objet</dt><dd>Maintenez Drift dans un virage. Relâchez pour un mini-turbo. Touchez Objet une fois pour l’utiliser, même avec un autre doigt sur le joystick.</dd><dt>Replacer ↺</dt><dd>Revient au dernier passage validé si vous êtes bloqué.</dd><dt>Clavier</dt><dd>Flèches ou ZQSD / WASD · Espace : drift · E : objet · R : replacer.</dd></dl>
+      <p class="garage-hint">Après l’aide, touchez Reprendre ou une commande pour réactiver la conduite tactile.</p>`;
+    const paintModes = () => dialog.querySelectorAll<HTMLButtonElement>('[data-drive-mode]').forEach(button => button.setAttribute('aria-pressed', String((button.dataset.driveMode === 'automatic') === this.state.autoAccelerate)));
+    for (const button of dialog.querySelectorAll<HTMLButtonElement>('[data-drive-mode]')) button.addEventListener('click', () => {
+      this.setAutoAcceleration(button.dataset.driveMode === 'automatic'); this.clear(true); paintModes();
+    });
+    dialog.querySelector('[data-help-close]')!.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('close', () => { dialog.remove(); this.clear(true); });
+    document.body.append(dialog); paintModes(); dialog.showModal();
   }
   private updateSteer(event: PointerEvent) {
     if (this.state.pointers.get(event.pointerId) !== 'steer') return;
@@ -158,6 +189,7 @@ export class MobileControls {
     const active = driving && this.available;
     if (this.state.active !== active) { this.clear(); this.state.active = active; }
     this.root.classList.toggle('hidden', !active);
+    this.help.classList.toggle('hidden', !driving);
   }
   clear(suspend = false) {
     const held = [...this.pointerElements]; this.pointerElements.clear(); this.state.clear(suspend);

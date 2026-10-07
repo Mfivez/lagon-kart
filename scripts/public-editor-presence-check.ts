@@ -45,7 +45,16 @@ async function state(page:Page):Promise<State>{return limited(page.evaluate(()=>
 async function field(page:Page,selector:string,value:string){await page.locator(selector).fill(value);await page.locator(selector).press('Tab');}
 async function section(page:Page,id:string){if(await page.locator(id).getAttribute('open')===null)await page.locator(`${id}>summary`).click();}
 const feature=(group:string,index:number,name:string)=>`[data-group="${group}"][data-index="${index}"][data-feature-field="${name}"]`;
-async function capture(page:Page,name:string){await page.screenshot({path:`${output}/${name}`,timeout:20_000});captures.push(name);}
+async function capture(page: Page, name: string) {
+  // Capture the real viewport: the paused canvas beneath an opaque editor can
+  // leave Playwright's compositor screenshot waiting under SwiftShader.
+  const cdp = await page.context().newCDPSession(page); let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const result = await Promise.race([cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false, fromSurface: false }),
+      new Promise<never>((_, reject) => { timer = setTimeout(() => reject(Error('Capture viewport : délai de 35 s dépassé')), 35000); })]);
+    await writeFile(`${output}/${name}`, Buffer.from(result.data, 'base64')); captures.push(name);
+  } finally { clearTimeout(timer); await cdp.detach(); }
+}
 async function open(page:Page){page.setDefaultTimeout(25_000);page.on('pageerror',error=>errors.push(error.message));await page.goto(origin,{waitUntil:'domcontentloaded',timeout:40_000});await page.waitForFunction(()=>!!(window as unknown as {__lagonDebug?:unknown}).__lagonDebug,{},{timeout:40_000});}
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--disable-background-timer-throttling','--disable-renderer-backgrounding','--disable-backgrounding-occluded-windows','--disable-dev-shm-usage']});
 let ownerContext:BrowserContext|undefined,guestContext:BrowserContext|undefined,host:Page|undefined,guest:Page|undefined;
@@ -89,7 +98,7 @@ try{
     const publication=host.waitForResponse(response=>response.request().method()==='POST'&&new URL(response.url()).pathname==='/api/tracks',{timeout:30_000});
     await host.locator('#editor-save').click();const published=await publication;assert.equal(published.status(),201);
     journal.trackId=((await published.json()) as {track:SavedTrack}).track.id;await checkpoint();
-    await until(async()=>/Circuit sauvegardé/.test(await host!.locator('#editor-status').innerText()),'publication publique du circuit');
+    await until(async()=>/Circuit publié/.test(await host!.locator('#editor-status').innerText()),'publication publique du circuit');
   }
   const saved=(await request<{tracks:SavedTrack[]}>('/api/tracks')).tracks.find(track=>track.draft.name===title);assert.ok(saved);assert.equal(saved.authorId,ownerId);
   journal.trackId=saved.id;await checkpoint();const runtimeId=saved.runtimeId??`${saved.id}-v${saved.revision}`;
@@ -98,9 +107,12 @@ try{
   evidence.published={id:saved.id,runtimeId,revision:saved.revision,name:title,createdThisRun:!existing,draft:saved.draft};
   await host.locator('#editor-canvas').scrollIntoViewIfNeeded();await capture(host,'public-editor-modules.png');
   mark('Un seul exemple utile publié par UI : six tours, pont, tremplin, looping, pluie au tour2 et turbo au tour4 ; relecture API identique.');
-  await host.locator('#editor-close').click();await guest.locator('#track-refresh-button').click();
+  await host.locator('#editor-close').click();
+  if(!await guest.locator('#track-refresh-button').isVisible())await guest.locator('#choose-track-button').click();
+  await guest.locator('#track-refresh-button').click();
   await guest.locator(`[data-track="${runtimeId}"]`).waitFor();await guest.locator(`[data-track="${runtimeId}"]`).tap();
   assert.equal(await guest.locator(`[data-track="${runtimeId}"]`).getAttribute('aria-pressed'),'true');
+  if(!await host.locator(`[data-track="${runtimeId}"]`).isVisible())await host.locator('#choose-track-button').click();
   await host.locator(`[data-track="${runtimeId}"]`).click();await host.locator('#create-button').click();await until(async()=>(await state(host!)).phase==='lobby','salon public de démonstration');
   const roomCode=await host.locator('#room-code').innerText();evidence.roomCode=roomCode;
   await guest.locator('#code-input').fill(roomCode);await guest.locator('#join-button').tap();

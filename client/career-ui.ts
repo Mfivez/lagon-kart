@@ -2,7 +2,8 @@ import { CHAMPIONSHIPS, type PlayerProfile, type ReplaySummary, type ReplayData,
 import { getTrack } from '../shared/track';
 
 const escape = (value: string) => value.replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]!);
-type Actions = { championship(id: string): Promise<void>; ranked(roomId: string): Promise<void>; profile(profile: PlayerProfile): void; replay(replay: ReplayData): void; error(message: string): void };
+type Actions = { championship(id: string): Promise<void>; ranked(roomId: string): Promise<void>; profile(profile: PlayerProfile): void; replay(replay: ReplayData): void; error(message: string): void; canQueue?(): boolean; prepareRanked?(): Promise<unknown> };
+export interface RankedViewState { profile?: PlayerProfile; loading: boolean; state: 'idle' | 'loading' | 'searching' | 'matched' | 'cancelling' | 'error'; status: string }
 export class CareerUI {
   private token = localStorage.getItem('lagon-player-token') ?? '';
   private profile?: PlayerProfile;
@@ -14,11 +15,15 @@ export class CareerUI {
   private generation = 0;
   private waiting = false;
   private status = '';
+  private queueState: RankedViewState['state'] = 'idle';
+  private queueStart?: Promise<unknown>;
+  private cancelling?: Promise<void>;
+  private possiblyQueued = false;
+  private listeners = new Set<(state: RankedViewState) => void>();
   private leaderboard: LeaderboardEntry[] = [];
   private replays: ReplaySummary[] = [];
   constructor(private readonly actions: Actions) {
     this.dialog.id = 'career-dialog'; this.dialog.className = 'garage-dialog'; document.body.append(this.dialog);
-    this.dialog.addEventListener('close', () => { if (this.waiting) void this.cancelQueue(); });
     this.dialog.addEventListener('click', event => {
       const button = event.target instanceof Element ? event.target.closest<HTMLButtonElement>('button') : null;
       if (!button) return;
@@ -33,8 +38,12 @@ export class CareerUI {
   }
   get authToken() { return this.token; }
   get currentProfile() { return this.profile; }
+  get isSearching() { return this.waiting || this.queueState === 'matched' || this.queueState === 'cancelling'; }
+  get rankedState(): RankedViewState { return { profile: this.profile, loading: !this.restored && this.queueState !== 'error' || !!this.restorePending || !!this.pending, state: this.queueState, status: this.status }; }
+  subscribe(listener: (state: RankedViewState) => void) { this.listeners.add(listener); listener(this.rankedState); return () => this.listeners.delete(listener); }
+  private notify() { for (const listener of this.listeners) listener(this.rankedState); }
   private async request<T>(path: string, method = 'GET', body?: unknown): Promise<T> {
-    const response = await fetch(path, { method, headers: { ...(this.token ? { Authorization: `Bearer ${this.token}` } : {}), ...(body ? { 'Content-Type': 'application/json' } : {}) }, body: body ? JSON.stringify(body) : undefined });
+    const response = await fetch(path, { method, signal: AbortSignal.timeout(20000), headers: { ...(this.token ? { Authorization: `Bearer ${this.token}` } : {}), ...(body ? { 'Content-Type': 'application/json' } : {}) }, body: body ? JSON.stringify(body) : undefined });
     const result = await response.json();
     if (!response.ok) throw Object.assign(new Error(result.error ?? 'Service indisponible.'), { status: response.status });
     return result as T;
@@ -46,13 +55,14 @@ export class CareerUI {
       if (this.token) {
         try { this.profile = (await this.request<{ profile: PlayerProfile }>('/api/me')).profile; this.actions.profile(this.profile); }
         catch (error) {
-          if ((error as { status?: number }).status !== 401) throw error;
+          if ((error as { status?: number }).status !== 401) { this.queueState = 'error'; this.status = 'Profil indisponible. Réessayez la connexion.'; throw error; }
           this.token = ''; this.profile = undefined; localStorage.removeItem('lagon-player-token');
         }
       }
       this.restored = true; return this.profile;
     })();
-    try { return await this.restorePending; } finally { this.restorePending = undefined; }
+    this.notify();
+    try { return await this.restorePending; } finally { this.restorePending = undefined; this.notify(); }
   }
   async ensure(name: string, rename = false): Promise<PlayerProfile> {
     if (this.pending) return this.pending;
@@ -67,26 +77,30 @@ export class CareerUI {
       if (this.profile!.name !== name && (!this.profile!.username || rename)) this.profile = (await this.request<{ profile: PlayerProfile }>('/api/me', 'PATCH', { name })).profile;
       this.actions.profile(this.profile!); return this.profile!;
     })();
-    try { return await this.pending; } finally { this.pending = undefined; }
+    this.notify();
+    try { return await this.pending; } finally { this.pending = undefined; this.notify(); }
   }
   private async prepareIdentityChange() {
     await this.restore(); if (this.pending) await this.pending;
-    if (this.waiting) await this.cancelQueue();
-    ++this.generation; clearTimeout(this.timer); this.waiting = false; this.status = '';
+    if (this.isSearching || this.possiblyQueued || this.cancelling) await this.cancelQueue();
+    ++this.generation; clearTimeout(this.timer); this.waiting = false; this.status = ''; this.queueState = 'idle';
     this.dialog.close(); this.leaderboard = []; this.replays = [];
   }
   async account(mode: 'register' | 'login', username: string, password: string): Promise<PlayerProfile> {
     await this.prepareIdentityChange();
     const result = await this.request<{ token: string; profile: PlayerProfile }>(`/api/account/${mode}`, 'POST', { username, password });
-    this.token = result.token; this.profile = result.profile; this.restored = true;
-    localStorage.setItem('lagon-player-token', this.token); this.actions.profile(result.profile); return result.profile;
+    this.token = result.token; this.profile = result.profile; this.restored = true; this.possiblyQueued = false;
+    localStorage.setItem('lagon-player-token', this.token); this.actions.profile(result.profile); this.notify(); return result.profile;
   }
   async logout(): Promise<void> {
     await this.prepareIdentityChange();
     if (this.token) await this.request('/api/account/logout', 'POST');
-    this.token = ''; this.profile = undefined; this.restored = true; localStorage.removeItem('lagon-player-token');
+    this.token = ''; this.profile = undefined; this.restored = true; this.possiblyQueued = false; localStorage.removeItem('lagon-player-token'); this.notify();
   }
-  async refresh() { if (this.token) { this.profile = (await this.request<{ profile: PlayerProfile }>('/api/me')).profile; this.actions.profile(this.profile); } }
+  async refresh() {
+    const token = this.token;
+    if (token) { const result = await this.request<{ profile: PlayerProfile }>('/api/me'); if (this.token !== token) return; this.profile = result.profile; this.actions.profile(this.profile); this.notify(); }
+  }
   async open(name: string, rename = false) {
     try {
       await this.ensure(name, rename);
@@ -94,25 +108,55 @@ export class CareerUI {
       this.leaderboard = board.entries; this.replays = recordings.replays; this.render(); this.dialog.showModal();
     } catch (error) { this.actions.error(error instanceof Error ? error.message : String(error)); }
   }
-  private async joinQueue() {
-    if (this.waiting) return;
-    this.waiting = true; const generation = ++this.generation; this.status = 'Recherche de pilotes de votre niveau…'; this.render();
-    try { await this.request('/api/ranked', 'POST'); await this.pollQueue(generation); }
-    catch (error) { this.waiting = false; this.status = error instanceof Error ? error.message : String(error); this.render(); }
+  async joinQueue() {
+    if (this.cancelling) await this.cancelling;
+    if (this.possiblyQueued && !this.isSearching) { await this.cancelQueue(); if (this.possiblyQueued) return; }
+    if (this.isSearching || this.actions.canQueue?.() === false) return;
+    this.waiting = true; const generation = ++this.generation; this.queueState = 'loading'; this.status = 'Préparation de votre profil…'; this.render();
+    try {
+      await (this.actions.prepareRanked?.() ?? this.ensure(this.profile?.name ?? 'Pilote'));
+      if (!this.waiting || generation !== this.generation) return;
+      if (this.actions.canQueue?.() === false) { await this.cancelQueue(); return; }
+      this.queueState = 'searching'; this.status = 'Recherche de pilotes de votre niveau…'; this.render();
+      this.possiblyQueued = true; this.queueStart = this.request('/api/ranked', 'POST'); await this.queueStart;
+      if (generation === this.generation) await this.pollQueue(generation);
+    } catch (error) {
+      if (generation !== this.generation) return;
+      this.queueError(error, generation);
+    } finally { if (generation === this.generation) this.queueStart = undefined; }
   }
   private async pollQueue(generation: number): Promise<void> {
     if (!this.waiting || generation !== this.generation) return;
     const result = await this.request<{ state: string; roomId?: string; waitSeconds?: number }>('/api/ranked');
     if (!this.waiting || generation !== this.generation) return;
     if (result.state === 'matched' && result.roomId) {
-      this.waiting = false; this.dialog.close(); await this.actions.ranked(result.roomId); return;
+      if (this.actions.canQueue?.() === false) { await this.cancelQueue(); return; }
+      this.waiting = false; this.queueState = 'matched'; this.status = 'Rencontre trouvée ! Connexion au salon…'; this.render(); this.dialog.close();
+      try { await this.actions.ranked(result.roomId); this.possiblyQueued = false; }
+      catch (error) { await this.request('/api/ranked', 'DELETE').catch(() => {}); throw error; }
+      if (generation === this.generation) { this.queueState = 'idle'; this.status = ''; this.render(); } return;
     }
-    if (result.state === 'idle') { this.waiting = false; this.status = 'La recherche a expiré. Vous pouvez la relancer.'; this.render(); return; }
+    if (result.state === 'idle') { this.waiting = false; this.possiblyQueued = false; this.queueState = 'idle'; this.status = 'La recherche a expiré. Vous pouvez la relancer.'; this.render(); return; }
     this.status = `Recherche en cours · ${result.waitSeconds ?? 0} s · au moins deux pilotes sont nécessaires.`; this.render();
-    this.timer = setTimeout(() => void this.pollQueue(generation).catch(error => { this.waiting = false; this.status = error.message; this.render(); }), 2500);
+    this.timer = setTimeout(() => void this.pollQueue(generation).catch(error => this.queueError(error, generation)), 2500);
   }
-  private async cancelQueue() { ++this.generation; this.waiting = false; clearTimeout(this.timer); this.status = ''; this.render(); try { await this.request('/api/ranked', 'DELETE'); } catch { /* Queue expires without its heartbeat. */ } }
+  private queueError(error: unknown, generation: number) {
+    if (generation !== this.generation) return;
+    this.waiting = false; clearTimeout(this.timer); this.queueState = 'error'; this.status = error instanceof Error ? error.message : String(error); this.render();
+    if (this.token && this.possiblyQueued) this.cancelling = this.request('/api/ranked', 'DELETE').then(() => { this.possiblyQueued = false; }, () => {}).finally(() => { this.cancelling = undefined; });
+  }
+  async cancelQueue(): Promise<void> {
+    if (this.cancelling) { await this.cancelling; if (!this.possiblyQueued) return; }
+    if (!this.isSearching && !this.possiblyQueued) return;
+    ++this.generation; this.waiting = false; clearTimeout(this.timer); this.queueState = 'cancelling'; this.status = 'Annulation de la recherche…'; this.render();
+    this.cancelling = (async () => {
+      try { await this.queueStart?.catch(() => {}); if (this.token) await this.request('/api/ranked', 'DELETE'); this.possiblyQueued = false; this.status = 'Recherche annulée.'; this.queueState = 'idle'; }
+      catch { this.queueState = 'error'; this.status = 'Annulation non confirmée. La recherche expirera sans connexion.'; }
+      finally { this.queueStart = undefined; this.cancelling = undefined; this.render(); }
+    })(); return this.cancelling;
+  }
   private render() {
+    this.notify();
     const profile = this.profile;
     if (!profile) return;
     this.dialog.innerHTML = `<div class="garage-heading"><div><small>VOTRE PROGRESSION · NIVEAU ${profile.careerLevel}</small><h2>À vous les coupes</h2></div><button id="career-close" class="secondary">Fermer ✕</button></div>

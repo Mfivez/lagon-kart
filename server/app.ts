@@ -9,6 +9,8 @@ import { RaceRoom } from './RaceRoom.js';
 import { handleCareerRequest } from './career.js';
 import { handleCustomTracksRequest } from './custom-tracks-api.js';
 import { customTrackStore } from './custom-track-store.js';
+import { PresenceRegistry } from './presence.js';
+import { handlePresenceRequest } from './presence-api.js';
 
 const mime: Record<string, string> = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
@@ -114,6 +116,7 @@ class BoundedServer extends Server {
 
 export function createGameServer(clientDirectory = resolve(process.cwd(), 'dist/client')) {
   const clientRoot = resolve(clientDirectory);
+  const presence = new PresenceRegistry();
   const ready = customTrackStore();
   // Callers may await ready before listen; HTTP and matchmaking also await it themselves.
   void ready.catch(() => {});
@@ -122,6 +125,9 @@ export function createGameServer(clientDirectory = resolve(process.cwd(), 'dist/
     res.setHeader('Referrer-Policy', 'same-origin');
     const serve = async () => {
       const pathname = new URL(req.url || '/', 'http://internal.invalid').pathname;
+      if (pathname === '/api/presence') {
+        await handlePresenceRequest(req, res, presence, () => readOptions(req)); return;
+      }
       if (pathname === '/api/tracks' || pathname.startsWith('/api/tracks/')) {
         await handleCustomTracksRequest(req, res); return;
       }

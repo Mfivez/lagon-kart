@@ -7,6 +7,8 @@ import { DEFAULT_CHARACTER, normalizeCharacterId, type CharacterId } from '../sh
 import { DEFAULT_KART_MODEL, normalizeKartModelId, type KartModelId } from '../shared/kart-catalog';
 import { nearestDriveableTrack, getTrackEvent, trackBoundaryGap } from '../shared/track-events';
 import { TrackEventsView } from './track-events';
+import { trackZoneGeometry } from './track-zone-geometry';
+import { loopMeshRows, roadMeshRows } from './track-mesh-sampling';
 import { GhostView } from './ghost-view';
 import { buildTrackExtras, hasExtraScenery } from './scenery-extras';
 import { buildTrackTerrain } from './scenery-terrain';
@@ -71,9 +73,9 @@ function strip(points: Vec2[], width: number, offset = 0, trackId = 'lagon', hei
   const track = getTrack(trackId);
   // Include both sides of each ramp lip so its visible end matches the launch.
   const samples = track.elevations.length || track.loops.length ? [...new Set([
-    ...Array.from({ length: Math.ceil(track.length / 2) }, (_, i) => i * track.length / Math.ceil(track.length / 2)),
+    ...Array.from({ length: roadMeshRows(track.length) }, (_, i) => i * track.length / roadMeshRows(track.length)),
     ...track.elevations.flatMap(feature => [feature.start, feature.end, feature.end + .05]),
-    ...track.loops.flatMap(loop => { const count = Math.ceil((loop.end - loop.start) * 2); return Array.from({ length: count + 1 }, (_, i) => loop.start + (loop.end - loop.start) * i / count); }),
+    ...track.loops.flatMap(loop => { const count = loopMeshRows(loop); return Array.from({ length: count + 1 }, (_, i) => loop.start + (loop.end - loop.start) * i / count); }),
   ])].sort((a, b) => a - b) : [];
   const TRACK = samples.length ? samples.map(progress => trackPoint(progress, trackId)) : points;
   const vertices: number[] = [];
@@ -83,7 +85,7 @@ function strip(points: Vec2[], width: number, offset = 0, trackId = 'lagon', hei
     const before = TRACK[(i + TRACK.length - 1) % TRACK.length];
     const after = TRACK[(i + 1) % TRACK.length];
     const dx = after.x - before.x, dz = after.z - before.z;
-    const length = Math.hypot(dx, dz);
+    const length = Math.hypot(dx, dz) || 1;
     for (const side of [-1, 1]) {
       const progress = samples[i % TRACK.length] ?? nearestTrack(p.x, p.z, trackId).progress;
       const localWidth = width === track.width + 10 ? track.width + trackBoundaryShoulder(progress, trackId) * 2 : width;
@@ -411,48 +413,12 @@ export class GameRenderer {
   }
 
   private buildZones() {
-    for (const zone of this.track.zones) {
-      const vertices: number[] = [], indices: number[] = [];
-      const folded = this.track.loops.some(loop => zone.start < loop.end && zone.end > loop.start);
-      const pieces = Math.max(2, Math.ceil((zone.end - zone.start) / (folded ? .5 : 2)));
-      const samples = Array.from({ length: pieces + 1 }, (_, i) => zone.start + (zone.end - zone.start) * i / pieces);
-      const progressSamples = folded ? [...new Set([zone.start, zone.end,
-        ...samples.filter(progress => !trackLoopAt(progress, this.track.id)),
-        ...this.track.loops.flatMap(loop => {
-          const rows = Math.ceil((loop.end - loop.start) * 2);
-          return Array.from({ length: rows + 1 }, (_, row) => loop.start + (loop.end - loop.start) * row / rows)
-            .filter(progress => progress > zone.start && progress < zone.end);
-        }),
-      ])].sort((a, b) => a - b) : samples;
-      const columns = folded ? Math.ceil(zone.width) : 1;
-      for (let i = 0; i < progressSamples.length; i++) {
-        const progress = progressSamples[i];
-        for (let column = 0; column <= columns; column++) {
-          const offset = zone.offset - zone.width / 2 + zone.width * column / columns;
-          const pose = trackLoopPose(progress, this.track.id, offset);
-          const loop = trackLoopAt(progress, this.track.id);
-          if (loop) {
-            // A zone may begin between two road rows. Interpolate that shared
-            // mesh edge instead of sampling a different curved surface above it.
-            const rows = Math.ceil((loop.end - loop.start) * 2), row = (progress - loop.start) / (loop.end - loop.start) * rows;
-            const low = Math.max(0, Math.min(rows, Math.floor(row))), high = Math.min(rows, low + 1), t = row - low;
-            const a = trackLoopPose(loop.start + (loop.end - loop.start) * low / rows, this.track.id, offset);
-            const b = trackLoopPose(loop.start + (loop.end - loop.start) * high / rows, this.track.id, offset);
-            vertices.push(a.x + (b.x - a.x) * t + (a.up.x + (b.up.x - a.up.x) * t) * .095,
-              a.y + (b.y - a.y) * t + (a.up.y + (b.up.y - a.up.y) * t) * .095,
-              a.z + (b.z - a.z) * t + (a.up.z + (b.up.z - a.up.z) * t) * .095);
-          } else vertices.push(pose.x + pose.up.x * .085, pose.y + pose.up.y * .085, pose.z + pose.up.z * .085);
-          if (i + 1 < progressSamples.length && column < columns) {
-            const a = i * (columns + 1) + column, b = a + columns + 1;
-            indices.push(a, b, a + 1, a + 1, b, b + 1);
-          }
-        }
-      }
-      const geometry = new THREE.BufferGeometry();
-      geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3)); geometry.setIndex(indices); geometry.computeVertexNormals();
+    let overlayOrder = 1;
+    for (const zone of [...this.track.zones].reverse()) {
+      const geometry = trackZoneGeometry(this.track.id, zone);
       const color = zone.kind === 'boost' ? '#efc457' : zone.kind === 'ice' ? '#b5eaf1' : '#745449';
       const mat = material(color, zone.kind === 'ice' ? 0.15 : 0.85); mat.side = THREE.DoubleSide;
-      const patch = new THREE.Mesh(geometry, mat); patch.receiveShadow = true; this.scenery.add(patch);
+      const patch = new THREE.Mesh(geometry, mat); patch.receiveShadow = true; patch.renderOrder = overlayOrder++; this.scenery.add(patch);
       if (zone.kind === 'boost') for (let progress = zone.start + 2; progress < zone.end - 1; progress += 3) {
         const pose = trackLoopPose(progress, this.track.id, zone.offset);
         const arrow = new THREE.Group(); arrow.position.set(pose.x + pose.up.x * .13, pose.y + pose.up.y * .13, pose.z + pose.up.z * .13); applyLoopOrientation(arrow, pose);

@@ -1,7 +1,7 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { mkdir, open, readFile, rename, rm, stat } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { isTrackId, TRACK_LAYOUT_REVISION } from '../shared/track.js';
+import { isTrackId, TRACK_LAYOUT_REVISION, getTrackLapCount, getTrackReplayTimeLimit, MAX_CUSTOM_REPLAY_SECONDS } from '../shared/track.js';
 import { isCustomTrackRuntimeId } from '../shared/custom-tracks.js';
 import { INITIAL_MMR, careerLevel, championshipById, rankForMmr, seasonId,
   type GhostData, type LeaderboardEntry, type PlayerProfile, type PlayerStats,
@@ -26,6 +26,9 @@ export class AccountError extends Error {
 }
 const MAX_REPLAY_BYTES = 2 * 1024 * 1024;
 const MAX_SESSIONS = 16;
+// Historical account statistics must remain readable if a custom source needs
+// repair. Known race/replay writes use the exact immutable track's tighter limit.
+const storedTimeLimit = (trackId: string) => isCustomTrackRuntimeId(trackId) ? MAX_CUSTOM_REPLAY_SECONDS : 360;
 const identifier = (value: unknown): value is string => typeof value === 'string' && /^[A-Za-z0-9_-]{1,80}$/.test(value);
 const integer = (value: unknown, min: number, max: number): value is number => Number.isSafeInteger(value) && (value as number) >= min && (value as number) <= max;
 const hash = (token: string) => createHash('sha256').update(token).digest('hex');
@@ -60,15 +63,17 @@ function summary(replay: ReplayData): ReplaySummary {
 export function validateReplay(value: unknown): ReplayData {
   if (!value || typeof value !== 'object') throw new Error('Replay invalide.');
   const replay = value as ReplayData;
+  const maximumTime = getTrackReplayTimeLimit(replay.trackId);
+  const laps = getTrackLapCount(replay.trackId);
   if (replay.version !== 1 || !identifier(replay.id) || !isTrackId(replay.trackId) || !integer(replay.trackRevision ?? 1, 1, 1000) ||
-    !integer(replay.createdAt, 0, 8_640_000_000_000_000) || !integer(replay.durationMs, 0, 360_000) ||
+    !integer(replay.createdAt, 0, 8_640_000_000_000_000) || !integer(replay.durationMs, 0, maximumTime * 1000) ||
     replay.season !== seasonId(new Date(replay.createdAt)) || typeof replay.ranked !== 'boolean' || !integer(replay.eventLevel ?? 0, 0, 3) ||
     !Array.isArray(replay.drivers) || replay.drivers.length < 1 || replay.drivers.length > 8) throw new Error('En-tête de replay invalide.');
   const ids = new Set<string>();
   for (const driver of replay.drivers) {
     if (!driver || !identifier(driver.playerId) || ids.has(driver.playerId) || name(driver.name) !== driver.name ||
       !/^#[a-f0-9]{6}$/i.test(driver.color) || !integer(driver.rank, 1, 8) || typeof driver.finished !== 'boolean' ||
-      !Number.isFinite(driver.finishTime) || driver.finishTime < 0 || driver.finishTime > 360 ||
+      !Number.isFinite(driver.finishTime) || driver.finishTime < 0 || driver.finishTime > maximumTime ||
       (!driver.finished && driver.finishTime !== 0) || !Array.isArray(driver.frames) || driver.frames.length < 1 || driver.frames.length > 1802)
       throw new Error('Pilote de replay invalide.');
     ids.add(driver.playerId);
@@ -76,11 +81,11 @@ export function validateReplay(value: unknown): ReplayData {
     for (const frame of driver.frames) {
       if (!Array.isArray(frame) || frame.length !== 7 || !frame.every(Number.isSafeInteger) || frame[0] <= previous ||
         frame[0] < 0 || frame[0] > replay.durationMs || Math.abs(frame[1]) > 1_000_000 || Math.abs(frame[2]) > 1_000_000 ||
-        Math.abs(frame[3]) > 3142 || frame[4] < -2000 || frame[4] > 10_000 || frame[5] < 0 || frame[5] > 3 || frame[6] < 0 || frame[6] > 31)
+        Math.abs(frame[3]) > 3142 || frame[4] < -2000 || frame[4] > 10_000 || frame[5] < 0 || frame[5] > laps || frame[6] < 0 || frame[6] > 31)
         throw new Error('Trajectoire de replay invalide.');
       previous = frame[0];
     }
-    if (driver.finished && (driver.finishTime <= 0 || driver.finishTime * 1000 > replay.durationMs + 1 || driver.frames.at(-1)![5] < 3))
+    if (driver.finished && (driver.finishTime <= 0 || driver.finishTime * 1000 > replay.durationMs + 1 || driver.frames.at(-1)![5] < laps))
       throw new Error('Arrivée de replay invalide.');
   }
   // Explicit projection discards any incidental private fields a caller attached.
@@ -203,7 +208,7 @@ export class PlayerStore {
       !integer(race.finishedAt, 0, 8_640_000_000_000_000) || !Array.isArray(race.entries) || race.entries.length < 1 || race.entries.length > 8 ||
       new Set(race.entries.map(entry => entry.playerId)).size !== race.entries.length) throw new Error('Résultat de course invalide.');
     for (const entry of race.entries) if (!identifier(entry.playerId) || !integer(entry.rank, 1, 8) || typeof entry.finished !== 'boolean' ||
-      !Number.isFinite(entry.finishTime) || entry.finishTime < 0 || entry.finishTime > 360 || (entry.finished && entry.finishTime <= 0))
+      !Number.isFinite(entry.finishTime) || entry.finishTime < 0 || entry.finishTime > getTrackReplayTimeLimit(race.trackId) || (entry.finished && entry.finishTime <= 0))
       throw new Error('Résultat de pilote invalide.');
     if (race.finishedAt > this.now() + 60_000 || race.finishedAt < this.now() - 86_400_000)
       throw new Error('Le résultat de course est trop ancien ou daté dans le futur.');
@@ -397,15 +402,15 @@ export class PlayerStore {
       const stats = player.stats;
       if (![stats.races, stats.finishes, stats.wins, stats.podiums].every(count => integer(count, 0, Number.MAX_SAFE_INTEGER)) ||
         !Number.isFinite(stats.totalRaceTime) || stats.totalRaceTime < 0 || !stats.bestTimes || typeof stats.bestTimes !== 'object' ||
-        Object.entries(stats.bestTimes).some(([id, time]) => !(isTrackId(id) || isCustomTrackRuntimeId(id)) || !Number.isFinite(time) || time <= 0 || time > 360)) throw new Error('Statistiques sauvegardées invalides.');
+        Object.entries(stats.bestTimes).some(([id, time]) => !(isTrackId(id) || isCustomTrackRuntimeId(id)) || !Number.isFinite(time) || time <= 0 || time > storedTimeLimit(id))) throw new Error('Statistiques sauvegardées invalides.');
       for (const ranked of player.seasons) if (!/^\d{4}-Q[1-4]$/.test(ranked.season) || !integer(ranked.mmr, 0, 4000) || !integer(ranked.peakMmr, 0, 4000) ||
         !integer(ranked.races, 0, Number.MAX_SAFE_INTEGER) || !integer(ranked.wins, 0, ranked.races)) throw new Error('Saison sauvegardée invalide.');
     }
     for (const receipt of data.raceReceipts) if (!identifier(receipt.id) || !integer(receipt.at, 0, 8_640_000_000_000_000)) throw new Error('Reçu de course invalide.');
     for (const replay of data.replays) if (!identifier(replay.id) || !(isTrackId(replay.trackId) || isCustomTrackRuntimeId(replay.trackId)) || !integer(replay.trackRevision ?? 1, 1, 1000) || !integer(replay.createdAt, 0, 8_640_000_000_000_000) ||
-      !integer(replay.durationMs, 0, 360_000) || typeof replay.ranked !== 'boolean' || !integer(replay.eventLevel ?? 0, 0, 3) || !Array.isArray(replay.drivers) || replay.drivers.length > 8 ||
+      !integer(replay.durationMs, 0, storedTimeLimit(replay.trackId) * 1000) || typeof replay.ranked !== 'boolean' || !integer(replay.eventLevel ?? 0, 0, 3) || !Array.isArray(replay.drivers) || replay.drivers.length > 8 ||
       replay.drivers.some(driver => !identifier(driver.playerId) || name(driver.name) !== driver.name || !integer(driver.rank, 1, 8) ||
-        typeof driver.finished !== 'boolean' || !Number.isFinite(driver.finishTime) || driver.finishTime < 0 || driver.finishTime > 360)) throw new Error('Index des replays invalide.');
+        typeof driver.finished !== 'boolean' || !Number.isFinite(driver.finishTime) || driver.finishTime < 0 || driver.finishTime > storedTimeLimit(replay.trackId))) throw new Error('Index des replays invalide.');
     return structuredClone(data);
   }
 }

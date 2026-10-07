@@ -1,5 +1,11 @@
 export const TRACK_LAYOUT_REVISION = 2;
 export interface TrackLoop { id: string; start: number; end: number; height: number; lateralSpread: number }
+export type TrackLapEventKind = 'clear' | 'rain' | 'snow' | 'ash' | 'storm' | 'boost' | 'ice' | 'mud';
+export interface TrackLapEvent {
+  id: string; lap: number; kind: TrackLapEventKind;
+  /** Metres from the start; weather is global and its affected road uses this interval. */
+  start: number; end: number;
+}
 export interface Vec2 { x: number; z: number }
 export const TRACK_IDS = ['lagon', 'canyon', 'glacier', 'neon', 'mangrove', 'dunes', 'volcan', 'forest', 'harbor', 'sky', 'foundry', 'castle'] as const;
 export type BuiltinTrackId = typeof TRACK_IDS[number];
@@ -25,11 +31,20 @@ export interface TrackDefinition {
   zones: TrackZone[];
   elevations: TrackElevation[];
   loops: TrackLoop[];
+  /** Omitted by historical tracks; three laps remain the default. */
+  lapCount?: number;
+  lapEvents?: TrackLapEvent[];
   palette: { sky: string; water: string; ground: string; road: string; accent: string };
   grip: number;
 }
 export type Surface = 'road' | 'offroad' | TrackZone['kind'];
 export const TOTAL_LAPS = 3;
+export const MAX_CUSTOM_TRACK_LAPS = 20;
+export const BASE_RACE_SECONDS = 300;
+export const MAX_CUSTOM_REPLAY_SECONDS = BASE_RACE_SECONDS * MAX_CUSTOM_TRACK_LAPS / TOTAL_LAPS + 60;
+export function getTrackLapCount(trackId = 'lagon'): number { return getTrack(trackId).lapCount ?? TOTAL_LAPS; }
+export function getTrackRaceTimeLimit(trackId = 'lagon'): number { return BASE_RACE_SECONDS * Math.max(1, getTrackLapCount(trackId) / TOTAL_LAPS); }
+export function getTrackReplayTimeLimit(trackId = 'lagon'): number { return getTrackRaceTimeLimit(trackId) + 60; }
 export const COLORS = ['#fc735d', '#69cbd0', '#fed36a', '#bca4ef', '#92cf84', '#fa9ac4', '#638ce6', '#f4f1de'];
 interface ArcTable { lengths: number[]; cumulative: number[] }
 const arcTables = new WeakMap<TrackDefinition, ArcTable>();

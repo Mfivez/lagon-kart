@@ -1,4 +1,4 @@
-import { TRACKS, makeTrack, registerTrackDefinition, sampleTrackAnchors, type TrackDefinition, type TrackId, type TrackZone, type Vec2 } from './track.js';
+import { TRACKS, MAX_CUSTOM_TRACK_LAPS, makeTrack, registerTrackDefinition, sampleTrackAnchors, type TrackDefinition, type TrackLapEventKind, type TrackId, type TrackZone, type Vec2 } from './track.js';
 
 export interface CustomTrackZone {
   kind: TrackZone['kind'];
@@ -7,8 +7,19 @@ export interface CustomTrackZone {
   /** Metres across the road, measured from the centre line. */
   offset: number; width: number;
 }
+export interface CustomTrackElevation {
+  kind: 'bridge' | 'jump'; start: number; end: number; height: number; approach: number; launchSpeed?: number;
+}
+export interface CustomTrackLoop { start: number; end: number; height: number; lateralSpread: number }
+export interface CustomTrackLapEvent { lap: number; kind: TrackLapEventKind; start: number; end: number }
+export const CUSTOM_TRACK_EVENT_KINDS: ReadonlyArray<{id: TrackLapEventKind; label: string}> = [
+  {id:'rain',label:'Pluie et flaques'}, {id:'snow',label:'Neige et verglas'}, {id:'ash',label:'Cendres'},
+  {id:'storm',label:'Tempête'}, {id:'clear',label:'Éclaircie'}, {id:'boost',label:'Turbo temporaire'},
+  {id:'ice',label:'Glace temporaire'}, {id:'mud',label:'Boue temporaire'},
+];
 export interface CustomTrackDraft {
   name: string; theme: TrackDefinition['theme']; width: number; anchors: Vec2[]; zones: CustomTrackZone[];
+  lapCount?: number; elevations?: CustomTrackElevation[]; loops?: CustomTrackLoop[]; events?: CustomTrackLapEvent[];
 }
 export interface StoredCustomTrack {
   id: string; revision: number; draft: CustomTrackDraft; createdAt: string; updatedAt: string;
@@ -18,7 +29,7 @@ export type SavedCustomTrack = StoredCustomTrack;
 export interface CustomTrackValidation { ok: boolean; errors: string[]; draft?: CustomTrackDraft; track?: TrackDefinition }
 /** Capacity bounds keep untrusted drafts and generated geometry finite; they do not rate the layout. */
 export const CUSTOM_TRACK_LIMITS = { minAnchors: 3, maxAnchors: 128, minWidth: 4, maxWidth: 80,
-  coordinate: 2000, maxZones: 64 } as const;
+  coordinate: 2000, maxZones: 64, maxLaps: MAX_CUSTOM_TRACK_LAPS, maxElevations: 16, maxLoops: 16, maxEvents: 64, maxHeight: 80 } as const;
 export const CUSTOM_TRACK_THEMES: ReadonlyArray<{ id: TrackDefinition['theme']; label: string }> = [
   { id: 'tropical', label: 'Île tropicale' }, { id: 'canyon', label: 'Canyon' }, { id: 'ice', label: 'Banquise' },
   { id: 'neon', label: 'Ville néon' }, { id: 'volcano', label: 'Volcan' }, { id: 'forest', label: 'Forêt' },
@@ -45,9 +56,18 @@ const finite = (input: unknown): input is number => typeof input === 'number' &&
 const distance = (a: Vec2, b: Vec2) => Math.hypot(b.x - a.x, b.z - a.z);
 function build(draft: CustomTrackDraft, id: TrackId): TrackDefinition {
   const theme = TRACKS.find(track => track.theme === draft.theme)!;
-  return makeTrack({ id, name: draft.name, description: 'Circuit créé par les joueurs. Trois tours, des objets et votre propre tracé.',
+  const track = makeTrack({ id, name: draft.name, description: 'Circuit créé par les joueurs. Trois tours, des objets et votre propre tracé.',
     difficulty: 'Intermédiaire', theme: draft.theme, width: draft.width, grip: theme.grip, palette: { ...theme.palette },
-    anchors: draft.anchors.map(({x,z}) => [x,z]), zones: draft.zones.map(zone => ({ ...zone })) });
+    anchors: draft.anchors.map(({x,z}) => [x,z]), zones: draft.zones.map(zone => ({ ...zone })),
+    elevations: draft.elevations?.map(feature=>({...feature})), loops: draft.loops?.map(loop=>({...loop})) });
+  // Absent options must stay absent: immutable pre-editor versions keep their
+  // complete serialized geometry, description and default three-lap behavior.
+  if (draft.lapCount !== undefined) {
+    track.lapCount = draft.lapCount;
+    track.description = `Circuit créé par les joueurs. ${draft.lapCount} ${draft.lapCount === 1 ? 'tour' : 'tours'}, des objets et votre propre tracé.`;
+  }
+  if (draft.events !== undefined) track.lapEvents = draft.events.map((event,index)=>({...event,id:`${id}-lap-event-${index}`,start:event.start*track.length,end:event.end*track.length}));
+  return track;
 }
 
 /** No registration or mutation: safe on every editor change and on untrusted HTTP input. */
@@ -80,8 +100,50 @@ export function validateCustomTrackDraft(input: unknown): CustomTrackValidation 
     }
     zones.push({ kind: zone.kind as TrackZone['kind'], start: zone.start, end: zone.end, offset: zone.offset, width: zone.width });
   }
+  const lapCount = input.lapCount === undefined ? 3 : input.lapCount;
+  if (!Number.isInteger(lapCount) || !finite(lapCount) || lapCount < 1 || lapCount > CUSTOM_TRACK_LIMITS.maxLaps)
+    errors.push(`Choisissez entre 1 et ${CUSTOM_TRACK_LIMITS.maxLaps} tours.`);
+  const interval = (value: Record<string,unknown>) => finite(value.start) && finite(value.end) && value.start >= 0 && value.end <= 1 && value.start < value.end;
+  const elevations: CustomTrackElevation[] = [];
+  if (input.elevations !== undefined) {
+    if (!Array.isArray(input.elevations) || input.elevations.length > CUSTOM_TRACK_LIMITS.maxElevations) errors.push(`Ajoutez au maximum ${CUSTOM_TRACK_LIMITS.maxElevations} ponts et tremplins.`);
+    else for (const [index,value] of input.elevations.entries()) {
+      if (!object(value) || !['bridge','jump'].includes(String(value.kind)) || !interval(value) || !finite(value.height) || value.height <= 0 || value.height > CUSTOM_TRACK_LIMITS.maxHeight ||
+        !finite(value.approach) || value.approach < 0 || value.approach > 2000 || value.kind === 'bridge' && value.approach <= 0 ||
+        value.launchSpeed !== undefined && (!finite(value.launchSpeed) || value.launchSpeed < 0 || value.launchSpeed > 25)) {
+        errors.push(`Relief ${index+1} : placez un pont ou un tremplin entre 0 % et 100 %, avec une hauteur positive de 80 m maximum et une approche positive pour un pont.`); continue;
+      }
+      elevations.push({kind:value.kind as CustomTrackElevation['kind'],start:value.start as number,end:value.end as number,height:value.height,approach:value.approach,
+        ...(value.launchSpeed === undefined ? {} : {launchSpeed:value.launchSpeed as number})});
+    }
+  }
+  const loops: CustomTrackLoop[] = [];
+  if (input.loops !== undefined) {
+    if (!Array.isArray(input.loops) || input.loops.length > CUSTOM_TRACK_LIMITS.maxLoops) errors.push(`Ajoutez au maximum ${CUSTOM_TRACK_LIMITS.maxLoops} loopings.`);
+    else for (const [index,value] of input.loops.entries()) {
+      if (!object(value) || !interval(value) || !finite(value.height) || value.height <= 0 || value.height > CUSTOM_TRACK_LIMITS.maxHeight ||
+        !finite(value.lateralSpread) || value.lateralSpread < 0 || value.lateralSpread > 80) {
+        errors.push(`Looping ${index+1} : gardez une hauteur positive de 80 m maximum, un écart latéral de 0 à 80 m et une position entre 0 % et 100 %.`); continue;
+      }
+      loops.push({start:value.start as number,end:value.end as number,height:value.height,lateralSpread:value.lateralSpread});
+    }
+  }
+  const lapEvents: CustomTrackLapEvent[] = [];
+  if (input.events !== undefined) {
+    if (!Array.isArray(input.events) || input.events.length > CUSTOM_TRACK_LIMITS.maxEvents) errors.push(`Ajoutez au maximum ${CUSTOM_TRACK_LIMITS.maxEvents} événements.`);
+    else for (const [index,value] of input.events.entries()) {
+      if (!object(value) || !Number.isInteger(value.lap) || !finite(value.lap) || value.lap < 1 || !finite(lapCount) || value.lap > lapCount ||
+        !CUSTOM_TRACK_EVENT_KINDS.some(kind=>kind.id===value.kind) || !interval(value)) {
+        errors.push(`Événement ${index+1} : choisissez un tour de la course, un effet et une portion entre 0 % et 100 %.`); continue;
+      }
+      lapEvents.push({lap:value.lap,kind:value.kind as TrackLapEventKind,start:value.start as number,end:value.end as number});
+    }
+  }
   if (errors.length) return { ok: false, errors };
-  const draft: CustomTrackDraft = { name, theme: input.theme as CustomTrackDraft['theme'], width: input.width as number, anchors, zones };
+  const draft: CustomTrackDraft = { name, theme: input.theme as CustomTrackDraft['theme'], width: input.width as number, anchors, zones,
+    ...(input.lapCount === undefined ? {} : {lapCount:lapCount as number}),
+    ...(input.elevations === undefined ? {} : {elevations}), ...(input.loops === undefined ? {} : {loops}),
+    ...(input.events === undefined ? {} : {events:lapEvents}) };
   const track = build(draft, 'custom-preview-v1');
   // Coincident local anchors and crossings are intentional creative choices. Keep
   // the historical spline untouched so existing published revisions never move.

@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "at": "2026-10-07T12:53:34.772198+00:00",
+  "command": "node --import tsx --test --test-concurrency=4 tests/*.test.ts",
+  "durationMs": 190886.910726,
+  "tests": 372,
+  "pass": 372,
+  "fail": 0,
+  "cancelled": 0,
+  "skipped": 0,
+  "clientAssets": [
+    "index-CMTOos7s.js",
+    "index-Y9Kosx-s.css"
+  ],
+  "note": "Complete suite before final visual badge/pseudo polish; subsequent focused/browser checks are reported separately.",
+  "finalBuildAssets": [
+    "index-M7yQs0w3.js",
+    "index-CHirTTg6.css"
+  ],
+  "finalBuild": "npm run build: passed",
+  "finalDockerBuild": "docker compose -p lagon-kart build app: passed",
+  "focusedFinalRenderer": {
+    "command": "node --import tsx --test tests/track-event-view.test.ts",
+    "pass": 3,
+    "fail": 0,
+    "durationMs": 1520.24662
+  }
+}

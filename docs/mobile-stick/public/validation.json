@@ -1,0 +1,10 @@
+{
+  "passed": false,
+  "status": "interrupted",
+  "origin": "https://miles-blades-tulsa-citizens.trycloudflare.com",
+  "checks": ["Portrait 320x568: visible controls are at least 44px and do not overlap."],
+  "captures": ["stick-320x568.png"],
+  "reason": "The browser smoke stalled after the portrait screenshot. Its Node process continued using CPU after Chromium was closed, then was terminated. No complete public validation is claimed.",
+  "healthAfter": {"status":"ok","rooms":0,"maxRooms":16,"maxPlayers":8,"simHz":30,"snapshotHz":20},
+  "remaining": ["Complete public smoke has not passed. The separate private browser validation passed 12 checks."]
+}

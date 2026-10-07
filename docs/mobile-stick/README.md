@@ -30,3 +30,5 @@ node --import tsx scripts/mobile-stick-check.ts
 Le script crée puis supprime son serveur local et ses données temporaires. Pour un contrôle léger d’un déploiement déjà autorisé, `BASE_URL` sélectionne une origine externe et écrit les résultats dans `docs/mobile-stick/public/` : ce mode utilise les commandes ordinaires, dont **Replacer**, sans accès ni mutation de l’état serveur. Il ne remplace pas la vérification privée des entrées et objets.
 
 Téléphone physique et Safari iOS restent à tester. Les images proviennent de Chromium avec écran tactile émulé et rendu SwiftShader.
+
+Le contrôle complémentaire via le tunnel a été interrompu après la capture portrait, le processus de test restant bloqué. Son [rapport partiel](public/validation.json) ne constitue pas une validation publique complète. Le navigateur de test est arrêté et le contrôle de santé public a ensuite confirmé zéro salon restant.

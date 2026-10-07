@@ -1,0 +1,69 @@
+{
+  "passed": true,
+  "timestamp": "2026-10-07T12:59:21.261Z",
+  "checks": [
+    "1280×900 : trois tours lisibles sur la même zone, pastilles CSS visibles, aucun débordement.",
+    "320×568 : trois tours lisibles sur la même zone, pastilles CSS visibles, aucun débordement."
+  ],
+  "captures": [
+    "editor-final-1280x900.png",
+    "editor-final-320x568.png"
+  ],
+  "errors": [],
+  "evidence": {
+    "320": {
+      "badges": [
+        "T1/T4/T5",
+        "T1/T4/T5",
+        "T1/T4/T5"
+      ],
+      "legend": [
+        {
+          "label": "Pont / tremplin",
+          "color": "rgb(215, 121, 36)",
+          "width": "8px"
+        },
+        {
+          "label": "Looping",
+          "color": "rgb(145, 75, 189)",
+          "width": "8px"
+        },
+        {
+          "label": "Événement · T = tour",
+          "color": "rgb(47, 134, 176)",
+          "width": "8px"
+        }
+      ]
+    },
+    "1280": {
+      "badges": [
+        "T1/T4/T5",
+        "T1/T4/T5",
+        "T1/T4/T5"
+      ],
+      "legend": [
+        {
+          "label": "Pont / tremplin",
+          "color": "rgb(215, 121, 36)",
+          "width": "8px"
+        },
+        {
+          "label": "Looping",
+          "color": "rgb(145, 75, 189)",
+          "width": "8px"
+        },
+        {
+          "label": "Événement · T = tour",
+          "color": "rgb(47, 134, 176)",
+          "width": "8px"
+        }
+      ]
+    },
+    "origin": "http://127.0.0.1:35077",
+    "clientAssets": [
+      "/assets/index-M7yQs0w3.js",
+      "/assets/index-CHirTTg6.css"
+    ]
+  },
+  "fixture": "Le brouillon du parcours UI complet est publié directement dans un store privé temporaire, puis ouvert normalement via Dupliquer. Contrôle visuel uniquement ; sauvegarde et simulation ne sont pas retestées ici."
+}

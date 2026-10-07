@@ -1,4 +1,4 @@
-import { COLORS, TOTAL_LAPS, getTrack, nearestTrack, spawnPoint, trackPoint, trackSurface, trackElevation, trackJumpAt, type Surface } from './track.js';
+import { COLORS, TOTAL_LAPS, BASE_RACE_SECONDS, getTrackLapCount, getTrackRaceTimeLimit, getTrack, nearestTrack, spawnPoint, trackPoint, trackSurface, trackElevation, trackJumpAt, type Surface } from './track.js';
 import { createTournament, type TournamentState } from './tournament.js';
 import { DEFAULT_KART_MODEL, normalizeKartModelId, type KartModelId } from './kart-catalog.js';
 import { DEFAULT_CHARACTER, normalizeCharacterId, type CharacterId } from './characters.js';
@@ -45,7 +45,7 @@ export interface World {
 }
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
-export const MAX_RACE_SECONDS = 300;
+export const MAX_RACE_SECONDS = BASE_RACE_SECONDS;
 export const FINISH_GRACE_SECONDS = 25;
 export const MAX_WORLD_OBJECTS = 32;
 export const STAR_SECONDS = 5.5;
@@ -361,10 +361,10 @@ function advanceCheckpoint(kart: Kart, before: { x: number; z: number }, world: 
     kart.respawnAngle = gate.angle;
     if (kart.nextCheckpoint === 0) {
       kart.lap++;
-      if (kart.lap >= TOTAL_LAPS) {
+      if (kart.lap >= getTrackLapCount(track.id)) {
         kart.finished = true;
         kart.finishTime = world.raceTime;
-        kart.progress = TOTAL_LAPS * track.length;
+        kart.progress = getTrackLapCount(track.id) * track.length;
         kart.speed = 0;
         if (world.finishTimeout === 0) world.finishTimeout = FINISH_GRACE_SECONDS;
       }
@@ -653,7 +653,7 @@ export function stepWorld(world: World, inputs: Map<string, Input>, dt: number):
     return;
   }
   if (world.phase !== 'racing') return;
-  world.eventStage = Math.max(world.eventStage, Math.min(2, Math.max(0, ...world.players.filter(kart => !kart.spectator && !kart.abandoned).map(kart => kart.lap))));
+  world.eventStage = Math.max(world.eventStage, Math.min(getTrackLapCount(world.trackId)-1, Math.max(0, ...world.players.filter(kart => !kart.spectator && !kart.abandoned).map(kart => kart.lap))));
   for (const kart of world.players) { kart.eventStage = world.eventStage; kart.eventLevel = world.eventLevel; }
   world.raceTime += dt;
   if (world.finishTimeout > 0) world.finishTimeout = Math.max(1e-8, world.finishTimeout - dt);
@@ -681,7 +681,7 @@ export function stepWorld(world: World, inputs: Map<string, Input>, dt: number):
   }
   const ordered = standings(world);
   ordered.forEach((kart, index) => { kart.rank = index + 1; });
-  if (ordered.every(kart => kart.finished || kart.abandoned) || world.finishTimeout === 1e-8 || world.raceTime >= MAX_RACE_SECONDS) {
+  if (ordered.every(kart => kart.finished || kart.abandoned) || world.finishTimeout === 1e-8 || world.raceTime >= getTrackRaceTimeLimit(world.trackId)) {
     world.phase = 'finished';
     for (const kart of world.players) kart.speed = 0;
   }

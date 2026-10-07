@@ -16,6 +16,8 @@ abonnement, service externe ou dépendance supplémentaire : **0 €**.
 4. Donner un nom, choisir l’un des dix thèmes et régler la largeur de la route.
    Les zones turbo, glace et boue sont facultatives ; leur position est exprimée
    en pourcentage du tour. Les décors du thème sont générés autour de la piste.
+   Ouvrir les sections **Durée**, **Reliefs et loopings** et **Événements** pour
+   personnaliser aussi le nombre de tours et le déroulement de la course.
 5. **Sauvegarder** publie le circuit pour la classe. **Sauvegarder et essayer**
    ouvre un entraînement réel. **Retour à l’éditeur** ramène au même brouillon.
 6. Pour jouer ensemble, quitter l’atelier, sélectionner la création à l’accueil
@@ -32,6 +34,47 @@ Maj pour affiner, Ctrl/Cmd+Z et Ctrl/Cmd+S.
 Un auteur peut modifier ses propres créations. **Dupliquer** ouvre une copie
 de la création d’un autre joueur. Deux onglets qui modifient la même version
 ne s’écrasent pas : le second reçoit un message invitant à recharger.
+
+## Tours, ponts, tremplins et loopings
+
+Le nombre de tours se règle de **1 à 20** et suit le circuit en entraînement,
+salon et tournoi. L’accueil et le compteur en course affichent cette valeur.
+Les anciens circuits personnalisés restent à trois tours tant qu’ils ne sont
+pas modifiés. Les replays et la limite de durée suivent les courses plus longues.
+
+Dans la section des reliefs, **Ajouter un pont**, **Ajouter un tremplin** ou
+**Ajouter un looping** place un module avec des réglages initiaux. Sa position
+et sa longueur sont exprimées en pourcentage du tracé. Les hauteurs, rampes et
+écartements sont en mètres. Le tremplin possède aussi une impulsion de saut.
+Le plan marque les modules ; le bouton de suppression et Annuler/Rétablir
+permettent d’expérimenter. Jusqu’à 16 ponts/tremplins et 16 loopings sont conservés.
+
+Les loopings utilisent la piste magnétique du jeu : le kart suit réellement
+la boucle en trois dimensions. Ponts et tremplins reprennent la hauteur et les
+sauts de la simulation serveur. Des modules superposés ou un tracé extrême
+peuvent être difficiles à parcourir : **Sauvegarder et essayer** sert à ajuster
+le résultat. Le niveau de détail visuel est plafonné pour les très longs modules,
+sans réduire leurs dimensions ni modifier leur physique.
+
+## Programmer les événements
+
+Chaque événement indique un **numéro de tour**, un type et une portion du tracé.
+Il s’active quand le premier pilote atteint ce tour et dure jusqu’au tour suivant
+de ce pilote. Tous les joueurs voient le même état, même s’ils ont du retard.
+
+| Choix | Effet pendant le tour choisi |
+| --- | --- |
+| Pluie, cendres, tempête | Météo visible et portion boueuse qui ralentit |
+| Neige | Météo visible et portion de verglas |
+| Turbo temporaire | Bande d’accélération sur la portion choisie |
+| Glace ou boue temporaire | Adhérence ou vitesse modifiée sur cette portion |
+| Éclaircie | Météo claire |
+
+On peut programmer jusqu’à 64 événements, y compris après le troisième tour.
+Les surfaces actives apparaissent sur la route, également dans les loopings.
+Si plusieurs surfaces temporaires se chevauchent, la première de la liste prime ;
+pour plusieurs choix météo au même tour, le dernier donne l’ambiance visible.
+Un numéro de tour au-delà de la durée choisie doit être corrigé avant publication.
 
 ## Sauvegardes et compatibilité
 
@@ -73,9 +116,9 @@ comptes illisibles. Les fichiers de sauvegarde restent exclus de Git.
   liste a priorité, comme dans la simulation.
 - Checkpoints, grille et bordures calculés automatiquement. Validation du même
   tracé côté éditeur et côté serveur, avec erreurs en français.
-- Les créations sont des routes au sol : l’atelier ne dessine pas encore de pont,
-  tremplin, looping ou déviation. Les événements automatiques de fermeture sont
-  désactivés sur ces tracés ; ceux des circuits officiels sont conservés.
+- Ponts, tremplins, loopings et événements par tour sont configurables. Les
+  bifurcations et barrages automatiques des circuits officiels ne sont pas
+  générés sur les créations ; l’atelier ne dessine pas encore de route alternative.
 
 Les contrôles restants assurent que les données sont lisibles et la route non
 nulle : tous les points confondus sont refusés, mais plusieurs points collés

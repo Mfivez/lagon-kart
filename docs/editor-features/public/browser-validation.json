@@ -1,0 +1,199 @@
+{
+  "passed": true,
+  "timestamp": "2026-10-07T13:08:12.741Z",
+  "checks": [
+    "Deux profils publics se voient mutuellement ; compteur inclusif et panneau mobile320 sans débordement.",
+    "Un seul exemple utile publié par UI : six tours, pont, tremplin, looping, pluie au tour2 et turbo au tour4 ; relecture API identique.",
+    "Deux profils dans une vraie course WSS sur ce circuit ; compteur /6 des deux côtés et déplacement autoritaire normal."
+  ],
+  "errors": [],
+  "captures": [
+    "mobile-presence-320.png",
+    "public-editor-modules.png",
+    "public-multiplayer-six-laps.png"
+  ],
+  "evidence": {
+    "origin": "https://miles-blades-tulsa-citizens.trycloudflare.com",
+    "scope": "Public HTTP/WSS; deux profils isolés, actions UI, aucune recherche classée ni mutation directe de simulation.",
+    "initialPublication": {
+      "timestamp": "2026-10-07T13:05:22.842Z",
+      "createdIds": [
+        "custom-fa7c993a-0140-4d91-a5e8-35e4feb12f89"
+      ],
+      "cleanupHarnessFix": "Le script initial de préremplissage écrivait aussi sur about:blank ; il est maintenant limité à l’origine du jeu."
+    },
+    "before": {
+      "health": {
+        "status": "ok",
+        "rooms": 0,
+        "maxRooms": 16,
+        "maxPlayers": 8,
+        "simHz": 30,
+        "snapshotHz": 20
+      },
+      "presence": {
+        "connected": 0,
+        "searchingRanked": 0
+      }
+    },
+    "assets": [
+      {
+        "path": "/assets/index-M7yQs0w3.js",
+        "status": 200,
+        "contentType": "text/javascript; charset=utf-8",
+        "bytes": 1047925
+      },
+      {
+        "path": "/assets/index-CHirTTg6.css",
+        "status": 200,
+        "contentType": "text/css; charset=utf-8",
+        "bytes": 58530
+      }
+    ],
+    "presence": {
+      "ownerId": "c5bcac31-7e6a-41c9-8317-1c420e77f0f3",
+      "guestId": "bf78cce3-877d-4413-8907-82d11ca944fe",
+      "ownerCount": "2 connectés",
+      "guestCount": "2 connectés",
+      "mobilePanel": {
+        "x": 24,
+        "y": 355.796875,
+        "width": 272,
+        "height": 122.296875
+      }
+    },
+    "published": {
+      "id": "custom-fa7c993a-0140-4d91-a5e8-35e4feb12f89",
+      "runtimeId": "custom-fa7c993a-0140-4d91-a5e8-35e4feb12f89-v1",
+      "revision": 1,
+      "name": "L’atelier des loopings",
+      "createdThisRun": false,
+      "draft": {
+        "name": "L’atelier des loopings",
+        "theme": "forest",
+        "width": 22,
+        "anchors": [
+          {
+            "x": 0,
+            "z": -110
+          },
+          {
+            "x": 120.20815280171307,
+            "z": -77.78174593052023
+          },
+          {
+            "x": 170,
+            "z": -6.735557395310443e-15
+          },
+          {
+            "x": 120.20815280171308,
+            "z": 77.78174593052022
+          },
+          {
+            "x": 2.0818995585505004e-14,
+            "z": 110
+          },
+          {
+            "x": -120.20815280171307,
+            "z": 77.78174593052024
+          },
+          {
+            "x": -170,
+            "z": 2.0206672185931328e-14
+          },
+          {
+            "x": -120.20815280171311,
+            "z": -77.7817459305202
+          }
+        ],
+        "zones": [
+          {
+            "kind": "boost",
+            "start": 0.18,
+            "end": 0.205,
+            "offset": 0,
+            "width": 8
+          }
+        ],
+        "lapCount": 6,
+        "elevations": [
+          {
+            "kind": "bridge",
+            "start": 0.1,
+            "end": 0.24000000000000002,
+            "height": 5,
+            "approach": 25
+          },
+          {
+            "kind": "jump",
+            "start": 0.4,
+            "end": 0.42000000000000004,
+            "height": 2,
+            "approach": 0,
+            "launchSpeed": 7
+          }
+        ],
+        "loops": [
+          {
+            "start": 0.56,
+            "end": 0.65,
+            "height": 24,
+            "lateralSpread": 20
+          }
+        ],
+        "events": [
+          {
+            "lap": 2,
+            "kind": "rain",
+            "start": 0.3,
+            "end": 0.36
+          },
+          {
+            "lap": 4,
+            "kind": "boost",
+            "start": 0.26,
+            "end": 0.28
+          }
+        ]
+      }
+    },
+    "roomCode": "AWMG62",
+    "driving": {
+      "speed": 5.144860727612118,
+      "distance": 2.143018225902219,
+      "lapCounter": "1 / 6"
+    },
+    "shared": {
+      "trackId": "custom-fa7c993a-0140-4d91-a5e8-35e4feb12f89-v1",
+      "hostPlayers": 2,
+      "guestPlayers": 2,
+      "hostLap": "1 / 6",
+      "guestLap": "1 / 6"
+    },
+    "catalogue": {
+      "before": 2,
+      "after": 2,
+      "createdIds": [],
+      "otherConcurrentCreations": 0,
+      "retainedExample": "custom-fa7c993a-0140-4d91-a5e8-35e4feb12f89"
+    },
+    "after": {
+      "health": {
+        "status": "ok",
+        "rooms": 0,
+        "maxRooms": 16,
+        "maxPlayers": 8,
+        "simHz": 30,
+        "snapshotHz": 20
+      },
+      "presence": {
+        "connected": 0,
+        "searchingRanked": 0
+      }
+    }
+  },
+  "remaining": [
+    "Téléphone physique et Safari iOS non testés.",
+    "Le contrôle public ne termine pas six tours et ne déclenche pas la file classée ; ces points sont validés séparément en privé."
+  ]
+}

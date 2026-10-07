@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { BRANCH_POST_HEIGHT } from '../shared/obstacle-heights';
 import { getTrack, nearestTrack, trackElevation, trackPoint, type Vec2 } from '../shared/track';
 import { getTrackEvent, type TrackBranch, type TrackEventInfo } from '../shared/track-events';
+import { trackZoneGeometry } from './track-zone-geometry';
+import { trackLoopPose } from '../shared/track-loop';
 
 function ribbon(points: Array<Vec2 & { progress?: number; angle?: number }>, width: number, height: number, trackId: string, offset = 0) {
   // Branch positions carry the same virtual progress as their checkpoint gates.
@@ -145,9 +147,25 @@ export class TrackEventsView {
       const before = { x: blocker.x - Math.sin(blocker.angle) * 4, z: blocker.z - Math.cos(blocker.angle) * 4 };
       this.sign('ROUTE BARRÉE · DÉVIATION →', before, '#ffc16d');
     }
+    // Authored events supply the exact active intervals used by the simulation.
+    // Draw the first matching zone last, above permanent surface decorations.
+    let overlayOrder = 100;
+    for (const zone of [...(event.zones ?? [])].reverse()) {
+      const color = zone.kind === 'boost' ? '#efc457' : zone.kind === 'ice' ? '#b5eaf1' : '#745449';
+      const patch = this.mesh(trackZoneGeometry(track.id, zone, .18), color);
+      patch.renderOrder = overlayOrder++;
+      patch.name = `event-zone-${zone.id}`;
+      patch.userData = { kind: zone.kind, start: zone.start, end: zone.end };
+      const pose = trackLoopPose(zone.start, track.id, track.width / 2 + 2);
+      // Keep signs roadside at ground-level entry; loop patches themselves
+      // follow the inverted ribbon instead of appearing on the ground below.
+      if (!pose.active) this.sign(zone.kind === 'boost' ? 'TURBO · CE TOUR' : zone.kind === 'ice' ? 'GLACE · CE TOUR' : 'BOUE · CE TOUR',
+        { x: pose.x, z: pose.z, progress: zone.start }, color);
+    }
     if (event.weather !== 'clear') {
       const surfaceColor = track.theme === 'ice' ? '#c6e8f5' : '#847c6c';
-      for (const [start, end] of [[.51, .565], ...(event.level === 3 && event.stage === 2 ? [[.86, .90]] : [])]) {
+      const weatherBands = track.id.startsWith('custom-') ? [] : [[.51, .565], ...(event.level === 3 && event.stage === 2 ? [[.86, .90]] : [])];
+      for (const [start, end] of weatherBands) {
         const points = Array.from({ length: 19 }, (_, i) => { const progress = (start + (end - start) * i / 18) * track.length; return { ...trackPoint(progress, track.id), progress }; });
         this.mesh(ribbon(points, track.width - .2, .065, track.id), surfaceColor);
         this.sign(track.theme === 'ice' ? 'VERGLAS' : event.weather === 'ash' ? 'CENDRES · RALENTISSEZ' : 'SOL DÉTREMPÉ', points[0]!, '#a8d8ea');

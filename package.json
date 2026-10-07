@@ -47,6 +47,8 @@
     "data:backup": "node scripts/player-data.mjs backup",
     "data:reset": "node scripts/player-data.mjs reset",
     "test:track-editor": "node --import tsx scripts/track-editor-browser-check.ts",
+    "test:editor-features": "node --import tsx scripts/editor-features-browser-check.ts",
+    "test:presence-browser": "node --import tsx scripts/presence-browser-check.ts",
     "test:custom-track-race": "node --import tsx scripts/custom-track-race-check.ts"
   },
   "dependencies": {

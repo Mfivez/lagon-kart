@@ -3,6 +3,7 @@ import { trackPoint, type TrackDefinition, type TrackLoop } from '../shared/trac
 import { trackLoopPose, type TrackLoopPose } from '../shared/track-loop';
 import { nearestDriveableTrack } from '../shared/track-events';
 import { ROAD_RAIL_CENTER_Y, ROAD_RAIL_HEIGHT } from '../shared/obstacle-heights';
+import { loopMeshRows } from './track-mesh-sampling';
 
 const basis = new THREE.Matrix4(), right = new THREE.Vector3(), up = new THREE.Vector3(), tangent = new THREE.Vector3();
 /** The same orthonormal frame as server motion, including the inverted crest. */
@@ -21,7 +22,7 @@ function material(color: string, glow = false) {
 }
 /** Rectangular extrusion in the actual three-dimensional road frame. */
 function beam(track: TrackDefinition, loop: TrackLoop, lateral: number, normal: number, width: number, height: number) {
-  const positions: number[] = [], indices: number[] = [], count = Math.ceil((loop.end - loop.start) * 2);
+  const positions: number[] = [], indices: number[] = [], count = loopMeshRows(loop);
   for (let i = 0; i <= count; i++) {
     const progress = loop.start + (loop.end - loop.start) * i / count;
     const pose = trackLoopPose(progress, track.id, lateral);
@@ -45,7 +46,7 @@ function beam(track: TrackDefinition, loop: TrackLoop, lateral: number, normal: 
  * ribbon even when their surfaces are separated by a few centimetres. */
 function surface(track: TrackDefinition, loop: TrackLoop, from: number, to: number, normal: number, transverseStep = 2) {
   const positions: number[] = [], indices: number[] = [];
-  const rows = Math.ceil((loop.end - loop.start) * 2), columns = Math.ceil((to - from) / transverseStep);
+  const rows = loopMeshRows(loop), columns = Math.ceil((to - from) / transverseStep);
   for (let row = 0; row <= rows; row++) {
     const progress = loop.start + (loop.end - loop.start) * row / rows;
     for (let column = 0; column <= columns; column++) {

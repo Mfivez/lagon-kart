@@ -8,9 +8,10 @@ import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
 import { Client, type Room } from 'colyseus.js';
-import { CUSTOM_TRACK_TEMPLATES, customTrackRuntimeId, registerCustomTrack, type StoredCustomTrack } from '../shared/custom-tracks.js';
-import { getTrack, TRACK_LAYOUT_REVISION } from '../shared/track.js';
+import { CUSTOM_TRACK_TEMPLATES, compileCustomTrack, customTrackRuntimeId, registerCustomTrack, type StoredCustomTrack } from '../shared/custom-tracks.js';
+import { getTrack, getTrackLapCount, TRACK_LAYOUT_REVISION } from '../shared/track.js';
 import { neutralInput, type World } from '../shared/game.js';
+import { getTrackEvent } from '../shared/track-events.js';
 import { seasonId, type PlayerProfile, type ReplayData } from '../shared/progression.js';
 
 const pause = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -193,4 +194,27 @@ test('custom track versions travel through live rooms and remain usable by saved
     });
     assert.deepEqual(JSON.parse(child.stdout), { profileLoaded: true, bestTimeRetained: true, replayIndexRetained: true });
   });
+  await t.test('advanced modules, six-lap rules and scheduled weather hydrate identically over Colyseus', async () => {
+    const advanced=structuredClone(trackDraft);advanced.name='Six tours et reliefs';advanced.lapCount=6;
+    advanced.elevations=[{kind:'bridge',start:.1,end:.24,height:5,approach:25},{kind:'jump',start:.4,end:.42,height:2,approach:0,launchSpeed:7}];
+    advanced.loops=[{start:.56,end:.65,height:24,lateralSpread:20}];
+    advanced.events=[{lap:1,kind:'rain',start:.3,end:.4},{lap:5,kind:'boost',start:.7,end:.75}];
+    const publication=await request('/api/tracks','POST',{draft:advanced},author.token);assert.equal(publication.status,201);
+    const definition=publication.data.track as StoredCustomTrack,id=customTrackRuntimeId(definition);
+    const a=observe(await sdk.create('race',{name:'Architecte relief',trackId:id}));peers.push(a);
+    const b=observe(await browserWithoutCatalogue.joinById(a.room.roomId,{name:'Invité relief'}));peers.push(b);
+    await until(()=>a.latest?.tracks?.length && b.latest?.tracks?.length,'advanced source hydration');
+    for(const peer of [a,b]){
+      assert.deepEqual(peer.latest!.tracks,[definition]);
+      const compiled=compileCustomTrack(peer.latest!.tracks![0]!);
+      assert.deepEqual(compiled,getTrack(id));assert.equal(compiled.lapCount,6);
+      assert.equal(compiled.elevations.length,2);assert.equal(compiled.loops.length,1);assert.equal(compiled.lapEvents?.length,2);
+      peer.room.send('tracksReady',{ids:[id]});peer.room.send('ready',{ready:true});
+    }
+    await until(()=>a.latest?.world.players.every(player=>player.ready),'advanced peers ready');a.room.send('start');
+    await until(()=>a.latest?.world.phase==='racing' && b.latest?.world.phase==='racing','advanced real countdown');
+    assert.equal(getTrackLapCount(a.latest!.world.trackId),6);
+    for(const peer of [a,b])assert.equal(getTrackEvent(peer.latest!.world.trackId,peer.latest!.world.eventStage,peer.latest!.world.eventLevel).weather,'rain');
+  });
+
 });

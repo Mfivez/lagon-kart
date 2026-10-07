@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { TRACK_LAYOUT_REVISION } from '../shared/track.js';
+import { TRACK_LAYOUT_REVISION, getTrackLapCount, getTrackReplayTimeLimit } from '../shared/track.js';
 import { INITIAL_MMR, seasonId, type ReplayData, type ReplayDriver, type ReplayFrame } from '../shared/progression.js';
 
 export interface RatingEntry { playerId: string; mmr: number; rank: number; finished: boolean }
@@ -106,6 +106,14 @@ export class MatchmakingQueue {
   }
 
   get size() { return this.players.size; }
+  /** Read-only activity: an observer must never prolong somebody else's search. */
+  presence(now = Date.now()): { playerId: string; state: 'queued' | 'matching' | 'matched' }[] {
+    this.expire(now);
+    return [...this.players.values()].map(player => {
+      const match = player.matchId ? this.matches.get(player.matchId) : undefined;
+      return { playerId: player.playerId, state: match?.roomId ? 'matched' : match ? 'matching' : 'queued' };
+    });
+  }
   private window(player: WaitingPlayer, now: number) { return Math.min(1200, 125 + Math.floor(Math.max(0, now - player.joinedAt) / 1000) * 20); }
   private expire(now: number) {
     for (const [id, player] of this.players) if (now - player.lastSeen > 45_000) this.players.delete(id);
@@ -130,13 +138,15 @@ export class ReplayRecorder {
 
   constructor(private readonly options: ReplayRecorderOptions) {
     if (!/^[A-Za-z0-9_-]{1,80}$/.test(options.id)) throw new Error('Identifiant de replay invalide.');
-    this.interval = Math.max(200, Math.min(1000, options.sampleIntervalMs ?? 200));
+    // Keep the existing bounded replay size even for twenty-lap races. Three-lap
+    // recordings retain their original 5 Hz cadence; long races sample less often.
+    this.interval = Math.max(200, Math.min(1000, options.sampleIntervalMs ?? 200), Math.ceil(getTrackReplayTimeLimit(options.trackId) * 1000 / 1800));
     this.createdAt = options.createdAt ?? Date.now();
   }
 
   sample(time: number, players: readonly ReplaySample[], force = false): void {
     const milliseconds = Math.round(time * 1000);
-    if (!Number.isFinite(time) || milliseconds < 0 || milliseconds > 360_000 || (!force && milliseconds - this.lastSample < this.interval)) return;
+    if (!Number.isFinite(time) || milliseconds < 0 || milliseconds > getTrackReplayTimeLimit(this.options.trackId) * 1000 || (!force && milliseconds - this.lastSample < this.interval)) return;
     if (milliseconds < this.lastSample) return;
     this.lastSample = milliseconds;
     for (const player of players.slice(0, 8)) {
@@ -150,14 +160,14 @@ export class ReplayRecorder {
         this.drivers.set(player.playerId, driver);
       }
       driver.rank = Math.max(1, Math.min(8, Math.round(player.rank)));
-      driver.finished = player.finished; driver.finishTime = player.finished ? Math.max(0, Math.min(360, player.finishTime)) : 0;
+      driver.finished = player.finished; driver.finishTime = player.finished ? Math.max(0, Math.min(getTrackReplayTimeLimit(this.options.trackId), player.finishTime)) : 0;
       if (driver.frames.length >= 1802) continue;
       const flags = Number((player.boost ?? 0) > 0) | Number((player.invincible ?? 0) > 0) << 1 |
         Number((player.shield ?? 0) > 0) << 2 | Number((player.stun ?? 0) > 0) << 3 | Number(player.finished) << 4;
       const frame: ReplayFrame = [milliseconds, Math.round(Math.max(-10_000, Math.min(10_000, player.x)) * 100),
         Math.round(Math.max(-10_000, Math.min(10_000, player.z)) * 100),
         Math.round(Math.atan2(Math.sin(player.angle), Math.cos(player.angle)) * 1000),
-        Math.round(Math.max(-20, Math.min(100, player.speed)) * 100), Math.max(0, Math.min(3, Math.round(player.lap))), flags];
+        Math.round(Math.max(-20, Math.min(100, player.speed)) * 100), Math.max(0, Math.min(getTrackLapCount(this.options.trackId), Math.round(player.lap))), flags];
       if (driver.frames.at(-1)?.[0] === milliseconds) driver.frames[driver.frames.length - 1] = frame;
       else driver.frames.push(frame);
     }
@@ -166,7 +176,7 @@ export class ReplayRecorder {
   finish(time: number, players: readonly ReplaySample[]): ReplayData {
     this.sample(time, players, true);
     return { version: 1, id: this.options.id, trackId: this.options.trackId, trackRevision: TRACK_LAYOUT_REVISION, createdAt: this.createdAt,
-      durationMs: Math.max(0, Math.min(360_000, Math.round(time * 1000))), season: seasonId(new Date(this.createdAt)),
+      durationMs: Math.max(0, Math.min(getTrackReplayTimeLimit(this.options.trackId) * 1000, Math.round(time * 1000))), season: seasonId(new Date(this.createdAt)),
       ranked: this.options.ranked === true, eventLevel: Math.max(0, Math.min(3, this.options.eventLevel ?? 0)), drivers: structuredClone([...this.drivers.values()]) };
   }
 }

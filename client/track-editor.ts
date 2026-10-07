@@ -1,5 +1,5 @@
 import './track-editor.css';
-import { CUSTOM_TRACK_LIMITS, CUSTOM_TRACK_THEMES, CUSTOM_TRACK_TEMPLATES, sampleCustomTrackAnchors, validateCustomTrackDraft, type CustomTrackDraft, type StoredCustomTrack } from '../shared/custom-tracks';
+import { CUSTOM_TRACK_EVENT_KINDS, CUSTOM_TRACK_LIMITS, CUSTOM_TRACK_THEMES, CUSTOM_TRACK_TEMPLATES, sampleCustomTrackAnchors, validateCustomTrackDraft, type CustomTrackDraft, type StoredCustomTrack } from '../shared/custom-tracks';
 import type { Vec2 } from '../shared/track';
 
 export interface TrackEditorOptions {
@@ -12,6 +12,7 @@ export interface TrackEditorOptions {
   getPlayerId?: () => string;
 }
 type EditorMode = 'move' | 'add';
+type FeatureGroup = 'elevations' | 'loops' | 'events';
 type PendingAction = { text: string; proceed: () => void; close: boolean };
 const copy = <T>(value: T): T => structuredClone(value);
 const escape = (value: string): string => value.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]!));
@@ -118,6 +119,14 @@ export class TrackEditor {
         || !candidate.anchors.every(point => Number.isFinite(point?.x) && Number.isFinite(point?.z) && Math.abs(point.x) <= CUSTOM_TRACK_LIMITS.coordinate && Math.abs(point.z) <= CUSTOM_TRACK_LIMITS.coordinate)
         || !Array.isArray(candidate.zones) || candidate.zones.length > CUSTOM_TRACK_LIMITS.maxZones
         || !candidate.zones.every(zone => ['boost', 'ice', 'mud'].includes(zone?.kind) && [zone.start, zone.end, zone.offset, zone.width].every(Number.isFinite))) return;
+      if (candidate.lapCount !== undefined && !Number.isFinite(candidate.lapCount)) return;
+      for (const group of ['elevations', 'loops', 'events'] as const) {
+        const features = candidate[group];
+        if (features !== undefined && (!Array.isArray(features) || features.length > 64 || features.some(feature => !feature || !Number.isFinite(feature.start) || !Number.isFinite(feature.end)))) return;
+      }
+      if (candidate.elevations?.some(feature => !['bridge', 'jump'].includes(feature.kind) || !Number.isFinite(feature.height) || !Number.isFinite(feature.approach) || feature.launchSpeed !== undefined && !Number.isFinite(feature.launchSpeed))) return;
+      if (candidate.loops?.some(feature => !Number.isFinite(feature.height) || !Number.isFinite(feature.lateralSpread))) return;
+      if (candidate.events?.some(feature => !CUSTOM_TRACK_EVENT_KINDS.some(kind => kind.id === feature.kind) || !Number.isFinite(feature.lap))) return;
       this.draft = copy(candidate);
       if (typeof stored.previous?.id === 'string' && Number.isInteger(stored.previous?.revision)) this.previous = stored.previous;
       this.baseline = typeof stored.baseline === 'string' ? stored.baseline : JSON.stringify(candidate);
@@ -220,14 +229,14 @@ export class TrackEditor {
       const from = action === 'undo' ? this.undoStack : this.redoStack;
       const to = action === 'undo' ? this.redoStack : this.undoStack;
       const next = from.pop();
-      if (next) { to.push(copy(this.draft)); this.draft = next; this.selected = Math.min(this.selected, this.draft.anchors.length - 1); this.changed(); this.renderFields(); this.renderZones(); }
+      if (next) { to.push(copy(this.draft)); this.draft = next; this.selected = Math.min(this.selected, this.draft.anchors.length - 1); this.changed(); this.renderFields(); this.renderZones(); this.renderFeatures(); }
     }
     if (action === 'delete-point' && this.draft.anchors.length > CUSTOM_TRACK_LIMITS.minAnchors) {
       this.remember(); this.draft.anchors.splice(this.selected, 1); this.selected = Math.max(0, this.selected - 1); this.changed();
     }
     if (action === 'start' && this.selected !== 0) {
       this.remember(); this.draft.anchors = [...this.draft.anchors.slice(this.selected), ...this.draft.anchors.slice(0, this.selected)]; this.selected = 0;
-      this.notice = 'Départ déplacé. Les zones se placent à partir de ce nouveau départ.'; this.noticeKind = 'info'; this.changed();
+      this.notice = 'Départ déplacé. Zones, reliefs et événements se placent à partir de ce nouveau départ.'; this.noticeKind = 'info'; this.changed();
     }
     if (action === 'new') {
       const template = CUSTOM_TRACK_TEMPLATES.find(item => item.id === this.dialog.querySelector<HTMLSelectElement>('#editor-template')?.value) ?? CUSTOM_TRACK_TEMPLATES[0]!;
@@ -248,6 +257,28 @@ export class TrackEditor {
     }
     if (action === 'remove-zone') {
       this.remember(); this.draft.zones.splice(Number(target.dataset.zone), 1); this.changed(); this.renderZones();
+    }
+    if (action === 'add-feature') {
+      const kind = target.dataset.kind;
+      if (kind === 'bridge' || kind === 'jump') {
+        if ((this.draft.elevations?.length ?? 0) >= CUSTOM_TRACK_LIMITS.maxElevations) return;
+        this.remember();
+        const start = Math.min(.8, (kind === 'bridge' ? .1 : .4) + (this.draft.elevations?.filter(item => item.kind === kind).length ?? 0) * .16);
+        (this.draft.elevations ??= []).push(kind === 'bridge' ? { kind, start, end: start + .14, height: 7, approach: 25 } : { kind, start, end: start + .02, height: 2, approach: 0, launchSpeed: 7 });
+      } else if (kind === 'loop') {
+        if ((this.draft.loops?.length ?? 0) >= CUSTOM_TRACK_LIMITS.maxLoops) return;
+        this.remember(); const start = Math.min(.9, .55 + (this.draft.loops?.length ?? 0) * .12);
+        (this.draft.loops ??= []).push({ start, end: start + .09, height: 28, lateralSpread: 24 });
+      } else if (kind === 'event') {
+        if ((this.draft.events?.length ?? 0) >= CUSTOM_TRACK_LIMITS.maxEvents) return;
+        this.remember(); (this.draft.events ??= []).push({ lap: Math.min(2, this.draft.lapCount ?? 3), kind: 'rain', start: .5, end: .6 });
+      } else return;
+      this.changed(); this.renderFeatures();
+    }
+    if (action === 'remove-feature') {
+      const group = target.dataset.group as FeatureGroup;
+      if (!['elevations', 'loops', 'events'].includes(group) || !this.draft[group]?.[Number(target.dataset.index)]) return;
+      this.remember(); this.draft[group]!.splice(Number(target.dataset.index), 1); this.changed(); this.renderFeatures();
     }
     if (action === 'pending-cancel') { this.pending = undefined; this.renderConfirmation(); }
     if (action === 'pending-confirm') { const next = this.pending; this.pending = undefined; this.renderConfirmation(); next?.proceed(); }
@@ -278,6 +309,28 @@ export class TrackEditor {
     if (!(target instanceof HTMLSelectElement || target instanceof HTMLInputElement) || this.busy) return;
     if (target.id === 'editor-name' || target.id === 'editor-width') { delete target.dataset.history; this.changed(); if (target.id === 'editor-width') this.renderZones(); }
     if (target.id === 'editor-theme') { this.remember(); this.draft.theme = target.value as CustomTrackDraft['theme']; this.changed(); }
+    if (target.id === 'editor-laps') {
+      this.remember(); this.draft.lapCount = Math.max(1, Math.min(CUSTOM_TRACK_LIMITS.maxLaps, Math.round(Number(target.value)) || 1));
+      target.value = String(this.draft.lapCount); this.changed();
+      for (const input of this.dialog.querySelectorAll<HTMLInputElement>('[data-group="events"][data-feature-field="lap"]')) input.max = String(this.draft.lapCount);
+    }
+    if (target.dataset.group && target.dataset.featureField) {
+      const group = target.dataset.group as FeatureGroup; const field = target.dataset.featureField;
+      if (!['elevations', 'loops', 'events'].includes(group)) return;
+      const index = Number(target.dataset.index); const feature = this.draft[group]?.[index]; if (!feature) return;
+      this.remember();
+      if (field === 'start') {
+        const duration = feature.end - feature.start; feature.start = Math.max(0, Math.min(.999, Number(target.value) / 100)); feature.end = Math.min(1, feature.start + duration);
+      } else if (field === 'duration') feature.end = Math.min(1, feature.start + Math.max(.001, Number(target.value) / 100));
+      else if (group === 'events' && field === 'kind') this.draft.events![index]!.kind = target.value as NonNullable<CustomTrackDraft['events']>[number]['kind'];
+      else if (group === 'events' && field === 'lap') this.draft.events![index]!.lap = Math.round(Number(target.value));
+      else if (group === 'loops' && ['height', 'lateralSpread'].includes(field)) Object.assign(feature, { [field]: Number(target.value) });
+      else if (group === 'elevations' && ['height', 'approach', 'launchSpeed'].includes(field)) Object.assign(feature, { [field]: Number(target.value) });
+      this.changed();
+      for (const [name, value] of [['start', feature.start * 100], ['duration', (feature.end - feature.start) * 100]] as const) {
+        const input = this.dialog.querySelector<HTMLInputElement>(`[data-group="${group}"][data-index="${index}"][data-feature-field="${name}"]`); if (input) input.value = String(Math.round(value * 10) / 10);
+      }
+    }
     if (target.dataset.zone !== undefined && target.dataset.field) {
       const index = Number(target.dataset.zone); const zone = this.draft.zones[index]; if (!zone) return;
       this.remember();
@@ -383,15 +436,18 @@ export class TrackEditor {
   private render() {
     this.dialog.innerHTML = `<header class="editor-header"><div><span class="editor-eyebrow">ATELIER DES CIRCUITS</span><h2 id="track-editor-title">Votre prochaine piste</h2><p>Tracez, sauvegardez et retrouvez vos amis sur votre circuit.</p></div><button type="button" data-action="close" id="editor-close" class="editor-button" aria-label="Fermer l’éditeur">Fermer ✕</button></header>
       <div class="editor-layout"><section class="editor-workspace" aria-label="Dessin du circuit"><div class="editor-tools" id="editor-toolbar"></div>
-      <p class="editor-canvas-hint" id="editor-canvas-hint"></p><div class="editor-canvas-frame"><svg id="editor-canvas" role="group" aria-label="Plan du circuit. Faites glisser les points pour modifier la route." xmlns="http://www.w3.org/2000/svg"></svg></div>
+      <p class="editor-canvas-hint" id="editor-canvas-hint"></p><div class="editor-canvas-frame"><svg id="editor-canvas" role="group" aria-label="Plan du circuit. Faites glisser les points pour modifier la route." xmlns="http://www.w3.org/2000/svg"></svg></div><div class="editor-feature-legend"><span class="editor-legend-relief">Pont / tremplin</span><span class="editor-legend-loop">Looping</span><span class="editor-legend-event">Événement · T = tour</span></div>
       <div class="editor-point-tools"><span id="editor-selection"></span><button type="button" data-action="start" id="editor-set-start" class="editor-button">Départ ici</button><button type="button" data-action="delete-point" id="editor-delete-point" class="editor-button">Supprimer le point</button></div>
       <div class="editor-route-stats" id="editor-route-stats"></div><div id="editor-validation" class="editor-validation" tabindex="-1" aria-live="polite"></div>
       <details class="editor-help"><summary>Comment créer un circuit agréable ?</summary><ol><li>Partez d’un modèle, puis faites glisser les points blancs. Virages serrés, points collés et croisements sont autorisés.</li><li>Pour allonger la route, choisissez « Ajouter un point » puis touchez le tracé.</li><li>Le drapeau marque le départ. Sélectionnez un point puis « Départ ici » pour le déplacer.</li><li>Les zones turbo, glace ou boue sont facultatives. Le pourcentage indique leur position dans le tour.</li><li>Sauvegardez pour partager. « Sauvegarder et essayer » lance une course d’entraînement.</li></ol><p>Clavier : tabulation pour choisir un point, flèches pour le déplacer, Maj pour affiner. Ctrl/Cmd + Z annule, Ctrl/Cmd + S sauvegarde.</p></details></section>
       <aside class="editor-settings"><section class="editor-card"><h3>1. Donnez-lui un style</h3><div id="editor-fields"></div></section>
       <section class="editor-card"><div class="editor-section-heading"><h3>2. Pimentez le tour</h3><button type="button" class="editor-button" data-action="add-zone" id="editor-add-zone">+ Zone</button></div><p class="editor-muted">Facultatif : des bandes colorées sur la route. En cas de superposition, la première zone de la liste agit.</p><div id="editor-zones"></div></section>
+      <details class="editor-card editor-feature-section" id="editor-race-options" open><summary>3. Durée de la course</summary><div id="editor-lap-fields"></div></details>
+      <details class="editor-card editor-feature-section" id="editor-relief-options"><summary>4. Ponts, sauts et loopings</summary><p class="editor-muted">Placez un module sur une portion du tour. Position et longueur sont mesurées depuis le départ. Les marques violettes et orange repèrent leur emplacement. L’essai montre leur forme en 3D.</p><div class="editor-module-actions"><button type="button" class="editor-button" data-action="add-feature" data-kind="bridge" id="editor-add-bridge">+ Pont</button><button type="button" class="editor-button" data-action="add-feature" data-kind="jump" id="editor-add-jump">+ Tremplin</button><button type="button" class="editor-button" data-action="add-feature" data-kind="loop" id="editor-add-loop">+ Looping</button></div><div id="editor-elevations"></div><div id="editor-loops"></div><p class="editor-muted editor-feature-note">Un pont monte puis redescend. Un tremplin fait décoller le kart. Un looping retourne le kart sur sa boucle. Essayez pour ajuster vitesse et réception. En cas de superposition, le looping passe en premier, puis le premier relief de la liste.</p></details>
+      <details class="editor-card editor-feature-section" id="editor-event-options"><summary>5. Événements par tour</summary><p class="editor-muted">L’événement commence quand le pilote en tête atteint le tour choisi et dure ce tour, pour tous les joueurs. La météo concerne le circuit ; la zone choisie reçoit son effet sur la route.</p><button type="button" class="editor-button" data-action="add-feature" data-kind="event" id="editor-add-event">+ Événement</button><div id="editor-events"></div><p class="editor-muted editor-feature-note">Pluie, cendres et tempête : une bande boueuse. Neige : verglas. Éclaircie : météo calme sans bande. Turbo, glace et boue : une bande temporaire. En cas de superposition, la première bande de la liste agit. Si plusieurs météos arrivent au même tour, la dernière de la liste est retenue.</p></details>
       <details class="editor-card editor-library" open><summary>Vos circuits et ceux de la classe</summary><div class="editor-new"><label for="editor-template">Partir d’un modèle</label><select id="editor-template">${CUSTOM_TRACK_TEMPLATES.map(template => `<option value="${escape(template.id)}">${escape(template.name)}</option>`).join('')}</select><button type="button" class="editor-button" data-action="new" id="editor-new">Nouveau circuit</button></div><div id="editor-library"></div></details></aside></div>
       <footer class="editor-footer"><div><strong id="editor-save-state"></strong><p id="editor-status" role="status"></p></div><div class="editor-footer-actions"><button type="button" class="editor-button" data-action="save" id="editor-save">Sauvegarder</button><button type="button" class="editor-button editor-primary" data-action="try" id="editor-try">Sauvegarder et essayer →</button></div></footer><div id="editor-confirmation"></div>`;
-    this.renderFields(); this.renderZones(); this.renderToolbar(); this.renderDrawing(); this.renderFeedback(); this.renderLibrary();
+    this.renderFields(); this.renderZones(); this.renderFeatures(); this.renderToolbar(); this.renderDrawing(); this.renderFeedback(); this.renderLibrary();
   }
 
   private renderFields() {
@@ -415,6 +471,9 @@ export class TrackEditor {
     for (const id of ['editor-save', 'editor-try']) { const button = this.dialog.querySelector<HTMLButtonElement>(`#${id}`); if (button) button.disabled = this.busy || !this.validation.ok; }
     const close = this.dialog.querySelector<HTMLButtonElement>('#editor-close'); if (close) close.disabled = this.busy;
     const zone = this.dialog.querySelector<HTMLButtonElement>('#editor-add-zone'); if (zone) zone.disabled = this.draft.zones.length >= CUSTOM_TRACK_LIMITS.maxZones || this.busy;
+    for (const [id, count, limit] of [['editor-add-bridge', this.draft.elevations?.length ?? 0, CUSTOM_TRACK_LIMITS.maxElevations], ['editor-add-jump', this.draft.elevations?.length ?? 0, CUSTOM_TRACK_LIMITS.maxElevations], ['editor-add-loop', this.draft.loops?.length ?? 0, CUSTOM_TRACK_LIMITS.maxLoops], ['editor-add-event', this.draft.events?.length ?? 0, CUSTOM_TRACK_LIMITS.maxEvents]] as const) {
+      const button = this.dialog.querySelector<HTMLButtonElement>(`#${id}`); if (button) button.disabled = this.busy || count >= limit;
+    }
     for (const input of this.dialog.querySelectorAll<HTMLInputElement | HTMLSelectElement>('.editor-settings input, .editor-settings select')) input.disabled = this.busy;
   }
 
@@ -442,13 +501,27 @@ export class TrackEditor {
     svg.setAttribute('viewBox', `${this.view.x} ${this.view.z} ${this.view.width} ${this.view.height}`);
     const scale = 1 / (svg.getScreenCTM()?.a || 1);
     const radius = Math.max(5, 9 * scale); const hitRadius = 22 * scale; const flag = this.draft.width * .5 + 8;
+    const features = [
+      ...(this.draft.elevations ?? []).map((feature, index) => ({ ...feature, group: 'elevations', index, color: '#d77924', badge: `${feature.kind === 'bridge' ? 'P' : 'S'}${index + 1}`, label: `${feature.kind === 'bridge' ? 'Pont' : 'Tremplin'} ${index + 1}, hauteur ${feature.height} m` })),
+      ...(this.draft.loops ?? []).map((feature, index) => ({ ...feature, group: 'loops', index, color: '#914bbd', badge: `L${index + 1}`, label: `Looping ${index + 1}, hauteur ${feature.height} m` })),
+      ...(this.draft.events ?? []).map((feature, index) => ({ ...feature, group: 'events', index, color: '#2f86b0', badge: `T${feature.lap}`, label: `Tour ${feature.lap} : ${CUSTOM_TRACK_EVENT_KINDS.find(kind => kind.id === feature.kind)?.label ?? feature.kind}` })),
+    ].map(feature => {
+      const begin = feature.start * length, end = feature.end * length;
+      const offset = (feature.group === 'events' ? -1 : 1) * (this.draft.width / 2 + 3 * scale);
+      const subset = [atDistance(begin, offset), ...lengths.slice(0, -1).filter(distance => distance > begin && distance < end).map(distance => atDistance(distance, offset)), atDistance(end, offset)];
+      const badge = atDistance((begin + end) / 2, offset + (feature.group === 'events' ? -1 : 1) * 10 * scale);
+      const sameZoneLaps = feature.group === 'events' ? [...new Set((this.draft.events ?? []).filter(event => Math.abs(event.start - feature.start) < .0001 && Math.abs(event.end - feature.end) < .0001).map(event => event.lap))].sort((a, b) => a - b) : [];
+      const badgeText = sameZoneLaps.length > 1 ? sameZoneLaps.slice(0, 3).map(lap => `T${lap}`).join('/') + (sameZoneLaps.length > 3 ? ` +${sameZoneLaps.length - 3}` : '') : feature.badge;
+      const badgeWidth = Math.max(24, badgeText.length * 6 + 8);
+      return `<g data-feature-marker="${feature.group}-${feature.index}" pointer-events="none"><title>${escape(feature.label)}</title><path d="${path(subset)}" fill="none" stroke="${feature.color}" stroke-width="${3 * scale}" stroke-dasharray="${feature.group === 'events' ? `${5 * scale} ${3 * scale}` : 'none'}"/><rect x="${badge.x - badgeWidth / 2 * scale}" y="${badge.z - 8 * scale}" width="${badgeWidth * scale}" height="${16 * scale}" rx="${5 * scale}" fill="${feature.color}"/><text x="${badge.x}" y="${badge.z + 3 * scale}" fill="white" font-size="${9 * scale}" font-weight="800" text-anchor="middle">${badgeText}</text></g>`;
+    }).join('');
     svg.setAttribute('viewBox', `${this.view.x} ${this.view.z} ${this.view.width} ${this.view.height}`);
     svg.style.backgroundColor = ground;
     svg.innerHTML = `<defs><pattern id="editor-grid" width="25" height="25" patternUnits="userSpaceOnUse"><path d="M25 0H0V25" fill="none" stroke="#213f4030" stroke-width=".5"/></pattern></defs><rect x="${this.view.x}" y="${this.view.z}" width="${this.view.width}" height="${this.view.height}" fill="url(#editor-grid)"/><path d="${route}" fill="none" stroke="#e9ead5" stroke-width="${this.draft.width + 3}" stroke-linejoin="round"/><path d="${route}" fill="none" stroke="${road}" stroke-width="${this.draft.width}" stroke-linejoin="round"/>${zones}<path d="${route}" fill="none" stroke="#ffffff65" stroke-width=".7" stroke-dasharray="4 5"/>
-      <g transform="translate(${start.x} ${start.z}) rotate(${angle})"><path d="M0 ${-this.draft.width / 2}V${this.draft.width / 2}" stroke="#ffffff" stroke-width="3"/><path d="M0 ${-this.draft.width / 2}V${this.draft.width / 2}" stroke="#263c42" stroke-width="3" stroke-dasharray="2 2"/><path d="M${flag} -3 L${flag + 6} 0 L${flag} 3" fill="none" stroke="#fff7dd" stroke-width="2"/></g>
+      ${features}<g transform="translate(${start.x} ${start.z}) rotate(${angle})"><path d="M0 ${-this.draft.width / 2}V${this.draft.width / 2}" stroke="#ffffff" stroke-width="3"/><path d="M0 ${-this.draft.width / 2}V${this.draft.width / 2}" stroke="#263c42" stroke-width="3" stroke-dasharray="2 2"/><path d="M${flag} -3 L${flag + 6} 0 L${flag} 3" fill="none" stroke="#fff7dd" stroke-width="2"/></g>
       ${this.draft.anchors.map((point, index) => `<g data-point="${index}" tabindex="0" role="button" aria-label="Point ${index + 1}${index === 0 ? ', départ' : ''}. Flèches pour déplacer." aria-pressed="${index === this.selected}"><circle cx="${point.x}" cy="${point.z}" r="${hitRadius}" fill="transparent"/><circle cx="${point.x}" cy="${point.z}" r="${radius}" fill="${index === this.selected ? '#ffcc6b' : '#fff8e8'}" stroke="${index === this.selected ? '#8e4b1e' : '#324e51'}" stroke-width="${1.5 * scale}"/><text x="${point.x}" y="${point.z + 3 * scale}" text-anchor="middle" font-size="${8 * scale}" font-weight="800" fill="#213f40" pointer-events="none">${index === 0 ? '⚑' : index + 1}</text></g>`).join('')}`;
     const stats = this.dialog.querySelector('#editor-route-stats');
-    if (stats) stats.innerHTML = `<span><strong>${Math.round(length)} m</strong> par tour</span><span><strong>${this.draft.width} m</strong> de large</span><span><strong>${this.draft.anchors.length}</strong> points</span><span><strong>${this.draft.zones.length}</strong> zones</span>`;
+    if (stats) stats.innerHTML = `<span><strong>${Math.round(length)} m</strong> par tour</span><span><strong>${this.draft.lapCount ?? 3}</strong> tours</span><span><strong>${this.draft.width} m</strong> de large</span><span><strong>${this.draft.anchors.length}</strong> points</span><span><strong>${this.draft.zones.length}</strong> zones</span><span><strong>${(this.draft.elevations?.length ?? 0) + (this.draft.loops?.length ?? 0)}</strong> reliefs</span><span><strong>${this.draft.events?.length ?? 0}</strong> événements</span>`;
   }
 
   private renderFeedback() {
@@ -458,7 +531,10 @@ export class TrackEditor {
       validation.innerHTML = this.validation.ok ? '<strong>✓ La piste est prête à rouler</strong><span>Tracé libre : virages serrés, points collés et croisements autorisés. Essayez la piste pour ajuster la conduite.</span>' : `<strong>Encore quelques ajustements</strong><ul>${this.validation.errors.map(error => `<li>${escape(error)}</li>`).join('')}</ul>`;
     }
     const status = this.dialog.querySelector<HTMLElement>('#editor-status');
-    if (status) { status.textContent = this.notice || (this.localStorageFailed ? 'Le brouillon ne peut pas être conservé dans ce navigateur. Sauvegardez avant de partir.' : 'Le brouillon est gardé automatiquement sur ce navigateur.'); status.dataset.kind = this.noticeKind; }
+    if (status) {
+      status.textContent = !this.validation.ok && !this.busy ? this.validation.errors[0]! : this.notice || (this.localStorageFailed ? 'Le brouillon ne peut pas être conservé dans ce navigateur. Sauvegardez avant de partir.' : 'Le brouillon est gardé automatiquement sur ce navigateur.');
+      status.dataset.kind = !this.validation.ok && !this.busy ? 'error' : this.noticeKind;
+    }
     const state = this.dialog.querySelector('#editor-save-state'); if (state) state.textContent = this.busy ? 'Sauvegarde en cours…' : this.dirty ? 'Modifications non sauvegardées' : this.previous ? 'Circuit sauvegardé · partagé avec la classe' : 'Nouveau circuit · pas encore partagé';
   }
 
@@ -468,6 +544,22 @@ export class TrackEditor {
       const lane = zone.width >= this.draft.width - .1 ? 'full' : zone.offset < -1 ? '-1' : zone.offset > 1 ? '1' : '0';
       return `<div class="editor-zone" data-zone-card="${index}"><div class="editor-zone-top"><label>Zone ${index + 1}<select data-zone="${index}" data-field="kind" aria-label="Type de la zone ${index + 1}">${Object.entries(ZONE_NAMES).map(([kind, name]) => `<option value="${kind}" ${zone.kind === kind ? 'selected' : ''}>${name}</option>`).join('')}</select></label><button type="button" class="editor-button editor-square" data-action="remove-zone" data-zone="${index}" aria-label="Supprimer la zone ${index + 1}">✕</button></div><div class="editor-zone-fields"><label>Position (%)<input type="number" min="0" max="99.9" step="0.1" value="${Math.round(zone.start * 1000) / 10}" data-zone="${index}" data-field="start" aria-label="Position de la zone ${index + 1} en pourcentage du tour"></label><label>Longueur (%)<input type="number" min="0.1" max="100" step="0.1" value="${Math.round((zone.end - zone.start) * 1000) / 10}" data-zone="${index}" data-field="duration" aria-label="Longueur de la zone ${index + 1} en pourcentage du tour"></label></div><label>Placement<select data-zone="${index}" data-field="lane" aria-label="Placement de la zone ${index + 1}"><option value="0" ${lane === '0' ? 'selected' : ''}>Au centre</option><option value="-1" ${lane === '-1' ? 'selected' : ''}>Côté droit</option><option value="1" ${lane === '1' ? 'selected' : ''}>Côté gauche</option><option value="full" ${lane === 'full' ? 'selected' : ''}>Toute la largeur</option></select></label></div>`;
     }).join('') : '<p class="editor-empty">Un tracé simple, c’est déjà un circuit. Ajoutez une zone quand vous le souhaitez.</p>';
+  }
+
+  private renderFeatures() {
+    const laps = this.dialog.querySelector('#editor-lap-fields');
+    if (laps) laps.innerHTML = `<label class="editor-field" for="editor-laps">Nombre de tours<input id="editor-laps" type="number" min="1" max="${CUSTOM_TRACK_LIMITS.maxLaps}" step="1" value="${this.draft.lapCount ?? 3}"><small>De 1 à ${CUSTOM_TRACK_LIMITS.maxLaps} tours. Ce nombre est conservé pour les courses et les manches de tournoi sur ce circuit.</small></label>`;
+    const percent = (value: number) => Math.round(value * 1000) / 10;
+    const number = (group: FeatureGroup, index: number, field: string, label: string, value: number, min: number, max: number, step = .1) => `<label>${label}<input type="number" data-group="${group}" data-index="${index}" data-feature-field="${field}" aria-label="${label}, ${group === 'events' ? 'événement' : 'module'} ${index + 1}" min="${min}" max="${max}" step="${step}" value="${value}"></label>`;
+    const interval = (group: FeatureGroup, index: number, feature: { start: number; end: number }) => number(group, index, 'start', 'Position (%)', percent(feature.start), 0, 99.9) + number(group, index, 'duration', 'Longueur (%)', percent(feature.end - feature.start), .1, 100);
+    const remove = (group: FeatureGroup, index: number, label: string) => `<button type="button" class="editor-button editor-square" data-action="remove-feature" data-group="${group}" data-index="${index}" aria-label="Supprimer ${label} ${index + 1}">✕</button>`;
+    const elevations = this.dialog.querySelector('#editor-elevations');
+    if (elevations) elevations.innerHTML = (this.draft.elevations ?? []).map((feature, index) => `<article class="editor-feature" data-feature-card="elevations-${index}"><div class="editor-section-heading"><strong>${feature.kind === 'bridge' ? '↗ Pont' : '↗ Tremplin'} ${index + 1}</strong>${remove('elevations', index, feature.kind === 'bridge' ? 'le pont' : 'le tremplin')}</div><div class="editor-zone-fields">${interval('elevations', index, feature)}${number('elevations', index, 'height', 'Hauteur (m)', feature.height, .1, CUSTOM_TRACK_LIMITS.maxHeight)}${number('elevations', index, 'approach', 'Approche (m)', feature.approach, feature.kind === 'bridge' ? .1 : 0, 2000, 1)}${feature.kind === 'jump' ? number('elevations', index, 'launchSpeed', 'Impulsion (m/s)', feature.launchSpeed ?? 6, 0, 25, .5) : ''}</div><p class="editor-muted">${feature.kind === 'bridge' ? 'Une approche longue donne une montée plus douce.' : 'L’impulsion règle la hauteur du saut. Prévoyez une réception dégagée.'}</p></article>`).join('');
+    const loops = this.dialog.querySelector('#editor-loops');
+    if (loops) loops.innerHTML = (this.draft.loops ?? []).map((feature, index) => `<article class="editor-feature" data-feature-card="loops-${index}"><div class="editor-section-heading"><strong>⟳ Looping ${index + 1}</strong>${remove('loops', index, 'le looping')}</div><div class="editor-zone-fields">${interval('loops', index, feature)}${number('loops', index, 'height', 'Hauteur (m)', feature.height, .1, CUSTOM_TRACK_LIMITS.maxHeight)}${number('loops', index, 'lateralSpread', 'Écart latéral (m)', feature.lateralSpread, 0, 80, 1)}</div><p class="editor-muted">L’écart latéral élargit la boucle. Une portion assez longue rend l’entrée et la sortie plus douces.</p></article>`).join('');
+    const events = this.dialog.querySelector('#editor-events');
+    if (events) events.innerHTML = (this.draft.events ?? []).length ? this.draft.events!.map((feature, index) => `<article class="editor-feature" data-feature-card="events-${index}"><div class="editor-section-heading"><strong>Événement ${index + 1}</strong>${remove('events', index, 'l’événement')}</div><label class="editor-field">Effet<select data-group="events" data-index="${index}" data-feature-field="kind" aria-label="Effet de l’événement ${index + 1}">${CUSTOM_TRACK_EVENT_KINDS.map(kind => `<option value="${kind.id}" ${feature.kind === kind.id ? 'selected' : ''}>${escape(kind.label)}</option>`).join('')}</select></label><div class="editor-zone-fields">${number('events', index, 'lap', 'Tour du leader', feature.lap, 1, this.draft.lapCount ?? 3, 1)}${interval('events', index, feature)}</div></article>`).join('') : '<p class="editor-empty">Exemple : de la pluie au tour 2, puis une bande turbo au tour 4. Choisissez davantage de tours dans « Durée de la course ».</p>';
+    this.renderToolbar();
   }
 
   private renderLibrary() {

@@ -1,0 +1,145 @@
+{
+  "passed": true,
+  "timestamp": "2026-10-07T12:51:39.251Z",
+  "checks": [
+    "Ancien format : ouvrir et sauvegarder ne rajoute aucune option facultative au circuit.",
+    "Six tours, pont, tremplin, looping et événements aux tours1/4/5 ajoutés par UI ; suppression/annuler/rétablir et validation de tour hors course.",
+    "Brouillon rechargé intact ; options relues dans l’API et dans le fichier de révision du répertoire data privé.",
+    "Vraie course d’essai : circuit enrichi chargé, compteur sur6tours, accélération normale et retour à l’éditeur.",
+    "Mobile320 : duplication d’un autre joueur, tous les modules conservés, hauteur modifiée indépendamment et sauvegarde ; cibles≥44px sans débordement.",
+    "Deux navigateurs de profils différents rejoignent le même salon sur la révision du circuit sauvegardé."
+  ],
+  "errors": [],
+  "captures": [
+    "editor-features-desktop.png",
+    "editor-events-desktop.png",
+    "editor-features-trial.png",
+    "editor-features-mobile-320.png"
+  ],
+  "evidence": {
+    "origin": "http://127.0.0.1:43301",
+    "clientAssets": [
+      "/assets/index-CMTOos7s.js",
+      "/assets/index-Y9Kosx-s.css"
+    ],
+    "saved": {
+      "id": "custom-c088c3fb-d18c-4a3b-a960-831401683124",
+      "revision": 2,
+      "draft": {
+        "name": "Les six tours du looping",
+        "theme": "tropical",
+        "width": 22,
+        "anchors": [
+          {
+            "x": 0,
+            "z": -110
+          },
+          {
+            "x": 120.20815280171307,
+            "z": -77.78174593052023
+          },
+          {
+            "x": 170,
+            "z": -6.735557395310443e-15
+          },
+          {
+            "x": 120.20815280171308,
+            "z": 77.78174593052022
+          },
+          {
+            "x": 2.0818995585505004e-14,
+            "z": 110
+          },
+          {
+            "x": -120.20815280171307,
+            "z": 77.78174593052024
+          },
+          {
+            "x": -170,
+            "z": 2.0206672185931328e-14
+          },
+          {
+            "x": -120.20815280171311,
+            "z": -77.7817459305202
+          }
+        ],
+        "zones": [
+          {
+            "kind": "boost",
+            "start": 0.18,
+            "end": 0.205,
+            "offset": 0,
+            "width": 8
+          }
+        ],
+        "lapCount": 6,
+        "elevations": [
+          {
+            "kind": "bridge",
+            "start": 0.25,
+            "end": 0.39,
+            "height": 7,
+            "approach": 25
+          },
+          {
+            "kind": "jump",
+            "start": 0.4,
+            "end": 0.42000000000000004,
+            "height": 2,
+            "approach": 0,
+            "launchSpeed": 7
+          }
+        ],
+        "loops": [
+          {
+            "start": 0.03,
+            "end": 0.11999999999999997,
+            "height": 28,
+            "lateralSpread": 24
+          }
+        ],
+        "events": [
+          {
+            "lap": 1,
+            "kind": "rain",
+            "start": 0.5,
+            "end": 0.6
+          },
+          {
+            "lap": 4,
+            "kind": "boost",
+            "start": 0.5,
+            "end": 0.6
+          },
+          {
+            "lap": 5,
+            "kind": "clear",
+            "start": 0.5,
+            "end": 0.6
+          }
+        ]
+      }
+    },
+    "trial": {
+      "trackId": "custom-c088c3fb-d18c-4a3b-a960-831401683124-v2",
+      "speed": 5.904097842470549,
+      "lapCounter": "TOUR\n1 / 6\n00:02.9"
+    },
+    "duplicate": {
+      "id": "custom-d4c603e9-561c-4730-83bf-7d97ec697f54",
+      "lapCount": 6
+    },
+    "shared": {
+      "hostTrackId": "custom-c088c3fb-d18c-4a3b-a960-831401683124-v2",
+      "guestTrackId": "custom-c088c3fb-d18c-4a3b-a960-831401683124-v2",
+      "playerCount": 2
+    }
+  },
+  "fixtures": [
+    "Serveur et données privés éphémères ; aucune mutation directe de la simulation. Création, sauvegarde, duplication et conduite uniquement par interface."
+  ],
+  "remaining": [
+    "Téléphone physique et Safari iOS non testés.",
+    "Ce scénario ne termine pas les6tours ; la progression et les événements tardifs sont couverts par les tests de simulation séparés."
+  ]
+}

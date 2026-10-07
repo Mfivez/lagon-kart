@@ -1,0 +1,31 @@
+{
+  "executedAt": "2026-10-07T13:00:37.268Z",
+  "checks": [
+    "A fresh guest starts as Pilote; changing the nickname at home updates another browser before any race",
+    "Typing sends no PATCH per keystroke; a delayed save cannot overwrite newer nickname text",
+    "Two isolated browser profiles see each other at home; public count and own-player label agree",
+    "Three tabs still count two profiles; closing one Bob tab leaves the other connected",
+    "Real UI ranked search is visible from a different mobile profile; 320 px panel stays within viewport",
+    "Cancelling from the career dialog clears the authoritative search count",
+    "A real solo room displays En entraînement and leaving returns the same profile home",
+    "Unloading the final profile tab removes that player; remaining browser updates to one connected"
+  ],
+  "errors": [],
+  "environment": "Private Node HTTP/Colyseus server + Chromium, isolated temporary player data",
+  "finalPresence": {
+    "players": [
+      {
+        "id": "cccc2d96-56d7-44d0-8f45-312a98a31ce8",
+        "name": "Alice Atelier",
+        "status": "home"
+      }
+    ],
+    "connected": 1,
+    "searchingRanked": 0
+  },
+  "result": "pass",
+  "limits": [
+    "Phone viewport/touch are emulated; no physical phone was used",
+    "45-second abrupt-network expiry is covered by deterministic unit tests, not a 45-second browser sleep"
+  ]
+}

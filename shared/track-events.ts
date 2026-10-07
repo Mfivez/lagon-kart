@@ -1,8 +1,8 @@
-import { getTrack, nearestTrack, trackPoint, trackSurface, trackElevation, type Surface, type TrackZone, type Vec2 } from './track.js';
+import { getTrack, getTrackLapCount, nearestTrack, trackPoint, trackSurface, trackElevation, type Surface, type TrackZone, type Vec2 } from './track.js';
 import { KART_COLLISION_HEIGHT, trackBlockerHeight } from './obstacle-heights.js';
 
 export type EventLevel = 0 | 1 | 2 | 3;
-export type EventStage = 0 | 1 | 2;
+export type EventStage = number;
 export type BranchKind = 'detour' | 'technical' | 'shortcut';
 export interface BranchPoint extends Vec2 { progress: number; angle: number }
 export interface EventCheckpointGate extends BranchPoint { width: number; branchId: string }
@@ -17,6 +17,8 @@ export interface TrackEventInfo {
   trackId: string; stage: EventStage; level: EventLevel; title: string; description: string;
   weather: 'clear' | 'rain' | 'snow' | 'ash' | 'storm';
   branches: TrackBranch[]; blockers: TrackBlocker[];
+  /** Active, authored road effects only; coordinates are metres along the route. */
+  zones?: TrackZone[];
 }
 export type DriveablePosition = ReturnType<typeof nearestTrack> & {
   width: number; branchId: string; surface: Surface;
@@ -127,11 +129,30 @@ function layout(trackId: string) {
 
 /** Shared phase comes from the leader's lap, never from an individual client. */
 export function getTrackEvent(trackId: string, stage = 0, level = 0): TrackEventInfo {
-  // Arbitrary authored layouts have no automatically generated detours or closures.
-  const track = getTrack(trackId), currentStage = clampStage(stage), currentLevel = track.id.startsWith('custom-') ? 0 : clampLevel(level);
+  // Authored events use the leader's actual lap. Built-in three-phase layouts
+  // keep their original behavior and never generate branches on arbitrary roads.
+  const track = getTrack(trackId), custom = track.id.startsWith('custom-');
+  const currentStage = custom ? Math.max(0, Math.min(getTrackLapCount(track.id)-1, Math.floor(Number.isFinite(stage)?stage:0))) : clampStage(stage);
+  const currentLevel = custom ? 0 : clampLevel(level);
   const key = [track.id, currentStage, currentLevel].join(':');
   const cached = events.get(key);
   if (cached) return cached;
+  if (custom && track.lapEvents?.length) {
+    const active = track.lapEvents.filter(event=>event.lap===currentStage+1);
+    const weatherKinds = ['clear','rain','snow','ash','storm'] as const;
+    const weather = [...active].reverse().find(event=>(weatherKinds as readonly string[]).includes(event.kind))?.kind as TrackEventInfo['weather'] | undefined;
+    const zones: TrackZone[] = active.filter(event=>event.kind!=='clear').map(event=>({
+      id:event.id, kind:event.kind==='snow' || event.kind==='ice' ? 'ice' : event.kind==='boost' ? 'boost' : 'mud',
+      start:event.start,end:event.end,offset:0,width:track.width,
+    }));
+    const labels = {clear:'Éclaircie',rain:'Pluie',snow:'Neige',ash:'Cendres',storm:'Tempête',boost:'Turbo',ice:'Verglas',mud:'Boue'};
+    const titles = [...new Set(active.map(event=>labels[event.kind]))];
+    const result: TrackEventInfo = {trackId:track.id,stage:currentStage,level:weather==='storm'?3:weather && weather!=='clear'?2:active.length?1:0,
+      title:`Tour ${currentStage+1} · ${titles.join(' + ') || 'Piste libre'}`,
+      description:active.length ? 'Événements du tour du leader, identiques pour tous les pilotes. Les zones colorées indiquent leurs effets sur la route.' : 'Aucun événement programmé pendant ce tour du leader.',
+      weather:weather ?? 'clear',branches:[],blockers:[],zones};
+    events.set(key,result); return result;
+  }
   const active = currentLevel >= 2 && currentStage >= 1;
   const name = track.theme === 'ice' ? 'Avalanche' : track.theme === 'canyon' ? 'Éboulement'
     : track.theme === 'volcano' ? 'Coulée volcanique' : track.theme === 'sky' ? 'Tempête'
@@ -140,7 +161,7 @@ export function getTrackEvent(trackId: string, stage = 0, level = 0): TrackEvent
   const result: TrackEventInfo = { trackId: track.id, stage: currentStage, level: currentLevel,
     title: currentLevel === 0 ? 'Circuit classique' : active ? currentStage === 2 ? name + ' · raccourci ouvert' : name + ' · suivez la déviation'
       : currentStage === 2 ? 'Raccourci ouvert' : 'Choisissez votre route',
-    description: currentLevel === 0 ? 'La piste reste identique pendant les trois tours.' : active
+    description: currentLevel === 0 ? getTrackLapCount(track.id) === 3 ? 'La piste reste identique pendant les trois tours.' : `La piste reste identique pendant ${getTrackLapCount(track.id)} ${getTrackLapCount(track.id)===1?'tour':'tours'}.` : active
       ? currentStage === 2 ? 'La route principale reste barrée. Le raccourci intérieur, plus court que la route normale, est ouvert.'
         : 'Une section de la route est barrée pour tous les pilotes. La voie extérieure large contourne les débris.'
       : currentStage === 2 ? 'Un raccourci large s’ouvre. La route normale, la déviation et la voie turbo restent disponibles.'
@@ -199,7 +220,9 @@ export function dynamicSurface(x: number, z: number, trackId: string, stage = 0,
     } : undefined };
   }
   const contact = trackSurface(x, z, track.id, near);
-  if (event.level < 2 || event.stage < 1 || contact.surface !== 'road') return contact;
+  const scriptedZone = event.zones?.find(zone=>near.progress>=zone.start && near.progress<=zone.end);
+  if (scriptedZone && contact.surface!=='offroad') return {surface:scriptedZone.kind,zone:scriptedZone};
+  if (track.id.startsWith('custom-') || event.level < 2 || event.stage < 1 || contact.surface !== 'road') return contact;
   const fraction = near.progress / track.length;
   if ((fraction > .51 && fraction < .565) || (event.level === 3 && event.stage === 2 && fraction > .86 && fraction < .90))
     return { surface: track.theme === 'ice' ? 'ice' : 'mud' };

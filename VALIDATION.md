@@ -2,6 +2,80 @@
 
 Vérifications des 6 et 7 octobre 2026 dans WSL/Linux avec Docker Desktop 4.55.0, Docker Engine 29.1.3, Compose 2.40.3, Node 20.19.2 sur l'hôte et Node 22.21.1 dans l'image. Les résultats ci-dessous distinguent simulation, clients réseau automatisés et navigateur ; chaque lot conserve ses preuves et sa date.
 
+## 7 octobre 2026 — présence et éditeur avancé
+
+L’accueil affiche les joueurs connectés et ceux en recherche classée, avec
+décompte par profil, activité réelle et expiration des onglets déconnectés.
+Les pseudos sont actualisés après validation du champ, sans requête à chaque
+frappe. [Fonctionnement](docs/PRESENCE.md).
+
+L’atelier règle de **1 à 20 tours**, ajoute ponts, tremplins et loopings, et
+programme météo/turbo/glace/boue pour un tour précis du premier pilote.
+Physique, checkpoints, HUD, replays et sauvegardes utilisent ces réglages.
+Les anciens fichiers restent compatibles. Les surfaces temporaires suivent
+les boucles inversées et le détail des très longs modules est plafonné côté
+rendu. [Mode d’emploi](docs/TRACK_EDITOR.md).
+
+- **372/372 tests** passent en **190,887 s**, zéro échec ni test ignoré.
+  [Rapport](docs/editor-features/unit-validation.json).
+- **Huit CPU terminent six tours** avec pont, tremplin, looping et événements
+  en **169,67 s simulées**, sans arrivée imposée. Le vol et le passage inversé
+  sont effectivement observés. Les événements après le troisième tour modifient
+  la conduite ; les anciennes géométries sont identiques.
+- Un replay synthétique de **20 tours / 2 000 s** est sauvegardé puis relu,
+  avec résultats et progression persistants. Ce test contrôle le format et la
+  durée, pas une course réellement pilotée pendant 2 000 secondes.
+- Deux clients SDK Colyseus reçoivent le même circuit enrichi et ses options,
+  puis le même événement de premier tour après un vrai compte à rebours.
+  **23 tests réseau/progression** passent dans cette exécution ciblée.
+- **13 tests de présence** passent : identité authentifiée, profils multiples,
+  onglets, expiration, file classée non prolongée par la consultation, et
+  vrais salons avec CPU exclus du compteur.
+- **6 contrôles navigateur de l’éditeur** passent sur le build intermédiaire
+  `index-CMTOos7s.js` / `index-Y9Kosx-s.css` : modules et événements aux tours
+  1/4/5, erreur de numéro de tour expliquée, brouillon restauré, révision relue
+  via API et fichier, essai avec compteur /6, duplication à 320 px et salon
+  partagé à deux. Aucune mutation de trajectoire ni arrivée synthétique ; le
+  navigateur ne termine pas les six tours. [Rapport](docs/editor-features/browser-validation.json).
+- **3 tests de rendu** repassent après les derniers ajustements : surface sur
+  le looping inversé au tour 4, disparition au tour 5, réutilisation des maillages,
+  reliefs et taille de maillage bornée pour une boucle dépassant cinq kilomètres.
+- **2 contrôles visuels finaux** passent sur `index-M7yQs0w3.js` /
+  `index-CHirTTg6.css`, à 1280 × 900 et 320 × 568. Les badges des événements
+  superposés affichent les tours 1/4/5 et la légende utilise des pastilles CSS.
+  Images inspectées ; le brouillon issu du parcours précédent est chargé comme
+  fixture visuelle déclarée, sans prétendre retester la conduite.
+  [Rapport](docs/editor-features/visual-validation.json).
+- **8 parcours navigateur de présence** passent sur le build final : vrai
+  invité, changement de pseudo avant toute course, saisie préservée pendant
+  une sauvegarde retardée, deux profils/trois onglets sans double compte,
+  recherche classée par l’UI visible depuis l’autre profil, annulation,
+  entraînement et déconnexion. Aucune erreur JS ; captures ordinateur et
+  mobile 320 px inspectées. L’expiration après coupure brutale est couverte
+  par les tests unitaires, pas une coupure réseau physique.
+  [Rapport et captures](docs/presence/README.md).
+
+Build final et Docker réussis. Déploiement à zéro salon : **26 fichiers et
+32 profils inchangés**, circuit historique rouvert, tunnel conservé. Les deux
+bundles publics et quatorze modules serveur/shared correspondent au build.
+[Preuve de déploiement](docs/editor-features/deployment.json).
+
+**3 contrôles publics passent** sur ce même build : deux profils isolés se
+voient sur l’accueil, le circuit enrichi est sauvegardé puis relu via l’API,
+et les deux navigateurs rejoignent une vraie course WSS avec compteur /6
+et déplacement issu des commandes clavier. Aucune erreur JavaScript ; trois
+captures inspectées, zéro salon et zéro présence de test après fermeture.
+L’exemple **« L’atelier des loopings »** reste dans la bibliothèque : six tours,
+un pont, un tremplin, un looping, pluie au tour 2 et turbo au tour 4.
+La seconde passe reprend les mêmes profils et le même circuit après une
+correction du script de test sur `about:blank`, sans publication en double.
+Ce parcours public ne termine pas les six tours et ne rejoint pas la file
+classée ; ces comportements sont couverts séparément en simulation et en
+navigateur privé. [Rapport public](docs/editor-features/public/browser-validation.json).
+
+Téléphone physique, Safari iOS et confort humain restent à vérifier. Les
+bifurcations distinctes du tracé principal ne sont pas dessinables dans l’atelier.
+
 ## 7 octobre 2026 — joystick complet et tracés libres
 
 Le joystick mobile pilote les deux axes : haut accélère, bas freine puis recule,

@@ -2,6 +2,20 @@
 
 État au **7 octobre 2026**. `[x]` = réalisé avec preuve ; `[ ]` = travail ou validation restant à terminer. [Démo intégrée et rapports](docs/DEMO.md).
 
+## Accueil connecté et circuits à plusieurs tours
+
+- [x] Panneau des joueurs en ligne : pseudos, nombre de joueurs, activités et recherches classées réelles ; déduplication multi-onglets, exclusion des CPU et expiration des connexions coupées. [Fonctionnement](docs/PRESENCE.md).
+- [x] Pseudo de l’accueil synchronisé après validation du champ, sans requête par frappe ni écrasement d’une saisie plus récente.
+- [x] Éditeur : **1–20 tours**, ponts, tremplins, loopings et **événements au tour choisi**, avec réglages, aperçu, annuler/rétablir, brouillon et révisions persistantes. [Mode d’emploi](docs/TRACK_EDITOR.md).
+- [x] Météo et surfaces temporaires réelles, communes à tous au tour du premier pilote ; compteur, limite de course et replays adaptés au nombre de tours. Anciennes pistes inchangées.
+- [x] **372/372 tests** de la suite passent. Huit CPU terminent **six tours** avec pont, vol et looping inversé observés ; replay de vingt tours et 2 000 s sauvegardé puis relu. Deux clients Colyseus reçoivent les mêmes règles/modules. [Suite](docs/editor-features/unit-validation.json).
+- [x] **6 contrôles navigateur** de l’éditeur passent : création des modules et événements 1/4/5, persistance relue, essai normal avec compteur /6, duplication mobile et salon partagé à deux. Aucun tour ni arrivée injecté. [Rapport](docs/editor-features/browser-validation.json).
+- [x] **2 contrôles visuels** sur le build final : badges des tours regroupés et légende lisible en portrait 320 px et sur ordinateur. [Captures et protocole](docs/editor-features/visual-validation.json).
+- [x] **8 parcours navigateur de présence** passent : vrai invité et pseudo, sauvegarde lente, deux profils/trois onglets, recherche classée réelle, annulation, entraînement et déconnexion ; aucune erreur JS. [Preuves](docs/presence/README.md).
+- [x] Version finale déployée : 26 fichiers, 32 profils et circuit historique conservés, quatorze modules et bundles publics identiques au build, tunnel inchangé. [Déploiement](docs/editor-features/deployment.json).
+- [x] **3 contrôles publics** passent : présence réciproque, sauvegarde et relecture du circuit enrichi, course WSS à deux avec compteur /6 et déplacement normal. Aucune erreur JS, trois captures inspectées, salons fermés. Exemple « L’atelier des loopings » conservé ; six tours complets et file classée non rejoués en public. [Rapport](docs/editor-features/public/browser-validation.json).
+- [ ] Téléphone physique et Safari iOS ; l’éditeur ne dessine pas encore de bifurcations distinctes du tracé principal.
+
 ## Joystick complet et liberté de création
 
 - [x] Joystick mobile sur deux axes : haut pour accélérer, bas pour freiner puis reculer, diagonales et multitouch. Le frein prime sur AUTO ; AUTO OFF permet le pilotage manuel au même pouce.
@@ -29,7 +43,7 @@
 - [x] **6 contrôles navigateur** réussis : édition souris/clavier/tactile, annulation, erreur réseau sans perte, brouillon restauré, entraînement et retour à l’éditeur, duplication par un second profil à 320 px. Cinq captures inspectées ; corrections d’ergonomie appliquées. [Rapport](docs/editor/browser-validation.json).
 - [x] Décors raccordés aux créations : **10 thèmes contrôlés**, empreintes hors route et forêt inspectée en jeu. **4 contrôles publics** réussis : publication par l’UI, découverte par un autre profil et conduite réelle dans un salon partagé à deux, sans erreur JS/asset. Exemple « La boucle de l’atelier » conservé. [Rapport public](docs/editor/public/browser-validation.json).
 - [x] Build et Docker déployés ; recréation réelle après publication, **22 fichiers de données et 29 profils inchangés**, circuit toujours proposé, bundles/modules identiques au build et tunnel conservé. [Persistance et déploiement](docs/editor/deployment.json).
-- [ ] Essai humain sur téléphone physique. Les ponts, sauts, loopings et déviations ne sont pas encore dessinables dans l’atelier.
+- [ ] Essai humain sur téléphone physique. Les déviations distinctes du tracé principal ne sont pas encore dessinables ; ponts, sauts et loopings sont ajoutés dans le lot ci-dessus.
 
 ## Pilotes caricaturaux : quatorze choix
 

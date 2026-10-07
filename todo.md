@@ -4,28 +4,34 @@
 
 ## Couverture du cahier des charges ajouté à la racine
 
-Le fichier [to-do.md](to-do.md) reste le cahier des charges de référence. Les huit domaines sont désormais implémentés ; la validation finale et le déploiement sont suivis séparément ci-dessous. Les essais automatisés ne remplacent pas le ressenti des joueurs.
+Le fichier [to-do.md](to-do.md) reste le cahier des charges de référence. Les huit domaines sont désormais implémentés ; le build, Docker et la course publique finale ont été validés. Les preuves et les essais humains restants sont distingués ci-dessous. Les essais automatisés ne remplacent pas le ressenti des joueurs.
 
 | Besoin | Implémentation et preuves | Limites / contrôle restant |
 | --- | --- | --- |
-| 1. Construction et personnalisation | Garage : six catégories, 18 pièces avec effets réels, compromis et déblocages ; trois modèles importés, huit couleurs et aperçu rapproché. Neuf tests du garage et parcours de reconnexion dans le navigateur. | Contrôle du dernier build à 12 circuits en cours. |
-| 2. Circuits évolutifs | 12 pistes ; phases partagées, surfaces/météo, route barrée au tour 2 et raccourci au tour 3. Six nouvelles pistes ont pont et tremplin physiques. [Circuits](docs/CIRCUITS.md). | Captures des nouveaux thèmes et ponts/sauts en cours. |
+| 1. Construction et personnalisation | Garage : six catégories, 18 pièces avec effets réels, compromis et déblocages ; trois modèles importés, huit couleurs et aperçu rapproché. Neuf tests du garage et parcours de reconnexion dans le navigateur. | Parcours UI à 12 circuits : 11 contrôles réussis, avec les arrivées de fixture signalées. |
+| 2. Circuits évolutifs | 12 pistes ; phases partagées, surfaces/météo, route barrée au tour 2 et raccourci au tour 3. Six nouvelles pistes ont pont et tremplin physiques. [Circuits](docs/CIRCUITS.md). | Huit contrôles navigateur réussis, 25 captures ; positions de départ et pauses de capture documentées. |
 | 3. Plusieurs stratégies par circuit | 36 branches de 12–14 m ; raccourcis 15–28 % plus courts que la route normale. 24 comparaisons sur kart standard et chargé montrent un gain réel, sans turbo artificiel. [Mesures](docs/branch-comparison.json). | Le confort de conduite au clavier reste à apprécier avec les joueurs. |
 | 4. Championnats et progression | Six coupes, paliers 0 à 3 et sauvegarde serveur ; les 12 pistes sont introduites progressivement, finale à huit courses. Tests HTTP, persistance et parcours UI avec arrivées de fixture explicitement signalées. | Aucune conduite humaine complète des six coupes n'est revendiquée. |
 | 5. Personnages humoristiques | Pilote, Reine, Obama, Trump et Kim en géométrie cartoon originale ; accessoires, expressions et animations. Sélections transmises entre deux clients. [Personnages](docs/CHARACTERS.md). | Lisibilité artistique à évaluer sur les machines de démo. |
-| 6. Mode équipes | 4 contre 4, humains et CPU, scores de tournoi cumulés, rôles CPU et absence de tirs alliés. Deux humains + six CPU contrôlés dans l'interface ; huit CPU finissent les 12 pistes en simulation. [Équipes](docs/TEAMS.md). | Course publique du dernier build à terminer. |
+| 6. Mode équipes | 4 contre 4, humains et CPU, scores de tournoi cumulés, rôles CPU et absence de tirs alliés. Deux humains + six CPU contrôlés dans l'interface ; huit CPU finissent les 12 pistes en simulation. [Équipes](docs/TEAMS.md). | Interface et simulations vérifiées ; ressenti humain du 4 contre 4 à apprécier en démo. |
 | 7. Ranked amélioré | MMR Bronze à Master, matchmaking réservé aux profils attendus, saisons trimestrielles, statistiques, tournois, replays et fantômes. [Progression](docs/PROGRESSION.md). | Classement commun à cette instance, pas une fédération de serveurs ; essais de charge à grande échelle non exécutés. |
 | 8. Philosophie générale | Jeu existant conservé, modes avancés séparés, budget 0 €, aucune API payante ni nouvelle dépendance. | Facilité, équilibre, fluidité GPU et écoute musicale nécessitent un essai humain. |
 
 ## Derniers retours et validation intégrée
 
+- [x] Murs et obstacles à hauteur finie : passage réel au-dessus des rails/barrages, collisions basses et sous les ponts, réentrée, ouvertures par phase et portes de tour. Un vrai tremplin permet de sauter un rail fermé puis d’atterrir dehors. [Preuves](docs/VERTICAL_COLLISIONS.md).
 - [x] Déviations plus larges et entrées progressives ; raccourcis réellement plus courts. 33 tests d'événements réussis, 96 arrivées sur 96 sans reset et 36 branches parcourues sans drift ni sortie de piste.
 - [x] Six pistes supplémentaires : volcan, forêt, port, ciel, fonderie, château, pour **12 circuits** au total. Ponts, rampes, décollage/atterrissage et prédiction déterministe ; 44 tests de pistes et sept tests de physique verticale réussis.
 - [x] Tours non comptés : portes adaptées aux accotements et aux branches, franchissement ordonné, ligne d'arrivée et passage en l'air ; reset à la bonne hauteur. [Correctif et tests](docs/LAPS.md).
 - [x] Build TypeScript/Vite et image Docker construits ; le tirage aléatoire accepte les 12 pistes avec une limite de huit manches.
-- [ ] Clore la suite complète du dernier état et les captures navigateur des nouvelles pistes.
-- [ ] Vérifier la persistance lors de la recréation d'un conteneur Docker, puis mettre à jour la démo quand les salons sont libres.
-- [ ] Rejouer une course complète via le tunnel avec quatre pilotes, deux navigateurs, trois modèles, personnages, sauts et profils enregistrés.
+- [x] Suite complète : **237/237 tests réussis**, sans test ignoré ; un test supplémentaire tremplin → rail → atterrissage extérieur réussit ensuite séparément. Build TypeScript/Vite et image Docker reconstruits.
+- [x] Six nouveaux décors, ponts et sauts : **8 contrôles navigateur réussis**, 25 captures ; six accélérations clavier, décollages et atterrissages normaux, puis tournoi aléatoire de huit manches parmi les six nouvelles pistes. [Preuves et limites](docs/circuits-expanded/validation.json).
+- [x] Persistance : une course SDK complète crée XP, statistiques, replay et fantôme ; tout est conservé après recréation d’un conteneur sur son volume temporaire. Test sur le build précédent à 12 circuits, avant les murs finis. [Rapport et empreinte](docs/docker-persistence.json).
+- [x] Démo Docker mise à jour en l’absence de salons ; les fichiers physiques partagés et les assets publics correspondent aux fichiers compilés locaux. [Empreintes](docs/final-public-assets.json).
+- [x] Course publique finale : **4/4 pilotes SDK finissent trois tours**, deux navigateurs observateurs, trois modèles, quatre personnages, sauts et phases 0/1/2, profils et replay commun enregistrés. **125,721 s** pour le contrôle ; aucune erreur JavaScript ni ressource manquante. [Rapport](docs/final-public-race.json) · [Résultats](docs/final-public-resultats.png).
+- [x] Panoramas : précision de profondeur corrigée, huit comparaisons à cadrage fixe avec et sans ombres. [Captures avant/après](docs/overview-depth/README.md).
+
+Le premier conducteur SDK sur `sky` avait dépassé le délai au deuxième tour : [échec conservé](docs/docker-race-timeout.json). Sa cause initiale n’est pas établie. Les reproductions suivantes ont terminé avec les commandes ordinaires, dont la course Docker de persistance en **108,4 s simulées** (**117,697 s** pour le test complet). Ces preuves précisent leur image/bundle ; elles ne sont pas présentées comme la course publique finale.
 
 Les réalisations ci-dessous concernent les lots de démo antérieurs ; elles restent des preuves historiques et ne valent pas validation automatique du lot en cours.
 

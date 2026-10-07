@@ -1,0 +1,271 @@
+{
+  "date": "2026-10-06T16:57:02.231Z",
+  "origin": "private Vite development server",
+  "scope": "CSS layout only; real homepage, first/last track selection, no race",
+  "records": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "before": {
+        "picker": {
+          "top": 112,
+          "bottom": 694,
+          "left": 1038,
+          "right": 1368,
+          "height": 582
+        },
+        "heading": {
+          "top": 132,
+          "bottom": 140,
+          "left": 1058,
+          "right": 1348,
+          "height": 8
+        },
+        "footer": {
+          "top": 646.125,
+          "bottom": 674,
+          "left": 1058,
+          "right": 1348,
+          "height": 27.875
+        },
+        "grid": {
+          "top": 154,
+          "bottom": 634.125,
+          "left": 1058,
+          "right": 1348,
+          "height": 480.125
+        },
+        "island": {
+          "top": 739.125,
+          "bottom": 880,
+          "left": 938.796875,
+          "right": 1368,
+          "height": 140.875
+        },
+        "scrollTop": 0,
+        "scrollHeight": 678,
+        "clientHeight": 480,
+        "horizontalOverflow": false,
+        "pageScroll": 0
+      },
+      "after": {
+        "picker": {
+          "top": 112,
+          "bottom": 694,
+          "left": 1038,
+          "right": 1368,
+          "height": 582
+        },
+        "heading": {
+          "top": 132,
+          "bottom": 140,
+          "left": 1058,
+          "right": 1348,
+          "height": 8
+        },
+        "footer": {
+          "top": 646.125,
+          "bottom": 674,
+          "left": 1058,
+          "right": 1348,
+          "height": 27.875
+        },
+        "grid": {
+          "top": 154,
+          "bottom": 634.125,
+          "left": 1058,
+          "right": 1348,
+          "height": 480.125
+        },
+        "island": {
+          "top": 725.1875,
+          "bottom": 880,
+          "left": 908.703125,
+          "right": 1368,
+          "height": 154.8125
+        },
+        "scrollTop": 198,
+        "scrollHeight": 678,
+        "clientHeight": 480,
+        "horizontalOverflow": false,
+        "pageScroll": 0
+      }
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "before": {
+        "picker": {
+          "top": 112,
+          "bottom": 497,
+          "left": 708.28125,
+          "right": 993.28125,
+          "height": 385
+        },
+        "heading": {
+          "top": 129,
+          "bottom": 136,
+          "left": 725.28125,
+          "right": 976.28125,
+          "height": 7
+        },
+        "footer": {
+          "top": 452.125,
+          "bottom": 480,
+          "left": 725.28125,
+          "right": 976.28125,
+          "height": 27.875
+        },
+        "grid": {
+          "top": 150,
+          "bottom": 440.125,
+          "left": 725.28125,
+          "right": 976.28125,
+          "height": 290.125
+        },
+        "island": {
+          "top": 554.125,
+          "bottom": 683,
+          "left": 648.609375,
+          "right": 993.28125,
+          "height": 128.875
+        },
+        "scrollTop": 0,
+        "scrollHeight": 641,
+        "clientHeight": 290,
+        "horizontalOverflow": false,
+        "pageScroll": 0
+      },
+      "after": {
+        "picker": {
+          "top": 112,
+          "bottom": 497,
+          "left": 708.28125,
+          "right": 993.28125,
+          "height": 385
+        },
+        "heading": {
+          "top": 129,
+          "bottom": 136,
+          "left": 725.28125,
+          "right": 976.28125,
+          "height": 7
+        },
+        "footer": {
+          "top": 452.125,
+          "bottom": 480,
+          "left": 725.28125,
+          "right": 976.28125,
+          "height": 27.875
+        },
+        "grid": {
+          "top": 150,
+          "bottom": 440.125,
+          "left": 725.28125,
+          "right": 976.28125,
+          "height": 290.125
+        },
+        "island": {
+          "top": 526.25,
+          "bottom": 683,
+          "left": 624.78125,
+          "right": 993.28125,
+          "height": 156.75
+        },
+        "scrollTop": 351,
+        "scrollHeight": 641,
+        "clientHeight": 290,
+        "horizontalOverflow": false,
+        "pageScroll": 0
+      }
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "before": {
+        "picker": {
+          "top": 313.40625,
+          "bottom": 1036.28125,
+          "left": 24,
+          "right": 351,
+          "height": 722.875
+        },
+        "heading": {
+          "top": 331.40625,
+          "bottom": 339.40625,
+          "left": 42,
+          "right": 333,
+          "height": 8
+        },
+        "footer": {
+          "top": 990.40625,
+          "bottom": 1018.28125,
+          "left": 42,
+          "right": 333,
+          "height": 27.875
+        },
+        "grid": {
+          "top": 353.40625,
+          "bottom": 978.40625,
+          "left": 42,
+          "right": 333,
+          "height": 625
+        },
+        "island": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0,
+          "height": 0
+        },
+        "scrollTop": 0,
+        "scrollHeight": 625,
+        "clientHeight": 625,
+        "horizontalOverflow": false,
+        "pageScroll": 523
+      },
+      "after": {
+        "picker": {
+          "top": -15.59375,
+          "bottom": 707.28125,
+          "left": 24,
+          "right": 351,
+          "height": 722.875
+        },
+        "heading": {
+          "top": 2.40625,
+          "bottom": 10.40625,
+          "left": 42,
+          "right": 333,
+          "height": 8
+        },
+        "footer": {
+          "top": 661.40625,
+          "bottom": 689.28125,
+          "left": 42,
+          "right": 333,
+          "height": 27.875
+        },
+        "grid": {
+          "top": 24.40625,
+          "bottom": 649.40625,
+          "left": 42,
+          "right": 333,
+          "height": 625
+        },
+        "island": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0,
+          "height": 0
+        },
+        "scrollTop": 0,
+        "scrollHeight": 625,
+        "clientHeight": 625,
+        "horizontalOverflow": false,
+        "pageScroll": 852
+      }
+    }
+  ]
+}

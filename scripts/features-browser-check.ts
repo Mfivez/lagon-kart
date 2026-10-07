@@ -216,12 +216,14 @@ try {
   await Promise.all(pages.map(page => phase(page, 'finished')));
   assert.match(await host.locator('#cup-standings').innerText(), /ÉQUIPES/);
   await capture(host, 'team-results-staged');
-  await controller.locator('#next-race-button').click(); await Promise.all(pages.map(page => phase(page, 'lobby')));
+  const nextController = live.world.hostId === humanIds[0] ? host : guest;
+  evidence.hostAtNextRound = { changedSinceConfiguration: nextController !== controller };
+  await nextController.locator('#next-race-button').click(); await Promise.all(pages.map(page => phase(page, 'lobby')));
   for (const kart of live.world.players.filter(kart => !kart.cpu)) {
     assert.equal(kart.characterId, kart.id === humanIds[0] ? 'trump' : 'obama');
     assert.equal(kart.modelId, kart.id === humanIds[0] ? 'zsky' : 'retro');
   }
-  await startRound(controller, pages); await until(() => live.world.raceTime > 1, 'échantillonnage replay manche 2');
+  await startRound(live.world.hostId === humanIds[0] ? host : guest, pages); await until(() => live.world.raceTime > 1, 'échantillonnage replay manche 2');
   await stageFinish(live, humanIds[0]!, 'Tournoi équipes, manche 2');
   await phase(host, 'finished');
   assert.equal(live.world.tournament.completed, true);
@@ -298,6 +300,7 @@ try {
   assert.deepEqual(errors, []); record('Aucune erreur JavaScript ni ressource modèle/audio/asset manquante');
   await writeFile(join(destination, 'validation.json'), JSON.stringify({ origin, checks, errors, fixtures, captures, evidence,
     scope: 'Deux contextes Chromium/SwiftShader sur le même hôte. Serveur éphémère et profils temporaires. Déplacements clavier réels ; arrivées et paliers supérieurs explicitement simulés, aucune course complète ni deux machines physiques.' }, null, 2) + '\n');
+  await Promise.all(["failure.json", "failure-client-1.png", "failure-client-2.png"].map(name => rm(join(destination, name), { force: true })));
 } catch (error) {
   process.exitCode = 1; // Colyseus' installed rejection handler otherwise masks failures as exit zero.
   for (const [index, page] of pages.entries()) if (!page.isClosed()) {

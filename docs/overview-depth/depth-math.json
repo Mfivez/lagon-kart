@@ -1,0 +1,101 @@
+{
+  "method": "Home camera formula, 32 evenly spaced orbit angles; compare branch accent y=.023 and road y=.035 at every open-branch point; mathematical projection in a 24-bit fixed depth buffer, before floating-point rasterization.",
+  "records": [
+    {
+      "track": "foundry",
+      "near": 1,
+      "far": 900,
+      "radius": 236.23759403935185,
+      "depthRange": [
+        212.37352068755638,
+        562.709679064121
+      ],
+      "gapInIdeal24BitDepthSteps": {
+        "min": 0.4331199408325573,
+        "max": 3.0457062591563795,
+        "belowOne": 3162,
+        "samples": 6208
+      }
+    },
+    {
+      "track": "foundry",
+      "near": 5,
+      "far": 900,
+      "radius": 236.23759403935185,
+      "depthRange": [
+        212.37352068755638,
+        562.709679064121
+      ],
+      "gapInIdeal24BitDepthSteps": {
+        "min": 2.175278367271811,
+        "max": 15.296591776439984,
+        "belowOne": 0,
+        "samples": 6208
+      }
+    },
+    {
+      "track": "foundry",
+      "near": 10,
+      "far": 900,
+      "radius": 236.23759403935185,
+      "depthRange": [
+        212.37352068755638,
+        562.709679064121
+      ],
+      "gapInIdeal24BitDepthSteps": {
+        "min": 4.374998065643112,
+        "max": 30.765055373344886,
+        "belowOne": 0,
+        "samples": 6208
+      }
+    },
+    {
+      "track": "castle",
+      "near": 1,
+      "far": 900,
+      "radius": 232.1151439525463,
+      "depthRange": [
+        211.85335245035233,
+        559.0901293141611
+      ],
+      "gapInIdeal24BitDepthSteps": {
+        "min": 0.44240603101068393,
+        "max": 3.060681291964264,
+        "belowOne": 3021,
+        "samples": 6208
+      }
+    },
+    {
+      "track": "castle",
+      "near": 5,
+      "far": 900,
+      "radius": 232.1151439525463,
+      "depthRange": [
+        211.85335245035233,
+        559.0901293141611
+      ],
+      "gapInIdeal24BitDepthSteps": {
+        "min": 2.2219163149570558,
+        "max": 15.371801571179779,
+        "belowOne": 0,
+        "samples": 6208
+      }
+    },
+    {
+      "track": "castle",
+      "near": 10,
+      "far": 900,
+      "radius": 232.1151439525463,
+      "depthRange": [
+        211.85335245035233,
+        559.0901293141611
+      ],
+      "gapInIdeal24BitDepthSteps": {
+        "min": 4.468797982667491,
+        "max": 30.91632001507599,
+        "belowOne": 0,
+        "samples": 6208
+      }
+    }
+  ]
+}

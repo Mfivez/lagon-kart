@@ -1,10 +1,10 @@
 // Test driver: sends ordinary bounded commands through the same public input
 // contract. It never sets position, progress, inventory or race results.
-import { getTrack, neutralInput, trackPoint, type Input, type Kart } from './game.js';
-import { dynamicSurface, eventRoutePoint, getTrackEvent, nearestDriveableTrack } from './track-events.js';
+import { getTrack, neutralInput, type Input, type Kart } from './game.js';
+import { constrainTrackEvent, dynamicSurface, eventRoutePoint, getTrackEvent, nearestDriveableTrack } from './track-events.js';
 
 export type AutopilotDriver = Pick<Kart, 'trackId' | 'x' | 'z' | 'speed' | 'angle' | 'nextCheckpoint' | 'resetCooldown' |
-  'resetLatch' | 'item' | 'itemLatch' | 'epoch'> & Partial<Pick<Kart, 'eventStage' | 'eventLevel'>>;
+  'resetLatch' | 'item' | 'itemLatch' | 'epoch'> & Partial<Pick<Kart, 'eventStage' | 'eventLevel' | 'elevation' | 'airborne'>>;
 
 export function autopilot(kart: AutopilotDriver, seq: number, useItems = false): Input {
   const track = getTrack(kart.trackId);
@@ -28,9 +28,15 @@ export function autopilot(kart: AutopilotDriver, seq: number, useItems = false):
   // Recovery uses the same reset control as a human after being bumped past a
   // checkpoint outside its gate. No state or progress is changed by this driver.
   const missedGate = localProgress > nextGate + 8;
+  // A leader can close the road while a slower driver is already past the
+  // branch entrance. Its waypoint then lies behind the new barricade, before
+  // the next gate: missedGate alone cannot recover from that stationary state.
+  const blockedRoute = event.blockers.length > 0 && Math.abs(kart.speed) < 3 && !kart.airborne &&
+    constrainTrackEvent(target.x, target.z, kart.x, kart.z, kart.speed, track.id, stage, level,
+      kart.elevation === undefined ? undefined : { previous: kart.elevation, current: kart.elevation }).blocked;
   return { ...neutralInput(seq, kart.epoch), throttle: kart.speed > targetSpeed + 1 ? 0 : 1,
     brake: kart.speed > targetSpeed + 5,
-    reset: missedGate && kart.resetCooldown === 0 && !kart.resetLatch,
+    reset: (missedGate || blockedRoute) && kart.resetCooldown === 0 && !kart.resetLatch,
     steer: Math.max(-1, Math.min(1, difference * 2.6)),
     use: useItems && Boolean(kart.item) && !kart.itemLatch };
 }

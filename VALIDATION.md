@@ -11,6 +11,21 @@ saisons, les replays et ghosts et le mode quatre contre quatre. Compose conserve
 les données de progression dans le volume `player-data` ; les salons actifs
 restent en mémoire.
 
+**Suite complète : `npm test`, 237/237 réussis**, aucun échec, aucune annulation
+ni test ignoré, en **61,38 s**. Journal local de l'exécution :
+`/tmp/lagon-tests-final-confirmed.log`. Elle inclut les courses à huit pilotes
+sur les douze circuits et les régressions Néon, classique et évolutif, ainsi que
+les comparaisons des raccourcis. Le rejet de message WebSocket surdimensionné
+visible dans le journal appartient au test de limite de taille, réussi.
+
+Le **contrôle TypeScript et le build final ont réussi** : client
+`index-DCnyszy_.js`, feuille de style `index-CVkCqp_J.css`.
+Après cette suite complète, un test supplémentaire de vrai tremplin, passage
+d'un rail en vol puis atterrissage extérieur a réussi séparément : **1 exécuté,
+12 hors filtre**, sans changement de physique. Le catalogue compte alors
+238 tests ; aucune exécution complète de 238 tests n'est revendiquée.
+Voir [les collisions verticales](docs/VERTICAL_COLLISIONS.md).
+
 Les preuves déjà exécutées pour ces fonctionnalités sont séparées par portée :
 
 - **Branches : 33 tests réussis**, dont huit pilotes terminant trois tours sur
@@ -19,10 +34,11 @@ Les preuves déjà exécutées pour ces fonctionnalités sont séparées par por
   progressif ; 24 comparaisons de secteur vérifient un gain du raccourci avec
   deux configurations de kart. [Méthode et résultats](docs/CIRCUITS.md),
   [mesures détaillées](docs/branch-comparison.json).
-- **Compteur de tours : 31 tests ciblés**, dans une suite de 57 tests réussis.
-  Portes alternatives physiques, accotements, sens inverse, ordre, sauts et
-  repositionnement sont vérifiés. Ces fixtures de frontière ne remplacent pas
-  une course continue. [Rapport](docs/LAPS.md).
+- **Compteur de tours et collisions verticales :** portes alternatives
+  physiques, accotements, sens inverse, ordre, sauts, hauteur finie des murs et
+  repositionnement sur une porte équivalente sont vérifiés. Ces fixtures de
+  frontière ne remplacent pas une course continue. [Tours](docs/LAPS.md),
+  [sauts et obstacles](docs/VERTICAL_COLLISIONS.md).
 - **Garage : 9 tests ; objets en équipes : 10 tests**, réussis. Les essais
   mesurent les différences réelles de conduite des pièces, leur verrouillage,
   l'absence d'effet physique des modèles/personnages et la protection des alliés.
@@ -31,22 +47,67 @@ Les preuves déjà exécutées pour ces fonctionnalités sont séparées par por
   partagées, peintures indépendantes, trois téléchargements GLB au maximum,
   animation et secours. [Modèles](docs/KART_MODELS.md),
   [personnages](docs/CHARACTERS.md).
-- **Interface : 11 contrôles Chromium réussis sur le précédent build à six
-  circuits**, avec deux contextes indépendants, choix du garage, reconnexion,
+- **Interface à douze circuits : 11/11 contrôles Chromium réussis**, sur le
+  bundle `index-CU-Fug6i.js`, avec deux contextes indépendants, garage, reconnexion,
   équipes, commandes clavier réelles, progression et lecture de replay. Les
   arrivées de tournoi et des paliers de carrière sont imposés dans le serveur
-  privé pour contrôler les écrans. [Détail et captures](docs/FEATURE_BROWSER.md).
+  privé pour contrôler les écrans. Ces preuves précèdent le build final
+  `index-DCnyszy_.js` ; le premier lot à six circuits reste archivé.
+  [Détail et captures](docs/FEATURE_BROWSER.md),
+  [rapport douze circuits](docs/feature-demo-12/validation.json).
 - **Progression et réseau : stockage persistant, MMR, saisons, matchmaking,
   contrôles d'accès et replays** vérifiés par les suites ciblées décrites dans
   [PROGRESSION.md](docs/PROGRESSION.md). Les tests de récompenses utilisent des
   arrivées accélérées ; ce ne sont pas des courses entièrement conduites.
 - **Nouvelles pistes :** géométrie, reliefs et état des preuves du build à douze
   circuits sont consignés dans [CIRCUITS_APPENDIX.md](docs/CIRCUITS_APPENDIX.md).
+  **8 contrôles navigateur réussis et 25 captures** sur `index-DDvpm3uY.js` :
+  ponts, sauts et atterrissages des six nouvelles pistes, phases alternatives
+  et configuration UI d’un tournoi aléatoire de huit manches. Les positions
+  initiales et pauses photographiques sont mises en scène sur serveur privé ;
+  les sauts proviennent de vraies commandes clavier. [Rapport](docs/circuits-expanded/validation.json).
+
+**Persistance Docker vérifiée sur une image antérieure aux derniers correctifs
+de murs :** `sha256:6bed08d4ca9348e53395513fbbda74493bb38b9dc653648f3a1111a7e812c7c1`,
+bundle `index-CU-Fug6i.js`. Le contrôle local isolé a réussi en **117,697 s**.
+Une course SDK de trois tours sur l'Archipel céleste, avec événements niveau 3,
+s'est terminée en **108,4 s** et a créé statistiques, XP, replay et ghost.
+Après suppression puis recréation du conteneur avec le même volume temporaire,
+le profil, le replay et le ghost ont été retrouvés. Le conteneur et le volume
+temporaires ont ensuite été supprimés. [Rapport de persistance](docs/docker-persistence.json).
+Ce contrôle n'a touché ni le tunnel public ni les données utilisateur ; son
+empreinte le distingue du build final et d'une course via le tunnel.
+
+Le build final inclut également le correctif de précision de profondeur des
+panoramas : plan proche à 10 m pour la vue d’ensemble, 1 m en conduite. Huit
+comparaisons à cadrage fixe sur Fonderie et Citadelle, avec et sans ombres,
+confirment la disparition des stries de profondeur. [Mesures et captures](docs/overview-depth/README.md).
 
 Ces résultats ciblés ne sont pas additionnés comme un total du dernier build.
-Le build global, Docker, le tunnel et les contrôles multijoueurs finaux doivent
-être consignés avec leur propre résultat après exécution. Les captures de
-six circuits et l'ancienne course publique MP3 ne prouvent pas ce déploiement.
+Docker sert maintenant `index-DCnyszy_.js` ; sept assets publics et quatre modules
+partagés ont une empreinte identique aux fichiers compilés locaux.
+[Preuve de déploiement](docs/final-public-assets.json).
+
+**Course publique finale réussie**, sur
+[le tunnel de démo](https://lunch-governmental-prep-rainbow.trycloudflare.com),
+image `sha256:00aaad8a91ca32a92d6f00e83a681c3ec660b90c90a7082d059056f1bd7d279f`.
+Commande : `BASE_URL=https://lunch-governmental-prep-rainbow.trycloudflare.com TRACK_ID=sky REPORT_PATH=docs/final-public-race.json CAPTURE_PREFIX=docs/final-public npm run test:final-race`.
+Le contrôle termine avec code 0 en **125,721 s** : quatre pilotes SDK conduisent
+par commandes ordinaires et terminent trois tours, sans arrivée ni position
+imposée ; deux contextes Chromium observent. Chronos : **107,300 / 108,633 /
+108,700 / 109,467 s**. Les six connexions affichent les mêmes résultats.
+Les trois phases sont atteintes, les quatre pilotes décollent, chaque modèle
+est téléchargé une fois par page sans secours, les deux MP3 jouent puis s’arrêtent.
+Les quatre profils reçoivent leurs statistiques et un replay commun conserve
+**549 échantillons par pilote**. Aucune erreur JavaScript ou ressource manquante.
+[Rapport](docs/final-public-race.json) · [Tour 1](docs/final-public-tour-1.png) ·
+[Tour 3](docs/final-public-tour-3.png) · [Résultats](docs/final-public-resultats.png).
+
+Ces navigateurs utilisent SwiftShader logiciel : **2,4 à 2,9 FPS** relevés à
+la fin du test. Ce résultat prouve les échanges et les comportements contrôlés,
+pas la fluidité sur GPU. Les clients de test ont quitté le salon ; le serveur
+et le tunnel restent actifs, santé publique vérifiée après leur fermeture.
+Le lien change si le tunnel gratuit est recréé.
 La conduite humaine complète, deux machines physiques, les performances GPU et
 l'écoute sur le matériel des collègues restent à vérifier. Voir aussi le
 [parcours de démo](docs/DEMO.md) et le [suivi des tâches](todo.md).

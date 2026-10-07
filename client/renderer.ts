@@ -5,10 +5,11 @@ import { getTrack, trackPoint, trackElevation, trackSlope, type TrackDefinition,
 import { createKartContactShadow, createKartModel, kartAssetDiagnostics, type KartModelInstance } from './kart-model';
 import { DEFAULT_CHARACTER, normalizeCharacterId, type CharacterId } from '../shared/characters';
 import { DEFAULT_KART_MODEL, normalizeKartModelId, type KartModelId } from '../shared/kart-catalog';
-import { nearestDriveableTrack, getTrackEvent } from '../shared/track-events';
+import { nearestDriveableTrack, getTrackEvent, trackBoundaryGap } from '../shared/track-events';
 import { TrackEventsView } from './track-events';
 import { GhostView } from './ghost-view';
 import { buildTrackExtras, hasExtraScenery } from './scenery-extras';
+import { ROAD_RAIL_HEIGHT, ROAD_RAIL_CENTER_Y, isBridgeProgress, trackBoundaryShoulder, driveableGroundHeight } from '../shared/obstacle-heights';
 import type { GhostData } from '../shared/progression';
 
 const materials = new Map<string, THREE.MeshStandardMaterial>();
@@ -79,8 +80,10 @@ function strip(points: Vec2[], width: number, offset = 0, trackId = 'lagon') {
     const dx = after.x - before.x, dz = after.z - before.z;
     const length = Math.hypot(dx, dz);
     for (const side of [-1, 1]) {
-      const distance = side * width / 2 + offset;
-      vertices.push(p.x + dz / length * distance, trackElevation(samples[i % TRACK.length] ?? nearestTrack(p.x, p.z, trackId).progress, trackId), p.z - dx / length * distance);
+      const progress = samples[i % TRACK.length] ?? nearestTrack(p.x, p.z, trackId).progress;
+      const localWidth = width === track.width + 10 ? track.width + trackBoundaryShoulder(progress, trackId) * 2 : width;
+      const distance = side * localWidth / 2 + offset;
+      vertices.push(p.x + dz / length * distance, trackElevation(progress, trackId), p.z - dx / length * distance);
     }
     if (i < TRACK.length) {
       const n = i * 2;
@@ -116,8 +119,8 @@ export class GameRenderer {
   private readonly trackEvents = new TrackEventsView(this.scene);
   private readonly ghost = new GhostView(this.scene);
   private readonly scenery = new THREE.Group();
-  // A one-metre near plane preserves depth precision in the distant island
-  // view, where road and shoulder are only a few centimetres apart.
+  // Keep nearby karts visible; the distant panorama uses a larger near plane
+  // below so road ribbons a centimetre apart retain distinct depth values.
   private readonly camera = new THREE.PerspectiveCamera(52, 1, 1, 900);
   private readonly karts = new Map<string, KartVisual>();
   private readonly pickups = new Map<string, THREE.Group>();
@@ -130,6 +133,8 @@ export class GameRenderer {
   private readonly demo: KartVisual;
   private track: TrackDefinition = getTrack('lagon');
   private previewTrack = 'lagon';
+  private eventStage = 0;
+  private eventLevel = 3;
   private bounds = { centerX: 0, centerZ: 0, radius: 140 };
   private readonly hemisphere = new THREE.HemisphereLight('#eaffed', '#586c55', 2.7);
   private readonly sun = new THREE.DirectionalLight('#fff0ce', 3.1);
@@ -183,6 +188,7 @@ export class GameRenderer {
 
   private setTrack(id: string, force = false) {
     const next = getTrack(id);
+    const trackChanged = next.id !== this.track.id;
     if (!force && next.id === this.track.id) return;
     const geometries = new Set<THREE.BufferGeometry>();
     this.scenery.traverse(object => { if (object instanceof THREE.Mesh) geometries.add(object.geometry); });
@@ -205,7 +211,7 @@ export class GameRenderer {
     const start = trackPoint(0, next.id);
     this.demo.group.position.set(start.x, 0.055, start.z);
     this.demo.group.rotation.y = start.angle;
-    this.lastCameraId = '';
+    if (trackChanged) this.lastCameraId = '';
   }
 
   /** Static scenery shares one draw call per material, including the palm grove. */
@@ -241,7 +247,7 @@ export class GameRenderer {
     if (theme === 'neon') for (const color of ['#69f1ee', '#f28fdf', '#7ddbeb', '#df82e0', '#74f5ef', '#dd80e4']) {
       const light = material(color); light.emissive.set(color); light.emissiveIntensity = 0.55;
     }
-    const shore = theme === 'tropical' ? '#ecd5a1' : theme === 'canyon' ? '#d39564' : theme === 'ice' ? '#dfeff4' : '#252a54';
+    const shore = hasExtraScenery(track) ? palette.ground : theme === 'tropical' ? '#ecd5a1' : theme === 'canyon' ? '#d39564' : theme === 'ice' ? '#dfeff4' : '#252a54';
     const water = mesh(new THREE.PlaneGeometry(2000, 2000), palette.water, cx, -1.5, cz);
     water.rotation.x = -Math.PI / 2; water.receiveShadow = false; water.castShadow = false; scenery.add(water);
     const shallows = mesh(new THREE.CircleGeometry(radius + 19, 48), shore, cx, -1.35, cz, 1.12, 1, 1);
@@ -266,14 +272,14 @@ export class GameRenderer {
     }
     const transform = new THREE.Object3D();
     const guardColor = theme === 'neon' ? '#69f1ee' : theme === 'ice' ? '#8abccb' : theme === 'canyon' ? '#966b50' : '#e7d9b6';
-    const guardrail = new THREE.InstancedMesh(new THREE.BoxGeometry(0.4, 0.6, 1), material(guardColor), points.length * 2);
+    const guardrail = new THREE.InstancedMesh(new THREE.BoxGeometry(0.4, ROAD_RAIL_HEIGHT, 1), material(guardColor), points.length * 2);
     for (let i = 0; i < points.length; i++) {
       const a = points[i], b = points[(i + 1) % points.length];
       const angle = Math.atan2(b.x - a.x, b.z - a.z), length = Math.hypot(b.x - a.x, b.z - a.z);
       for (let sideIndex = 0; sideIndex < 2; sideIndex++) {
         const side = sideIndex ? 1 : -1;
-        transform.position.set((a.x + b.x) / 2 + Math.cos(angle) * side * (width / 2 + 5), 0.42, (a.z + b.z) / 2 - Math.sin(angle) * side * (width / 2 + 5));
-        const gap = getTrackEvent(track.id, 2, 3).branches.some(branch => branch.points.some(point => Math.hypot(point.x - transform.position.x, point.z - transform.position.z) < branch.width / 2 + 2));
+        transform.position.set((a.x + b.x) / 2 + Math.cos(angle) * side * (width / 2 + 5), ROAD_RAIL_CENTER_Y, (a.z + b.z) / 2 - Math.sin(angle) * side * (width / 2 + 5));
+        const gap = isBridgeProgress(nearestTrack((a.x + b.x) / 2, (a.z + b.z) / 2, track.id).progress, track.id) || trackBoundaryGap(transform.position.x, transform.position.z, track.id, this.eventStage, this.eventLevel);
         const progress = nearestTrack((a.x + b.x) / 2, (a.z + b.z) / 2, track.id).progress;
         transform.position.y += trackElevation(progress, track.id);
         transform.rotation.set(-Math.atan(trackSlope(progress, track.id)), angle, 0, 'YXZ'); transform.scale.set(gap ? 0 : 1, gap ? 0 : 1, gap ? 0 : length + 0.07); transform.updateMatrix(); guardrail.setMatrixAt(i * 2 + sideIndex, transform.matrix);
@@ -294,7 +300,7 @@ export class GameRenderer {
     for (let i = -4; i <= 4; i++) startGroup.add(box(i % 2 ? '#ffffff' : '#18434a', i * 1.1, 9.6, -0.57, 1.1, 0.7, 0.02));
     scenery.add(startGroup);
     this.buildZones();
-    scenery.add(buildTrackExtras(track));
+    scenery.add(buildTrackExtras(track, this.eventStage, this.eventLevel));
 
     let seed = 9183 + track.id.length * 371;
     const random = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
@@ -464,7 +470,11 @@ export class GameRenderer {
     this.lastCameraFrame = now;
     // Re-anchor after an inactive tab instead of sweeping across an old position.
     if (cameraElapsed > 0.5) this.lastCameraId = '';
-    this.setTrack(world?.trackId ?? this.previewTrack);
+    const eventStage = world?.eventStage ?? 0, eventLevel = world?.eventLevel ?? 3;
+    const openingsChanged = eventStage !== this.eventStage || eventLevel !== this.eventLevel;
+    this.eventStage = eventStage; this.eventLevel = eventLevel;
+    // Rebuild the static rail openings only at a phase change, preserving the camera.
+    this.setTrack(world?.trackId ?? this.previewTrack, openingsChanged);
     this.trackEvents.update(world?.trackId ?? this.previewTrack, world?.eventStage ?? 0, world?.eventLevel ?? 3, now / 1000);
     this.ghost.update(world);
     this.frames++;
@@ -495,7 +505,7 @@ export class GameRenderer {
       const near = nearestDriveableTrack(kart.x, kart.z, kart.trackId, kart.eventStage, kart.eventLevel);
       const shadow = visual.group.children.find(child => child.userData.role === 'contact-shadow');
       if (shadow) {
-        const height = Math.max(0, (kart.elevation ?? 0) - trackElevation(near.progress, kart.trackId));
+        const height = Math.max(0, (kart.elevation ?? 0) - driveableGroundHeight(near, kart.trackId, kart.elevation ?? 0));
         shadow.position.y = .01 - height; shadow.scale.setScalar(1 + height * .08);
       }
       visual.group.rotation.set(0, kart.angle, 0);
@@ -512,9 +522,10 @@ export class GameRenderer {
       visual.shield.visible = kart.shield > 0; visual.shield.scale.setScalar(1 + Math.sin(now * 0.006) * 0.025);
     }
     this.renderObjects(world, now);
-    const local = players.find(k => k.id === localId && !k.spectator) ?? (world && world.phase !== 'lobby' ? players.find(k => !k.spectator) : undefined);
+    const local = players.find(k => k.id === localId && !k.spectator && !k.abandoned) ?? (world && world.phase !== 'lobby' ? players.find(k => !k.spectator && !k.abandoned) : undefined);
     const following = local && world && world.phase !== 'lobby' && world.phase !== 'finished';
     if (following) {
+      this.camera.near = 1;
       const blend = 1 - Math.exp(-cameraDt * 5);
       if (this.lastCameraId !== local.id) { this.cameraAngle = local.angle; this.cameraAim.set(local.x, 1 + (local.elevation ?? 0), local.z); }
       this.cameraAngle += Math.atan2(Math.sin(local.angle - this.cameraAngle), Math.cos(local.angle - this.cameraAngle)) * (1 - Math.exp(-cameraDt * 4));
@@ -525,6 +536,7 @@ export class GameRenderer {
       this.camera.lookAt(this.cameraAim); this.lastCameraId = local.id;
       const fov = local.boost > 0 ? 62 : 55; this.camera.fov += (fov - this.camera.fov) * blend; this.camera.updateProjectionMatrix();
     } else {
+      this.camera.near = 10;
       const { centerX: x, centerZ: z, radius } = this.bounds;
       const angle = now * 0.000018 + 0.55;
       this.cameraGoal.set(x + Math.sin(angle) * radius * 1.05, radius * 1.25, z + Math.cos(angle) * radius * 1.25);

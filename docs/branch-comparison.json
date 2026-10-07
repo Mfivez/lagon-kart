@@ -202,11 +202,11 @@
       ],
       "sectorSeconds": {
         "balanced": {
-          "normal": 16.33,
+          "normal": 16.27,
           "shortcut": 8.3
         },
         "heavy": {
-          "normal": 17.23,
+          "normal": 17.17,
           "shortcut": 8.33
         }
       }
@@ -626,6 +626,40 @@
           "shortcut": 14.73
         }
       }
+    }
+  ],
+  "rechecks": [
+    {
+      "date": "2026-10-06",
+      "scope": "After fixing rail gaps to depend on the current event stage/level; identical driving controller and unchanged assertions.",
+      "command": "node --import tsx --test --test-name-pattern='classic races|neon: eight ordinary|shortcuts save' tests/vertical-collisions.test.ts tests/tracks.test.ts tests/events.test.ts",
+      "passed": 4,
+      "failed": 0,
+      "skipped": 85,
+      "durationSeconds": 6.576,
+      "neonPreviousSectorSeconds": {
+        "balanced": {
+          "normal": 16.33,
+          "shortcut": 8.3
+        },
+        "heavy": {
+          "normal": 17.23,
+          "shortcut": 8.33
+        }
+      },
+      "neonCurrentSectorSeconds": {
+        "balanced": {
+          "normal": 16.27,
+          "shortcut": 8.3
+        },
+        "heavy": {
+          "normal": 17.17,
+          "shortcut": 8.33
+        }
+      },
+      "neonClassicEightDriversSeconds": 71.73,
+      "neonDynamicEightDriversSeconds": 70.57,
+      "neonDynamicResets": 0
     }
   ]
 }

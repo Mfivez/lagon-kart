@@ -1,8 +1,8 @@
 # Validation des fonctionnalités dans le navigateur
 
-Exécution du 6 octobre 2026 : `npm run test:features-browser` (`scripts/features-browser-check.ts`). **11 contrôles réussis**, sans erreur JavaScript ni ressource modèle/audio/asset manquante. Rapport brut : [validation.json](feature-demo/validation.json).
+Le dernier parcours du 6 octobre 2026, sur le catalogue de **douze circuits**, a réussi **11/11 contrôles**, sans erreur JavaScript ni ressource modèle/audio/asset manquante. Commande : `npm run test:features-browser` (`scripts/features-browser-check.ts`). [Rapport actuel](feature-demo-12/validation.json). Une première exécution sur les six pistes initiales avait également réussi 11/11 contrôles ; ses preuves restent conservées dans [le rapport initial](feature-demo/validation.json).
 
-Le script démarre un serveur Colyseus privé à partir du client compilé et un stockage de profils temporaire, puis ouvre deux contextes Chromium indépendants avec SwiftShader. Il nettoie le serveur et le stockage à la fin. Cette exécution couvre le lot de **six circuits** compilé avant l’ajout ultérieur des six circuits à ponts et tremplins.
+Le script démarre un serveur Colyseus privé à partir du client compilé et un stockage de profils temporaire, puis ouvre deux contextes Chromium indépendants avec SwiftShader. Il nettoie le serveur et le stockage à la fin. Les mesures et captures détaillées dans la première partie concernent le lot initial de six pistes ; la dernière section décrit la répétition complète avec douze pistes.
 
 ## Vérifications exécutées
 
@@ -37,3 +37,12 @@ Il s’agit de deux contextes sur la même machine, pas d’une connexion entre 
 | Pièces déverrouillées au niveau un | [Garage débloqué](feature-demo/garage-level-one-unlocked.png) |
 | Paliers supérieurs simulés | [Progression](feature-demo/career-level-three-staged.png) |
 | Lecture d’un replay de test | [Replay](feature-demo/replay-private-race.png) |
+
+
+## Deuxième exécution : catalogue à douze circuits
+
+Le même parcours a ensuite été exécuté sur le client compilé `index-CU-Fug6i.js`, avec les douze cartes de circuits et les programmes de championnat étendus : **11/11 contrôles réussis**. Rapport : [validation du lot douze pistes](feature-demo-12/validation.json). Captures : [accueil](feature-demo-12/home-12-tracks.png), [garage et aperçu du personnage](feature-demo-12/garage-level-zero.png), [deux joueurs](feature-demo-12/lobby-two-humans.png), [équipes](feature-demo-12/teams-eight-pilots.png), [conduite réelle](feature-demo-12/race-keyboard-two-humans.png), [résultats imposés](feature-demo-12/team-results-staged.png), [niveau zéro](feature-demo-12/career-six-cups-level-zero.png), [garage déverrouillé](feature-demo-12/garage-level-one-unlocked.png), [progression simulée](feature-demo-12/career-level-three-staged.png), [replay](feature-demo-12/replay-private-race.png).
+
+Le harnais attend désormais `DOMContentLoaded` puis l’état applicatif de connexion, et recherche l’hôte courant avant de passer à la manche suivante. Les premières tentatives avaient échoué sur une attente globale de chargement trop courte puis sur un bouton réservé à un hôte qui avait changé ; les diagnostics confirmaient les connexions et profils restaurés. Ces erreurs de ciblage du test ont été corrigées, puis tout le parcours a été relancé avec succès.
+
+Les arrivées et paliers supérieurs restent les mêmes fixtures explicites que dans le premier lot. Le « joueur hôte » dans le texte des fixtures désigne le créateur initial, choisi gagnant pour le contrôle de progression ; l’autorité réseau peut avoir été transférée au second contexte. Ce deuxième passage n’inclut pas les corrections visuelles ultérieures de cadrage/profondeur et de panneau de circuits : elles font l’objet des captures de décor et du [contrôle de mise en page](home-layout/validation.json).

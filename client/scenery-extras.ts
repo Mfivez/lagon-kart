@@ -1,6 +1,7 @@
 import * as THREE from 'three';
+import { BRIDGE_RAIL_THICKNESS, BRIDGE_RAIL_CENTER_Y, BRIDGE_SHOULDER } from '../shared/obstacle-heights';
 import { trackElevation, trackPoint, type TrackDefinition, type TrackElevation } from '../shared/track';
-import { getTrackEvent, nearestDriveableTrack } from '../shared/track-events';
+import { nearestDriveableTrack, trackBoundaryGap } from '../shared/track-events';
 
 // Original, code-generated scenery: no external textures, models or paid assets.
 // Materials survive track changes; geometry belongs to this group and can be batched/disposed.
@@ -20,7 +21,7 @@ export function hasExtraScenery(track: TrackDefinition): boolean {
 }
 
 /** Add before GameRenderer.batchScenery(). The renderer draws the road at trackElevation(). */
-export function buildTrackExtras(track: TrackDefinition): THREE.Group {
+export function buildTrackExtras(track: TrackDefinition, eventStage = 0, eventLevel = 3): THREE.Group {
   const result = new THREE.Group(); result.name = `scenery-${track.id}`;
   result.userData.theme = track.theme; result.userData.structures = [] as string[];
   if (!hasExtraScenery(track)) return result;
@@ -57,9 +58,7 @@ export function buildTrackExtras(track: TrackDefinition): THREE.Group {
     return new THREE.Vector3(point.x + Math.cos(point.angle) * offset,
       trackElevation(progress, track.id) + height, point.z - Math.sin(point.angle) * offset);
   };
-  const branches = getTrackEvent(track.id, 2, 3).branches;
-  const branchGap = (point: THREE.Vector3) => branches.some(branch => branch.points.some(sample =>
-    Math.hypot(sample.x - point.x, sample.z - point.z) < branch.width / 2 + 2));
+  const branchGap = (point: THREE.Vector3) => trackBoundaryGap(point.x, point.z, track.id, eventStage, eventLevel);
   const structural = track.theme === 'forest' ? '#826043' : track.theme === 'castle' ? '#a4a598'
     : track.theme === 'sky' ? '#ae99be' : track.theme === 'volcano' ? '#45484c' : '#526e76';
   const trim = track.theme === 'forest' ? '#c4a56d' : track.theme === 'castle' ? '#c9c5b4' : track.palette.accent;
@@ -73,21 +72,21 @@ export function buildTrackExtras(track: TrackDefinition): THREE.Group {
       const a = roadPosition(aProgress), b = roadPosition(bProgress);
       const length = Math.hypot(b.x - a.x, b.z - a.z);
       const deck = box(bridge, structural, (a.x + b.x) / 2, (a.y + b.y) / 2 - .35,
-        (a.z + b.z) / 2, track.width + 3, .5, length + .1);
+        (a.z + b.z) / 2, track.width + BRIDGE_SHOULDER * 2, .5, length + .1);
       deck.rotation.set(-Math.atan2(b.y - a.y, length), Math.atan2(b.x - a.x, b.z - a.z), 0, 'YXZ');
       for (const side of [-1, 1]) {
-        const offset = side * (track.width / 2 + 1.5);
-        const railA = roadPosition(aProgress, offset, 1.1), railB = roadPosition(bProgress, offset, 1.1);
+        const offset = side * (track.width / 2 + BRIDGE_SHOULDER);
+        const railA = roadPosition(aProgress, offset, BRIDGE_RAIL_CENTER_Y), railB = roadPosition(bProgress, offset, BRIDGE_RAIL_CENTER_Y);
         const railMiddle = new THREE.Vector3().addVectors(railA, railB).multiplyScalar(.5);
         if (branchGap(railA) || branchGap(railB) || branchGap(railMiddle)) continue;
-        beam(bridge, trim, railA, railB, .24);
+        beam(bridge, trim, railA, railB, BRIDGE_RAIL_THICKNESS);
         const foot = roadPosition(aProgress, offset, -.15);
-        beam(bridge, structural, foot, railA, .24);
+        beam(bridge, structural, foot, railA, BRIDGE_RAIL_THICKNESS);
         if (i % 2 === 0 && a.y > 1.3) {
           const post = roadPosition(aProgress, offset, -.45);
           box(bridge, structural, post.x, (post.y - 1.4) / 2, post.z, 1.2, post.y + 1.4, 1.2);
           if (track.theme === 'harbor' || track.theme === 'foundry')
-            beam(bridge, trim, roadPosition(aProgress, offset, .2), roadPosition(bProgress, offset, 1.1), .18);
+            beam(bridge, trim, roadPosition(aProgress, offset, .2), roadPosition(bProgress, offset, BRIDGE_RAIL_CENTER_Y), .18);
         }
       }
     }
@@ -145,7 +144,8 @@ export function buildTrackExtras(track: TrackDefinition): THREE.Group {
   };
   if (track.theme === 'volcano') {
     const crater = group('volcano-crater');
-    add(crater, tapered, '#55504c', 0, 17, 0, 42, 34, 42);
+    // Leave the crater mouth open: a capped frustum would hide the lava below its lip.
+    add(crater, new THREE.CylinderGeometry(.62, 1, 1, 8, 1, true), '#55504c', 0, 17, 0, 42, 34, 42);
     const lip = add(crater, torus, '#403f43', 0, 34, 0, 27, 27, 13); lip.rotation.x = Math.PI / 2;
     add(crater, cylinder, '#ed8b3f', 0, 32.5, 0, 23, .4, 23, true);
     for (let i = 0; i < 4; i++) add(crater, sphere, '#c29a81', i * 3 - 4, 45 + i * 10, 0, 7 + i * 3, 6 + i * 2, 7 + i * 2);

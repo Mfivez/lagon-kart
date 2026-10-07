@@ -21,9 +21,15 @@ conserver ses options `-p` et `HOST_PORT` lors des commandes suivantes.
 
 Les anciennes URL et empreintes de build conservées plus bas correspondent aux
 lots précédents. **Elles ne prouvent pas le déploiement du lot à douze circuits.**
-Les résultats du build global, de Docker et de la course publique de cette version
-sont consignés séparément dans [VALIDATION.md](../VALIDATION.md) au fur et à mesure
-de leur exécution.
+Le contrôle TypeScript et le build final `index-DCnyszy_.js` ont réussi.
+Lien vérifié de cette session : [ouvrir Lagon Kart](https://lunch-governmental-prep-rainbow.trycloudflare.com).
+Le lien reste disponible tant que le tunnel est actif ; il change à sa recréation.
+Les six nouveaux circuits ont réussi leurs huit contrôles navigateur, avec
+25 captures. La course publique finale a réussi : quatre pilotes SDK finissent
+les trois tours, deux navigateurs observent, sans arrivée imposée. Le contrôle
+dure **125,721 s**, sans erreur JavaScript ni asset manquant. Profils et replay
+commun sont enregistrés. [Rapport](final-public-race.json), [arrivée](final-public-resultats.png). Les preuves Docker antérieures et les résultats courants sont
+distingués dans [VALIDATION.md](../VALIDATION.md).
 
 Compose conserve les profils, la progression, les saisons et les replays dans
 le volume **`player-data`**, monté dans `/app/data`. Reconstruire le conteneur ou
@@ -58,7 +64,8 @@ un changement d'adresse de tunnel ne transfère pas automatiquement cette clé.
    Le MMR et les rangs Bronze à Master concernent ce serveur ; les saisons sont
    trimestrielles. Ouvrir un replay disponible et tester lecture, pause et curseur.
    En entraînement, cocher le **fantôme du meilleur temps** lorsqu'un enregistrement
-   compatible existe : ce ghost est visible en 3D et n'a pas de collisions.
+   compatible avec le circuit choisi et le niveau 3 des événements existe :
+   ce ghost est visible en 3D et n'a pas de collisions.
 
 Les choix de modèle et de personnage restent cosmétiques. Les pièces du garage
 modifient vitesse, accélération, adhérence, stabilité, turbo et comportement
@@ -74,40 +81,49 @@ Les crédits, les sources et les fichiers audio/modèles restent locaux au jeu.
 
 | Lot | Vérification exécutée et preuve |
 | --- | --- |
+| Course publique sur la version déployée | **4/4 pilotes, trois tours**, deux navigateurs, sauts et phases, trois modèles et MP3, profils/replay enregistrés ; aucune erreur JavaScript ni asset manquant. Contrôle **125,721 s**, chronos **107,300–109,467 s**. [Rapport](final-public-race.json), [empreintes](final-public-assets.json). |
+| Suite complète et compilation | **237/237 tests réussis**, sans échec ni test ignoré, en **61,38 s** ; journal local `/tmp/lagon-tests-final-confirmed.log`. TypeScript et build `index-DCnyszy_.js` réussis. Un test de vrai saut au-dessus d'un rail a réussi séparément après cette suite. [Validation](../VALIDATION.md), [portée du cas supplémentaire](VERTICAL_COLLISIONS.md). |
 | Branches fluides et raccourcis | **33 tests** ; 96 arrivées après trois tours sur douze circuits avec événements niveau 3, sans demande de remise en piste ; 36 branches parcourues avec direction progressive ; 24 comparaisons de secteur. [Méthode et résultats](CIRCUITS.md), [mesures JSON](branch-comparison.json). |
-| Tours et portes alternatives | **31 tests ciblés** du compteur dans une suite de 57 tests réussis ; accotements, branches, ordre des portes, sens inverse, sauts et retour en piste. [Rapport](LAPS.md). |
+| Tours, portes et obstacles | Accotements, branches, ordre des portes, sens inverse, sauts, murs de hauteur finie et retour en piste sur une porte équivalente. [Tours](LAPS.md), [collisions verticales](VERTICAL_COLLISIONS.md). |
 | Physique du garage et objets en équipes | **9 tests garage** et **10 tests objets/équipes** ; différences mesurées de conduite, choix verrouillés, modèles/personnages sans effet physique, protection des alliés et score cumulé. Sources : [garage](../tests/garage.test.ts), [équipes](../tests/team-items.test.ts). |
 | Trois modèles et cinq personnages | **5 contrôles Chromium des modèles**, **5 des personnages** ; chargement, partage, recoloration, pivots, animation et secours. [Modèles](KART_MODELS.md), [personnages](CHARACTERS.md). |
-| Garage, carrière et 4 contre 4 dans le navigateur | **11 contrôles Chromium** sur le précédent build à six circuits : deux contextes, choix propagés, reconnexion, déplacement clavier réel, pièces et coupes, résultats et replay. Les arrivées et certains paliers sont imposés pour vérifier les écrans. [Portée exacte et captures](FEATURE_BROWSER.md). |
+| Garage, carrière et 4 contre 4 dans le navigateur | **11/11 contrôles Chromium sur les douze circuits**, bundle `index-CU-Fug6i.js` : deux contextes, choix propagés, reconnexion, déplacement clavier réel, pièces et coupes, résultats et replay. Les arrivées et certains paliers sont imposés pour vérifier les écrans. Ce parcours précède le build final. [Portée exacte et captures](FEATURE_BROWSER.md), [rapport](feature-demo-12/validation.json). |
 | Persistance et accès réseau à la carrière | Tests du stockage, MMR, saisons, matchmaking, rétention et requêtes réelles HTTP/Colyseus sur serveur privé. Les fixtures de récompense imposent les arrivées. [Rapport](PROGRESSION.md). |
-| Six nouvelles pistes à relief | [Description, géométrie et état de validation](CIRCUITS_APPENDIX.md). Les preuves navigateur du build à douze pistes sont distinctes de celles du précédent lot à six. |
+| Persistance Docker et course SDK | Contrôle local isolé réussi en **117,697 s**, dont une course de trois tours sur l'Archipel céleste en **108,4 s** ; profil, replay et ghost conservés après recréation du conteneur. Image antérieure aux derniers correctifs de murs : `sha256:6bed08d4ca9348e53395513fbbda74493bb38b9dc653648f3a1111a7e812c7c1`, bundle `index-CU-Fug6i.js`. [Rapport](docker-persistence.json). |
+| Six nouvelles pistes à relief | [Description, géométrie et état de validation](CIRCUITS_APPENDIX.md). **8 contrôles navigateur réussis**, 25 captures : ponts, accélération au clavier, sauts et atterrissages sur les six pistes, routes de phase deux et tirage aléatoire de huit courses. Positions et pauses de capture privées documentées. [Rapport](circuits-expanded/validation.json). |
 
-Les nombres de cette table décrivent des suites ciblées qui peuvent se recouper ;
-ils ne constituent pas un total global de tests sur le dernier build. Les temps
+Les suites ciblées de cette table peuvent se recouper ; leurs nombres ne
+s'additionnent pas au total de la suite complète. Les temps
 comparés des raccourcis proviennent de commandes de conduite déterministes, pas
 de records humains. Les tests de portes placent volontairement les karts près
 des frontières pour en contrôler les règles.
 
 | Capture | Document ou fichier |
 | --- | --- |
+| Course publique finale | [Tour 1](final-public-tour-1.png) · [Tour 3](final-public-tour-3.png) · [Résultats](final-public-resultats.png) |
 | Ancien kart et kart Zsky, cadrage comparable | [Avant](kart-visuals/kart-before-detail.png) · [Après](kart-visuals/kart-after-detail.png) |
 | Trois silhouettes dans la même couleur | [Bibliothèque](kart-library/three-models.png) |
 | Les cinq personnages | [Pilotes](characters/lineup.png) |
-| Garage et pièces verrouillées | [Garage, lot six circuits](feature-demo/garage-level-zero.png) |
-| Deux humains et six CPU | [Équipes, lot six circuits](feature-demo/teams-eight-pilots.png) |
-| Lecture d'une trace enregistrée | [Replay de fixture](feature-demo/replay-private-race.png) |
+| Garage et pièces verrouillées | [Garage, lot douze circuits](feature-demo-12/garage-level-zero.png) |
+| Deux humains et six CPU | [Équipes, lot douze circuits](feature-demo-12/teams-eight-pilots.png) |
+| Ponts et sauts des six nouvelles pistes | [Galerie et mesures](CIRCUITS_APPENDIX.md) |
+| Panoramas avant/après correction de profondeur | [Comparaison](overview-depth/README.md) |
+| Lecture d'une trace enregistrée | [Replay de fixture, lot douze circuits](feature-demo-12/replay-private-race.png) |
 
 ## Vérifications encore séparées
 
-Le build global final, le déploiement de cette version et ses contrôles publics
-ne sont pas déduits des preuves historiques. Consulter [la validation](../VALIDATION.md)
-pour leur résultat effectivement obtenu. Deux contextes Chromium sur un seul
-hôte ne remplacent pas **deux ordinateurs physiques**.
+Le déploiement final et les empreintes publiques sont vérifiés. Les six nouveaux
+circuits ont leurs captures et contrôles de sauts ; les artefacts de profondeur
+des panoramas ont été corrigés et comparés à cadrage fixe. La course publique
+finale a réussi, avec quatre pilotes SDK et deux navigateurs observateurs ;
+son rapport et ses limites sont dans [la validation](../VALIDATION.md). Les preuves Docker et Chromium du bundle
+`index-CU-Fug6i.js` précèdent le build final `index-DCnyszy_.js`. Deux contextes
+Chromium sur un seul hôte ne remplacent pas **deux ordinateurs physiques**.
 
 Restent des essais humains : conduire une course entière sur les branches
 corrigées, apprécier les ponts et sauts, la lisibilité et l'équilibrage des pièces,
 vérifier la fluidité sur les GPU des collègues et écouter les MP3 sur leur
-matériel. Les tests SwiftShader ne mesurent pas les performances d'un GPU.
+matériel. Les deux observateurs SwiftShader tournaient à 2,4–2,9 FPS en fin de test : cela ne mesure pas les performances d’un GPU.
 Le téléphone réel et la reprise audio après verrouillage ne sont pas validés.
 
 ## Archive : démo karts, objets et MP3 avant extension

@@ -1,8 +1,24 @@
 import * as THREE from 'three';
+import { BRANCH_POST_HEIGHT } from '../shared/obstacle-heights';
 import { getTrack, nearestTrack, trackElevation, trackPoint, type Vec2 } from '../shared/track';
 import { getTrackEvent, type TrackBranch, type TrackEventInfo } from '../shared/track-events';
 
 function ribbon(points: Array<Vec2 & { progress?: number }>, width: number, height: number, trackId: string) {
+  // Branch positions carry the same virtual progress as their checkpoint gates.
+  // Preserve the precise ramp lip on these ribbons as well as the main road.
+  const boundaries = [...new Set(getTrack(trackId).elevations.flatMap(feature =>
+    [feature.start, feature.end, feature.end + .05]))].sort((a, b) => a - b);
+  const sampled: Array<Vec2 & { progress?: number }> = [];
+  points.forEach((point, index) => {
+    sampled.push(point);
+    const next = points[index + 1];
+    if (point.progress === undefined || next?.progress === undefined) return;
+    for (const progress of boundaries) if (progress > point.progress && progress < next.progress) {
+      const t = (progress - point.progress) / (next.progress - point.progress);
+      sampled.push({ x: point.x + (next.x - point.x) * t, z: point.z + (next.z - point.z) * t, progress });
+    }
+  });
+  points = sampled;
   const positions: number[] = [], indices: number[] = [];
   points.forEach((point, index) => {
     const before = points[Math.max(0, index - 1)]!, after = points[Math.min(points.length - 1, index + 1)]!;
@@ -72,7 +88,7 @@ export class TrackEventsView {
     for (let index = 5; index < route.points.length - 4; index += 5) {
       const point = route.points[index]!;
       for (const side of [-1, 1]) this.post(point.x + Math.cos(point.angle) * side * (route.width / 2 + .6),
-        point.z - Math.sin(point.angle) * side * (route.width / 2 + .6), accent, .65, point.progress);
+        point.z - Math.sin(point.angle) * side * (route.width / 2 + .6), accent, BRANCH_POST_HEIGHT, point.progress);
     }
     const saved = Math.round((1 - route.length / (route.end - route.start)) * 100);
     const title = route.kind === 'detour' ? 'DÉVIATION LARGE · OBJETS' : route.kind === 'technical' ? 'VOIE TURBO · GRANDES COURBES' : 'RACCOURCI · −' + saved + ' %';
@@ -93,16 +109,16 @@ export class TrackEventsView {
     for (const blocker of event.blockers) {
       const icy = track.theme === 'ice', wet = track.theme === 'tropical';
       const zone = this.mesh(this.box, icy ? '#d6f3fb' : wet ? '#368e9d' : '#473e3a');
-      const groundY = trackElevation(nearestTrack(blocker.x, blocker.z, track.id).progress, track.id);
+      const groundY = blocker.elevation;
       zone.position.set(blocker.x, groundY + .085, blocker.z); zone.rotation.y = blocker.angle;
       zone.scale.set(blocker.halfWidth * 2, .17, blocker.halfLength * 2 + 1.2);
       for (let index = 0; index < 9; index++) {
         const across = (index / 8 * 2 - 1) * (blocker.halfWidth - 1);
         const object = this.mesh(wet || track.theme === 'neon' ? this.box : this.rock,
           icy ? '#bddfec' : wet ? '#edbd67' : track.theme === 'neon' ? '#f2ab61' : '#906b55');
-        object.position.set(blocker.x + Math.cos(blocker.angle) * across, groundY + .65 + index % 2 * .15,
+        object.position.set(blocker.x + Math.cos(blocker.angle) * across, groundY + blocker.height * (.65 + index % 2 * .15) / (wet || track.theme === 'neon' ? 1.6 : 2.4),
           blocker.z - Math.sin(blocker.angle) * across);
-        object.scale.set(1.4, 1.3 + index % 2 * .3, 1.2); object.rotation.y = blocker.angle + index * .18; object.castShadow = true;
+        object.scale.set(1.4, blocker.height * (1.3 + index % 2 * .3) / (wet || track.theme === 'neon' ? 1.6 : 2.4), 1.2); object.rotation.y = blocker.angle + index * .18; object.castShadow = true;
       }
       const before = { x: blocker.x - Math.sin(blocker.angle) * 4, z: blocker.z - Math.cos(blocker.angle) * 4 };
       this.sign('ROUTE BARRÉE · DÉVIATION →', before, '#ffc16d');

@@ -93,7 +93,7 @@ test('deterministic client movement and server movement agree without external e
   assert.equal(predicted.speed, world.players[0]!.speed);
 });
 
-test('drift release awards mini turbo; offroad slows and outer bounds contain karts', () => {
+test('drift release awards mini turbo; offroad slows and a grounded crossing meets the rail', () => {
   const kart = createKart('p', 'Pilote', COLORS[0]!, 0);
   kart.speed = 25;
   // Follow the centerline while holding drift to isolate charge/release physics.
@@ -109,8 +109,10 @@ test('drift release awards mini turbo; offroad slows and outer bounds contain ka
     z: point.z - Math.sin(point.angle) * 11, speed: 30, boost: 0 });
   stepKart(kart, { ...neutralInput(), throttle: 1 }, dt);
   assert.ok(kart.speed < 30);
-  kart.x += 100;
-  stepKart(kart, neutralInput(), dt);
+  Object.assign(kart, { x: point.x + Math.cos(point.angle) * (ROAD_WIDTH / 2 + 4.8),
+    z: point.z - Math.sin(point.angle) * (ROAD_WIDTH / 2 + 4.8), angle: point.angle + Math.PI / 2,
+    speed: 10, turnVelocity: 0, lateralVelocity: 0 });
+  stepKart(kart, neutralInput(), .1);
   assert.ok(nearestTrack(kart.x, kart.z).distance <= ROAD_WIDTH / 2 + 5.01);
 });
 

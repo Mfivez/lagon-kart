@@ -28,7 +28,10 @@
     "check:kart-library": "python3 scripts/prepare-kart-library.py --check",
     "test:kart-library": "node --import tsx scripts/kart-library-check.ts",
     "test:characters": "node --import tsx scripts/characters-check.ts",
-    "test:features-browser": "node --import tsx scripts/features-browser-check.ts"
+    "test:features-browser": "node --import tsx scripts/features-browser-check.ts",
+    "test:circuits-browser": "node --import tsx scripts/circuits-browser-check.ts",
+    "test:final-race": "node --import tsx scripts/final-race-check.ts",
+    "test:docker-persistence": "node --import tsx scripts/docker-persistence-check.ts"
   },
   "dependencies": {
     "@colyseus/core": "0.16.26",

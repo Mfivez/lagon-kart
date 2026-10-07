@@ -3,7 +3,8 @@ import { createTournament, type TournamentState } from './tournament.js';
 import { DEFAULT_KART_MODEL, normalizeKartModelId, type KartModelId } from './kart-catalog.js';
 import { DEFAULT_CHARACTER, normalizeCharacterId, type CharacterId } from './characters.js';
 import { DEFAULT_BUILD, normalizeBuild, getKartStats, type KartBuild } from './garage.js';
-import { nearestDriveableTrack, dynamicSurface, constrainTrackEvent, trackEventPickups, eventRoutePoint, eventCheckpointGates } from './track-events.js';
+import { nearestDriveableTrack, dynamicSurface, constrainTrackEvent, trackEventPickups, eventRoutePoint, eventCheckpointGates, getTrackEvent, trackBoundaryGap } from './track-events.js';
+import { TRACK_SHOULDER, KART_COLLISION_HEIGHT, trackBoundaryHeight, trackBoundaryShoulder, driveableGroundHeight } from './obstacle-heights.js';
 export { CHECKPOINTS, COLORS, ROAD_WIDTH, TOTAL_LAPS, TRACK, TRACK_LENGTH, TRACKS, TRACK_IDS,
   getTrack, isTrackId, nearestTrack, spawnPoint, trackPoint, trackSurface } from './track.js';
 export type { Vec2, TrackDefinition, TrackId, TrackZone, Surface } from './track.js';
@@ -50,7 +51,6 @@ export const STAR_SECONDS = 5.5;
 export const SHIELD_SECONDS = 8;
 // The checkpoint corridor must match the shoulder that movement really allows.
 // A smaller gate silently loses an otherwise legal lap at an outside corner.
-const TRACK_SHOULDER = 5;
 
 export function neutralInput(seq = 0, epoch = 0): Input {
   return { seq, epoch, throttle: 0, steer: 0, brake: false, drift: false, use: false, reset: false };
@@ -122,6 +122,24 @@ export function startRace(world: World): void {
 }
 
 export function resetKart(kart: Kart): void {
+  const track = getTrack(kart.trackId), event = getTrackEvent(kart.trackId, kart.eventStage, kart.eventLevel);
+  if (event.blockers.length) {
+    const previousCheckpoint = (kart.nextCheckpoint + track.checkpoints.length - 1) % track.checkpoints.length;
+    const gates = eventCheckpointGates(track.id, previousCheckpoint, kart.eventStage, kart.eventLevel);
+    const detour = event.branches.find(branch => branch.kind === 'detour' && branch.open);
+    const replacement = detour && gates.find(gate => gate.branchId === detour.id);
+    const respawn = nearestDriveableTrack(kart.respawnX, kart.respawnZ, track.id, kart.eventStage, kart.eventLevel);
+    const alreadyOnBranch = Boolean(respawn.branchId) || gates.some(gate => gate.branchId &&
+      Math.hypot(kart.respawnX - gate.x - Math.sin(gate.angle) * 2, kart.respawnZ - gate.z - Math.cos(gate.angle) * 2) < 3);
+    if (replacement && detour && !alreadyOnBranch && respawn.progress > detour.start && respawn.progress < detour.end) {
+      // The shared phase may have closed the old road after this gate was
+      // validated. Move only its respawn to the equivalent open detour gate;
+      // never change lap, checkpoint, ranking progress or item-pad credits.
+      kart.respawnX = replacement.x + Math.sin(replacement.angle) * 2;
+      kart.respawnZ = replacement.z + Math.cos(replacement.angle) * 2;
+      kart.respawnAngle = replacement.angle;
+    }
+  }
   kart.x = kart.respawnX;
   kart.z = kart.respawnZ;
   kart.angle = kart.respawnAngle;
@@ -151,7 +169,7 @@ export function stepKart(kart: Kart, input: Input, dt: number): void {
   kart.resetCooldown = Math.max(0, kart.resetCooldown - dt);
   if (input.reset && !kart.resetLatch && kart.resetCooldown === 0) resetKart(kart);
   kart.resetLatch = input.reset;
-  const previousX = kart.x, previousZ = kart.z;
+  const previousX = kart.x, previousZ = kart.z, previousElevation = kart.elevation;
   kart.boost = Math.max(0, kart.boost - dt);
   kart.stun = Math.max(0, kart.stun - dt);
   kart.invincible = Math.max(0, kart.invincible - dt);
@@ -207,11 +225,8 @@ export function stepKart(kart: Kart, input: Input, dt: number): void {
   kart.lateralVelocity += (sideways - kart.lateralVelocity) * Math.min(1, dt * 5 * grip);
   kart.x += (Math.sin(kart.angle) * kart.speed + Math.cos(kart.angle) * kart.lateralVelocity) * dt;
   kart.z += (Math.cos(kart.angle) * kart.speed - Math.sin(kart.angle) * kart.lateralVelocity) * dt;
-  constrainToTrack(kart);
-  const constrained = constrainTrackEvent(kart.x, kart.z, previousX, previousZ, kart.speed, kart.trackId, kart.eventStage, kart.eventLevel);
-  kart.x = constrained.x; kart.z = constrained.z; kart.speed = constrained.speed;
   const next = nearestDriveableTrack(kart.x, kart.z, track.id, kart.eventStage, kart.eventLevel);
-  const ground = trackElevation(next.progress, track.id);
+  const ground = driveableGroundHeight(next, track.id, kart.elevation);
   const ramp = trackJumpAt(position.progress, track.id);
   const forward = (next.progress - position.progress + track.length) % track.length;
   // Launch only when physically crossing the lip in the forward direction.
@@ -229,17 +244,47 @@ export function stepKart(kart: Kart, input: Input, dt: number): void {
     kart.verticalVelocity -= 20 * dt;
     if (kart.elevation <= ground) { kart.elevation = ground; kart.verticalVelocity = 0; kart.airborne = false; }
   } else { kart.elevation = ground; kart.verticalVelocity = 0; }
+  constrainToTrack(kart, { x: previousX, z: previousZ, elevation: previousElevation });
+  const constrained = constrainTrackEvent(kart.x, kart.z, previousX, previousZ, kart.speed, kart.trackId, kart.eventStage, kart.eventLevel,
+    { previous: previousElevation, current: kart.elevation });
+  kart.x = constrained.x; kart.z = constrained.z; kart.speed = constrained.speed;
+  const correctedGround = driveableGroundHeight(nearestDriveableTrack(kart.x, kart.z, track.id, kart.eventStage, kart.eventLevel), track.id, kart.elevation);
+  if (kart.elevation <= correctedGround) { kart.elevation = correctedGround; kart.verticalVelocity = 0; kart.airborne = false; }
 }
 
-function constrainToTrack(kart: Kart): void {
-  const near = nearestDriveableTrack(kart.x, kart.z, kart.trackId, kart.eventStage, kart.eventLevel);
-  const limit = near.width / 2 + TRACK_SHOULDER;
-  if (near.distance > limit) {
-    kart.x = near.x + (kart.x - near.x) / near.distance * limit;
-    kart.z = near.z + (kart.z - near.z) / near.distance * limit;
-    kart.speed *= 0.72;
-    kart.lateralVelocity *= 0.5;
+function constrainToTrack(kart: Kart, before: { x: number; z: number; elevation: number }): void {
+  const at = (fraction: number) => {
+    const x = before.x + (kart.x - before.x) * fraction, z = before.z + (kart.z - before.z) * fraction;
+    const near = nearestDriveableTrack(x, z, kart.trackId, kart.eventStage, kart.eventLevel);
+    const distance = near.distance - near.width / 2 - trackBoundaryShoulder(near.progress, kart.trackId, near.branchId);
+    return { x, z, near, distance };
+  };
+  const start = at(0), end = at(1), leaving = start.distance <= 1e-7 && end.distance > 1e-7;
+  const entering = start.distance > 1e-7 && end.distance <= 1e-7;
+  // Once a jump has cleared the rail, being outside does not teleport the kart
+  // back. It may land on the terrain and return through a gap, jump, or reset.
+  if (!leaving && !entering) return;
+  let low = 0, high = 1;
+  for (let iteration = 0; iteration < 14; iteration++) {
+    const middle = (low + high) / 2;
+    if ((at(middle).distance <= 0) === leaving) low = middle; else high = middle;
   }
+  const fraction = (low + high) / 2, contact = at(fraction);
+  if (!contact.near.branchId && trackBoundaryGap(contact.x, contact.z, kart.trackId, kart.eventStage, kart.eventLevel)) return;
+  const base = trackElevation(contact.near.progress, kart.trackId);
+  const foot = before.elevation + (kart.elevation - before.elevation) * fraction;
+  if (foot >= base + trackBoundaryHeight(contact.near.progress, kart.trackId, contact.near.branchId) || foot + KART_COLLISION_HEIGHT <= base) return;
+  // Keep the tangential part of the motion: a kart pressing against a rail
+  // still slides along it instead of becoming pinned at the first contact.
+  const boundary = end.near.width / 2 + trackBoundaryShoulder(end.near.progress, kart.trackId, end.near.branchId);
+  if (end.near.distance > 1e-7) {
+    const radius = boundary + (leaving ? -.001 : .001);
+    kart.x = end.near.x + (end.x - end.near.x) / end.near.distance * radius;
+    kart.z = end.near.z + (end.z - end.near.z) / end.near.distance * radius;
+  } else {
+    const stopped = at(Math.max(0, low - .002)); kart.x = stopped.x; kart.z = stopped.z;
+  }
+  kart.speed *= .72; kart.lateralVelocity *= .5;
 }
 
 function random(world: World): number {
@@ -376,7 +421,7 @@ function collideKarts(players: Kart[], teamMode = false): void {
   for (let i = 0; i < players.length; i++) for (let j = i + 1; j < players.length; j++) {
     const a = players[i]!;
     const b = players[j]!;
-    const beforeA = { x: a.x, z: a.z }, beforeB = { x: b.x, z: b.z };
+    const beforeA = { x: a.x, z: a.z, elevation: a.elevation }, beforeB = { x: b.x, z: b.z, elevation: b.elevation };
     const dx = b.x - a.x;
     const dz = b.z - a.z;
     const distance = Math.hypot(dx, dz);
@@ -404,9 +449,10 @@ function collideKarts(players: Kart[], teamMode = false): void {
       a.speed = clamp(a.speed - closingSpeed * shareA * aNormal, -9, 46);
       b.speed = clamp(b.speed + closingSpeed * shareB * bNormal, -9, 46);
     }
-    constrainToTrack(a); constrainToTrack(b);
+    constrainToTrack(a, beforeA); constrainToTrack(b, beforeB);
     for (const [kart, before] of [[a, beforeA], [b, beforeB]] as const) {
-      const constrained = constrainTrackEvent(kart.x, kart.z, before.x, before.z, kart.speed, kart.trackId, kart.eventStage, kart.eventLevel);
+      const constrained = constrainTrackEvent(kart.x, kart.z, before.x, before.z, kart.speed, kart.trackId, kart.eventStage, kart.eventLevel,
+        { previous: before.elevation, current: kart.elevation });
       kart.x = constrained.x; kart.z = constrained.z; kart.speed = constrained.speed;
     }
   }

@@ -125,7 +125,7 @@ function previewTrack(id: string) {
   renderer.setPreviewTrack(chosenTrack);
   el('track-cards').innerHTML = trackCards(chosenTrack);
   el('track-name').textContent = track.name;
-  el('track-number').textContent = `0${TRACKS.findIndex(option => option.id === track.id) + 1}`;
+  el('track-number').textContent = String(TRACKS.findIndex(option => option.id === track.id) + 1).padStart(2, '0');
   el('track-description').textContent = track.description;
   el('track-tags').innerHTML = `<span>${escape(track.difficulty.toUpperCase())}</span><span>⚑ 3 TOURS</span>`;
   el('home-circuit-picker').dataset.theme = track.theme;
@@ -343,7 +343,7 @@ function updateUI(now: number, force = false) {
   const me = world?.players.find(p => p.id === room?.sessionId);
   const players = [...(world?.players ?? [])].sort((a, b) => a.rank - b.rank);
   const competitors = players.filter(p => !p.spectator);
-  const tracked = me?.spectator ? competitors[0] : me;
+  const tracked = me?.spectator ? world?.players.find(p => !p.spectator && !p.abandoned) : me;
   const displayedTrack = getTrack(world?.trackId ?? chosenTrack);
   document.body.dataset.theme = displayedTrack.theme;
   show('tournament-badge', !!world);

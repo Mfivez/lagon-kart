@@ -13,6 +13,11 @@ dans le sens de la course. Elle accepte le départ sur le plan lorsqu’il y a u
 mouvement vers l’avant. Une immobilité, un passage en sens inverse, une porte
 sautée ou des allers-retours sur l’arrivée ne créent aucun tour.
 
+Les ponts emploient désormais un tablier plus étroit et un rail à 1,5 m du bord,
+avec une hauteur finie partagée avec le rendu. Le compteur conserve sa tolérance
+de passage, notamment pendant un saut ; cette tolérance ne déplace pas les murs
+et ne permet pas de sauter une étape. Voir [les collisions verticales](VERTICAL_COLLISIONS.md).
+
 Chaque branche ouverte possède ses propres portes physiques, alignées sur les
 mêmes étapes de progression que la route principale. Un raccourci conserve donc
 l’ordre obligatoire des étapes. Un segment peut franchir plusieurs portes très
@@ -25,15 +30,22 @@ travers les portes. Il remet aussi le kart à la hauteur de la chaussée choisie
 avec une vitesse verticale nulle. Les checkpoints utilisent X/Z : un kart
 franchissant une porte pendant un saut valide bien cette étape.
 
+Si la route principale ferme après le passage d’un pilote, un repositionnement
+dans le secteur fermé choisit la porte équivalente de la déviation ouverte. Son
+index est celui de la dernière porte déjà validée : tour, prochaine porte et
+progression restent strictement identiques. Une réapparition déjà située sur
+une branche valide, ou hors du secteur fermé, est conservée.
+
 ## Vérifications exécutées
 
-`node --import tsx --test tests/laps.test.ts tests/progression.test.ts tests/simulation.test.ts`
-termine avec **57 tests réussis**, dont **31 tests ciblés sur les tours**.
+`node --import tsx --test tests/laps.test.ts tests/vertical-collisions.test.ts tests/elevation.test.ts tests/simulation.test.ts`
+termine avec **64 tests réussis**, dont **33 tests ciblés sur les tours**.
 
 Ces tests couvrent trois tours sur les accotements des douze circuits, chacune
 des trois branches de chaque piste, le sens de passage, les portes manquées,
 les déplacements de 100 ms, les oscillations à l’arrivée, les repositionnements,
-le franchissement en l’air et la réapparition sur une branche élevée. Les tests
+le franchissement en l’air, la réapparition sur une branche élevée et le choix
+d’une porte équivalente après fermeture de la route sur les douze circuits. Les tests
 de frontière placent volontairement les karts près d’une porte ; ils vérifient
 le compteur et ses protections, sans remplacer les courses continues pilotées
 par les CPU ni les essais multijoueurs dans le navigateur.

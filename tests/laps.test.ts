@@ -139,3 +139,42 @@ test('reset lands on the actual elevated branch and clears flight without alteri
   assert.equal(kart.airborne, false); assert.equal(kart.verticalVelocity, 0);
   assert.equal(kart.nextCheckpoint, index + 1); assert.equal(kart.lap, 1);
 });
+
+test('a newly closed road resets to the same validated gate on its open detour without granting progress', () => {
+  for (const track of TRACKS) {
+    const detour = getTrackEvent(track.id, 1, 3).branches.find(branch => branch.kind === 'detour')!;
+    const index = track.checkpoints.findIndex((checkpoint, index) => index > 0 &&
+      checkpoint.progress > detour.start && checkpoint.progress < detour.end &&
+      !nearestDriveableTrack(checkpoint.x + Math.sin(checkpoint.angle) * 2, checkpoint.z + Math.cos(checkpoint.angle) * 2, track.id, 1, 3).branchId);
+    assert.ok(index > 0, track.id + ': a main-road gate lies inside the closure sector');
+    const main = track.checkpoints[index]!, kart = createKart('late', 'Retardataire', COLORS[0]!, 0, track.id);
+    const original = { x: main.x + Math.sin(main.angle) * 2, z: main.z + Math.cos(main.angle) * 2 };
+    Object.assign(kart, { respawnX: original.x, respawnZ: original.z, respawnAngle: main.angle,
+      nextCheckpoint: (index + 1) % track.checkpoints.length, lap: 1, progress: track.length + main.progress + 7,
+      eventLevel: 3, eventStage: 0, padLaps: { previous: 1 } });
+    resetKart(kart);
+    assert.equal(kart.x, original.x); assert.equal(kart.z, original.z, 'before closure the original respawn is preserved');
+    const progression = { next: kart.nextCheckpoint, lap: kart.lap, progress: kart.progress };
+    kart.eventStage = 1; resetKart(kart);
+    const gate = eventCheckpointGates(track.id, index, 1, 3).find(gate => gate.branchId === detour.id)!;
+    assert.equal(kart.x, gate.x + Math.sin(gate.angle) * 2); assert.equal(kart.z, gate.z + Math.cos(gate.angle) * 2);
+    assert.equal(kart.angle, gate.angle); assert.deepEqual({ next: kart.nextCheckpoint, lap: kart.lap, progress: kart.progress }, progression);
+    assert.deepEqual(kart.padLaps, { previous: 1 }); assert.equal(kart.verticalVelocity, 0); assert.equal(kart.airborne, false);
+    resetKart(kart); assert.equal(kart.x, gate.x + Math.sin(gate.angle) * 2, 'repeated reset keeps the chosen equivalent gate');
+  }
+});
+
+test('active closures preserve respawns outside their sector and an already chosen open shortcut', () => {
+  const track = getTrack('neon'), kart = createKart('safe', 'Sans détour', COLORS[0]!, 0, track.id);
+  Object.assign(kart, { eventLevel: 3, eventStage: 2 });
+  const start = { x: kart.respawnX, z: kart.respawnZ, angle: kart.respawnAngle };
+  resetKart(kart); assert.deepEqual({ x: kart.x, z: kart.z, angle: kart.angle }, start);
+  const shortcut = getTrackEvent(track.id, 2, 3).branches.find(branch => branch.kind === 'shortcut')!;
+  const index = track.checkpoints.findIndex(checkpoint => checkpoint.progress > shortcut.start && checkpoint.progress < shortcut.end);
+  const gate = eventCheckpointGates(track.id, index, 2, 3).find(gate => gate.branchId === shortcut.id)!;
+  Object.assign(kart, { respawnX: gate.x + Math.sin(gate.angle) * 2, respawnZ: gate.z + Math.cos(gate.angle) * 2,
+    respawnAngle: gate.angle, nextCheckpoint: index + 1 });
+  resetKart(kart);
+  assert.equal(kart.x, gate.x + Math.sin(gate.angle) * 2); assert.equal(kart.z, gate.z + Math.cos(gate.angle) * 2);
+  assert.equal(kart.nextCheckpoint, index + 1); assert.equal(kart.lap, 0);
+});

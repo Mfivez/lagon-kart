@@ -65,7 +65,7 @@ Les temps ci-dessous proviennent de la simulation avec le **même conducteur aut
 | Île des Alizés | 239 m | 202 m | 15,4 % | 9,47 → 8,17 s |
 | Canyon solaire | 282 m | 239 m | 15,4 % | 11,60 → 9,47 s |
 | Banquise boréale | 275 m | 213 m | 22,3 % | 10,90 → 8,57 s |
-| Métropole néon | 289 m | 207 m | 28,4 % | 16,33 → 8,30 s |
+| Métropole néon | 289 m | 207 m | 28,4 % | 16,27 → 8,30 s |
 | Mangrove sinueuse | 291 m | 208 m | 28,4 % | 12,17 → 8,37 s |
 | Dunes de cuivre | 207 m | 163 m | 21,1 % | 8,33 → 6,80 s |
 | Caldeira ardente | 454 m | 364 m | 20,0 % | 17,23 → 13,97 s |
@@ -76,3 +76,5 @@ Les temps ci-dessous proviennent de la simulation avec le **même conducteur aut
 | Citadelle royale | 482 m | 383 m | 20,6 % | 18,23 → 14,67 s |
 
 Les valeurs détaillées, y compris le kart chargé et les rayons de courbure, sont conservées dans [branch-comparison.json](branch-comparison.json). La validation visuelle en navigateur, la course sur le tunnel et l’essai manuel sur deux machines restent des vérifications séparées ; leurs résultats doivent être consignés dans [VALIDATION.md](../VALIDATION.md).
+
+Après correction des ouvertures de rail selon les événements actifs, le contrôle ciblé de Néon passe avec les critères inchangés : huit arrivées en classique (71,73 s), huit avec événements (70,57 s) et aucune remise en piste. Le même conducteur de secteur mesure 16,27 → 8,30 s avec le kart standard et 17,17 → 8,33 s avec le kart chargé. Les 24 comparaisons de secteur passent ; les valeurs précédentes de Néon sont conservées dans le journal `rechecks` du JSON. Aucun réglage de conduite n’a été changé pour cette correction.

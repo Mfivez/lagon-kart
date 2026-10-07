@@ -9,7 +9,7 @@ for (const track of TRACKS.filter(track => track.elevations.length)) {
     const bridge = track.elevations.find(feature => feature.kind === 'bridge')!;
     const bridgeProgress = (bridge.start + bridge.end) / 2;
     const kart = createKart('jump', 'Jump test', '#fc735d', 0, track.id);
-    Object.assign(kart, trackPoint(bridgeProgress, track.id));
+    Object.assign(kart, trackPoint(bridgeProgress, track.id), { elevation: trackElevation(bridgeProgress, track.id) });
     stepKart(kart, neutralInput(), 1 / 30);
     assert.ok(Math.abs(kart.elevation - bridge.height) < .01);
     assert.equal(kart.airborne, false);

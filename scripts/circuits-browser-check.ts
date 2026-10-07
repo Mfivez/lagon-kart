@@ -29,7 +29,7 @@ const pages: Page[] = [];
 const state = (page: Page): Promise<Debug> => page.evaluate(() => (window as unknown as { __lagonDebug: Debug }).__lagonDebug);
 const pause = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 const record = (message: string) => { checks.push(message); console.log('✓ ' + message); };
-async function until(check: () => boolean | Promise<boolean>, label: string, timeout = 30000) {
+async function until(check: () => boolean | Promise<boolean>, label: string, timeout = 45000) {
   const deadline = Date.now() + timeout;
   while (!await check()) { if (Date.now() > deadline) throw new Error('Délai dépassé : ' + label); await pause(30); }
 }
@@ -48,9 +48,11 @@ function place(kart: Kart, progress: number, speed = 0) {
     verticalVelocity: 0, airborne: false, stun: 0, boost: 0, finished: false, abandoned: false });
 }
 try {
+  const html = await fetch(origin).then(response => response.text());
+  evidence.clientAssets = [...html.matchAll(/(?:src|href)="([^"]*assets[^"]+)"/g)].map(match => match[1]);
   for (let index = 0; index < 2; index++) {
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
-    const page = await context.newPage(); page.setDefaultTimeout(30000); pages.push(page);
+    const page = await context.newPage(); page.setDefaultTimeout(60000); pages.push(page);
     page.on('pageerror', error => errors.push(error.message));
     page.on('response', response => { if (/\/(assets|models|audio)\//.test(response.url()) && response.status() >= 400) errors.push(`${response.status()} ${response.url()}`); });
     await page.goto(origin, { waitUntil: 'domcontentloaded', timeout: 60000 });
@@ -58,6 +60,7 @@ try {
     await page.locator('#name-input').fill(index ? 'Caméra circuit' : 'Pilote tremplin');
   }
   const [driver, observer] = pages as [Page, Page];
+  await observer.setViewportSize({ width: 640, height: 480 });
   assert.equal(await driver.locator('#track-cards [data-track]').count(), 12);
   evidence.trackIds = await driver.locator('#track-cards [data-track]').evaluateAll(nodes => nodes.map(node => (node as HTMLElement).dataset.track));
   assert.deepEqual(evidence.trackIds, TRACKS.map(track => track.id));
@@ -66,7 +69,7 @@ try {
     await driver.locator(`#track-cards [data-track="${track.id}"]`).click();
     await pause(1600);
     const panoramaStyle = await driver.addStyleTag({ content: '.menu,.screen-wash,.topbar,.bottom-bar,.island-card,.home-circuit-picker{visibility:hidden!important}' });
-    await capture(driver, track.id + '-overview'); await panoramaStyle.evaluate(node => node.remove());
+    await capture(driver, track.id + '-overview'); await panoramaStyle.evaluate(node => (node as Element).remove());
     fixtures.push(`${track.id} : panorama du rendu d’accueil, panneaux HTML masqués uniquement pour la capture du décor.`);
     await driver.locator('#create-button').click();
     await until(async () => (await state(driver)).world?.phase === 'lobby', 'salon ' + track.id);
@@ -75,34 +78,46 @@ try {
     await driver.locator('#events-select').selectOption('0');
     await until(() => live.world.eventLevel === 0, 'événements désactivés pour mesure du relief');
     assert.equal(live.world.trackId, track.id);
+    await driver.locator('#cpu-select').selectOption('1');
+    await until(() => live.world.players.filter(player => player.cpu).length === 1, 'CPU de départ');
     await driver.locator('#ready-button').click(); await driver.locator('#start-button').click();
     await until(() => live.world.phase === 'racing', 'départ réel');
+    await driver.setViewportSize({ width: 640, height: 480 });
+    await observer.setViewportSize({ width: 1440, height: 900 });
     await observer.locator('#code-input').fill(roomId); await observer.locator('#join-button').click();
     await until(async () => (await state(observer)).world?.phase === 'racing', 'observateur connecté');
     const driverId = (await state(driver)).sessionId!;
     const kart = live.world.players.find(kart => kart.id === driverId)!;
+    // The CPU is needed only to start a normal multiplayer room. Retire it in
+    // this fixture so it cannot ram the stationary kart during a slow screenshot.
+    live.world.players = live.world.players.filter(player => !player.cpu);
+    fixtures.push(`${track.id} : CPU de départ retiré du serveur privé avant les mesures pour isoler la physique et empêcher un choc pendant le cadrage.`);
+    const update = (live as unknown as { update(deltaMs: number): void }).update.bind(live);
     assert.equal(live.world.players.filter(kart => kart.spectator).length, 1);
     const bridge = track.elevations.find(feature => feature.kind === 'bridge')!;
     const jump = track.elevations.find(feature => feature.kind === 'jump')!;
     place(kart, (bridge.start + bridge.end) / 2); live.world.raceTime = Math.max(2, live.world.raceTime);
     fixtures.push(`${track.id} : position initiale imposée au milieu du pont et avant le tremplin, sur le serveur privé ; aucune course complète parcourue.`);
     await until(async () => Math.abs((await state(observer)).world!.players.find(player => player.id === driverId)!.elevation - bridge.height) < .02, 'altitude pont reçue');
-    await pause(1000); await capture(observer, track.id + '-bridge');
-    assert.ok(Math.abs(kart.elevation - bridge.height) < .02);
+    await pause(150);
+    assert.ok(Math.abs(kart.elevation - bridge.height) < .02, track.id + ': altitude stable sur le pont');
     const bridgeHeight = kart.elevation;
+    live.setSimulationInterval(() => {}, 1000 / config.simHz);
+    await pause(1000); await capture(observer, track.id + '-bridge');
+    fixtures.push(`${track.id} : intervalle privé également suspendu pour la photo du pont, après réception de son altitude par le second navigateur.`);
+    live.setSimulationInterval(deltaMs => update(deltaMs), 1000 / config.simHz);
 
     // Keep a spectator camera: it renders authoritative snapshots and cannot
     // locally predict the driver beyond the paused pose.
-    place(kart, jump.end - 6, 36);
-    const start = { x: kart.x, z: kart.z, elevation: kart.elevation };
-    const update = (live as unknown as { update(deltaMs: number): void }).update.bind(live);
+    place(kart, jump.start - 6);
+    const start = { x: kart.x, z: kart.z, elevation: kart.elevation, speed: kart.speed, lastInputSequence: kart.lastSeq };
     let airborneSeen = false, pausedAtApex = false, apex: Partial<Kart> | undefined;
     let peak = kart.elevation, flightSamples = 0;
     const samples: Array<{ time: number; elevation: number; verticalVelocity: number; airborne: boolean; speed: number }> = [];
     const sample = setInterval(() => {
       samples.push({ time: live.world.raceTime, elevation: kart.elevation, verticalVelocity: kart.verticalVelocity, airborne: kart.airborne, speed: kart.speed });
       peak = Math.max(peak, kart.elevation);
-      if (kart.airborne) { airborneSeen = true; flightSamples++; }
+      if (kart.airborne) { airborneSeen = true; if (!pausedAtApex) flightSamples++; }
       if (!pausedAtApex && airborneSeen && kart.airborne && kart.verticalVelocity <= 2) {
         pausedAtApex = true; apex = structuredClone(kart);
         // Pause only this private room's simulation interval; snapshots keep
@@ -111,7 +126,7 @@ try {
       }
     }, 12);
     try {
-      await driver.locator('#game').click({ position: { x: 1100, y: 550 } });
+      await driver.locator('#game').click({ position: { x: 400, y: 300 } });
       await driver.keyboard.down('ArrowUp');
       await until(() => pausedAtApex, 'apex physique ' + track.id, 15000);
       await driver.keyboard.up('ArrowUp');
@@ -120,7 +135,9 @@ try {
         return current.airborne && Math.abs(current.elevation - apex!.elevation!) < .01;
       }, 'snapshot apex reçu');
       await pause(500); await capture(observer, track.id + '-jump');
-      assert.ok(peak > jump.height + .5); assert.ok(flightSamples >= 3);
+      assert.ok(peak > jump.height + .5, track.id + ': hauteur gagnée après lancement');
+      assert.ok(flightSamples >= 3, track.id + ': plusieurs observations avant pause');
+      assert.ok(apex!.speed! > 10 && apex!.lastSeq! > start.lastInputSequence, track.id + ': accélération réelle reçue du navigateur');
       fixtures.push(`${track.id} : capture du saut à une altitude réellement atteinte (${peak.toFixed(2)} m), intervalle de simulation privé suspendu à l’apex pour cadrage puis repris ; pas de changement de phase ni de HUD.`);
       // A resumed ordinary interval applies gravity and lands without altering
       // elevation, velocity, position or the landing result.
@@ -148,6 +165,8 @@ try {
     fixtures.push(`${track.id} : phase événementielle deux imposée uniquement pour inspecter les routes alternatives et leurs raccords.`);
     record(`${track.name} : panorama, pont à ${bridgeHeight.toFixed(1)} m, saut réellement calculé jusqu’à ${peak.toFixed(2)} m puis atterrissage, routes de phase deux`);
     await leave(observer); await leave(driver);
+    await observer.setViewportSize({ width: 640, height: 480 });
+    await driver.setViewportSize({ width: 1440, height: 900 });
   }
 
   // Real UI: every new circuit belongs to the random tournament pool.
@@ -167,6 +186,7 @@ try {
   assert.deepEqual(errors, []); record('Aucune erreur JavaScript ni ressource manquante pendant les douze sélections et les six tests de relief');
   await writeFile(join(destination, 'validation.json'), JSON.stringify({ origin, checks, errors, fixtures, captures, evidence,
     scope: 'Deux contextes Chromium/SwiftShader sur le même hôte : un pilote et un spectateur. Serveur et stockage temporaires. Positions initiales et phase 2 mises en scène ; sauts et atterrissages calculés par la simulation normale. Pause privée du tick à l’apex uniquement pour capture. Ni course complète, ni deux machines physiques, ni tunnel public.' }, null, 2) + '\n');
+  await Promise.all(["failure.json", "failure-0.png", "failure-1.png"].map(name => rm(join(destination, name), { force: true })));
 } catch (error) {
   for (const [index, page] of pages.entries()) await page.screenshot({ path: join(destination, `failure-${index}.png`) }).catch(() => {});
   await writeFile(join(destination, 'failure.json'), JSON.stringify({ checks, errors, fixtures, captures, evidence,

@@ -1,0 +1,402 @@
+{
+  "origin": "https://lunch-governmental-prep-rainbow.trycloudflare.com",
+  "trackId": "sky",
+  "success": true,
+  "failure": "",
+  "checks": [
+    "Quatre profils créés par API : trois modèles GLB et quatre personnages distincts",
+    "Deux sessions Chromium indépendantes observent les pilotes qui envoient uniquement les commandes ordinaires",
+    "Trois tours et trois phases observés ; sauts réels ; résultats identiques sur les six connexions",
+    "Un chargement par modèle et par page, quatre personnages, MP3 lus puis arrêtés, même origine HTTP/WebSocket",
+    "Statistiques des quatre profils et replay commun disponibles par API, aucun secret dans snapshots ou replay",
+    "Aucune erreur JavaScript ni erreur de chargement détectée"
+  ],
+  "errors": [],
+  "durationSeconds": 125.721,
+  "drivers": 4,
+  "browserObservers": 2,
+  "inputMethod": "Four authenticated SDK drivers send ordinary controls; two Chromium contexts observe. No fixture or forced finish.",
+  "renderer": "Chromium headless / SwiftShader",
+  "snapshots": 9877,
+  "eventStages": [
+    0,
+    1,
+    2
+  ],
+  "airborneDrivers": [
+    "99c6915b-65e9-4fa6-973a-1a96ce72cc16",
+    "224aacfb-0fb1-4a47-9990-5c514054547b",
+    "4d891704-84ce-4651-9249-fdeb88113733",
+    "224fad55-235c-4005-9ba3-8fba98bece3f"
+  ],
+  "maximumElevation": 7,
+  "requests": [
+    {
+      "glb": [
+        "https://lunch-governmental-prep-rainbow.trycloudflare.com/models/kart-zsky-v1.glb",
+        "https://lunch-governmental-prep-rainbow.trycloudflare.com/models/kart-sprint-v1.glb",
+        "https://lunch-governmental-prep-rainbow.trycloudflare.com/models/kart-retro-v1.glb"
+      ],
+      "mp3": [
+        "https://lunch-governmental-prep-rainbow.trycloudflare.com/audio/lap-1-v1.mp3",
+        "https://lunch-governmental-prep-rainbow.trycloudflare.com/audio/lap-2-v1.mp3"
+      ]
+    },
+    {
+      "glb": [
+        "https://lunch-governmental-prep-rainbow.trycloudflare.com/models/kart-zsky-v1.glb",
+        "https://lunch-governmental-prep-rainbow.trycloudflare.com/models/kart-sprint-v1.glb",
+        "https://lunch-governmental-prep-rainbow.trycloudflare.com/models/kart-retro-v1.glb"
+      ],
+      "mp3": [
+        "https://lunch-governmental-prep-rainbow.trycloudflare.com/audio/lap-1-v1.mp3",
+        "https://lunch-governmental-prep-rainbow.trycloudflare.com/audio/lap-2-v1.mp3"
+      ]
+    }
+  ],
+  "musicSelections": [
+    [
+      "lap1",
+      "lap2"
+    ],
+    [
+      "lap1",
+      "lap2"
+    ]
+  ],
+  "itemKinds": [
+    "trap",
+    "projectile",
+    "turbo",
+    "shield",
+    "tripleTurbo"
+  ],
+  "results": [
+    [
+      "8Ev72-lwp",
+      1,
+      3,
+      true,
+      107.29999999999647
+    ],
+    [
+      "MRrvazp1-",
+      2,
+      3,
+      true,
+      108.63333333332973
+    ],
+    [
+      "-qZJa-kC6",
+      4,
+      3,
+      true,
+      109.46666666666302
+    ],
+    [
+      "EPFO36brx",
+      3,
+      3,
+      true,
+      108.6999999999964
+    ]
+  ],
+  "profiles": [
+    {
+      "id": "99c6915b-65e9-4fa6-973a-1a96ce72cc16",
+      "stats": {
+        "races": 1,
+        "finishes": 1,
+        "wins": 1,
+        "podiums": 1,
+        "totalRaceTime": 107.29999999999647,
+        "bestTimes": {
+          "sky": 107.29999999999647
+        }
+      },
+      "xp": 45
+    },
+    {
+      "id": "4d891704-84ce-4651-9249-fdeb88113733",
+      "stats": {
+        "races": 1,
+        "finishes": 1,
+        "wins": 0,
+        "podiums": 1,
+        "totalRaceTime": 108.63333333332973,
+        "bestTimes": {
+          "sky": 108.63333333332973
+        }
+      },
+      "xp": 35
+    },
+    {
+      "id": "224aacfb-0fb1-4a47-9990-5c514054547b",
+      "stats": {
+        "races": 1,
+        "finishes": 1,
+        "wins": 0,
+        "podiums": 0,
+        "totalRaceTime": 109.46666666666302,
+        "bestTimes": {
+          "sky": 109.46666666666302
+        }
+      },
+      "xp": 30
+    },
+    {
+      "id": "224fad55-235c-4005-9ba3-8fba98bece3f",
+      "stats": {
+        "races": 1,
+        "finishes": 1,
+        "wins": 0,
+        "podiums": 1,
+        "totalRaceTime": 108.6999999999964,
+        "bestTimes": {
+          "sky": 108.6999999999964
+        }
+      },
+      "xp": 35
+    }
+  ],
+  "replay": {
+    "id": "b2d14808-0c04-47d4-8863-86d535bd17cd",
+    "trackId": "sky",
+    "eventLevel": 3,
+    "frames": [
+      549,
+      549,
+      549,
+      549
+    ]
+  },
+  "browserDiagnostics": [
+    {
+      "kartAssets": {
+        "status": "ready",
+        "loadCount": 3,
+        "modelUrl": "/models/kart-zsky-v1.glb",
+        "error": null,
+        "models": {
+          "zsky": {
+            "status": "ready",
+            "loadCount": 1,
+            "modelUrl": "/models/kart-zsky-v1.glb",
+            "error": null,
+            "instanceCount": 5,
+            "importedCount": 5,
+            "fallbackCount": 0,
+            "characters": [
+              "racer",
+              "queen",
+              "kim"
+            ],
+            "sourceMeshCount": 21,
+            "sourceTriangles": 4292,
+            "sourceBounds": {
+              "x": 2.2555237876350263,
+              "y": 1.5158349387043306,
+              "z": 3.8
+            }
+          },
+          "sprint": {
+            "status": "ready",
+            "loadCount": 1,
+            "modelUrl": "/models/kart-sprint-v1.glb",
+            "error": null,
+            "instanceCount": 1,
+            "importedCount": 1,
+            "fallbackCount": 0,
+            "characters": [
+              "obama"
+            ],
+            "sourceMeshCount": 22,
+            "sourceTriangles": 6440,
+            "sourceBounds": {
+              "x": 2.1503856415471465,
+              "y": 2.284549966115516,
+              "z": 3.8
+            }
+          },
+          "retro": {
+            "status": "ready",
+            "loadCount": 1,
+            "modelUrl": "/models/kart-retro-v1.glb",
+            "error": null,
+            "instanceCount": 1,
+            "importedCount": 1,
+            "fallbackCount": 0,
+            "characters": [
+              "trump"
+            ],
+            "sourceMeshCount": 25,
+            "sourceTriangles": 4528,
+            "sourceBounds": {
+              "x": 2.3506572015973197,
+              "y": 1.7875589757118744,
+              "z": 3.8
+            }
+          }
+        },
+        "instanceCount": 7,
+        "importedCount": 7,
+        "fallbackCount": 0,
+        "sharedGeometryCount": 128,
+        "paintMaterialCount": 17,
+        "sourceMeshCount": 21,
+        "sourceTriangles": 4292,
+        "sourceBounds": {
+          "x": 2.2555237876350263,
+          "y": 1.5158349387043306,
+          "z": 3.8
+        }
+      },
+      "music": {
+        "title": "Lap 2",
+        "track": "sky",
+        "lap": 3,
+        "selected": "lap2",
+        "url": "/audio/lap-2-v1.mp3",
+        "wanted": false,
+        "running": false,
+        "status": "paused",
+        "currentTime": 0,
+        "duration": 99.6535,
+        "readyState": 4,
+        "paused": true,
+        "volume": 0.35,
+        "mixGain": 1.5,
+        "elementCount": 2,
+        "activeElements": 0,
+        "playCount": 2,
+        "loadCount": 2,
+        "error": null,
+        "mediaError": null
+      },
+      "fps": 2.857142857142857,
+      "quality": "light"
+    },
+    {
+      "kartAssets": {
+        "status": "ready",
+        "loadCount": 3,
+        "modelUrl": "/models/kart-zsky-v1.glb",
+        "error": null,
+        "models": {
+          "zsky": {
+            "status": "ready",
+            "loadCount": 1,
+            "modelUrl": "/models/kart-zsky-v1.glb",
+            "error": null,
+            "instanceCount": 5,
+            "importedCount": 5,
+            "fallbackCount": 0,
+            "characters": [
+              "racer",
+              "queen",
+              "kim"
+            ],
+            "sourceMeshCount": 21,
+            "sourceTriangles": 4292,
+            "sourceBounds": {
+              "x": 2.2555237876350263,
+              "y": 1.5158349387043306,
+              "z": 3.8
+            }
+          },
+          "sprint": {
+            "status": "ready",
+            "loadCount": 1,
+            "modelUrl": "/models/kart-sprint-v1.glb",
+            "error": null,
+            "instanceCount": 1,
+            "importedCount": 1,
+            "fallbackCount": 0,
+            "characters": [
+              "obama"
+            ],
+            "sourceMeshCount": 22,
+            "sourceTriangles": 6440,
+            "sourceBounds": {
+              "x": 2.1503856415471465,
+              "y": 2.284549966115516,
+              "z": 3.8
+            }
+          },
+          "retro": {
+            "status": "ready",
+            "loadCount": 1,
+            "modelUrl": "/models/kart-retro-v1.glb",
+            "error": null,
+            "instanceCount": 1,
+            "importedCount": 1,
+            "fallbackCount": 0,
+            "characters": [
+              "trump"
+            ],
+            "sourceMeshCount": 25,
+            "sourceTriangles": 4528,
+            "sourceBounds": {
+              "x": 2.3506572015973197,
+              "y": 1.7875589757118744,
+              "z": 3.8
+            }
+          }
+        },
+        "instanceCount": 7,
+        "importedCount": 7,
+        "fallbackCount": 0,
+        "sharedGeometryCount": 128,
+        "paintMaterialCount": 17,
+        "sourceMeshCount": 21,
+        "sourceTriangles": 4292,
+        "sourceBounds": {
+          "x": 2.2555237876350263,
+          "y": 1.5158349387043306,
+          "z": 3.8
+        }
+      },
+      "music": {
+        "title": "Lap 2",
+        "track": "sky",
+        "lap": 3,
+        "selected": "lap2",
+        "url": "/audio/lap-2-v1.mp3",
+        "wanted": false,
+        "running": false,
+        "status": "paused",
+        "currentTime": 0,
+        "duration": 99.6535,
+        "readyState": 4,
+        "paused": true,
+        "volume": 0.35,
+        "mixGain": 1.5,
+        "elementCount": 2,
+        "activeElements": 0,
+        "playCount": 2,
+        "loadCount": 2,
+        "error": null,
+        "mediaError": null
+      },
+      "fps": 2.4324981756263626,
+      "quality": "light"
+    }
+  ],
+  "captures": [
+    "docs/final-public-tour-1.png",
+    "docs/final-public-tour-3.png",
+    "docs/final-public-resultats.png"
+  ],
+  "visualInspection": {
+    "performed": true,
+    "observations": [
+      "Les trois captures ont été inspectées : interface de course, transformations et écran des résultats présents.",
+      "Les noms, rangs et chronos de la capture finale correspondent aux résultats autoritaires.",
+      "Le kart suivi apparaît éloigné sur la capture du troisième tour ; cette exécution utilise un rendu logiciel lent."
+    ]
+  },
+  "limitations": [
+    "Quatre connexions SDK et deux contextes Chromium indépendants sur la même machine, pas deux machines physiques.",
+    "Chromium headless utilise SwiftShader : environ 2,4 à 2,9 FPS dans les diagnostics finaux. Les performances sur GPU matériel ne sont pas validées par ce test."
+  ]
+}

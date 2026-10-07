@@ -1,0 +1,148 @@
+{
+  "success": true,
+  "date": "2026-10-06T17:15:24.597Z",
+  "method": "Extract the actual ribbon function from client/track-events.ts, transpile it, execute in a Node VM with Three.js and shared track functions, then inspect generated position buffers at the interpolated branch lip and end +0.05. No browser, race or source mutation.",
+  "sourceSha256": "fbed40c086a768d2a928685b51cb6f5005b49ad769326367621b35dfc3544248",
+  "checks": [
+    {
+      "track": "forest",
+      "branch": "detour",
+      "feature": "forest-jump-1",
+      "progress": 226.349365945134,
+      "location": "lip",
+      "expected": 1.635,
+      "measured": 1.6349999904632568,
+      "tolerance": 0.00001
+    },
+    {
+      "track": "forest",
+      "branch": "detour",
+      "feature": "forest-jump-1",
+      "progress": 226.399365945134,
+      "location": "after lip",
+      "expected": 0.035,
+      "measured": 0.03500000014901161,
+      "tolerance": 0.00001
+    },
+    {
+      "track": "forest",
+      "branch": "shortcut",
+      "feature": "forest-jump-1",
+      "progress": 226.349365945134,
+      "location": "lip",
+      "expected": 1.635,
+      "measured": 1.6349999904632568,
+      "tolerance": 0.00001
+    },
+    {
+      "track": "forest",
+      "branch": "shortcut",
+      "feature": "forest-jump-1",
+      "progress": 226.399365945134,
+      "location": "after lip",
+      "expected": 0.035,
+      "measured": 0.03500000014901161,
+      "tolerance": 0.00001
+    },
+    {
+      "track": "sky",
+      "branch": "technical",
+      "feature": "sky-jump-1",
+      "progress": 368.1529146955242,
+      "location": "lip",
+      "expected": 2.335,
+      "measured": 2.3350000381469727,
+      "tolerance": 0.00001
+    },
+    {
+      "track": "sky",
+      "branch": "technical",
+      "feature": "sky-jump-1",
+      "progress": 368.2029146955242,
+      "location": "after lip",
+      "expected": 0.035,
+      "measured": 0.03500000014901161,
+      "tolerance": 0.00001
+    },
+    {
+      "track": "foundry",
+      "branch": "detour",
+      "feature": "foundry-jump-1",
+      "progress": 632.751430161155,
+      "location": "lip",
+      "expected": 2.035,
+      "measured": 2.0350000858306885,
+      "tolerance": 0.00001
+    },
+    {
+      "track": "foundry",
+      "branch": "detour",
+      "feature": "foundry-jump-1",
+      "progress": 632.8014301611549,
+      "location": "after lip",
+      "expected": 0.035,
+      "measured": 0.03500000014901161,
+      "tolerance": 0.00001
+    },
+    {
+      "track": "foundry",
+      "branch": "shortcut",
+      "feature": "foundry-jump-1",
+      "progress": 632.751430161155,
+      "location": "lip",
+      "expected": 2.035,
+      "measured": 2.0350000858306885,
+      "tolerance": 0.00001
+    },
+    {
+      "track": "foundry",
+      "branch": "shortcut",
+      "feature": "foundry-jump-1",
+      "progress": 632.8014301611549,
+      "location": "after lip",
+      "expected": 0.035,
+      "measured": 0.03500000014901161,
+      "tolerance": 0.00001
+    },
+    {
+      "track": "castle",
+      "branch": "detour",
+      "feature": "castle-jump-1",
+      "progress": 705.8528804640612,
+      "location": "lip",
+      "expected": 1.835,
+      "measured": 1.8350000381469727,
+      "tolerance": 0.00001
+    },
+    {
+      "track": "castle",
+      "branch": "detour",
+      "feature": "castle-jump-1",
+      "progress": 705.9028804640611,
+      "location": "after lip",
+      "expected": 0.035,
+      "measured": 0.03500000014901161,
+      "tolerance": 0.00001
+    },
+    {
+      "track": "castle",
+      "branch": "shortcut",
+      "feature": "castle-jump-1",
+      "progress": 705.8528804640612,
+      "location": "lip",
+      "expected": 1.835,
+      "measured": 1.8350000381469727,
+      "tolerance": 0.00001
+    },
+    {
+      "track": "castle",
+      "branch": "shortcut",
+      "feature": "castle-jump-1",
+      "progress": 705.9028804640611,
+      "location": "after lip",
+      "expected": 0.035,
+      "measured": 0.03500000014901161,
+      "tolerance": 0.00001
+    }
+  ]
+}

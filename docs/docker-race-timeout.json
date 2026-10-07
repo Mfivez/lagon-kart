@@ -1,0 +1,18 @@
+{
+  "success": false,
+  "source": "Observed process output; detailed per-kart diagnostics were not collected during this first run.",
+  "image": "sha256:6bed08d4ca9348e53395513fbbda74493bb38b9dc653648f3a1111a7e812c7c1",
+  "bundle": "index-CU-Fug6i.js",
+  "origin": "http://127.0.0.1:3104",
+  "trackId": "sky",
+  "eventLevel": 3,
+  "practice": true,
+  "drivers": 1,
+  "method": "Ordinary SDK inputs using shared/autopilot.ts; no fixture.",
+  "failure": "Délai dépassé : course solo de trois tours",
+  "raceTimeoutSeconds": 280,
+  "lastObservedLap": 1,
+  "replayPersistenceValidated": false,
+  "cleanup": "The script finalizer removed only its temporary container and volume.",
+  "followup": "Detailed input and kart diagnostics have since been added to scripts/docker-persistence-check.ts."
+}

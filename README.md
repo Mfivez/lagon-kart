@@ -115,7 +115,7 @@ Il faut terminer toutes les manches et finir dans les trois premiers du classeme
 
 **Trouver une rencontre classée** recherche au moins deux profils humains de niveau proche pour deux courses. Le MMR évolue selon les résultats face aux autres joueurs ; les rangs vont de Bronze à Master. Le classement concerne cette instance du serveur. Une saison dure un trimestre UTC ; le changement de saison ajuste le MMR et conserve la carrière.
 
-**Mes replays** relit les trajectoires enregistrées par le serveur, en vue de dessus, avec pause et curseur. Sur l'accueil, **Fantôme du meilleur temps en entraînement** affiche un ghost disponible pour le circuit et le niveau d'événements choisis. Ce fantôme n'a pas de collisions et ne participe pas au classement. Les replays sont des traces de position, pas une resimulation exacte des objets et des contacts.
+**Mes replays** relit les trajectoires enregistrées par le serveur, en vue de dessus, avec pause et curseur. Sur l'accueil, **Fantôme du meilleur temps en entraînement** affiche un ghost disponible pour le circuit choisi et le niveau 3 des événements de l'entraînement. Ce fantôme n'a pas de collisions et ne participe pas au classement. Les replays sont des traces de position, pas une resimulation exacte des objets et des contacts.
 
 Le navigateur conserve la clé de son profil pour retrouver statistiques, carrière et classement. Cette identité est liée au stockage du navigateur et à l'origine du site : changer d'adresse de tunnel ou effacer les données du site ne transfère pas automatiquement le profil. Aucun compte externe n'est nécessaire. Voir [la progression, les saisons et les sauvegardes](docs/PROGRESSION.md).
 
@@ -237,7 +237,9 @@ BASE_URL=https://votre-adresse.trycloudflare.com CLIENTS=2 npm run test:network
 LATENCY_MS=75 npm run test:network
 ```
 
-Sous PowerShell : `$env:BASE_URL="https://votre-adresse.trycloudflare.com"`, puis `npm run test:network`. Les rapports et captures sont écrits dans `test-results/` (ignoré par Git). Voir [VALIDATION.md](VALIDATION.md) pour les résultats réellement obtenus et les limites mesurées.
+Sous PowerShell : `$env:BASE_URL="https://votre-adresse.trycloudflare.com"`, puis `npm run test:network`. Selon le script, les rapports et captures sont écrits dans `test-results/` (ignoré par Git) ou dans les sous-dossiers de `docs/` indiqués par son rapport.
+
+Dernière suite complète : **237/237 tests réussis**, sans échec ni test ignoré, en **61,38 s**. Un test supplémentaire de saut réel au-dessus d'un rail a ensuite réussi séparément. Le contrôle TypeScript et le build `index-DDvpm3uY.js` ont réussi. Les **11 contrôles Chromium de l'interface à douze circuits** et l'essai de persistance Docker ont été exécutés sur le précédent bundle `index-CU-Fug6i.js` ; la course publique finale et les captures des six nouveaux circuits restent à confirmer. Voir [VALIDATION.md](VALIDATION.md) pour les preuves, les versions testées et les limites mesurées.
 
 ## Architecture et ressources
 

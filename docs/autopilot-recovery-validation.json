@@ -1,0 +1,61 @@
+{
+  "success": true,
+  "track": "neon",
+  "mode": "8 CPUs, team mode, dynamic level3",
+  "method": "Same race setup and ordinary getCpuInput controls as tests/teams.test.ts; one-second traces; no in-race position, gate or finish mutation.",
+  "raceFinishedAtSeconds": 86.53333333333099,
+  "finishedCountObserved": 8,
+  "totalDrivers": 8,
+  "regressionBefore": "Only seven CPUs finished; cpu-0 remained lap0 after encountering a closure in the middle of its sector.",
+  "targetedAutopilotTestsPassed": 3,
+  "positionsFromLastPeriodicSample": [
+    {
+      "id": "cpu-0",
+      "lap": 2,
+      "finished": false,
+      "progress": 2176.9943697676117
+    },
+    {
+      "id": "cpu-1",
+      "lap": 3,
+      "finished": true,
+      "progress": 2192.459599829801
+    },
+    {
+      "id": "cpu-2",
+      "lap": 3,
+      "finished": true,
+      "progress": 2192.459599829801
+    },
+    {
+      "id": "cpu-3",
+      "lap": 3,
+      "finished": true,
+      "progress": 2192.459599829801
+    },
+    {
+      "id": "cpu-4",
+      "lap": 3,
+      "finished": true,
+      "progress": 2192.459599829801
+    },
+    {
+      "id": "cpu-5",
+      "lap": 3,
+      "finished": true,
+      "progress": 2192.459599829801
+    },
+    {
+      "id": "cpu-6",
+      "lap": 3,
+      "finished": true,
+      "progress": 2192.459599829801
+    },
+    {
+      "id": "cpu-7",
+      "lap": 3,
+      "finished": true,
+      "progress": 2192.459599829801
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "date": "2026-10-06T17:36:24.815Z",
+  "origin": "private Vite with one Chromium context, direct renderer; no gameplay or production source modification",
+  "checks": [
+    {
+      "track": "foundry",
+      "near": 1,
+      "shadows": false,
+      "cameraPosition": [
+        131.16469802820671,
+        295.2969925491898,
+        257.5190501237927
+      ],
+      "depthBits": 24,
+      "capture": "foundry-near1-no-shadows.png"
+    },
+    {
+      "track": "foundry",
+      "near": 10,
+      "shadows": false,
+      "cameraPosition": [
+        131.16469802820671,
+        295.2969925491898,
+        257.5190501237927
+      ],
+      "depthBits": 24,
+      "capture": "foundry-near10-no-shadows.png"
+    },
+    {
+      "track": "foundry",
+      "near": 1,
+      "shadows": true,
+      "cameraPosition": [
+        131.16469802820671,
+        295.2969925491898,
+        257.5190501237927
+      ],
+      "depthBits": 24,
+      "capture": "foundry-near1-shadows.png"
+    },
+    {
+      "track": "foundry",
+      "near": 10,
+      "shadows": true,
+      "cameraPosition": [
+        131.16469802820671,
+        295.2969925491898,
+        257.5190501237927
+      ],
+      "depthBits": 24,
+      "capture": "foundry-near10-shadows.png"
+    },
+    {
+      "track": "castle",
+      "near": 1,
+      "shadows": false,
+      "cameraPosition": [
+        126.85278350212107,
+        290.1439299406829,
+        255.01658097082333
+      ],
+      "depthBits": 24,
+      "capture": "castle-near1-no-shadows.png"
+    },
+    {
+      "track": "castle",
+      "near": 10,
+      "shadows": false,
+      "cameraPosition": [
+        126.85278350212107,
+        290.1439299406829,
+        255.01658097082333
+      ],
+      "depthBits": 24,
+      "capture": "castle-near10-no-shadows.png"
+    },
+    {
+      "track": "castle",
+      "near": 1,
+      "shadows": true,
+      "cameraPosition": [
+        126.85278350212107,
+        290.1439299406829,
+        255.01658097082333
+      ],
+      "depthBits": 24,
+      "capture": "castle-near1-shadows.png"
+    },
+    {
+      "track": "castle",
+      "near": 10,
+      "shadows": true,
+      "cameraPosition": [
+        126.85278350212107,
+        290.1439299406829,
+        255.01658097082333
+      ],
+      "depthBits": 24,
+      "capture": "castle-near10-shadows.png"
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,79 @@
+{
+  "checkedAt": "2026-10-06T17:39:57.737497+00:00",
+  "origin": "https://lunch-governmental-prep-rainbow.trycloudflare.com",
+  "imageId": "sha256:00aaad8a91ca32a92d6f00e83a681c3ec660b90c90a7082d059056f1bd7d279f",
+  "success": true,
+  "assets": [
+    {
+      "path": "/assets/index-DCnyszy_.js",
+      "size": 940429,
+      "sha256": "9f79bdecaaa2084e1bb0364661ec3df64a8873413fe6d507e9551370824246ec",
+      "contentType": "text/javascript; charset=utf-8",
+      "identicalToLocal": true
+    },
+    {
+      "path": "/assets/index-CVkCqp_J.css",
+      "size": 32069,
+      "sha256": "e5f17361554a218859bd7dd0de7d7f7e2a115e8a2d2acacc171b79c10d0d9713",
+      "contentType": "text/css; charset=utf-8",
+      "identicalToLocal": true
+    },
+    {
+      "path": "/models/kart-zsky-v1.glb",
+      "size": 94668,
+      "sha256": "c5bad88c4283d846f6a4bf3a02e97cc643897b149ed24334164127adf99ac29a",
+      "contentType": "model/gltf-binary",
+      "identicalToLocal": true
+    },
+    {
+      "path": "/models/kart-sprint-v1.glb",
+      "size": 137008,
+      "sha256": "ae00a183948de6dce359e0337c596747e1542700cdedb7da427abe41a8d28b73",
+      "contentType": "model/gltf-binary",
+      "identicalToLocal": true
+    },
+    {
+      "path": "/models/kart-retro-v1.glb",
+      "size": 96980,
+      "sha256": "3a2ae4e95943456c6107d3bf58559383a4187dda7639c3a6f1e0a764a6756195",
+      "contentType": "model/gltf-binary",
+      "identicalToLocal": true
+    },
+    {
+      "path": "/audio/lap-1-v1.mp3",
+      "size": 3916673,
+      "sha256": "7b91c112403a6d1eb66e7223f5bfceccb79733d7db52f7dfe940310199abb2db",
+      "contentType": "audio/mpeg",
+      "identicalToLocal": true
+    },
+    {
+      "path": "/audio/lap-2-v1.mp3",
+      "size": 2323191,
+      "sha256": "742a73ba3c5e8df000be50e6cac0523caddfe128368f90cc5f1ec9949f3cf1c3",
+      "contentType": "audio/mpeg",
+      "identicalToLocal": true
+    }
+  ],
+  "serverModules": [
+    {
+      "path": "shared/game.js",
+      "sha256": "ffb9b3a5473b82f79665e2c4649f546a74edda8dee8e4bc093acd15ae0a65859",
+      "identicalToLocal": true
+    },
+    {
+      "path": "shared/track-events.js",
+      "sha256": "ca9d1d60d28cfc5d8f8a70a85f44867362325865ff392649269ea41f6d17bcb9",
+      "identicalToLocal": true
+    },
+    {
+      "path": "shared/obstacle-heights.js",
+      "sha256": "f8abcc8affaada57981bdda5f58500dc26d2acb6253386cea4c7607c66e8da23",
+      "identicalToLocal": true
+    },
+    {
+      "path": "shared/autopilot.js",
+      "sha256": "a920992165e62a91ae437fa0f54291d1d1b7d47892bd5ce4edb1c96f7fa9b955",
+      "identicalToLocal": true
+    }
+  ]
+}

@@ -1,4 +1,5 @@
-import { getTrack, nearestTrack, trackPoint, trackSurface, type Surface, type TrackZone, type Vec2 } from './track.js';
+import { getTrack, nearestTrack, trackPoint, trackSurface, trackElevation, type Surface, type TrackZone, type Vec2 } from './track.js';
+import { KART_COLLISION_HEIGHT, trackBlockerHeight } from './obstacle-heights.js';
 
 export type EventLevel = 0 | 1 | 2 | 3;
 export type EventStage = 0 | 1 | 2;
@@ -10,7 +11,7 @@ export interface TrackBranch {
   width: number; length: number; minTurnRadius: number; points: BranchPoint[]; open: boolean;
 }
 export interface TrackBlocker extends Vec2 {
-  id: string; angle: number; halfLength: number; halfWidth: number;
+  id: string; angle: number; halfLength: number; halfWidth: number; elevation: number; height: number;
 }
 export interface TrackEventInfo {
   trackId: string; stage: EventStage; level: EventLevel; title: string; description: string;
@@ -85,7 +86,9 @@ function layout(trackId: string) {
         let blocker: TrackBlocker | undefined, clearance = -Infinity;
         for (const fraction of [.3, .4, .5, .6, .7]) {
           const point = trackPoint(start + (end - start) * fraction, track.id);
-          const candidate = { id: track.id + '-collapse', x: point.x, z: point.z, angle: point.angle, halfLength: 2.6, halfWidth: track.width / 2 + 5.5 };
+          const candidate = { id: track.id + '-collapse', x: point.x, z: point.z, angle: point.angle,
+            halfLength: 2.6, halfWidth: track.width / 2 + 5.5,
+            elevation: trackElevation(start + (end - start) * fraction, track.id), height: trackBlockerHeight(track.id) };
           let space = Infinity;
           for (const route of [detour, shortcut]) for (const sample of route.points) {
             const along = (sample.x - point.x) * Math.sin(point.angle) + (sample.z - point.z) * Math.cos(point.angle);
@@ -148,6 +151,12 @@ export function getTrackEvent(trackId: string, stage = 0, level = 0): TrackEvent
     blockers: active ? [layout(track.id).blocker] : [] };
   events.set(key, result);
   return result;
+}
+
+/** A rail opening exists only for a branch actually open in the current race. */
+export function trackBoundaryGap(x: number, z: number, trackId: string, stage = 0, level = 0): boolean {
+  return getTrackEvent(trackId, stage, level).branches.some(branch => branch.open && branch.points.some(point =>
+    Math.hypot(point.x - x, point.z - z) < branch.width / 2 + 2));
 }
 
 function branchSurface(route: TrackBranch, progress: number): Surface {
@@ -232,16 +241,18 @@ export function trackEventPickups(trackId: string, stage = 0, level = 0): Array<
     id: route.id + '-pickup-' + index, cooldown: 0 }));
 }
 
-/** Swept rectangle collision: even a boosted frame cannot jump the barricade. */
+/** Swept finite box: fast motion is blocked only while its vertical span overlaps. */
 export function constrainTrackEvent(x: number, z: number, previousX: number, previousZ: number, speed: number,
-  trackId: string, stage = 0, level = 0): { x: number; z: number; speed: number; blocked: boolean } {
+  trackId: string, stage = 0, level = 0, vertical?: { previous: number; current: number }): { x: number; z: number; speed: number; blocked: boolean } {
   for (const blocker of getTrackEvent(trackId, stage, level).blockers) {
     const sine = Math.sin(blocker.angle), cosine = Math.cos(blocker.angle);
     const local = (px: number, pz: number) => ({ along: (px - blocker.x) * sine + (pz - blocker.z) * cosine,
       across: (px - blocker.x) * cosine - (pz - blocker.z) * sine });
     const a = local(previousX, previousZ), b = local(x, z);
     const halfLength = blocker.halfLength + .95, halfWidth = blocker.halfWidth + .95;
-    if (Math.abs(a.along) < halfLength && Math.abs(a.across) < halfWidth) {
+    const fromY = vertical?.previous ?? blocker.elevation, toY = vertical?.current ?? blocker.elevation;
+    const bottom = blocker.elevation - KART_COLLISION_HEIGHT, top = blocker.elevation + blocker.height;
+    if (Math.abs(a.along) < halfLength && Math.abs(a.across) < halfWidth && toY < top && toY > bottom) {
       // A phase can change while a kart occupies this tile. Eject to the closest
       // longitudinal face, instead of trapping the kart inside the new debris.
       const along = Math.sign(a.along || b.along || 1) * (halfLength + .05);
@@ -249,10 +260,10 @@ export function constrainTrackEvent(x: number, z: number, previousX: number, pre
         z: blocker.z + cosine * along - sine * a.across, speed: 0, blocked: true };
     }
     let entry = 0, exit = 1;
-    for (const [start, end, limit] of [[a.along, b.along, halfLength], [a.across, b.across, halfWidth]]) {
+    for (const [start, end, low, high] of [[a.along, b.along, -halfLength, halfLength], [a.across, b.across, -halfWidth, halfWidth], [fromY, toY, bottom, top]]) {
       const delta = end - start;
-      if (Math.abs(delta) < 1e-9) { if (Math.abs(start) > limit) { entry = 2; break; } continue; }
-      const first = (-limit - start) / delta, second = (limit - start) / delta;
+      if (Math.abs(delta) < 1e-9) { if (start < low || start > high) { entry = 2; break; } continue; }
+      const first = (low - start) / delta, second = (high - start) / delta;
       entry = Math.max(entry, Math.min(first, second)); exit = Math.min(exit, Math.max(first, second));
     }
     if (entry <= exit && entry >= 0 && entry <= 1) {

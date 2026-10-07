@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { CHAMPIONSHIPS, careerLevel, rankForMmr, seasonId, type ReplayData } from '../shared/progression.js';
 import { MatchmakingQueue, ReplayRecorder, calculateMmr } from '../server/competitive.js';
 import { PlayerStore, validateReplay } from '../server/player-store.js';
-import { TRACKS } from '../shared/track.js';
+import { TRACKS, TRACK_LAYOUT_REVISION } from '../shared/track.js';
 
 const now = Date.UTC(2026, 9, 6, 12);
 async function fixture(t: test.TestContext, options = {}) {
@@ -15,7 +15,7 @@ async function fixture(t: test.TestContext, options = {}) {
   return { directory, store: await PlayerStore.open(directory, { now: () => now, ...options }) };
 }
 function replay(id = 'test-replay', createdAt = now, finishTime = 60, ranked = false): ReplayData {
-  return { version: 1, id, trackId: 'lagon', createdAt, durationMs: finishTime * 1000, season: seasonId(new Date(createdAt)), ranked,
+  return { version: 1, id, trackId: 'lagon', trackRevision: TRACK_LAYOUT_REVISION, createdAt, durationMs: finishTime * 1000, season: seasonId(new Date(createdAt)), ranked,
     drivers: [{ playerId: 'driver', name: 'Pilote', color: '#ff6b6b', rank: 1, finished: true, finishTime,
       frames: [[0, 0, 0, 0, 0, 0, 0], [finishTime * 1000, 100, 200, 1200, 0, 3, 16]] }] };
 }
@@ -174,6 +174,22 @@ test('replays survive restart, fastest open/ranked ghosts survive retention, and
   await assert.rejects(store.saveReplay(malformed), /Trajectoire/);
   const fakeFinish = replay(); fakeFinish.drivers[0]!.frames[1]![5] = 0;
   await assert.rejects(store.saveReplay(fakeFinish), /Arrivée/);
+});
+
+test('old circuit recordings remain readable but never compete with current ghosts after a restart', async t => {
+  const { store, directory } = await fixture(t);
+  const account = await store.createPlayer('Archives');
+  const old = replay('legacy-layout', now, 25, true); delete old.trackRevision;
+  await store.saveReplay(old);
+  assert.equal((await store.getReplay(old.id))!.trackRevision, 1);
+  assert.equal(await store.bestGhost('lagon'), null);
+  await store.saveReplay(replay('current-layout', now + 1, 65, true));
+  assert.equal((await store.bestGhost('lagon', true))!.replayId, 'current-layout');
+  const restarted = await PlayerStore.open(directory, { now: () => now });
+  assert.equal(restarted.authenticate(account.token)!.id, account.profile.id);
+  assert.equal((await restarted.bestGhost('lagon'))!.trackRevision, TRACK_LAYOUT_REVISION);
+  assert.ok(await restarted.getReplay(old.id), 'archived trajectory is still available');
+  await assert.rejects(store.saveReplay({ ...replay('invalid-revision'), trackRevision: -1 }), /En-tête/);
 });
 
 test('corrupt storage fails without erasing the file and failed atomic writes roll back in-memory mutations', async t => {

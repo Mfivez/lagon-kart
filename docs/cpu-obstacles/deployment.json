@@ -1,0 +1,63 @@
+{
+  "passed": true,
+  "at": "2026-10-07T09:05:38.630885+00:00",
+  "origin": "https://exercises-inspections-playlist-char.trycloudflare.com",
+  "image": "sha256:25f67352c35c3a83844e12b6985a88430432b7e22ac997981344bb8f9da16afa",
+  "health": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "modules": [
+    {
+      "file": "shared/autopilot.js",
+      "sha256": "aed4061387d48ef38e68476e0a38df57fb7057960d4acdfef26c8f76c3dc2f41",
+      "matchesLocal": true
+    },
+    {
+      "file": "shared/cpu.js",
+      "sha256": "77a23b843a250a1b0054d779e7e28bbda9faccf7c91fcda84fe86c9745a9dcfb",
+      "matchesLocal": true
+    },
+    {
+      "file": "shared/game.js",
+      "sha256": "813b86f8381e5d591d3d9a1b4cd2f5446dbdc524e825fb360d286afabf79c471",
+      "matchesLocal": true
+    },
+    {
+      "file": "shared/track-events.js",
+      "sha256": "171d78bce7b818f56418830be6831ce4333dd9f91fed53f46e9dde703fbbd056",
+      "matchesLocal": true
+    },
+    {
+      "file": "server/RaceRoom.js",
+      "sha256": "7121a1250caf6f7cb93d4cc8572f4b84061039da965189426e2137473b99aea1",
+      "matchesLocal": true
+    },
+    {
+      "file": "server/player-store.js",
+      "sha256": "ad133235d7adf805171e1a471821cd9ef858110f0ed3d9fd53a5c1c631761d73",
+      "matchesLocal": true
+    },
+    {
+      "file": "server/career.js",
+      "sha256": "48496bff7269aa943cc092542445bcd086f4170518a0018ea743a9cc7491f472",
+      "matchesLocal": true
+    }
+  ],
+  "savedFilesUnchanged": 20,
+  "dataMount": {
+    "Type": "bind",
+    "Source": "/mnt/c/Users/bstorm_user/Desktop/project/data",
+    "Destination": "/app/data",
+    "Mode": "rw",
+    "RW": true,
+    "Propagation": "rprivate"
+  },
+  "tunnelNotRecreated": true,
+  "clientBundle": "index-Dk-_5CP3.js",
+  "note": "CPU guidance changed on the server; browser bundle is unchanged. File hashes compare compiled runtime modules to the deployed image."
+}

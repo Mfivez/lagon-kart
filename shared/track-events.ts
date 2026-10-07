@@ -66,7 +66,7 @@ function layout(trackId: string) {
     const bow = ((middle.x - mid.x) * (b.z - a.z) - (middle.z - mid.z) * (b.x - a.x)) / chord + track.width / 2 + 18;
     return branch(track.id, start, end, kind, handle, bow, width);
   };
-  const safeSector = (route: TrackBranch) => route.points.every((point, index) => {
+  const safeSector = (route: TrackBranch) => !track.loops.some(loop => route.start < loop.end + 8 && route.end > loop.start - 8) && route.points.every((point, index) => {
     if (index % 4) return true;
     const near = nearestTrack(point.x, point.z, track.id);
     return near.progress >= route.start - 18 && near.progress <= route.end + 18;

@@ -16,8 +16,24 @@ stockage n’est pas une base distribuée multi-processus.
 préfixé `lk_`, avec le profil public. Le navigateur conserve ce jeton ; le serveur
 ne stocke que son empreinte SHA-256. Les profils, classements, replays et ghosts
 ne contiennent aucun jeton ni empreinte. Le jeton autorise l’accès au profil via
-les routes authentifiées intégrées par l’application. L’effacer du navigateur
-fait perdre cet accès, sans mécanisme OAuth ou récupération par courriel.
+les routes authentifiées intégrées par l’application. Sans compte, l’effacer
+du navigateur fait perdre cet accès.
+
+`POST /api/account/register` rattache un nom d’utilisateur unique et un mot de
+passe au pilote invité authentifié, sans changer son ID ni sa progression.
+Sans jeton invité, il crée un nouveau pilote. `POST /api/account/login` émet
+une nouvelle session et retrouve ce profil, même depuis une autre origine de
+tunnel. `POST /api/account/logout` révoque uniquement la session courante.
+Plusieurs navigateurs peuvent rester connectés au même compte. Les sessions
+sont plafonnées à 16 par compte ; une nouvelle connexion remplace la plus ancienne
+au-delà de cette limite. Aucun courriel, OAuth ou service externe n’est utilisé.
+
+Les noms d’utilisateur sont normalisés en Unicode NFKC et comparés sans tenir
+compte de la casse. Les mots de passe sont dérivés avec le scrypt asynchrone de
+Node et un sel aléatoire individuel ; ni mot de passe brut ni jeton brut ne sont
+écrits dans le registre. Les anciens profils invités restent lisibles. Compose
+monte désormais le dossier hôte `data/` ; les sauvegardes survivent aussi à
+`down -v`. Voir [les comptes, la migration et les archives](ACCOUNTS_STORAGE.md).
 
 Les écritures sont sérialisées, écrites dans un fichier temporaire privé,
 synchronisées puis remplacées atomiquement. Une écriture échouée ne modifie pas

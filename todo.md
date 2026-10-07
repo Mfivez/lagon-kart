@@ -1,6 +1,40 @@
 # Lagon Kart — suivi de la démo
 
-État au **6 octobre 2026**. `[x]` = réalisé avec preuve ; `[ ]` = travail ou validation restant à terminer. [Démo intégrée et rapports](docs/DEMO.md).
+État au **7 octobre 2026**. `[x]` = réalisé avec preuve ; `[ ]` = travail ou validation restant à terminer. [Démo intégrée et rapports](docs/DEMO.md).
+
+## Bots bloqués par les fermetures et les rails
+
+- [x] Cas reproduits sur plusieurs circuits : un CPU visait une autre voie à travers un rail. Conservation de la branche engagée, poursuite sur la principale après le barrage, anticipation et vitesse adaptées à la voie réelle.
+- [x] Remise en piste ordinaire en cas de contact bloquant, respectant les ouvertures, sauts, hauteur et délai ; aucun gain artificiel de tour ou checkpoint.
+- [x] **29 nouveaux tests**, 234 scénarios conduits ; matrice complémentaire de **360 placements : 34 échecs avant → 0 après**. **96 CPU sur 96** terminent les douze pistes. [Preuves](docs/cpu-obstacles/simulation-validation.json).
+- [x] **312/312 tests** de la suite complète réussis ; **3 contrôles navigateur** avec fermetures réelles dans deux salons privés et quatre captures inspectées. [Protocole](docs/cpu-obstacles/README.md).
+- [x] Docker déployé, sept modules identiques au build ; sauvegardes et tunnel conservés. [Déploiement](docs/cpu-obstacles/deployment.json).
+- [x] Course publique Mangrove : **8/8 arrivées**, dont sept CPU serveur, trois phases, **0 reset observé**, aucune immobilisation durable ni erreur Colyseus ; résultats réellement gagnés sauvegardés et salon fermé. [Rapport](docs/cpu-obstacles/public-race.json).
+
+## Comptes de classe et sauvegardes sur la machine
+
+- [x] Compte par nom d'utilisateur et mot de passe, sans courriel ni service externe ; mot de passe dérivé avec scrypt et sel individuel. L'inscription conserve le pilote invité actuel ; connexion et déconnexion depuis l'accueil.
+- [x] Dossier hôte `data/players`, monté dans Docker et conservé après recréation ou `down -v` ; initialisation des droits et scripts de migration, archive et reset. [Mode d'emploi](docs/ACCOUNTS_STORAGE.md).
+- [x] Récupération du même ID, des XP, coupes, déblocages, statistiques et replays depuis une nouvelle session ; plusieurs sessions indépendantes. **283/283 tests** de la suite complète réussis. [Validation](VALIDATION.md#7-octobre-2026--comptes-et-sauvegardes-sur-la-machine-hôte).
+- [x] **9 contrôles navigateur privés**, écran de 320 px, aucun échec JS/asset ; fixture de progression déclarée et vrai salon Colyseus. [Rapport et captures](docs/accounts/browser-validation.json).
+- [x] **4 contrôles Docker de persistance** après `down -v` et changement de projet, puis connexion sans ancien jeton ; **8 contrôles de migration** et archive restaurable. [Persistance](docs/accounts-persistence.json) · [Migration](docs/storage-migration-check.json).
+- [x] Données de la démo migrées : **21 profils, 20 fichiers**, ancien volume conservé et archive locale créée. **Reset réel exécuté**, fichiers SHA-256 identiques après recréation, tunnel inchangé et jeu sain. [Déploiement](docs/accounts/deployment.json).
+- [ ] Essai humain de connexion depuis deux machines physiques et saisie sur téléphone réel.
+- [x] **4 contrôles publics** : inscription et connexion sur deux navigateurs indépendants via HTTPS, même pilote dans un salon Colyseus, déconnexion et retour à zéro salon ; aucune erreur JS/asset. [Rapport](docs/accounts/public-validation.json).
+
+## Petits écrans, identité des pistes et loopings — lot précédent
+
+- [x] Analyse des commandes de Mario Kart Tour et Asphalt à partir de leurs sources officielles ; direction au pouce gauche, actions au pouce droit, accélération automatique facultative. [Analyse et décisions](docs/MOBILE_CONTROLS.md).
+- [x] HUD tactile compact, boutons d’au moins 44 px, appuis simultanés et neutralisation sur interruption : six tests d’état et **15 contrôles Chromium** sur cinq formats de 320 × 568 à 667 × 375. [Rapport et captures avant/après](docs/mobile-controls/validation.json).
+- [x] **Douze tracés redessinés**, 36 branches conservées ; **deux loopings magnétiques** de 32 m et 27 m, retournement réel partagé par simulation et rendu, collisions en 3D, arrêt/reprise et marche arrière. [Fonctionnement](docs/LOOPINGS.md).
+- [x] **Douze compositions de décor** : terrains adaptés à chaque piste, phare, canyon, glacier, ville, mangrove, oasis, volcan, arbre-maison, port, observatoire, fonderie et citadelle. Géométries regroupées et arbre Kenney CC0 local versionné, chargé une fois. Coût ajouté **0 €**, aucune dépendance nouvelle. [Sources et contrôles des voies dégagées](docs/SCENERY.md).
+- [x] Anciennes courses conservées ; anciens replays indiqués comme tracés historiques, exclus des fantômes sur les nouvelles pistes. Révision de circuit enregistrée dans les nouveaux replays, tests de persistance et compatibilité réussis.
+- [x] Suite complète **266/266 tests réussis**, sans test ignoré, en 63,21 s. Les essais de rendu et du déploiement sont consignés séparément dans [VALIDATION.md](VALIDATION.md).
+- [x] Revue visuelle terminée : **12 panoramas actuels**, **12 vues de loopings** et **7 captures mobiles**, avec portée et builds distincts. Route et kart visibles dans les deux loopings ; panoramas cadrés, stries des branches supprimées, compteur et panneaux dégagés sur petit écran. [Galerie et rapports](docs/scenes-v2/README.md).
+- [x] TypeScript et Docker réussis ; déploiement sans salon actif, volume de progression conservé. Huit assets publics et sept modules serveur identiques au build local par SHA-256. [Empreintes finales](docs/mobile-scenes-public-assets.json).
+- [x] Course publique sur le build courant : **4/4 pilotes SDK terminent trois tours**, sautent et passent inversés dans le looping de Sky ; six connexions, dont deux observateurs desktop/mobile, partagent le même classement. Contrôle en **143,537 s**, replay de révision 2 avec 603 images par pilote, profils enregistrés et aucune erreur JS/asset. Commandes ordinaires, sans arrivée forcée. [Rapport](docs/mobile-scenes-public-race.json) · [Résultats](docs/mobile-scenes-public-resultats.png). SwiftShader à 2,25/2,65 FPS ne valide pas la fluidité GPU ou deux machines physiques.
+
+Les résultats des sections suivantes concernent le lot du 6 octobre et les lots antérieurs. Ils restent des preuves historiques ; les versions de leurs rapports font foi.
 
 ## Couverture du cahier des charges ajouté à la racine
 
@@ -59,7 +93,7 @@ Les réalisations ci-dessous concernent les lots de démo antérieurs ; elles re
 - [ ] **Priorité 2 — essai humain sur deux ordinateurs.** Depuis le lien public, deux personnes rejoignent le même salon, conduisent au clavier, utilisent les objets, terminent une course et lancent la suivante. Vérifier aussi une reconnexion. Si possible, utiliser deux réseaux distincts. Suivre la [procédure manuelle](VALIDATION.md#refaire-les-vérifications-manuelles).
 - [ ] **Priorité 2 — fluidité sur les machines de démo.** Activer l'accélération graphique, relever les performances dans les navigateurs habituels et vérifier la lisibilité du kart, les roues, la caméra et le son en conduite. Les captures SwiftShader et le contrôle à 3 FPS ne démontrent pas une fluidité à 60 FPS sur GPU.
 - [ ] **Priorité 2 — écouter les MP3 en jeu.** Vérifier à l'oreille l'équilibre musique/moteur sur les haut-parleurs des collègues, ainsi que la transition du premier au deuxième tour. La validation automatisée ne remplace pas cette écoute.
-- [ ] **Conditionnel — téléphone.** Si le public de la démo utilise un mobile, tester commandes tactiles, cadrage, audio et connexion au salon sur un vrai téléphone. Ce support reste non validé.
+- [ ] **Priorité 1 — téléphones physiques.** Les contrôles tactiles et cinq formats sont validés en émulation Chromium. Essayer désormais une course sur Android et Safari iOS : confort des pouces, interruptions système, audio après verrouillage, fluidité GPU et réseau mobile restent à valider sur les appareils réels.
 - [ ] **Suivi ultérieur — dépendances transitives.** Les trois entrées d'audit liées à NanoID 2.1.11/Colyseus 0.16 restent documentées dans [les limites connues](VALIDATION.md#limites-connues). Une éventuelle mise à niveau devra revalider le réseau ; aucune migration de dépendances n'est incluse dans cette démo.
 
 Les rapports de travail sont dans `test-results/` et ignorés par Git ; les preuves de livraison sont conservées dans `docs/demo-results/` et `docs/kart-visuals/`. Mettre à jour les cases uniquement après une exécution ou une vérification effective, puis synchroniser les comptes rendus de validation.

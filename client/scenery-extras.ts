@@ -1,9 +1,10 @@
 import * as THREE from 'three';
+import { buildSceneryWorld } from './scenery-world';
 import { BRIDGE_RAIL_THICKNESS, BRIDGE_RAIL_CENTER_Y, BRIDGE_SHOULDER } from '../shared/obstacle-heights';
 import { trackElevation, trackPoint, type TrackDefinition, type TrackElevation } from '../shared/track';
-import { nearestDriveableTrack, trackBoundaryGap } from '../shared/track-events';
+import { trackBoundaryGap } from '../shared/track-events';
 
-// Original, code-generated scenery: no external textures, models or paid assets.
+// Original scenery plus the optional Kenney CC0 tree; no external runtime requests.
 // Materials survive track changes; geometry belongs to this group and can be batched/disposed.
 const materials = new Map<string, THREE.MeshStandardMaterial>();
 function mat(color: string, glow = false) {
@@ -17,7 +18,7 @@ function mat(color: string, glow = false) {
   return material;
 }
 export function hasExtraScenery(track: TrackDefinition): boolean {
-  return ['volcano', 'forest', 'harbor', 'sky', 'foundry', 'castle'].includes(track.theme);
+  return Boolean(track.theme);
 }
 
 /** Add before GameRenderer.batchScenery(). The renderer draws the road at trackElevation(). */
@@ -26,11 +27,7 @@ export function buildTrackExtras(track: TrackDefinition, eventStage = 0, eventLe
   result.userData.theme = track.theme; result.userData.structures = [] as string[];
   if (!hasExtraScenery(track)) return result;
   const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
-  const cylinder = new THREE.CylinderGeometry(1, 1, 1, 8);
-  const tapered = new THREE.CylinderGeometry(.62, 1, 1, 8);
   const cone = new THREE.ConeGeometry(1, 1, 8);
-  const sphere = new THREE.IcosahedronGeometry(1, 1);
-  const torus = new THREE.TorusGeometry(1, .17, 5, 20);
   const vectorY = new THREE.Vector3(0, 1, 0);
   const add = (parent: THREE.Object3D, geometry: THREE.BufferGeometry, color: string,
     x: number, y: number, z: number, sx = 1, sy = 1, sz = 1, glow = false) => {
@@ -48,10 +45,6 @@ export function buildTrackExtras(track: TrackDefinition, eventStage = 0, eventLe
   const group = (name: string, x = 0, z = 0) => {
     const item = new THREE.Group(); item.name = name; item.position.set(x, 0, z);
     result.add(item); (result.userData.structures as string[]).push(name); return item;
-  };
-  const clear = (x: number, z: number, radius: number) => {
-    const road = nearestDriveableTrack(x, z, track.id, 2, 3);
-    return road.distance > road.width / 2 + radius + 7;
   };
   const roadPosition = (progress: number, offset = 0, height = 0) => {
     const point = trackPoint(progress, track.id);
@@ -131,130 +124,6 @@ export function buildTrackExtras(track: TrackDefinition, eventStage = 0, eventLe
   }
   for (const feature of track.elevations) feature.kind === 'bridge' ? bridge(feature) : jump(feature);
 
-  let seed = 7159 + track.id.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
-  const random = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
-  const scatter = (count: number, radius: number, footprint: number, build: (parent: THREE.Group, i: number) => void) => {
-    for (let i = 0; i < count; i++) {
-      const angle = random() * Math.PI * 2, distance = 48 + random() * radius;
-      const x = Math.sin(angle) * distance, z = Math.cos(angle) * distance;
-      if (!clear(x, z, footprint)) continue;
-      const prop = group(`${track.theme}-prop-${i}`, x, z); prop.rotation.y = angle;
-      build(prop, i);
-    }
-  };
-  if (track.theme === 'volcano') {
-    const crater = group('volcano-crater');
-    // Leave the crater mouth open: a capped frustum would hide the lava below its lip.
-    add(crater, new THREE.CylinderGeometry(.62, 1, 1, 8, 1, true), '#55504c', 0, 17, 0, 42, 34, 42);
-    const lip = add(crater, torus, '#403f43', 0, 34, 0, 27, 27, 13); lip.rotation.x = Math.PI / 2;
-    add(crater, cylinder, '#ed8b3f', 0, 32.5, 0, 23, .4, 23, true);
-    for (let i = 0; i < 4; i++) add(crater, sphere, '#c29a81', i * 3 - 4, 45 + i * 10, 0, 7 + i * 3, 6 + i * 2, 7 + i * 2);
-    scatter(50, 180, 7, (prop, i) => {
-      const height = 4 + random() * 12;
-      add(prop, tapered, i % 2 ? '#494b4c' : '#696159', 0, height / 2, 0, 3 + random() * 2, height, 3.5);
-      if (i % 4 === 0) add(prop, sphere, '#f3ad50', 2, .5, 1, 2, .5, 2, true);
-    });
-  } else if (track.theme === 'forest') {
-    scatter(85, 185, 8, (prop, i) => {
-      const height = 12 + random() * 16;
-      add(prop, tapered, '#826345', 0, height * .45, 0, 1.3, height * .9, 1.3);
-      add(prop, cone, i % 2 ? '#416e48' : '#568152', 0, height, 0, 7, height * .8, 7);
-      add(prop, cone, '#739660', 0, height * 1.23, 0, 4.5, height * .6, 4.5);
-      if (i % 5 === 0) {
-        add(prop, cylinder, '#ead5b1', 4, .6, 0, .2, 1.2, .2);
-        add(prop, sphere, '#cc7c62', 4, 1.3, 0, 1.2, .45, 1.2);
-      }
-    });
-    const grove = group('giant-tree-grove');
-    for (const [x, z] of [[-15, -10], [12, 14], [15, -19]]) {
-      add(grove, tapered, '#806145', x, 17, z, 3.5, 34, 3.5);
-      add(grove, cone, '#426f4a', x, 35, z, 12, 30, 12);
-      add(grove, cone, '#659258', x, 48, z, 8, 24, 8);
-    }
-  } else if (track.theme === 'harbor') {
-    const yard = group('cargo-yard');
-    const cargoColors = ['#bc755f', '#6f8d9a', '#d8b56a'];
-    for (let row = 0; row < 3; row++) for (let i = 0; i < 4; i++) {
-      const x = (i - 1.5) * 10, z = (row - 1) * 15;
-      box(yard, cargoColors[(row + i) % 3]!, x, 3, z, 8.5, 6, 12);
-      for (let rib = -3; rib <= 3; rib += 2) box(yard, '#e8d6b1', x + rib, 3, z + 6.03, .13, 5.4, .12);
-    }
-    scatter(24, 205, 12, (prop, i) => {
-      if (i % 3 !== 0) { box(prop, cargoColors[i % 3]!, 0, 3, 0, 8, 6, 12); return; }
-      for (const x of [-5, 5]) box(prop, '#ddbd6b', x, 13, 0, 1.2, 26, 1.2);
-      box(prop, '#ddbd6b', 2, 25, 0, 29, 1.4, 1.6);
-      box(prop, '#6e858c', -3, 23, 0, 4, 3, 3);
-      box(prop, '#455965', 12, 18, 0, .15, 13, .15);
-      box(prop, '#455965', 12, 11.5, 0, 3, .5, .6);
-    });
-    const boat = group('cargo-ship', 40, 45);
-    add(boat, sphere, '#546c7a', 0, 1.5, 0, 9, 3, 24);
-    box(boat, '#e8e0c8', 0, 6, -10, 10, 6, 7);
-    box(boat, '#6a96a2', 0, 7, -6.4, 8, 1.7, .1);
-    for (let i = 0; i < 3; i++) box(boat, cargoColors[i]!, 0, 5, 2 + i * 6, 7, 4, 5);
-    const basin = box(result, track.palette.water, 40, -.07, 40, 37, .04, 68); basin.castShadow = false;
-  } else if (track.theme === 'sky') {
-    scatter(32, 205, 12, (prop, i) => {
-      if (i % 2 === 0) {
-        for (let puff = 0; puff < 3; puff++) add(prop, sphere, '#f0f4ee', (puff - 1) * 6, 5 + puff % 2 * 3, 0, 7, 4, 6);
-      } else {
-        const island = add(prop, cone, '#9c91ac', 0, -6, 0, 12, 14, 12); island.rotation.z = Math.PI;
-        add(prop, cylinder, '#b9cc94', 0, 1, 0, 12, 1, 12);
-        add(prop, cone, '#c7a3ce', 0, 7, 0, 3, 12, 3);
-      }
-    });
-    const balloon = group('cloud-balloon', -20, 5);
-    add(balloon, sphere, '#d4a0bc', 0, 45, 0, 16, 21, 16);
-    box(balloon, '#bb986d', 0, 18, 0, 6, 4, 6);
-    for (const x of [-2.5, 2.5]) for (const z of [-2.5, 2.5]) beam(balloon, '#e1d5b4', new THREE.Vector3(x, 20, z), new THREE.Vector3(x * 2, 33, z * 2), .17);
-    for (let i = 0; i < 5; i++) add(result, sphere, '#eef2ed', -35 + i * 16, -4, 20, 18, 4, 15);
-  } else if (track.theme === 'foundry') {
-    const works = group('piston-foundry');
-    box(works, '#8e7661', 0, 7, 0, 52, 14, 36);
-    for (const x of [-18, 0, 18]) {
-      box(works, '#687477', x, 16, 0, 12, 5, 34);
-      add(works, cylinder, '#a67d67', x, 25, -12, 3.5, 34, 3.5);
-      add(works, cylinder, '#d5c3a0', x, 39, -12, 3.65, 2, 3.65);
-      add(works, sphere, '#c1b5a4', x + 1, 49, -12, 6, 5, 6);
-      box(works, '#edac66', x, 7, 18.08, 6, 5, .15);
-    }
-    scatter(33, 180, 9, (prop, i) => {
-      if (i % 3 === 0) {
-        add(prop, tapered, '#a5a093', 0, 9, 0, 7, 18, 7);
-        add(prop, cylinder, '#6a7476', 0, 17.5, 0, 5.2, 1, 5.2);
-      } else {
-        box(prop, '#536b72', 0, 1, 0, 9, 2, 7);
-        for (const x of [-2.5, 2.5]) {
-          add(prop, cylinder, '#b8b9a7', x, 5, 0, 1, 7, 1);
-          add(prop, cylinder, '#dcad66', x, 8, 0, 2, 2, 2);
-        }
-      }
-    });
-  } else if (track.theme === 'castle') {
-    const fortress = group('royal-citadel');
-    for (const z of [-27, 27]) box(fortress, '#b4b29f', 0, 7, z, 54, 14, 3);
-    for (const x of [-27, 27]) box(fortress, '#b4b29f', x, 7, 0, 3, 14, 54);
-    for (const x of [-27, 27]) for (const z of [-27, 27]) {
-      add(fortress, cylinder, '#aaa995', x, 11, z, 6.5, 22, 6.5);
-      add(fortress, cone, '#9a83ad', x, 26, z, 8, 10, 8);
-      box(fortress, '#e4d49a', x, 33, z, .22, 6, .22);
-      box(fortress, '#ba8bb0', x + 2, 34.2, z, 4, 1.8, .18);
-    }
-    for (let i = -24; i <= 24; i += 6) for (const side of [-1, 1]) {
-      box(fortress, '#cfccb6', i, 15.3, side * 27, 3, 3, 3.3);
-      box(fortress, '#cfccb6', side * 27, 15.3, i, 3.3, 3, 3);
-    }
-    box(fortress, '#898f8b', 0, 13, 0, 20, 26, 20);
-    add(fortress, cone, '#9a83ad', 0, 32, 0, 16, 16, 16);
-    scatter(36, 175, 7, (prop, i) => {
-      if (i % 3 === 0) {
-        add(prop, cylinder, '#a7ab9d', 0, 4, 0, 3, 8, 3);
-        add(prop, cone, '#9d8bb0', 0, 10, 0, 4, 5, 4);
-      } else {
-        add(prop, tapered, '#82745a', 0, 3, 0, .55, 6, .55);
-        add(prop, sphere, '#7e9b63', 0, 7, 0, 4, 5, 4);
-      }
-    });
-  }
+  result.add(buildSceneryWorld(track));
   return result;
 }

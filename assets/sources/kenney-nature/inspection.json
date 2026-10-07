@@ -1,0 +1,28 @@
+{
+  "sourceBytes": 14480,
+  "sha256": "caed11c17aeb268c4351f1eb147e9a07ec79e29070e11ae18d7bc68c2e2c4570",
+  "geometryTriangles": 200,
+  "meshes": 1,
+  "primitives": 2,
+  "materials": [
+    "wood",
+    "foliage"
+  ],
+  "textures": 0,
+  "animations": 0,
+  "skins": 0,
+  "bounds": {
+    "min": [
+      -0.281277,
+      0,
+      -0.263119
+    ],
+    "max": [
+      0.271581,
+      1.410972,
+      0.263119
+    ]
+  },
+  "pivot": "Origin at trunk foot, Y up. No transform baked into source node.",
+  "adaptation": "Unchanged versioned GLB; runtime normalizes ground pivot/height and applies two shared muted materials. Static tree, no animation assumption."
+}

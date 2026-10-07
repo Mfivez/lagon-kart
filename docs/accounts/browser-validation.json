@@ -1,0 +1,37 @@
+{
+  "passed": true,
+  "at": "2026-10-07T08:43:55.773Z",
+  "scope": "Serveur privé, stockage temporaire, deux contextes Chromium indépendants ; petit écran simulé, aucun téléphone physique.",
+  "checks": [
+    "Jeu invité conservé : un profil anonyme peut recevoir une progression avant la création du compte.",
+    "Inscription par le formulaire : confirmation vérifiée, même pilote, 195 XP et coupe conservés, aucun mot de passe dans les stockages du navigateur.",
+    "Formulaire à 320×568 : dialogue dans l’écran, défilement vertical, aucune largeur débordante, champs et boutons ≥44 px.",
+    "Doublon et mot de passe incorrect : erreurs visibles, progression du pilote courant intacte.",
+    "Second navigateur indépendant : connexion récupère le même nom, les XP et les déblocages ; ancienne reconnexion supprimée.",
+    "Actualisation : compte restauré automatiquement ; un ancien nom local ne remplace jamais le nom sauvegardé.",
+    "Salon Colyseus réel avec le compte récupéré ; garde de changement de compte active tant que le salon est ouvert.",
+    "Déconnexion : session courante révoquée, données du compte conservées, autre session valide et reconnexion locale effacée.",
+    "Nouvelle connexion après déconnexion : progression toujours récupérable."
+  ],
+  "captures": [
+    "account-desktop.png",
+    "register-mobile-320x568.png",
+    "recovered-mobile-320x568.png",
+    "career-recovered-mobile.png"
+  ],
+  "errors": [],
+  "evidence": {
+    "clientAssets": [
+      "/assets/index-Dk-_5CP3.js",
+      "/assets/index-BxI9vH7J.css"
+    ],
+    "fixture": {
+      "label": "Résultat fictif appliqué au store privé : 1 victoire + coupe discovery, aucune course complète conduite.",
+      "xp": 195,
+      "careerLevel": 1,
+      "championships": [
+        "discovery"
+      ]
+    }
+  }
+}

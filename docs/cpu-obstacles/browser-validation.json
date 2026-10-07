@@ -1,0 +1,577 @@
+{
+  "passed": true,
+  "at": "2026-10-07T09:02:41.471Z",
+  "checks": [
+    "Mangrove sinueuse : vraie fermeture déclenchée par un tour, CPU franchit 2 checkpoints en 2.63 s de simulation, 0 replacement(s), rendu reçu par le navigateur.",
+    "Citadelle royale : vraie fermeture déclenchée par un tour, CPU franchit 2 checkpoints en 7.40 s de simulation, 1 replacement(s), rendu reçu par le navigateur.",
+    "Aucune erreur JavaScript ni ressource HTTP manquante."
+  ],
+  "errors": [],
+  "captures": [
+    "mangrove-before-closure.png",
+    "mangrove-after-checkpoints.png",
+    "castle-before-closure.png",
+    "castle-after-checkpoints.png"
+  ],
+  "evidence": {
+    "clientAssets": [
+      "/assets/index-Dk-_5CP3.js",
+      "/assets/index-BxI9vH7J.css"
+    ],
+    "serverSources": {
+      "shared/cpu.ts": "18d8297300721c6f2a050f9f6c467e92cf5069db56e0516c30a9cdfe27bdf4ca",
+      "shared/autopilot.ts": "51489849d3b28826b8b68380eee00f9cac06439bc50df7d85657c1fbe21efeb7",
+      "shared/game.ts": "6c32748478278774f6282f4f9be2dfa1b1edfdab8f640165717eb818f21ff2a5",
+      "shared/track-events.ts": "3caa833583e94adb5a1cfb2fced6532f131737289e223f2c8cc56248ccffc9f7",
+      "server/RaceRoom.ts": "a36fc9feb4e2791d66c0072a6dfd8803b76969b4b8d101e0139ebf5744b8550d"
+    },
+    "mangrove": {
+      "side": "after",
+      "before": {
+        "x": -106.4786412508747,
+        "z": 19.5333499025405,
+        "speed": 22,
+        "lap": 0,
+        "nextCheckpoint": 9,
+        "progress": 507.92710987066175,
+        "lastSeq": 1,
+        "resetCooldown": 0,
+        "eventStage": 0,
+        "branchId": ""
+      },
+      "closure": {
+        "x": -105.75104091728385,
+        "z": 18.176075321842127,
+        "speed": 23.46666666666667,
+        "lap": 0,
+        "nextCheckpoint": 9,
+        "progress": 509.4671489333976,
+        "lastSeq": 92,
+        "resetCooldown": 0,
+        "eventStage": 1,
+        "branchId": ""
+      },
+      "after": {
+        "x": -94.28532693820166,
+        "z": -60.70227367447013,
+        "speed": 32,
+        "lap": 0,
+        "nextCheckpoint": 11,
+        "progress": 592.8581965012906,
+        "lastSeq": 171,
+        "resetCooldown": 0,
+        "eventStage": 1,
+        "branchId": ""
+      },
+      "closureTime": 0.06666666666666667,
+      "elapsedAfterClosure": 2.6333333333333333,
+      "gatesEarned": 2,
+      "resets": 0,
+      "maximumLowSpeedSeconds": 0,
+      "snapshots": 240,
+      "beforeView": {
+        "rendered": {
+          "id": "cpu-d3fb9820-440e-4de0-a631-eb003432adf9",
+          "position": [
+            -106.4786412508747,
+            0.055,
+            19.5333499025405
+          ],
+          "up": [
+            0,
+            1,
+            0
+          ],
+          "projected": [
+            0,
+            -0.20317958202721068,
+            0.857401206056227
+          ]
+        },
+        "camera": {
+          "position": [
+            -112.53143285958708,
+            6.3,
+            30.896858988271937
+          ],
+          "target": [
+            -103.99318944572885,
+            1.0480622587213113,
+            14.86716345573324
+          ],
+          "fov": 54.990456430588324,
+          "near": 1
+        },
+        "calls": 89,
+        "triangles": 43144
+      },
+      "afterView": {
+        "rendered": {
+          "id": "cpu-d3fb9820-440e-4de0-a631-eb003432adf9",
+          "position": [
+            -94.28532693820166,
+            0.055,
+            -60.70227367447013
+          ],
+          "up": [
+            0,
+            1,
+            0
+          ],
+          "projected": [
+            -0.00019871467669295323,
+            -0.19367735248959106,
+            0.8634512908626428
+          ]
+        },
+        "camera": {
+          "position": [
+            -95.46552047896,
+            6.3,
+            -47.234505783733354
+          ],
+          "target": [
+            -93.8036356685131,
+            1.049999995966907,
+            -66.16064688483355
+          ],
+          "fov": 55,
+          "near": 1
+        },
+        "calls": 50,
+        "triangles": 35402
+      },
+      "samples": [
+        {
+          "time": 0.06666666666666667,
+          "x": -105.75104091728385,
+          "z": 18.176075321842127,
+          "speed": 23.46666666666667,
+          "lap": 0,
+          "nextCheckpoint": 9,
+          "progress": 509.4671489333976,
+          "lastSeq": 92,
+          "resetCooldown": 0,
+          "eventStage": 1,
+          "branchId": "",
+          "validatedGates": 0
+        },
+        {
+          "time": 0.5666666666666667,
+          "x": -98.64946244047223,
+          "z": 5.552429117769971,
+          "speed": 32,
+          "lap": 0,
+          "nextCheckpoint": 9,
+          "progress": 523.9500239514244,
+          "lastSeq": 107,
+          "resetCooldown": 0,
+          "eventStage": 1,
+          "branchId": "",
+          "validatedGates": 0
+        },
+        {
+          "time": 1.0666666666666667,
+          "x": -92.07223126914246,
+          "z": -9.000731349919842,
+          "speed": 32,
+          "lap": 0,
+          "nextCheckpoint": 10,
+          "progress": 540.0456872261485,
+          "lastSeq": 122,
+          "resetCooldown": 0,
+          "eventStage": 1,
+          "branchId": "",
+          "validatedGates": 1
+        },
+        {
+          "time": 1.5666666666666682,
+          "x": -90.06760827985835,
+          "z": -24.79510873801288,
+          "speed": 32,
+          "lap": 0,
+          "nextCheckpoint": 10,
+          "progress": 556.3263068830604,
+          "lastSeq": 137,
+          "resetCooldown": 0,
+          "eventStage": 1,
+          "branchId": "",
+          "validatedGates": 1
+        },
+        {
+          "time": 2.066666666666669,
+          "x": -92.33345736757568,
+          "z": -40.61575551728659,
+          "speed": 32,
+          "lap": 0,
+          "nextCheckpoint": 10,
+          "progress": 572.3016106736154,
+          "lastSeq": 152,
+          "resetCooldown": 0,
+          "eventStage": 1,
+          "branchId": "",
+          "validatedGates": 1
+        },
+        {
+          "time": 2.6000000000000005,
+          "x": -94.48517351655869,
+          "z": -57.5093759536241,
+          "speed": 32,
+          "lap": 0,
+          "nextCheckpoint": 10,
+          "progress": 589.5819657298346,
+          "lastSeq": 168,
+          "resetCooldown": 0,
+          "eventStage": 1,
+          "branchId": "",
+          "validatedGates": 1
+        }
+      ]
+    },
+    "castle": {
+      "side": "before",
+      "before": {
+        "x": -55.03679695937861,
+        "z": 177.11114657024615,
+        "speed": 22,
+        "lap": 0,
+        "nextCheckpoint": 7,
+        "progress": 674.7645336667246,
+        "lastSeq": 0,
+        "resetCooldown": 0,
+        "eventStage": 0,
+        "branchId": ""
+      },
+      "closure": {
+        "x": -55.33412185520003,
+        "z": 177.06980043299959,
+        "speed": 0,
+        "lap": 0,
+        "nextCheckpoint": 7,
+        "progress": 675.064621909206,
+        "lastSeq": 91,
+        "resetCooldown": 0,
+        "eventStage": 1,
+        "branchId": ""
+      },
+      "after": {
+        "x": -118.4612045897561,
+        "z": 97.83883139335965,
+        "speed": 32,
+        "lap": 0,
+        "nextCheckpoint": 9,
+        "progress": 821.5580345344122,
+        "lastSeq": 313,
+        "resetCooldown": 0,
+        "eventStage": 1,
+        "branchId": "castle-detour"
+      },
+      "closureTime": 0.06666666666666667,
+      "elapsedAfterClosure": 7.3999999999999835,
+      "gatesEarned": 2,
+      "resets": 1,
+      "maximumLowSpeedSeconds": 0.16666666666666666,
+      "snapshots": 334,
+      "beforeView": {
+        "rendered": {
+          "id": "cpu-d45db6ca-ca0c-457f-8d9c-63db932c5b78",
+          "position": [
+            -55.03679695937861,
+            0.055,
+            177.11114657024615
+          ],
+          "up": [
+            0,
+            1,
+            0
+          ],
+          "projected": [
+            0,
+            -0.2091825638927397,
+            0.8573528940912496
+          ]
+        },
+        "camera": {
+          "position": [
+            -42.333896265042696,
+            6.3,
+            179.20922639471422
+          ],
+          "target": [
+            -60.45743112183217,
+            1.0499461189798873,
+            176.2158452964877
+          ],
+          "fov": 54.99881069682588,
+          "near": 1
+        },
+        "calls": 45,
+        "triangles": 47094
+      },
+      "afterView": {
+        "rendered": {
+          "id": "cpu-d45db6ca-ca0c-457f-8d9c-63db932c5b78",
+          "position": [
+            -118.4612045897561,
+            0.055,
+            97.83883139335965
+          ],
+          "up": [
+            0,
+            1,
+            0
+          ],
+          "projected": [
+            0,
+            -0.18214888829311934,
+            0.8633589615815069
+          ]
+        },
+        "camera": {
+          "position": [
+            -116.84133694143169,
+            6.3,
+            111.24129492816967
+          ],
+          "target": [
+            -119.06697899572087,
+            1.045895750068805,
+            92.82677414617517
+          ],
+          "fov": 55,
+          "near": 1
+        },
+        "calls": 81,
+        "triangles": 55154
+      },
+      "samples": [
+        {
+          "time": 0.06666666666666667,
+          "x": -55.33412185520003,
+          "z": 177.06980043299959,
+          "speed": 0,
+          "lap": 0,
+          "nextCheckpoint": 7,
+          "progress": 675.064621909206,
+          "lastSeq": 91,
+          "resetCooldown": 0,
+          "eventStage": 1,
+          "branchId": "",
+          "validatedGates": 0
+        },
+        {
+          "time": 0.5666666666666667,
+          "x": 3.879345135638923,
+          "z": 212.2022979243263,
+          "speed": 10.999999999999996,
+          "lap": 0,
+          "nextCheckpoint": 7,
+          "progress": 620.2262675301789,
+          "lastSeq": 106,
+          "resetCooldown": 1.0333333333333319,
+          "eventStage": 1,
+          "branchId": "castle-detour",
+          "validatedGates": 0
+        },
+        {
+          "time": 1.0666666666666667,
+          "x": -4.040541056879304,
+          "z": 215.09841116802193,
+          "speed": 22,
+          "lap": 0,
+          "nextCheckpoint": 7,
+          "progress": 628.2822689266937,
+          "lastSeq": 121,
+          "resetCooldown": 0.533333333333332,
+          "eventStage": 1,
+          "branchId": "castle-detour",
+          "validatedGates": 0
+        },
+        {
+          "time": 1.5666666666666682,
+          "x": -17.31356844421409,
+          "z": 219.1855909765374,
+          "speed": 32,
+          "lap": 0,
+          "nextCheckpoint": 7,
+          "progress": 641.5521548259395,
+          "lastSeq": 136,
+          "resetCooldown": 0.0333333333333321,
+          "eventStage": 1,
+          "branchId": "castle-detour",
+          "validatedGates": 0
+        },
+        {
+          "time": 2.066666666666669,
+          "x": -32.987210943630316,
+          "z": 222.34510677369335,
+          "speed": 32,
+          "lap": 0,
+          "nextCheckpoint": 7,
+          "progress": 656.8315848294745,
+          "lastSeq": 151,
+          "resetCooldown": 0,
+          "eventStage": 1,
+          "branchId": "castle-detour",
+          "validatedGates": 0
+        },
+        {
+          "time": 2.6000000000000005,
+          "x": -50.01397461110382,
+          "z": 222.95915434667694,
+          "speed": 32,
+          "lap": 0,
+          "nextCheckpoint": 7,
+          "progress": 673.1208102722742,
+          "lastSeq": 167,
+          "resetCooldown": 0,
+          "eventStage": 1,
+          "branchId": "castle-detour",
+          "validatedGates": 0
+        },
+        {
+          "time": 3.133333333333332,
+          "x": -66.65412904892807,
+          "z": 219.44086466354025,
+          "speed": 32,
+          "lap": 0,
+          "nextCheckpoint": 7,
+          "progress": 689.3918348319013,
+          "lastSeq": 183,
+          "resetCooldown": 0,
+          "eventStage": 1,
+          "branchId": "castle-detour",
+          "validatedGates": 0
+        },
+        {
+          "time": 3.6666666666666634,
+          "x": -81.35411806594291,
+          "z": 210.92695756652188,
+          "speed": 32,
+          "lap": 0,
+          "nextCheckpoint": 7,
+          "progress": 705.6145937063627,
+          "lastSeq": 199,
+          "resetCooldown": 0,
+          "eventStage": 1,
+          "branchId": "castle-detour",
+          "validatedGates": 0
+        },
+        {
+          "time": 4.199999999999995,
+          "x": -92.68791372261673,
+          "z": 198.24505013912693,
+          "speed": 32,
+          "lap": 0,
+          "nextCheckpoint": 8,
+          "progress": 721.8009189571884,
+          "lastSeq": 215,
+          "resetCooldown": 0,
+          "eventStage": 1,
+          "branchId": "castle-detour",
+          "validatedGates": 1
+        },
+        {
+          "time": 4.733333333333326,
+          "x": -100.70050135809548,
+          "z": 183.20598936865048,
+          "speed": 32,
+          "lap": 0,
+          "nextCheckpoint": 8,
+          "progress": 738.0445068651964,
+          "lastSeq": 231,
+          "resetCooldown": 0,
+          "eventStage": 1,
+          "branchId": "castle-detour",
+          "validatedGates": 1
+        },
+        {
+          "time": 5.266666666666658,
+          "x": -106.34208023665751,
+          "z": 167.1090749029132,
+          "speed": 32,
+          "lap": 0,
+          "nextCheckpoint": 8,
+          "progress": 754.3177751340753,
+          "lastSeq": 247,
+          "resetCooldown": 0,
+          "eventStage": 1,
+          "branchId": "castle-detour",
+          "validatedGates": 1
+        },
+        {
+          "time": 5.799999999999989,
+          "x": -110.45619584842024,
+          "z": 150.54965086591628,
+          "speed": 32,
+          "lap": 0,
+          "nextCheckpoint": 8,
+          "progress": 770.6100427459692,
+          "lastSeq": 263,
+          "resetCooldown": 0,
+          "eventStage": 1,
+          "branchId": "castle-detour",
+          "validatedGates": 1
+        },
+        {
+          "time": 6.333333333333321,
+          "x": -113.57665896079747,
+          "z": 133.77229992607127,
+          "speed": 32,
+          "lap": 0,
+          "nextCheckpoint": 8,
+          "progress": 786.9113977998286,
+          "lastSeq": 279,
+          "resetCooldown": 0,
+          "eventStage": 1,
+          "branchId": "castle-detour",
+          "validatedGates": 1
+        },
+        {
+          "time": 6.866666666666652,
+          "x": -116.06400957315972,
+          "z": 116.88844877178387,
+          "speed": 32,
+          "lap": 0,
+          "nextCheckpoint": 8,
+          "progress": 803.2146895002079,
+          "lastSeq": 295,
+          "resetCooldown": 0,
+          "eventStage": 1,
+          "branchId": "castle-detour",
+          "validatedGates": 1
+        },
+        {
+          "time": 7.3999999999999835,
+          "x": -118.20495003873178,
+          "z": 99.9567182267854,
+          "speed": 32,
+          "lap": 0,
+          "nextCheckpoint": 8,
+          "progress": 819.519831332813,
+          "lastSeq": 311,
+          "resetCooldown": 0,
+          "eventStage": 1,
+          "branchId": "castle-detour",
+          "validatedGates": 1
+        }
+      ]
+    }
+  },
+  "fixtures": [
+    "mangrove : compte à rebours privé suspendu avant tout déplacement ; CPU placé juste après le futur barrage à la progression 507.927, vitesse 22. Checkpoints antérieurs et point de replacement cohérents constituent la fixture, ils ne sont pas une course effectuée. Pilote SDK à 0,25 m avant la ligne avec les checkpoints antérieurs validés ; son franchissement réel déclenche la fermeture. Ordre initial CPU/pilote pour la caméra spectateur, objets retirés avant départ pour isoler le blocage. Ensuite aucune mutation des positions, tours ou checkpoints.",
+    "castle : compte à rebours privé suspendu avant tout déplacement ; CPU placé juste avant le futur barrage à la progression 674.765, vitesse 22. Checkpoints antérieurs et point de replacement cohérents constituent la fixture, ils ne sont pas une course effectuée. Pilote SDK à 0,25 m avant la ligne avec les checkpoints antérieurs validés ; son franchissement réel déclenche la fermeture. Ordre initial CPU/pilote pour la caméra spectateur, objets retirés avant départ pour isoler le blocage. Ensuite aucune mutation des positions, tours ou checkpoints."
+  ],
+  "limitations": [
+    "Serveur privé et données temporaires ; aucun joueur public déplacé.",
+    "Deux fixtures de secteur, aucune course complète et aucun classement artificiellement attribué.",
+    "La simulation privée est suspendue avant départ puis après les deux checkpoints réellement atteints pour photographier les poses ; aucun état de course ne change pendant ces pauses. Les durées mesurées sont des secondes de simulation.",
+    "Les captures montrent les positions réellement atteintes avant fermeture puis après deux checkpoints, pas une comparaison avec une ancienne version du code.",
+    "Chromium headless avec SwiftShader, un observateur et un client SDK ; aucune mesure sur téléphone ou deux machines physiques."
+  ],
+  "visualReview": {
+    "status": "passed",
+    "at": "2026-10-07T09:04:03.599Z",
+    "note": "Les quatre captures ont été ouvertes et inspectées : CPU visible et cadré, HUD lisible, Mangrove sur la route principale après la fermeture, Citadelle sur la déviation après récupération."
+  }
+}

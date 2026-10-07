@@ -1,14 +1,16 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { mkdir, open, readFile, rename, rm, stat } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { isTrackId } from '../shared/track.js';
+import { isTrackId, TRACK_LAYOUT_REVISION } from '../shared/track.js';
 import { INITIAL_MMR, careerLevel, championshipById, rankForMmr, seasonId,
   type GhostData, type LeaderboardEntry, type PlayerProfile, type PlayerStats,
   type ReplayData, type ReplaySummary, type SeasonStats } from '../shared/progression.js';
 import { calculateMmr } from './competitive.js';
+import { hashPassword, validatePassword, validPasswordHash, verifyPassword, type PasswordHash } from './passwords.js';
 
 interface StoredPlayer {
-  id: string; tokenHash: string; name: string; createdAt: number; xp: number;
+  id: string; tokenHash?: string; sessionTokenHashes?: string[]; name: string; createdAt: number; xp: number;
+  username?: string; passwordHash?: PasswordHash;
   completedChampionships: string[]; stats: PlayerStats; seasons: SeasonStats[];
 }
 interface StoreData {
@@ -18,10 +20,29 @@ interface StoreData {
 export interface RaceEntry { playerId: string; rank: number; finished: boolean; finishTime: number }
 export interface RaceRecord { id: string; trackId: string; ranked: boolean; finishedAt: number; entries: RaceEntry[] }
 export interface PlayerStoreOptions { now?: () => number; maxPlayers?: number; maxReplays?: number }
+export class AccountError extends Error {
+  constructor(message: string, readonly status: number) { super(message); this.name = 'AccountError'; }
+}
 const MAX_REPLAY_BYTES = 2 * 1024 * 1024;
+const MAX_SESSIONS = 16;
 const identifier = (value: unknown): value is string => typeof value === 'string' && /^[A-Za-z0-9_-]{1,80}$/.test(value);
 const integer = (value: unknown, min: number, max: number): value is number => Number.isSafeInteger(value) && (value as number) >= min && (value as number) <= max;
 const hash = (token: string) => createHash('sha256').update(token).digest('hex');
+const tokenFingerprint = (token: unknown): string | null => typeof token === 'string' && /^lk_[A-Za-z0-9_-]{43}$/.test(token) ? hash(token) : null;
+const tokenHashes = (player: StoredPlayer): string[] => [...(player.tokenHash ? [player.tokenHash] : []), ...(player.sessionTokenHashes ?? [])];
+function username(value: unknown): string {
+  if (typeof value !== 'string' || value.length > 256) throw new Error('Identifiant invalide.');
+  const cleaned = value.normalize('NFKC').trim();
+  if (!/^[\p{L}\p{N}._-]+$/u.test(cleaned) || [...cleaned].length < 3 || [...cleaned].length > 24)
+    throw new Error('L’identifiant doit contenir 3 à 24 lettres, chiffres, points, tirets ou traits de soulignement.');
+  return cleaned;
+}
+const usernameKey = (value: string): string => value.toLowerCase().normalize('NFKC');
+function setTokenHashes(player: StoredPlayer, hashes: string[]): void {
+  const bounded = hashes.slice(-MAX_SESSIONS);
+  if (bounded.length) player.tokenHash = bounded[0]; else delete player.tokenHash;
+  player.sessionTokenHashes = bounded.slice(1);
+}
 function name(value: unknown): string {
   if (typeof value !== 'string') throw new Error('Pseudo invalide.');
   const cleaned = value.replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, 18);
@@ -30,7 +51,7 @@ function name(value: unknown): string {
 }
 function emptyStats(): PlayerStats { return { races: 0, finishes: 0, wins: 0, podiums: 0, totalRaceTime: 0, bestTimes: {} }; }
 function summary(replay: ReplayData): ReplaySummary {
-  return { id: replay.id, trackId: replay.trackId, createdAt: replay.createdAt, durationMs: replay.durationMs, ranked: replay.ranked, eventLevel: replay.eventLevel ?? 0,
+  return { id: replay.id, trackId: replay.trackId, trackRevision: replay.trackRevision ?? 1, createdAt: replay.createdAt, durationMs: replay.durationMs, ranked: replay.ranked, eventLevel: replay.eventLevel ?? 0,
     drivers: replay.drivers.map(({ playerId, name, finishTime, finished, rank }) => ({ playerId, name, finishTime, finished, rank })) };
 }
 
@@ -38,7 +59,7 @@ function summary(replay: ReplayData): ReplaySummary {
 export function validateReplay(value: unknown): ReplayData {
   if (!value || typeof value !== 'object') throw new Error('Replay invalide.');
   const replay = value as ReplayData;
-  if (replay.version !== 1 || !identifier(replay.id) || !isTrackId(replay.trackId) ||
+  if (replay.version !== 1 || !identifier(replay.id) || !isTrackId(replay.trackId) || !integer(replay.trackRevision ?? 1, 1, 1000) ||
     !integer(replay.createdAt, 0, 8_640_000_000_000_000) || !integer(replay.durationMs, 0, 360_000) ||
     replay.season !== seasonId(new Date(replay.createdAt)) || typeof replay.ranked !== 'boolean' || !integer(replay.eventLevel ?? 0, 0, 3) ||
     !Array.isArray(replay.drivers) || replay.drivers.length < 1 || replay.drivers.length > 8) throw new Error('En-tête de replay invalide.');
@@ -62,7 +83,7 @@ export function validateReplay(value: unknown): ReplayData {
       throw new Error('Arrivée de replay invalide.');
   }
   // Explicit projection discards any incidental private fields a caller attached.
-  return { version: 1, id: replay.id, trackId: replay.trackId, createdAt: replay.createdAt, durationMs: replay.durationMs,
+  return { version: 1, id: replay.id, trackId: replay.trackId, trackRevision: replay.trackRevision ?? 1, createdAt: replay.createdAt, durationMs: replay.durationMs,
     season: replay.season, ranked: replay.ranked, eventLevel: replay.eventLevel ?? 0, drivers: replay.drivers.map(driver => ({
       playerId: driver.playerId, name: driver.name, color: driver.color, rank: driver.rank,
       finished: driver.finished, finishTime: driver.finishTime, frames: driver.frames.map(frame => [...frame]),
@@ -110,10 +131,60 @@ export class PlayerStore {
   }
 
   authenticate(token: unknown): PlayerProfile | null {
-    if (typeof token !== 'string' || !/^lk_[A-Za-z0-9_-]{43}$/.test(token)) return null;
-    const fingerprint = hash(token);
-    const player = this.data.players.find(candidate => candidate.tokenHash === fingerprint);
+    const fingerprint = tokenFingerprint(token);
+    if (!fingerprint) return null;
+    const player = this.data.players.find(candidate => tokenHashes(candidate).includes(fingerprint));
     return player ? this.publicProfile(player) : null;
+  }
+
+  async registerAccount(loginName: unknown, password: unknown, token?: unknown, displayName?: unknown): Promise<{ token: string; profile: PlayerProfile }> {
+    let cleaned: string, cleanedName: string, secret: string;
+    try { cleaned = username(loginName); secret = validatePassword(password); cleanedName = name(displayName === undefined ? cleaned : displayName); }
+    catch (error) { throw new AccountError((error as Error).message, 400); }
+    const key = usernameKey(cleaned);
+    const linking = token !== undefined && token !== null, fingerprint = tokenFingerprint(token);
+    if (linking && !fingerprint) throw new AccountError('Session expirée. Reconnectez-vous avant de créer le compte.', 401);
+    const passwordHash = await hashPassword(secret), session = 'lk_' + randomBytes(32).toString('base64url');
+    return this.transaction(data => {
+      if (data.players.some(player => player.username !== undefined && usernameKey(player.username) === key))
+        throw new AccountError('Cet identifiant est déjà utilisé.', 409);
+      let player = fingerprint ? data.players.find(candidate => tokenHashes(candidate).includes(fingerprint)) : undefined;
+      if (linking && !player) throw new AccountError('Session expirée. Reconnectez-vous avant de créer le compte.', 401);
+      if (player?.username !== undefined) throw new AccountError('Ce profil possède déjà un compte.', 409);
+      if (!player) {
+        if (data.players.length >= this.maxPlayers) throw new AccountError('La capacité de profils de ce serveur est atteinte.', 429);
+        player = { id: randomUUID(), name: cleanedName, createdAt: this.now(), xp: 0,
+          completedChampionships: [], stats: emptyStats(), seasons: [] };
+        data.players.push(player);
+      }
+      player.username = cleaned; player.passwordHash = passwordHash;
+      setTokenHashes(player, [...tokenHashes(player), hash(session)]);
+      return { token: session, profile: this.publicProfile(player) };
+    });
+  }
+
+  async loginAccount(loginName: unknown, password: unknown): Promise<{ token: string; profile: PlayerProfile }> {
+    let cleaned: string, secret: string;
+    try { cleaned = username(loginName); secret = validatePassword(password); }
+    catch { throw new AccountError('Identifiant ou mot de passe incorrect.', 401); }
+    await this.tail;
+    const key = usernameKey(cleaned), player = this.data.players.find(candidate => candidate.username !== undefined && usernameKey(candidate.username) === key);
+    if (!await verifyPassword(secret, player?.passwordHash) || !player) throw new AccountError('Identifiant ou mot de passe incorrect.', 401);
+    const token = 'lk_' + randomBytes(32).toString('base64url');
+    return this.transaction(data => {
+      const current = this.requirePlayer(data, player.id);
+      setTokenHashes(current, [...tokenHashes(current), hash(token)]);
+      return { token, profile: this.publicProfile(current) };
+    });
+  }
+
+  async logout(token: unknown): Promise<void> {
+    const fingerprint = tokenFingerprint(token);
+    if (!fingerprint) return;
+    await this.transaction(data => {
+      const player = data.players.find(candidate => tokenHashes(candidate).includes(fingerprint));
+      if (player) setTokenHashes(player, tokenHashes(player).filter(candidate => candidate !== fingerprint));
+    });
   }
 
   getProfile(playerId: string): PlayerProfile | null {
@@ -227,13 +298,13 @@ export class PlayerStore {
 
   async bestGhost(trackId: string, rankedOnly = false, eventLevel?: number): Promise<GhostData | null> {
     if (!isTrackId(trackId)) throw new Error('Circuit inconnu.');
-    const best = this.data.replays.filter(replay => replay.trackId === trackId && (!rankedOnly || replay.ranked) && (eventLevel === undefined || (replay.eventLevel ?? 0) === eventLevel))
+    const best = this.data.replays.filter(replay => (replay.trackRevision ?? 1) === TRACK_LAYOUT_REVISION && replay.trackId === trackId && (!rankedOnly || replay.ranked) && (eventLevel === undefined || (replay.eventLevel ?? 0) === eventLevel))
       .flatMap(replay => replay.drivers.filter(driver => driver.finished && driver.finishTime > 0).map(driver => ({ replay, driver })))
       .sort((a, b) => a.driver.finishTime - b.driver.finishTime || a.replay.createdAt - b.replay.createdAt)[0];
     if (!best) return null;
     const replay = await this.getReplay(best.replay.id), driver = replay?.drivers.find(candidate => candidate.playerId === best.driver.playerId);
     if (!driver) return null;
-    return { version: 1, replayId: best.replay.id, trackId, playerId: driver.playerId, name: driver.name,
+    return { version: 1, replayId: best.replay.id, trackId, trackRevision: replay!.trackRevision, playerId: driver.playerId, name: driver.name,
       color: driver.color, finishTime: driver.finishTime, eventLevel: replay?.eventLevel ?? 0, frames: driver.frames };
   }
 
@@ -242,7 +313,7 @@ export class PlayerStore {
   private publicProfile(player: StoredPlayer): PlayerProfile {
     const season = seasonId(new Date(this.now()));
     const ranked = player.seasons.find(entry => entry.season === season) ?? this.freshSeason(player, season);
-    return structuredClone({ id: player.id, name: player.name, createdAt: player.createdAt, xp: player.xp,
+    return structuredClone({ id: player.id, name: player.name, ...(player.username === undefined ? {} : { username: player.username }), createdAt: player.createdAt, xp: player.xp,
       careerLevel: careerLevel(player.completedChampionships), completedChampionships: player.completedChampionships,
       stats: player.stats, season, mmr: ranked.mmr, rank: rankForMmr(ranked.mmr), ranked });
   }
@@ -283,7 +354,7 @@ export class PlayerStore {
     // races. The cap remains strict even when new circuits add more potential
     // ghost records than the configured number of files.
     const fastest = new Map<string, { id: string; time: number }>();
-    for (const replay of replays) for (const driver of replay.drivers) if (driver.finished && driver.finishTime > 0) {
+    for (const replay of replays) for (const driver of replay.drivers) if ((replay.trackRevision ?? 1) === TRACK_LAYOUT_REVISION && driver.finished && driver.finishTime > 0) {
       for (const key of [replay.trackId, ...(replay.ranked ? [replay.trackId + ':ranked'] : [])])
         if (driver.finishTime < (fastest.get(key)?.time ?? Infinity)) fastest.set(key, { id: replay.id, time: driver.finishTime });
     }
@@ -301,14 +372,27 @@ export class PlayerStore {
     if (data.version !== 1 || !Array.isArray(data.players) || data.players.length > this.maxPlayers ||
       !Array.isArray(data.raceReceipts) || data.raceReceipts.length > 20_000 || !integer(data.receiptFloor, -1, 8_640_000_000_000_000) ||
       !Array.isArray(data.replays) || data.replays.length > this.maxReplays) throw new Error('Structure du registre invalide.');
-    const ids = new Set<string>(), hashes = new Set<string>();
+    const ids = new Set<string>(), hashes = new Set<string>(), usernames = new Set<string>();
     for (const player of data.players) {
-      if (!identifier(player.id) || ids.has(player.id) || !/^[a-f0-9]{64}$/.test(player.tokenHash) || hashes.has(player.tokenHash) || name(player.name) !== player.name ||
+      if (!player || typeof player !== 'object' || !identifier(player.id) || ids.has(player.id) || name(player.name) !== player.name ||
         !integer(player.createdAt, 0, 8_640_000_000_000_000) || !integer(player.xp, 0, Number.MAX_SAFE_INTEGER) ||
         !Array.isArray(player.completedChampionships) || player.completedChampionships.length > 6 ||
         new Set(player.completedChampionships).size !== player.completedChampionships.length || player.completedChampionships.some(id => !championshipById(id)) ||
         !Array.isArray(player.seasons) || player.seasons.length > 4 || !player.stats) throw new Error('Profil sauvegardé invalide.');
-      ids.add(player.id); hashes.add(player.tokenHash);
+      if (player.tokenHash !== undefined && (typeof player.tokenHash !== 'string' || !/^[a-f0-9]{64}$/.test(player.tokenHash)) ||
+        player.sessionTokenHashes !== undefined && (!Array.isArray(player.sessionTokenHashes) || player.sessionTokenHashes.some(value => typeof value !== 'string' || !/^[a-f0-9]{64}$/.test(value))) ||
+        player.tokenHash === undefined && player.sessionTokenHashes === undefined)
+        throw new Error('Sessions sauvegardées invalides.');
+      const sessions = tokenHashes(player);
+      if (sessions.length > MAX_SESSIONS || sessions.some(session => hashes.has(session)) || new Set(sessions).size !== sessions.length)
+        throw new Error('Sessions sauvegardées invalides.');
+      sessions.forEach(session => hashes.add(session));
+      if (player.username !== undefined) {
+        if (username(player.username) !== player.username || !validPasswordHash(player.passwordHash) || usernames.has(usernameKey(player.username)))
+          throw new Error('Compte sauvegardé invalide.');
+        usernames.add(usernameKey(player.username));
+      } else if (player.passwordHash !== undefined) throw new Error('Compte sauvegardé invalide.');
+      ids.add(player.id);
       const stats = player.stats;
       if (![stats.races, stats.finishes, stats.wins, stats.podiums].every(count => integer(count, 0, Number.MAX_SAFE_INTEGER)) ||
         !Number.isFinite(stats.totalRaceTime) || stats.totalRaceTime < 0 || !stats.bestTimes || typeof stats.bestTimes !== 'object' ||
@@ -317,7 +401,7 @@ export class PlayerStore {
         !integer(ranked.races, 0, Number.MAX_SAFE_INTEGER) || !integer(ranked.wins, 0, ranked.races)) throw new Error('Saison sauvegardée invalide.');
     }
     for (const receipt of data.raceReceipts) if (!identifier(receipt.id) || !integer(receipt.at, 0, 8_640_000_000_000_000)) throw new Error('Reçu de course invalide.');
-    for (const replay of data.replays) if (!identifier(replay.id) || !isTrackId(replay.trackId) || !integer(replay.createdAt, 0, 8_640_000_000_000_000) ||
+    for (const replay of data.replays) if (!identifier(replay.id) || !isTrackId(replay.trackId) || !integer(replay.trackRevision ?? 1, 1, 1000) || !integer(replay.createdAt, 0, 8_640_000_000_000_000) ||
       !integer(replay.durationMs, 0, 360_000) || typeof replay.ranked !== 'boolean' || !integer(replay.eventLevel ?? 0, 0, 3) || !Array.isArray(replay.drivers) || replay.drivers.length > 8 ||
       replay.drivers.some(driver => !identifier(driver.playerId) || name(driver.name) !== driver.name || !integer(driver.rank, 1, 8) ||
         typeof driver.finished !== 'boolean' || !Number.isFinite(driver.finishTime) || driver.finishTime < 0 || driver.finishTime > 360)) throw new Error('Index des replays invalide.');

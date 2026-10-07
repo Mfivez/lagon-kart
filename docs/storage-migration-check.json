@@ -1,0 +1,17 @@
+{
+  "success": true,
+  "failure": "",
+  "checks": [
+    "Migration refusée pendant l’utilisation du volume source",
+    "Copie vérifiée de deux fichiers imbriqués, sans contenu privé dans les journaux",
+    "Seconde migration identique acceptée sans réécriture",
+    "Archive complète lisible : registre et replay restaurables à l’identique",
+    "Destination divergente préservée ; volume source original toujours présent",
+    "Vrai lien symbolique refusé sans toucher à sa destination",
+    "Alias de casse WSL Users/users et Desktop/desktop acceptés pour le même dossier",
+    "Source bind active et racine du projet refusées même sous un autre alias WSL"
+  ],
+  "userVolumeTouched": false,
+  "publicAppTouched": false,
+  "temporaryDataRemoved": true
+}

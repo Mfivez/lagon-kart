@@ -1,0 +1,121 @@
+{
+  "checkedAt": "2026-10-07T08:09:00.949231+00:00",
+  "origin": "https://exercises-inspections-playlist-char.trycloudflare.com",
+  "success": true,
+  "assets": [
+    {
+      "path": "/assets/index-wc3mK_Sw.js",
+      "size": 968825,
+      "sha256": "171f124510a5df8ade832656a96807ddf1143322436bddc581e16ce2b2092089",
+      "contentType": "text/javascript; charset=utf-8",
+      "identicalToLocal": true
+    },
+    {
+      "path": "/assets/index-DhaT9t6d.css",
+      "size": 41001,
+      "sha256": "aebde7133adf2bead2a7c1b011352a854c4707a404ac9fcb9889585db7c96ba4",
+      "contentType": "text/css; charset=utf-8",
+      "identicalToLocal": true
+    },
+    {
+      "path": "/models/kart-zsky-v1.glb",
+      "size": 94668,
+      "sha256": "c5bad88c4283d846f6a4bf3a02e97cc643897b149ed24334164127adf99ac29a",
+      "contentType": "model/gltf-binary",
+      "identicalToLocal": true
+    },
+    {
+      "path": "/models/kart-sprint-v1.glb",
+      "size": 137008,
+      "sha256": "ae00a183948de6dce359e0337c596747e1542700cdedb7da427abe41a8d28b73",
+      "contentType": "model/gltf-binary",
+      "identicalToLocal": true
+    },
+    {
+      "path": "/models/kart-retro-v1.glb",
+      "size": 96980,
+      "sha256": "3a2ae4e95943456c6107d3bf58559383a4187dda7639c3a6f1e0a764a6756195",
+      "contentType": "model/gltf-binary",
+      "identicalToLocal": true
+    },
+    {
+      "path": "/models/scenery/kenney-tree-v1.glb",
+      "size": 14480,
+      "sha256": "caed11c17aeb268c4351f1eb147e9a07ec79e29070e11ae18d7bc68c2e2c4570",
+      "contentType": "model/gltf-binary",
+      "identicalToLocal": true
+    },
+    {
+      "path": "/audio/lap-1-v1.mp3",
+      "size": 3916673,
+      "sha256": "7b91c112403a6d1eb66e7223f5bfceccb79733d7db52f7dfe940310199abb2db",
+      "contentType": "audio/mpeg",
+      "identicalToLocal": true
+    },
+    {
+      "path": "/audio/lap-2-v1.mp3",
+      "size": 2323191,
+      "sha256": "742a73ba3c5e8df000be50e6cac0523caddfe128368f90cc5f1ec9949f3cf1c3",
+      "contentType": "audio/mpeg",
+      "identicalToLocal": true
+    }
+  ],
+  "serverModules": [
+    {
+      "path": "shared/game.js",
+      "sha256": "813b86f8381e5d591d3d9a1b4cd2f5446dbdc524e825fb360d286afabf79c471",
+      "identicalToLocal": true
+    },
+    {
+      "path": "shared/track.js",
+      "sha256": "9ac3bbce4e00f4d7d45ee1f1eaed16fa359636ac658ff6a52e0356d7a49fa053",
+      "identicalToLocal": true
+    },
+    {
+      "path": "shared/track-loop.js",
+      "sha256": "419a84edc461aca0007d2dc4418d87a3608deb54b0c01831c843c1e2668cd780",
+      "identicalToLocal": true
+    },
+    {
+      "path": "shared/track-events.js",
+      "sha256": "171d78bce7b818f56418830be6831ce4333dd9f91fed53f46e9dde703fbbd056",
+      "identicalToLocal": true
+    },
+    {
+      "path": "shared/obstacle-heights.js",
+      "sha256": "f8abcc8affaada57981bdda5f58500dc26d2acb6253386cea4c7607c66e8da23",
+      "identicalToLocal": true
+    },
+    {
+      "path": "server/player-store.js",
+      "sha256": "92c9a72ecd7259230ff91b23038d0c3fb72265f9cb345cf9a76e3922fef5dcdc",
+      "identicalToLocal": true
+    },
+    {
+      "path": "server/competitive.js",
+      "sha256": "bc40b88c1ac59f8ca11fa66994aa23d82611da4e87ac075fbecdec11f4f387b8",
+      "identicalToLocal": true
+    }
+  ],
+  "imageId": "sha256:212f2dc4bd7001dc1b77192d92224858a75c2d48833c7fb33fcc8445edaca871",
+  "volumes": [
+    {
+      "Type": "volume",
+      "Name": "lagon-kart_player-data",
+      "Source": "/var/lib/docker/volumes/lagon-kart_player-data/_data",
+      "Destination": "/app/data",
+      "Driver": "local",
+      "Mode": "rw",
+      "RW": true,
+      "Propagation": ""
+    }
+  ],
+  "health": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  }
+}

@@ -1,8 +1,228 @@
 # Validation de Lagon Kart
 
-Vérifications effectuées le 6 octobre 2026 dans WSL/Linux avec Docker Desktop 4.55.0, Docker Engine 29.1.3, Compose 2.40.3, Node 20.19.2 sur l'hôte et Node 22.21.1 dans l'image. Les résultats ci-dessous distinguent simulation, clients réseau automatisés et navigateur.
+Vérifications des 6 et 7 octobre 2026 dans WSL/Linux avec Docker Desktop 4.55.0, Docker Engine 29.1.3, Compose 2.40.3, Node 20.19.2 sur l'hôte et Node 22.21.1 dans l'image. Les résultats ci-dessous distinguent simulation, clients réseau automatisés et navigateur ; chaque lot conserve ses preuves et sa date.
 
-## Lot à douze circuits : preuves ciblées et intégration
+## 7 octobre 2026 — bots, fermetures et rails des déviations
+
+**312/312 tests réussis**, sans échec, annulation ou test ignoré, en **107,337 s** :
+`node --import tsx --test --test-concurrency=4 tests/*.test.ts`.
+Journal : `/tmp/lagon-cpu-full-tests.log`. Les **29 nouveaux tests** couvrent
+234 scénarios conduits sur les douze circuits, plus les conditions de remise en
+piste : fermeture avec un CPU déjà engagé, voies extérieures, branches jusqu'au
+premier checkpoint après leur sortie, jonctions ouvertes, hauteur et saut,
+délai et verrou du reset. Les entrées CPU ne modifient pas les karts directement.
+
+La cause reproduite était un changement de waypoint vers une autre voie à
+travers son rail. Le pilote suit désormais la branche ouverte engagée, y adapte
+son anticipation et sa vitesse, ou continue sur la principale s'il a déjà
+dépassé le barrage. Un contact réel à faible vitesse peut demander le reset
+ordinaire ; les ouvertures et dégagements au-dessus des murs restent respectés.
+La physique, les checkpoints et les règles de progression restent identiques.
+
+Un diagnostic complémentaire de **360 placements** à deux niveaux d'événements
+et trois positions latérales passe de **34 échecs avant à 0 après**. Les fixtures
+définissent les positions et portes antérieures avant l'essai ; ensuite seules
+les commandes ordinaires du CPU déplacent le kart. Les courses complètes de la
+suite font arriver **96 CPU sur 96**, soit huit sur chacun des douze circuits,
+avec objets actifs et trois phases. [Méthode et résultats](docs/cpu-obstacles/simulation-validation.json).
+
+**Navigateur privé : 3/3 contrôles réussis** avec de vrais CPU de `RaceRoom`
+et un observateur Chromium. Le franchissement physique de la ligne par un
+pilote SDK déclenche la fermeture. Mangrove : deux portes gagnées en **2,63 s**,
+aucune remise en piste. Citadelle : deux portes en **7,40 s**, une remise en piste
+normale ; aucun arrêt prolongé. Durées de simulation. Les positions initiales
+sont des fixtures de secteur, pas des courses complètes. Quatre captures
+inspectées, aucune erreur JavaScript ni ressource manquante.
+[Protocole et captures](docs/cpu-obstacles/README.md) ·
+[Rapport navigateur](docs/cpu-obstacles/browser-validation.json).
+
+**Build et Docker réussis, correctif déployé sans salon actif**. Sept modules
+de l'image correspondent aux fichiers compilés locaux ; les vingt fichiers
+de sauvegarde restent identiques après recréation. Le tunnel n'a pas été recréé.
+Le client `index-Dk-_5CP3.js` reste identique : le correctif porte sur le pilotage
+serveur. [Empreintes et déploiement](docs/cpu-obstacles/deployment.json).
+
+**Course publique du correctif réussie** sur Mangrove : **8/8 arrivées**, dont
+**sept vrais CPU serveur** et un pilote SDK, trois tours et phases 0/1/2.
+Les sept CPU sont observés sur la déviation, **aucun reset observé**, durée
+maximale sans progression **0,667 s**. Contrôle complet en **78,65 s**, sans
+placement, checkpoint ou arrivée forcés ; 1 435 snapshots reçus. La progression
+du pilote est sauvegardée à partir de la course réelle. Aucune erreur serveur
+ou Colyseus, puis `/healthz` sain et **0 salon**. Ce contrôle réseau ne lance
+pas de navigateur ; le rendu est vérifié séparément ci-dessus.
+[Rapport public](docs/cpu-obstacles/public-race.json).
+
+## 7 octobre 2026 — comptes et sauvegardes sur la machine hôte
+
+**283/283 tests réussis**, sans échec, annulation ou test ignoré, en **81,856 s** :
+`node --import tsx --test --test-concurrency=4 tests/*.test.ts`.
+Les 17 nouveaux tests couvrent les comptes et l'API HTTP/Colyseus : inscription,
+unicité des identifiants, rattachement d'un invité, récupération de progression,
+sessions indépendantes, révocation, limites de tentatives et rejet de données
+forgées. Les profils historiques restent lisibles. Une première exécution de
+la suite s'est bloquée dans un processus Node sans socket serveur ; arrêt ciblé,
+test serveur isolé réussi puis relance complète à concurrence limitée. Aucun
+test métier n'a été supprimé ou assoupli. Journal final :
+`/tmp/lagon-accounts-full-tests-retry.log`.
+
+**Compilation complète et image Docker réussies**, client `index-Dk-_5CP3.js`,
+styles `index-BxI9vH7J.css`. La première compilation hôte a rencontré une erreur
+de répertoire courant WSL (`uv_cwd`) ; la relance depuis le dossier explicite a
+réussi. Aucune dépendance ajoutée, coût **0 €**.
+
+**9/9 contrôles navigateur privés réussis**, deux contextes Chromium indépendants,
+dont un écran tactile émulé **320 × 568** : inscription depuis un invité, mêmes
+ID/XP/coupe récupérés, erreurs visibles, nom restauré après actualisation,
+salon Colyseus authentifié et déconnexion limitée à la session courante.
+Les **195 XP et la coupe sont une fixture dans un stockage temporaire**,
+pas une nouvelle course jouée. Aucun mot de passe dans les stockages navigateur,
+aucune erreur JavaScript ni ressource manquante.
+[Rapport](docs/accounts/browser-validation.json) ·
+[Formulaire mobile](docs/accounts/register-mobile-320x568.png) ·
+[Compte récupéré](docs/accounts/recovered-mobile-320x568.png).
+
+**4/4 contrôles Docker de persistance réussis** : création du compte par HTTP,
+résultat/replay de fixture enregistré serveur arrêté, `compose down -v`, nouveau
+nom de projet, puis connexion sans ancien jeton. ID, profil, **45 XP**, statistiques
+et replay restent identiques ; session révoquée après déconnexion. L'image exacte
+et le nettoyage des ressources temporaires figurent dans le
+[rapport](docs/accounts-persistence.json). **8/8 contrôles de migration réussis** :
+copie SHA-256, réexécution identique, archive restaurable, refus des sources actives,
+des écrasements, des vrais liens symboliques et des chemins non dédiés ; alias
+Windows/WSL acceptés. [Rapport](docs/storage-migration-check.json).
+
+**Migration de l'instance de démo effectuée sans salon actif** : 21 profils,
+20 fichiers et 432 207 octets copiés depuis `lagon-kart_player-data`, avec
+comparaison SHA-256 et conservation du volume original. Une archive locale
+est créée dans `backups/`. Le jeu tourne comme utilisateur `node` avec le
+dossier hôte `data/` monté dans `/app/data`. **`npm run data:reset` exécuté** :
+les 20 fichiers restent strictement identiques après reconstruction et recréation,
+le tunnel reste actif et `/healthz` est sain. JS/CSS publics et quatre modules
+serveur correspondent aux fichiers compilés locaux. [Déploiement, image et
+empreintes](docs/accounts/deployment.json).
+
+**4/4 contrôles navigateur publics réussis** sur le même bundle, via HTTPS et
+le tunnel : inscription avec l'Origin réel du navigateur, connexion depuis un
+second contexte mobile vierge, même pilote dans un vrai salon Colyseus, sortie
+et déconnexion. Aucune erreur JavaScript ni ressource manquante ; `/healthz`
+renvoie ensuite `ok` et **0 salon**. Un compte de test vide reste enregistré,
+sans XP fictifs ajoutés aux données de la classe.
+[Rapport public](docs/accounts/public-validation.json).
+
+Les essais utilisent des navigateurs indépendants sur cette machine. Aucun
+essai de comptes sur deux ordinateurs physiques ni de saisie avec un clavier
+mobile réel n'est revendiqué. Les règles de course sont couvertes par la suite ;
+les courses complètes du lot mobile ci-dessous restent des preuves historiques.
+[Mode d'emploi, migration et archives](docs/ACCOUNTS_STORAGE.md).
+
+## 7 octobre 2026 — commandes mobiles, tracés et décors
+
+**Course publique du build mobile réussie** sur [le tunnel de cette session](https://exercises-inspections-playlist-char.trycloudflare.com),
+en **143,537 s pour le contrôle complet**. Quatre pilotes SDK authentifiés ont
+terminé trois tours de l’Archipel céleste en envoyant uniquement les commandes
+ordinaires, sans placement artificiel ni arrivée forcée. Les quatre ont sauté
+et sont passés inversés dans le looping (altitude maximale proche de 32 m).
+Les phases 0/1/2 et le même classement final sont observés sur les **six
+connexions** : quatre pilotes et deux contextes Chromium indépendants,
+desktop et mobile émulé 390 × 844.
+
+Trois modèles, quatre personnages, chargements GLB uniques par page, MP3 Lap 1
+puis Lap 2 et arrêt à l’arrivée ont été contrôlés. Les statistiques des quatre
+profils sont enregistrées et leur replay commun porte la **révision 2**, avec
+**603 images enregistrées par pilote**. Aucune erreur JavaScript ni ressource
+manquante n’a été détectée. [Rapport public](docs/mobile-scenes-public-race.json) ·
+[tour 1](docs/mobile-scenes-public-tour-1.png) · [tour 3](docs/mobile-scenes-public-tour-3.png) ·
+[résultats](docs/mobile-scenes-public-resultats.png).
+
+Les observateurs utilisent SwiftShader sur un seul hôte : **2,25 et 2,65 FPS**
+relevés en fin de contrôle. Cette mesure ne valide pas la fluidité sur GPU,
+une conduite humaine tactile ni une partie sur deux ordinateurs physiques.
+
+**Suite complète : 266/266 tests réussis**, sans échec, annulation ou test ignoré,
+en **63,21 s** (`/tmp/lagon-mobile-scenes-tests-final.log`). Les nouveaux cas
+portent sur les commandes tactiles, les loopings, le dégagement des décors et
+la compatibilité des replays. Les régressions des tours, branches, huit objets,
+équipes, sauts, murs finis, progression et courses à huit pilotes restent dans
+cette suite. Une fixture CPU Néon contenant d’anciennes coordonnées a été
+adaptée au tracé courant ; ni les assertions métier ni la conduite CPU n’ont
+été affaiblies.
+
+**Compilation et Docker réussis** : TypeScript, Vite et compilation du serveur,
+client `index-wc3mK_Sw.js`, styles `index-DhaT9t6d.css`. Le conteneur a été
+recréé en l’absence de salons, avec le volume `lagon-kart_player-data` conservé.
+Les changements tardifs portent sur le rendu : maillage des loopings, caméra,
+étiquettes et précision de profondeur des panoramas. Ils sont vérifiés dans
+le navigateur ; ils ne changent pas les règles couvertes par la suite complète.
+
+Les douze pistes ont de nouveaux tracés et décors. Sky et Foundry possèdent des
+loopings magnétiques de 32 et 27 m : serveur, client, collisions et objets
+partagent la même pose 3D. Les 36 branches, ponts, tremplins et tours ordonnés
+sont conservés. Les replays historiques restent lisibles sans fond de circuit
+incompatible ; seuls les enregistrements de révision 2 peuvent devenir les
+fantômes de ces pistes. [Contrat et tests](docs/LOOPINGS.md).
+
+La comparaison des commandes de Mario Kart Tour et Asphalt est sourcée dans
+[MOBILE_CONTROLS.md](docs/MOBILE_CONTROLS.md). Les essais Chromium couvrent
+320 × 568, 360 × 640, 390 × 844, 568 × 320 et 667 × 375, le multitouch réel via
+CDP, direction/drift/objet simultanés, frein prioritaire, pédale manuelle,
+interruptions et changement d’orientation. Une fixture attribue un triple
+turbo pour mesurer une charge par pression ; l’objet est ensuite utilisé par
+le geste ordinaire. Une perte de focus est déclenchée par événement synthétique.
+[Rapport des commandes et captures](docs/mobile-controls/validation.json).
+
+La dernière exécution sur `index-wc3mK_Sw.js` a réussi **15/15 contrôles** :
+les treize commandes/états précédents et deux fixtures de visibilité ciblées,
+en 390 × 844 et 320 × 568. Le kart est posé près d’une pancarte puis la scène
+est suspendue pour vérifier que son fondu dégage la vue ; sa projection reste
+hors du compteur avec 12 px de marge. Ces deux fixtures démontrent la
+présentation, pas une course conduite. [Pancarte et kart](docs/mobile-controls/after-near-sign-390x844.png),
+[cadrage 320 px](docs/mobile-controls/after-hud-clearance-320x568.png).
+
+**Déploiement vérifié :** huit assets publics (JS, CSS, trois karts, arbre et
+deux MP3) et sept modules du serveur ont des SHA-256 identiques aux fichiers
+compilés locaux. Image `sha256:212f2dc4bd7001dc1b77192d92224858a75c2d48833c7fb33fcc8445edaca871`,
+volume conservé, service sain. [Empreintes et montage du volume](docs/mobile-scenes-public-assets.json).
+URL de cette session : [démo publique](https://exercises-inspections-playlist-char.trycloudflare.com).
+
+Les décors utilisent des formes originales regroupées par matériau et un
+arbre **Kenney CC0** de 14 480 octets, chargé une fois depuis la même origine.
+Source, licence et inspection sont conservées dans le dépôt. **0 €**, aucune
+API payante ou dépendance npm ajoutée. Les 13 tests de décors contrôlent les
+voies principales et futures branches, leurs bords et trois mètres de marge,
+ainsi que le corridor réel des loopings. [Décors et sources](docs/SCENERY.md).
+
+La validation visuelle a révélé des défauts absents des assertions de position :
+route masquant le kart au sommet, surfaces superposées, étiquette trop grande,
+brouillard trop proche et panoramas tronqués. Les essais initiaux sont conservés
+en **échec visuel** dans [le diagnostic](docs/scenes-v2/diagnostic-initial/validation.json).
+La version corrigée utilise une grille commune sur les loopings, une poursuite
+rapprochée suivant le kart, une garde de caméra côté chaussée et un plan proche
+adapté à la distance dans les panoramas. [Captures, mesures et revue finale](docs/scenes-v2/README.md).
+
+**Revue visuelle terminée :** douze panoramas sur le build final, avec
+**14/14 contrôles Chromium** et inspection des images. Les stries restantes des
+branches sont corrigées par des bordures disjointes et une grille commune ;
+Port, Fonderie et Citadelle ont été relus spécifiquement. [Rapport final des panoramas](docs/scenes-v2/branches-final/validation.json).
+Les **douze vues de loopings** (montée, sommet, descente, fraction 0,82 et sommets
+en deux formats mobiles, pour Sky et Foundry) ont été inspectées sur
+`index-Dh7OcoeP.js` ; leur maillage, pose et poursuite restent inchangés dans le
+build livré. Une position initiale au sol avant l’entrée et des pauses aux
+fractions réellement atteintes servent au cadrage. L’altitude et l’inversion
+viennent des commandes ordinaires ; la sortie se fait au sol. Le rapport
+intermédiaire reste globalement en échec à cause de ses anciennes branches,
+avec la revue des loopings validée séparément ; les nouveaux panoramas ont
+leur propre rapport pour ne pas mélanger les versions.
+
+**Limites :** émulation Chromium/SwiftShader sur un seul ordinateur. Elle ne
+prouve ni le confort des pouces ni les performances GPU sur Android/iPhone,
+Safari iOS, les interruptions d’un véritable OS mobile, l’audio après
+verrouillage ou une partie humaine sur deux machines et réseaux distincts.
+Ces essais restent identifiés dans [todo.md](todo.md).
+
+## Historique du 6 octobre — lot à douze circuits
+
+Les résultats, URL et empreintes de cette section décrivent le lot précédent.
+Ils ne sont pas présentés comme des essais rejoués sur les nouveaux tracés.
 
 Le code comprend douze circuits, des branches larges et raccourcis réellement
 plus courts, des ponts et des sauts, trois modèles de kart en huit peintures,

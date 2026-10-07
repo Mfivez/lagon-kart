@@ -7,6 +7,8 @@ export class CareerUI {
   private token = localStorage.getItem('lagon-player-token') ?? '';
   private profile?: PlayerProfile;
   private pending?: Promise<PlayerProfile>;
+  private restorePending?: Promise<PlayerProfile | undefined>;
+  private restored = false;
   private readonly dialog = document.createElement('dialog');
   private timer?: ReturnType<typeof setTimeout>;
   private generation = 0;
@@ -30,32 +32,64 @@ export class CareerUI {
     });
   }
   get authToken() { return this.token; }
+  get currentProfile() { return this.profile; }
   private async request<T>(path: string, method = 'GET', body?: unknown): Promise<T> {
     const response = await fetch(path, { method, headers: { ...(this.token ? { Authorization: `Bearer ${this.token}` } : {}), ...(body ? { 'Content-Type': 'application/json' } : {}) }, body: body ? JSON.stringify(body) : undefined });
     const result = await response.json();
     if (!response.ok) throw Object.assign(new Error(result.error ?? 'Service indisponible.'), { status: response.status });
     return result as T;
   }
-  async ensure(name: string): Promise<PlayerProfile> {
+  async restore(): Promise<PlayerProfile | undefined> {
+    if (this.restored) return this.profile;
+    if (this.restorePending) return this.restorePending;
+    this.restorePending = (async () => {
+      if (this.token) {
+        try { this.profile = (await this.request<{ profile: PlayerProfile }>('/api/me')).profile; this.actions.profile(this.profile); }
+        catch (error) {
+          if ((error as { status?: number }).status !== 401) throw error;
+          this.token = ''; this.profile = undefined; localStorage.removeItem('lagon-player-token');
+        }
+      }
+      this.restored = true; return this.profile;
+    })();
+    try { return await this.restorePending; } finally { this.restorePending = undefined; }
+  }
+  async ensure(name: string, rename = false): Promise<PlayerProfile> {
     if (this.pending) return this.pending;
     this.pending = (async () => {
-      if (this.token) {
-        try { this.profile = (await this.request<{ profile: PlayerProfile }>('/api/me')).profile; }
-        catch (error) { if ((error as { status?: number }).status !== 401) throw error; this.token = ''; localStorage.removeItem('lagon-player-token'); }
-      }
+      await this.restore();
       if (!this.token) {
         const created = await this.request<{ token: string; profile: PlayerProfile }>('/api/profile', 'POST', { name });
         this.token = created.token; this.profile = created.profile; localStorage.setItem('lagon-player-token', this.token);
       }
-      if (this.profile!.name !== name) this.profile = (await this.request<{ profile: PlayerProfile }>('/api/me', 'PATCH', { name })).profile;
+      // An account restored on another device owns its saved display name.
+      // Only an explicit edit may replace it with the local input value.
+      if (this.profile!.name !== name && (!this.profile!.username || rename)) this.profile = (await this.request<{ profile: PlayerProfile }>('/api/me', 'PATCH', { name })).profile;
       this.actions.profile(this.profile!); return this.profile!;
     })();
     try { return await this.pending; } finally { this.pending = undefined; }
   }
+  private async prepareIdentityChange() {
+    await this.restore(); if (this.pending) await this.pending;
+    if (this.waiting) await this.cancelQueue();
+    ++this.generation; clearTimeout(this.timer); this.waiting = false; this.status = '';
+    this.dialog.close(); this.leaderboard = []; this.replays = [];
+  }
+  async account(mode: 'register' | 'login', username: string, password: string): Promise<PlayerProfile> {
+    await this.prepareIdentityChange();
+    const result = await this.request<{ token: string; profile: PlayerProfile }>(`/api/account/${mode}`, 'POST', { username, password });
+    this.token = result.token; this.profile = result.profile; this.restored = true;
+    localStorage.setItem('lagon-player-token', this.token); this.actions.profile(result.profile); return result.profile;
+  }
+  async logout(): Promise<void> {
+    await this.prepareIdentityChange();
+    if (this.token) await this.request('/api/account/logout', 'POST');
+    this.token = ''; this.profile = undefined; this.restored = true; localStorage.removeItem('lagon-player-token');
+  }
   async refresh() { if (this.token) { this.profile = (await this.request<{ profile: PlayerProfile }>('/api/me')).profile; this.actions.profile(this.profile); } }
-  async open(name: string) {
+  async open(name: string, rename = false) {
     try {
-      await this.ensure(name);
+      await this.ensure(name, rename);
       const [board, recordings] = await Promise.all([this.request<{ entries: LeaderboardEntry[] }>('/api/leaderboard'), this.request<{ replays: ReplaySummary[] }>('/api/replays')]);
       this.leaderboard = board.entries; this.replays = recordings.replays; this.render(); this.dialog.showModal();
     } catch (error) { this.actions.error(error instanceof Error ? error.message : String(error)); }
@@ -82,7 +116,7 @@ export class CareerUI {
     const profile = this.profile;
     if (!profile) return;
     this.dialog.innerHTML = `<div class="garage-heading"><div><small>VOTRE PROGRESSION · NIVEAU ${profile.careerLevel}</small><h2>À vous les coupes</h2></div><button id="career-close" class="secondary">Fermer ✕</button></div>
-      <p class="garage-hint">${escape(profile.name)} · ${profile.stats.races} courses · ${profile.stats.wins} victoires · ${profile.xp} XP. Terminez toutes les manches d’une coupe sur le podium final pour débloquer la suite. Votre progression est sauvegardée sur ce serveur et retrouvée avec ce navigateur.</p>
+      <p class="garage-hint">${escape(profile.name)} · ${profile.stats.races} courses · ${profile.stats.wins} victoires · ${profile.xp} XP. Terminez toutes les manches d’une coupe sur le podium final pour débloquer la suite. ${profile.username ? `Progression sauvegardée sur le compte ${escape(profile.username)} : connectez-vous pour la retrouver sur un autre appareil.` : 'Pilote invité : créez un compte à l’accueil pour retrouver votre progression sur un autre appareil.'}</p>
       <div class="career-cups">${CHAMPIONSHIPS.map(cup => { const locked = cup.unlockLevel > profile.careerLevel, done = profile.completedChampionships.includes(cup.id); return `<button class="career-cup" data-cup="${cup.id}" ${locked || this.waiting ? 'disabled' : ''}><strong>${done ? '✓ ' : locked ? '🔒 ' : ''}${cup.name}</strong><span>${cup.description}</span><small>${cup.tracks.length} courses · niveau ${cup.unlockLevel} · ${cup.introduction.join(' / ')}</small></button>`; }).join('')}</div>
       <h3>Course classée · ${profile.season}</h3><p class="garage-hint">${profile.rank} · ${profile.mmr} MMR · ${profile.ranked.races} courses classées. Bronze → Silver → Gold → Platinum → Diamond → Master. Deux courses par rencontre, avec des pilotes proches de votre classement. Les saisons changent chaque trimestre.</p>
       <button id="${this.waiting ? 'ranked-cancel' : 'ranked-join'}" class="primary wide">${this.waiting ? 'Annuler la recherche' : 'Trouver une rencontre classée'}</button><p class="garage-hint" role="status">${escape(this.status)}</p>

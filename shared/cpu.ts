@@ -1,7 +1,7 @@
 import type { Input } from './game.js';
-import { autopilot, type AutopilotDriver } from './autopilot.js';
+import { autopilot, drivingRoute, type AutopilotDriver } from './autopilot.js';
 import { getTrack } from './track.js';
-import { eventRoutePoint, getTrackEvent, nearestDriveableTrack } from './track-events.js';
+import { getTrackEvent, nearestDriveableTrack } from './track-events.js';
 import { getKartStats, type KartBuild } from './garage.js';
 import { cpuRole, type CpuRole, type TeamId } from './teams.js';
 
@@ -25,7 +25,7 @@ export function getCpuInput(kart: CpuKart, seq: number, world: CpuWorld = {}, di
   const driving = autopilot({ ...kart, eventStage: stage, eventLevel: level }, seq);
   const track = getTrack(kart.trackId), stats = getKartStats(kart.build);
   const near = nearestDriveableTrack(kart.x, kart.z, track.id, stage, level);
-  const ahead = eventRoutePoint(near.progress + 24, track.id, stage, level);
+  const ahead = drivingRoute(kart, near, stage, level).point(near.progress + 24);
   const curvature = Math.abs(angleDifference(ahead.angle, near.angle)) / 24;
   const onBranch = near.branchId !== '';
   const event = getTrackEvent(track.id, stage, level);

@@ -6,11 +6,13 @@ import { GameRenderer } from './renderer';
 import { GameAudio } from './audio';
 import { GarageUI } from './garage-ui';
 import { CareerUI } from './career-ui';
+import { AccountUI } from './account-ui';
 import { showReplay } from './replay-view';
 import { getTrackEvent } from '../shared/track-events';
 import { CHARACTERS } from '../shared/characters';
-import type { GhostData } from '../shared/progression';
+import type { GhostData, PlayerProfile } from '../shared/progression';
 import { KART_MODELS } from '../shared/kart-catalog';
+import { MobileControls, mobileControlsMarkup } from './mobile-controls';
 import './style.css';
 
 const escape = (value: string) => value.replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]!);
@@ -47,6 +49,7 @@ el('app').innerHTML = `
         <label class="field-label" for="name-input">Pseudo</label>
         <div class="name-field"><span>◉</span><input id="name-input" maxlength="18" autocomplete="nickname" placeholder="Votre nom de pilote" value="${escape(chosenName)}" aria-label="Pseudo" /></div>
         <div class="color-row"><span>Couleur du kart</span><div class="swatches" id="swatches">${COLORS.map((color, i) => `<button class="swatch ${color === chosenColor ? 'selected' : ''}" style="--swatch:${color}" data-color="${color}" aria-label="Couleur ${i + 1}" aria-pressed="${color === chosenColor}"></button>`).join('')}</div></div>
+        <div id="account-card" class="account-card" aria-label="Sauvegarde du pilote"></div>
       </div>
       <button id="career-button" class="secondary wide">Championnats, classement et replays <span>♜</span></button>
       <button id="garage-button" class="secondary wide">Choisir mon kart et ses pièces <span>⚙</span></button>
@@ -67,7 +70,7 @@ el('app').innerHTML = `
   <footer class="bottom-bar"><div class="controls"><span><kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd> <b>/ ZQSD / WASD</b></span><span><kbd>ESPACE</kbd> Drift</span><span><kbd>E</kbd> Objet</span><span><kbd>R</kbd> Replacer</span><span class="brake-help"><kbd>↓</kbd> Frein / recul</span></div><a class="credits-link" href="/credits.html" target="_blank" rel="noopener">Crédits</a><label class="volume" for="volume-input"><span aria-hidden="true">♫</span><input id="volume-input" type="range" min="0" max="100" value="${audio.level}" aria-label="Volume du jeu" /></label></footer>
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
   <div class="reconnect hidden" id="reconnect"><i></i><strong>On vous garde votre place.</strong><span>Connexion interrompue · tentative de reprise…</span></div>
-  <div class="touch-controls hidden" id="touch-controls"><div><button data-key="ArrowLeft" aria-label="Gauche">←</button><button data-key="ArrowRight" aria-label="Droite">→</button></div><div><button data-key="Space" aria-label="Drift">DRIFT</button><button data-key="KeyE" aria-label="Objet">E</button><button data-key="ArrowUp" aria-label="Accélérer">↑</button><button data-key="ArrowDown" aria-label="Freiner">↓</button></div></div>
+  ${mobileControlsMarkup}
 `;
 
 let renderer: GameRenderer;
@@ -83,6 +86,8 @@ let sequence = 0;
 let epoch = -1;
 let connected = false;
 let busy = false;
+let nameEdited = false;
+let accounts: AccountUI;
 let leaving = false;
 let reconnecting = false;
 let connectionGeneration = 0;
@@ -98,6 +103,7 @@ let accumulator = 0;
 const keys = new Set<string>();
 let usePressed = false;
 let resetPressed = false;
+const mobileControls = new MobileControls(() => audio.activate());
 type Snapshot = { world: World; serverTime: number; tick: number; simHz: number };
 const snapshots: { at: number; world: World }[] = [];
 let serverClockOffset = 0;
@@ -107,16 +113,37 @@ const garage = new GarageUI(choice => {
 });
 renderer.setPreviewKart(chosenColor, garage.value.modelId, garage.value.characterId);
 const career = new CareerUI({
-  profile: saved => garage.setLevel(saved.careerLevel), error: toast, replay: showReplay,
+  profile: saved => { garage.setLevel(saved.careerLevel); accounts?.update(saved); if (saved.username && !nameEdited) setSavedName(saved.name); }, error: toast, replay: showReplay,
   championship: async id => {
     if (busy || room) return;
     audio.activate(); setBusy(true);
-    try { await career.ensure(profile().name); const next = await client.create('race', { ...profile(), token: career.authToken, practice: true, trackId: chosenTrack }); attachRoom(next); next.send('configure', { championshipId: id }); }
+    try { await ensureCareer(); const next = await client.create('race', { ...profile(), token: career.authToken, practice: true, trackId: chosenTrack }); attachRoom(next); next.send('configure', { championshipId: id }); }
     finally { setBusy(false); }
   },
   ranked: async id => { if (busy || room) return; audio.activate(); setBusy(true); try { attachRoom(await client.joinById(id, { ...profile(), token: career.authToken })); } finally { setBusy(false); } },
 });
+accounts = new AccountUI(career, el('account-card'), {
+  allowed: () => {
+    if (room || reconnecting) { toast('Quittez le salon avant de changer de compte.'); return false; }
+    return !busy;
+  }, busy: setBusy, prepareGuest: ensureCareer, error: toast,
+  changed: saved => {
+    // A different account must never resume the previous pilot's room seat.
+    ++connectionGeneration; sessionStorage.removeItem('lagon-session'); resetPrediction(); renderer.setGhost(null);
+    nameEdited = false; setSavedName(saved?.name ?? ''); garage.setLevel(saved?.careerLevel ?? 0);
+    toast(saved ? `Compte ${saved.username} connecté. Votre progression est sauvegardée.` : 'Vous êtes déconnecté. Votre progression reste sauvegardée sur votre compte.');
+  },
+});
+void career.restore().catch(error => toast(errorMessage(error)));
 const tournamentControls = new TournamentControls((type, payload) => room?.send(type, payload));
+
+function setSavedName(name: string) {
+  chosenName = name; el<HTMLInputElement>('name-input').value = name; localStorage.setItem('lagon-name', name);
+}
+async function ensureCareer(): Promise<PlayerProfile> {
+  const saved = await career.ensure(profile().name, nameEdited);
+  nameEdited = false; setSavedName(saved.name); return saved;
+}
 
 function previewTrack(id: string) {
   const track = getTrack(id);
@@ -149,7 +176,7 @@ function profile() {
   localStorage.setItem('lagon-name', chosenName); localStorage.setItem('lagon-color', chosenColor);
   return { name: chosenName, color: chosenColor, ...garage.value };
 }
-function clearControls() { keys.clear(); usePressed = false; resetPressed = false; }
+function clearControls() { keys.clear(); usePressed = false; resetPressed = false; mobileControls.clear(); }
 function resetPrediction() { pending = []; predicted = null; snapshots.length = 0; accumulator = 0; correction = { x: 0, z: 0 }; epoch = -1; sequence = 0; clearControls(); }
 function saveSession() {
   if (room) sessionStorage.setItem('lagon-session', JSON.stringify({ token: room.reconnectionToken, roomId: room.roomId }));
@@ -222,7 +249,7 @@ async function connect(mode: 'create' | 'join' | 'practice') {
   if (busy) return;
   audio.activate(); setBusy(true); connection('Connexion…', 'pending');
   try {
-    await career.ensure(profile().name);
+    await ensureCareer();
     const options = { ...profile(), token: career.authToken }; autoPractice = mode === 'practice';
     const code = el<HTMLInputElement>('code-input').value.trim().replace(/^.*\/room\//, '').replace(/[/?#].*$/, '').toUpperCase();
     if (mode === 'join' && !code) throw new Error('Saisissez le code du salon partagé par vos amis.');
@@ -265,8 +292,9 @@ function returnHome() {
   history.replaceState(null, '', '/'); updateUI(performance.now(), true);
 }
 
-el('garage-button').addEventListener('click', () => { if (!busy) void career.ensure(profile().name).then(() => garage.open()).catch(error => toast(error.message)); });
-el('career-button').addEventListener('click', () => { if (!busy) void career.open(profile().name); });
+el('name-input').addEventListener('input', () => { nameEdited = true; });
+el('garage-button').addEventListener('click', () => { if (!busy) void ensureCareer().then(() => garage.open()).catch(error => toast(error.message)); });
+el('career-button').addEventListener('click', () => { if (!busy) void ensureCareer().then(saved => career.open(saved.name)).catch(error => toast(error.message)); });
 el('lobby-garage-button').addEventListener('click', () => { if (connected && world?.phase === 'lobby') garage.open(); });
 el('create-button').addEventListener('click', () => void connect('create'));
 el('join-button').addEventListener('click', () => void connect('join'));
@@ -304,24 +332,21 @@ window.addEventListener('keydown', event => {
   if (driveKeys.has(event.code) && world && world.phase !== 'lobby') { event.preventDefault(); press(event.code); audio.activate(); }
 });
 window.addEventListener('keyup', event => keys.delete(event.code));
-window.addEventListener('blur', () => { clearControls(); if (connected && room && predicted) room.send('input', neutralInput(sequence++, epoch)); });
-document.addEventListener('visibilitychange', () => { if (document.hidden) clearControls(); });
-for (const button of document.querySelectorAll<HTMLButtonElement>('[data-key]')) {
-  button.addEventListener('pointerdown', event => { event.preventDefault(); button.setPointerCapture(event.pointerId); press(button.dataset.key!); audio.activate(); });
-  for (const name of ['pointerup', 'pointercancel', 'lostpointercapture']) button.addEventListener(name, () => keys.delete(button.dataset.key!));
-}
+window.addEventListener('blur', () => { clearControls(); mobileControls.clear(true); if (connected && room && predicted) room.send('input', neutralInput(sequence++, epoch)); });
+document.addEventListener('visibilitychange', () => { if (document.hidden) { clearControls(); mobileControls.clear(true); } });
 
 function makeInput(): Input {
   const input = neutralInput(sequence++, epoch);
   if (!world || !['racing', 'countdown'].includes(world.phase) || !predicted || predicted.finished || predicted.spectator || document.hidden) return input;
-  const forward = ['ArrowUp', 'KeyW', 'KeyZ'].some(key => keys.has(key));
-  const backward = ['ArrowDown', 'KeyS'].some(key => keys.has(key));
+  const touch = mobileControls.sample(world.phase === 'racing');
+  const backward = ['ArrowDown', 'KeyS'].some(key => keys.has(key)) || touch.backward;
+  const forward = !backward && (['ArrowUp', 'KeyW', 'KeyZ'].some(key => keys.has(key)) || touch.forward);
   if (world.phase === 'countdown') { input.throttle = forward ? 1 : 0; input.brake = backward; return input; }
   input.throttle = forward ? 1 : backward && predicted.speed < 0.8 ? -1 : 0;
   input.brake = backward && predicted.speed >= 0.8;
   // A kart faces +Z: positive Y rotation turns left in the chase-camera frame.
-  input.steer = Number(keys.has('ArrowLeft') || keys.has('KeyA') || keys.has('KeyQ')) - Number(keys.has('ArrowRight') || keys.has('KeyD'));
-  input.drift = keys.has('Space'); input.use = usePressed; input.reset = resetPressed;
+  input.steer = Math.max(-1, Math.min(1, touch.steer + Number(keys.has('ArrowLeft') || keys.has('KeyA') || keys.has('KeyQ')) - Number(keys.has('ArrowRight') || keys.has('KeyD'))));
+  input.drift = keys.has('Space') || touch.drift; input.use = usePressed || touch.use; input.reset = resetPressed || touch.reset;
   usePressed = false; resetPressed = false;
   return input;
 }
@@ -351,9 +376,10 @@ function updateUI(now: number, force = false) {
   show('menu', !racing); show('home-panel', phase === 'home'); show('island-card', phase === 'home');
   show('home-circuit-picker', phase === 'home');
   show('lobby-panel', phase === 'lobby'); show('results-panel', phase === 'finished'); show('race-hud', racing);
-  show('screen-wash', !racing); show('touch-controls', racing && matchMedia('(pointer: coarse)').matches);
+  show('screen-wash', !racing);
   document.body.classList.toggle('in-race', racing);
   const me = world?.players.find(p => p.id === room?.sessionId);
+  mobileControls.setDriving(racing && connected && !!me && !me.spectator && !me.finished);
   const players = [...(world?.players ?? [])].sort((a, b) => a.rank - b.rank);
   const competitors = players.filter(p => !p.spectator);
   const tracked = me?.spectator ? world?.players.find(p => !p.spectator && !p.abandoned) : me;
@@ -409,6 +435,7 @@ function updateUI(now: number, force = false) {
       el('race-time').textContent = formatTime(world.raceTime);
       el('speed').textContent = String(Math.round(Math.abs(speed) * 3.6));
       const item = me?.item ?? '';
+      mobileControls.setItem(itemIcons[item], itemNames[item], itemColors[item], !!item);
       el('item-icon').textContent = itemIcons[item]; el('item-icon').style.color = itemColors[item];
       el('item-name').textContent = itemNames[item] + (item === 'tripleTurbo' ? ` · ${me?.itemCharges ?? 3}/3` : '');
       el('item-hint').textContent = item ? `E · ${itemHints[item]}` : itemHints[''];
@@ -426,7 +453,7 @@ function updateUI(now: number, force = false) {
   }
   const count = world?.phase === 'countdown' ? Math.max(1, Math.ceil(world.countdown)) : world?.phase === 'racing' && world.raceTime < 0.8 ? 0 : -1;
   show('countdown', count >= 0); if (count >= 0) el('countdown').textContent = count === 0 ? 'GO !' : String(count);
-  const launchHint = world?.phase === 'countdown' ? me?.launchFault ? 'Trop tôt ! Vous prendrez un départ normal.' : world.countdown <= 1 ? 'MAINTENANT ! Maintenez l’accélérateur pour le départ turbo.' : 'Départ turbo : attendez la dernière seconde pour accélérer.' : '';
+  const launchHint = world?.phase === 'countdown' ? me?.launchFault ? 'Trop tôt ! Vous prendrez un départ normal.' : world.countdown <= 1 ? 'MAINTENANT ! Maintenez l’accélérateur pour le départ turbo.' : mobileControls.available ? 'AUTO démarre au GO · Pour un turbo, touchez ↑ à 1.' : 'Départ turbo : attendez la dernière seconde pour accélérer.' : '';
   const banner = me?.spectator && racing ? 'Vous arrivez en cours de route · À vous la prochaine course !' : me?.finished && racing ? `Arrivée ! ${me.rank}${me.rank === 1 ? 'er' : 'e'} · Les autres pilotes terminent…` : launchHint;
   show('race-banner', !!banner); el('race-banner').textContent = banner;
   audio.update(predicted?.speed ?? 0, connected && phase === 'racing' && !me?.finished && !me?.spectator, me?.item ?? '', (predicted?.boost ?? 0) > 0, count, world?.trackId, connected && phase === 'racing', tracked?.lap ?? 0);
@@ -532,6 +559,8 @@ Object.defineProperty(window, '__lagonDebug', { value: Object.freeze({
   get predicted() { return predicted ? structuredClone(predicted) : null; },
   get fps() { return renderer.fps; },
   get quality() { return renderer.quality; },
+  get view() { return structuredClone(renderer.viewDiagnostics); },
+  get sceneryAssets() { return structuredClone(renderer.sceneryAssets); },
   get kartAssets() { return structuredClone(renderer.kartAssets); },
   get music() { return structuredClone(audio.musicStatus); },
   get connected() { return connected; },

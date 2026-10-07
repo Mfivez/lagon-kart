@@ -29,6 +29,18 @@ Leur conduite réutilise `autopilot` et le guidage partagé des routes évolutiv
 Ils anticipent le barrage, ralentissent et suivent la déviation disponible ; leur
 progression dépend toujours des vraies portes du circuit.
 
+Quand une fermeture apparaît, un CPU déjà au-delà du barrage termine la section
+sur la route principale. Celui engagé sur une déviation, une voie turbo ou un
+raccourci ouvert suit cette voie jusqu'à sa sortie ; son anticipation et sa
+vitesse prennent en compte les virages de cette même voie. Il ne cherche plus
+à rejoindre latéralement une autre route à travers ses rails.
+
+Un CPU presque arrêté contre un rail fermé ou des débris peut demander la même
+remise en piste qu'un humain, avec le même délai et le même dernier checkpoint.
+La détection respecte les ouvertures et la hauteur réelle des murs ; elle ne
+déclenche pas ce secours pendant un saut. Elle ne change pas les collisions,
+les positions ou la progression directement.
+
 Les quatre places d’une équipe répartissent les préférences : éclaireur, soutien,
 protecteur et stratège. Ce sont des préférences d’usage des objets, pas des
 classes avec des statistiques cachées. L’éclaireur et le stratège utilisent
@@ -58,3 +70,23 @@ mutation des karts et les choix d’objets face aux alliés et adversaires.
 
 Les vérifications des salons, de l’interface et du déploiement Docker restent
 des étapes d’intégration séparées consignées dans le rapport principal.
+
+Le correctif du 7 octobre ajoute **29 tests**, dont 234 scénarios conduits sur
+les douze circuits, les branches jusqu'à leur sortie et les conditions de
+récupération contre un rail. Une matrice complémentaire de 360 placements
+passe de 34 blocages avant correction à zéro après. La suite complète atteint
+**312 tests réussis**, incluant les 96 arrivées CPU décrites ci-dessus.
+[Résultats détaillés](cpu-obstacles/simulation-validation.json).
+
+`npm run test:cpu-obstacles-browser` vérifie deux fermetures dans des salons
+privés avec de vrais CPU serveur et un observateur Chromium : deux checkpoints
+physiquement franchis à Mangrove et Citadelle, aucune erreur JavaScript ni asset
+manquant. Les positions initiales sont des fixtures déclarées.
+[Protocole et quatre captures](cpu-obstacles/README.md).
+
+`BASE_URL=https://votre-tunnel npm run test:cpu-race` utilise uniquement les
+API publiques et contrôle une course complète sur Mangrove : un pilote SDK
+et sept CPU serveur. Exécution du 7 octobre réussie : **8/8 arrivées**, trois
+phases, sept passages de déviation, **0 reset observé** et aucun blocage durable.
+Le salon est libéré après le contrôle ; les résultats du pilote de test sont
+réellement gagnés et enregistrés. [Rapport public](cpu-obstacles/public-race.json).

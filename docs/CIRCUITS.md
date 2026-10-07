@@ -1,5 +1,7 @@
 # Circuits et routes alternatives
 
+> Les tableaux et rayons ci-dessous décrivent le lot du 6 octobre. Les douze tracés ont été remaniés le 7 octobre : voir [LOOPINGS.md](LOOPINGS.md). Les 36 branches sont recalculées et la suite complète de 266 tests réussit. Sur la révision 2, les raccourcis économisent de **13 à 34 %** de distance (mesure de leur longueur divisée par le secteur principal remplacé) ; les anciennes captures et mesures JSON restent des archives.
+
 Le jeu propose douze circuits, chacun avec trois tours et douze checkpoints ordonnés. Les définitions sont dans [shared/track.ts](../shared/track.ts). Les six premiers tracés sont conservés ; six pistes plus longues et plus larges ajoutent des environnements, des ponts et des tremplins.
 
 | Circuit | Identifiant | Longueur d’un tour | Largeur principale |

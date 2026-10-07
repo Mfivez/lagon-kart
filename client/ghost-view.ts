@@ -1,9 +1,11 @@
 import * as THREE from 'three';
 import type { GhostData } from '../shared/progression';
 import type { World } from '../shared/game';
-import { trackElevation } from '../shared/track';
+import { trackElevation, TRACK_LAYOUT_REVISION } from '../shared/track';
 import { nearestDriveableTrack } from '../shared/track-events';
 import { replayPosition } from './replay-view';
+import { kartLoopPose, trackLoopAt } from '../shared/track-loop';
+import { applyLoopOrientation } from './track-loops';
 
 /** A translucent marker follows recorded server positions; it never enters the simulation. */
 export class GhostView {
@@ -19,9 +21,15 @@ export class GhostView {
   set(ghost: GhostData | null) { this.ghost = ghost; this.group.visible = false; }
   update(world: World | null) {
     const ghost = this.ghost;
-    this.group.visible = !!ghost && !!world?.practice && world.phase === 'racing' && world.trackId === ghost.trackId && world.eventLevel === (ghost.eventLevel ?? 0) && world.raceTime <= ghost.finishTime;
+    this.group.visible = !!ghost && (ghost.trackRevision ?? 1) === TRACK_LAYOUT_REVISION && !!world?.practice && world.phase === 'racing' && world.trackId === ghost.trackId && world.eventLevel === (ghost.eventLevel ?? 0) && world.raceTime <= ghost.finishTime;
     if (!this.group.visible || !ghost || !world) return;
     const point = replayPosition(ghost.frames, world.raceTime * 1000);
-    if (point) { this.group.position.set(point.x, .12 + trackElevation(nearestDriveableTrack(point.x, point.z, world.trackId, world.eventStage, world.eventLevel).progress, world.trackId), point.z); this.group.rotation.y = point.angle; }
+    if (point) {
+      const near = nearestDriveableTrack(point.x, point.z, world.trackId, world.eventStage, world.eventLevel);
+      const pose = kartLoopPose({ ...point, trackId: world.trackId, elevation: trackElevation(near.progress, world.trackId),
+        loopId: near.branchId ? '' : trackLoopAt(near.progress, world.trackId)?.id ?? '' });
+      this.group.position.set(pose.x + pose.up.x * .12, pose.y + pose.up.y * .12, pose.z + pose.up.z * .12);
+      applyLoopOrientation(this.group, pose);
+    }
   }
 }

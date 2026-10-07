@@ -1,0 +1,50 @@
+{
+  "retrieved": "2026-10-07",
+  "page": "https://poly.pizza/m/QN3Ru02ayU",
+  "creatorPrimaryPage": "https://kenney.nl/assets/nature-kit",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "modelMetadata": {
+    "Title": "Tree",
+    "UploadDate": "2022-06-21T10:27:54.807Z",
+    "ResourceID": "85a2d37d-4c02-4e0c-8573-47d245338453",
+    "PublicID": "QN3Ru02ayU",
+    "Likes": 1,
+    "CommentCount": 0,
+    "Tris": 200,
+    "Views": 347,
+    "Downloads": "1.75k",
+    "Creator": {
+      "Username": "Kenney",
+      "DPURL": "https://static.poly.pizza/dp%2Fe78193b4-9369-467a-b106-0859d7c6cd9b.jpg",
+      "Socials": {
+        "Twitter": "KenneyNL",
+        "Pateron": "kenney",
+        "Website": "https://kenney.nl/"
+      }
+    },
+    "Category": "Objects",
+    "Tags": [
+      "Cone"
+    ],
+    "Orbit": {
+      "phi": "1.26175",
+      "radius": "100%",
+      "theta": "-0.77949"
+    },
+    "Background": {
+      "one": "#43a047",
+      "two": "hsl(123deg, 41%, 15%)",
+      "type": "Radial"
+    },
+    "Visibility": "Public",
+    "Type": "OBJ",
+    "Licence": "CC0 1.0",
+    "Animated": false
+  },
+  "glb": "https://static.poly.pizza/85a2d37d-4c02-4e0c-8573-47d245338453.glb",
+  "sourceSha256": "caed11c17aeb268c4351f1eb147e9a07ec79e29070e11ae18d7bc68c2e2c4570",
+  "archiveAttempts": {
+    "kenney.nl": "HTTP403",
+    "opengameart.org": "HTTP403"
+  }
+}

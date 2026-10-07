@@ -1,0 +1,223 @@
+{
+  "origin": "https://exercises-inspections-playlist-char.trycloudflare.com",
+  "trackId": "mangrove",
+  "bundle": "/assets/index-Dk-_5CP3.js",
+  "success": true,
+  "failure": "",
+  "checks": [
+    "Salon mangrove : un invité authentifié et sept CPU créés par la configuration publique du serveur",
+    "8/8 arrivées, trois phases, sept CPU observés sur la déviation ouverte et classement distinct",
+    "Aucun CPU bloqué 12 secondes ; les remontées de resetCooldown sont comptées dans le rapport",
+    "Progression de la course réelle sauvegardée ; aucune erreur serveur ou Colyseus observée",
+    "Salon fermé ; healthz indique status ok et rooms 0"
+  ],
+  "errors": [],
+  "notices": [],
+  "startedAt": "2026-10-07T09:06:33.801Z",
+  "durationSeconds": 78.653,
+  "inputMethod": "One SDK guest sends ordinary input controls; seven bots are driven only by RaceRoom. No server fixture, forced checkpoint, finish or XP mutation.",
+  "browser": false,
+  "initialHealth": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "finalHealth": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "snapshots": 1435,
+  "commands": 1880,
+  "stages": [
+    0,
+    1,
+    2
+  ],
+  "detourCpu": [
+    "cpu-82623e85-aa68-4699-94a5-6b81c899235d",
+    "cpu-92969bb0-bd92-4e0b-8130-66416b09684e",
+    "cpu-4c1ee397-bade-44cb-9a07-e74d22d89250",
+    "cpu-88390f72-1adf-470c-8c7d-5e9e5037c50f",
+    "cpu-9b01ba5e-f08c-40a9-9a8b-cb8e080b41ca",
+    "cpu-a3cde788-d6ac-4d00-903f-328023e4b745",
+    "cpu-a9013be4-1b37-41e1-9d87-04696fc9b27b"
+  ],
+  "observations": [
+    {
+      "id": "EU7DL75Rj",
+      "cpu": false,
+      "name": "Contrôle CPU mangr",
+      "bestProgress": 2131.7383476875084,
+      "lastAdvance": 62.533333333332344,
+      "maximumNoProgressSeconds": 0.3333333333333333,
+      "previousResetCooldown": 0,
+      "observedResets": 0,
+      "snapshots": 1366
+    },
+    {
+      "id": "cpu-9b01ba5e-f08c-40a9-9a8b-cb8e080b41ca",
+      "cpu": true,
+      "name": "CPU 2",
+      "bestProgress": 2131.7383476875084,
+      "lastAdvance": 65.06666666666554,
+      "maximumNoProgressSeconds": 0.3000000000000149,
+      "previousResetCooldown": 0,
+      "observedResets": 0,
+      "snapshots": 1366
+    },
+    {
+      "id": "cpu-a3cde788-d6ac-4d00-903f-328023e4b745",
+      "cpu": true,
+      "name": "CPU 3",
+      "bestProgress": 2131.7383476875084,
+      "lastAdvance": 65.09999999999887,
+      "maximumNoProgressSeconds": 0.13333333333333333,
+      "previousResetCooldown": 0,
+      "observedResets": 0,
+      "snapshots": 1366
+    },
+    {
+      "id": "cpu-82623e85-aa68-4699-94a5-6b81c899235d",
+      "cpu": true,
+      "name": "CPU 4",
+      "bestProgress": 2131.7383476875084,
+      "lastAdvance": 64.0666666666656,
+      "maximumNoProgressSeconds": 0.1666666666666572,
+      "previousResetCooldown": 0,
+      "observedResets": 0,
+      "snapshots": 1366
+    },
+    {
+      "id": "cpu-a9013be4-1b37-41e1-9d87-04696fc9b27b",
+      "cpu": true,
+      "name": "CPU 5",
+      "bestProgress": 2131.7383476875084,
+      "lastAdvance": 65.2333333333322,
+      "maximumNoProgressSeconds": 0.3,
+      "previousResetCooldown": 0,
+      "observedResets": 0,
+      "snapshots": 1366
+    },
+    {
+      "id": "cpu-88390f72-1adf-470c-8c7d-5e9e5037c50f",
+      "cpu": true,
+      "name": "CPU 6",
+      "bestProgress": 2131.7383476875084,
+      "lastAdvance": 64.99999999999888,
+      "maximumNoProgressSeconds": 0.3,
+      "previousResetCooldown": 0,
+      "observedResets": 0,
+      "snapshots": 1366
+    },
+    {
+      "id": "cpu-92969bb0-bd92-4e0b-8130-66416b09684e",
+      "cpu": true,
+      "name": "CPU 7",
+      "bestProgress": 2131.7383476875084,
+      "lastAdvance": 64.86666666666555,
+      "maximumNoProgressSeconds": 0.6666666666666666,
+      "previousResetCooldown": 0,
+      "observedResets": 0,
+      "snapshots": 1366
+    },
+    {
+      "id": "cpu-4c1ee397-bade-44cb-9a07-e74d22d89250",
+      "cpu": true,
+      "name": "CPU 8",
+      "bestProgress": 2131.7383476875084,
+      "lastAdvance": 64.96666666666555,
+      "maximumNoProgressSeconds": 0.6666666666666666,
+      "previousResetCooldown": 0,
+      "observedResets": 0,
+      "snapshots": 1366
+    }
+  ],
+  "results": [
+    {
+      "id": "EU7DL75Rj",
+      "cpu": false,
+      "rank": 1,
+      "lap": 3,
+      "finished": true,
+      "finishTime": 62.49999999999901
+    },
+    {
+      "id": "cpu-9b01ba5e-f08c-40a9-9a8b-cb8e080b41ca",
+      "cpu": true,
+      "rank": 6,
+      "lap": 3,
+      "finished": true,
+      "finishTime": 65.06666666666554
+    },
+    {
+      "id": "cpu-a3cde788-d6ac-4d00-903f-328023e4b745",
+      "cpu": true,
+      "rank": 7,
+      "lap": 3,
+      "finished": true,
+      "finishTime": 65.09999999999887
+    },
+    {
+      "id": "cpu-82623e85-aa68-4699-94a5-6b81c899235d",
+      "cpu": true,
+      "rank": 2,
+      "lap": 3,
+      "finished": true,
+      "finishTime": 64.0666666666656
+    },
+    {
+      "id": "cpu-a9013be4-1b37-41e1-9d87-04696fc9b27b",
+      "cpu": true,
+      "rank": 8,
+      "lap": 3,
+      "finished": true,
+      "finishTime": 65.2333333333322
+    },
+    {
+      "id": "cpu-88390f72-1adf-470c-8c7d-5e9e5037c50f",
+      "cpu": true,
+      "rank": 5,
+      "lap": 3,
+      "finished": true,
+      "finishTime": 64.99999999999888
+    },
+    {
+      "id": "cpu-92969bb0-bd92-4e0b-8130-66416b09684e",
+      "cpu": true,
+      "rank": 3,
+      "lap": 3,
+      "finished": true,
+      "finishTime": 64.83333333333222
+    },
+    {
+      "id": "cpu-4c1ee397-bade-44cb-9a07-e74d22d89250",
+      "cpu": true,
+      "rank": 4,
+      "lap": 3,
+      "finished": true,
+      "finishTime": 64.93333333333221
+    }
+  ],
+  "resetMeasurement": "Observed rises of resetCooldown > 0.5 seconds between received snapshots; no private server instrumentation.",
+  "savedProfile": {
+    "id": "2ca06cc6-cf7a-4ec6-aafd-7b74ef6608b2",
+    "xp": 45,
+    "stats": {
+      "races": 1,
+      "finishes": 1,
+      "wins": 1,
+      "podiums": 1,
+      "totalRaceTime": 62.49999999999901,
+      "bestTimes": {
+        "mangrove": 62.49999999999901
+      }
+    }
+  }
+}

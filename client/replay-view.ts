@@ -1,4 +1,4 @@
-import { getTrack } from '../shared/track';
+import { getTrack, TRACK_LAYOUT_REVISION } from '../shared/track';
 import type { ReplayData, ReplayFrame } from '../shared/progression';
 
 export function replayPosition(frames: ReplayFrame[], timeMs: number) {
@@ -15,18 +15,22 @@ export function showReplay(replay: ReplayData) {
   dialog.innerHTML = '<div class="garage-heading"><h2>Revoir la course</h2><button class="secondary" data-close>Fermer ✕</button></div><p data-title class="garage-hint"></p><canvas width="720" height="450" aria-label="Trajectoires enregistrées de la course"></canvas><div class="replay-controls"><button class="secondary" data-play>Pause</button><input type="range" min="0" step="100" value="0" aria-label="Position dans le replay"><output></output></div><p class="garage-hint">Vue de dessus des trajectoires enregistrées par le serveur. Faites glisser le curseur pour revoir un passage.</p>';
   document.body.append(dialog);
   const track = getTrack(replay.trackId), canvas = dialog.querySelector('canvas')!, context = canvas.getContext('2d')!;
-  dialog.querySelector('[data-title]')!.textContent = `${track.name} · ${replay.drivers.map(driver => driver.name).join(' / ')}`;
+  const currentLayout = (replay.trackRevision ?? 1) === TRACK_LAYOUT_REVISION;
+  dialog.querySelector('[data-title]')!.textContent = `${track.name} · ${replay.drivers.map(driver => driver.name).join(' / ')}${currentLayout ? '' : ' · Ancien tracé : trajectoires archivées, sans fond de circuit'}`;
   const slider = dialog.querySelector('input')!; slider.max = String(replay.durationMs);
   let time = 0, last = performance.now(), playing = true, frame = 0;
-  const minX = Math.min(...track.points.map(p => p.x)) - 45, maxX = Math.max(...track.points.map(p => p.x)) + 45;
-  const minZ = Math.min(...track.points.map(p => p.z)) - 45, maxZ = Math.max(...track.points.map(p => p.z)) + 45;
+  const bounds = currentLayout ? track.points : replay.drivers.flatMap(driver => driver.frames.map(frame => ({ x: frame[1] / 100, z: frame[2] / 100 })));
+  const minX = Math.min(...bounds.map(p => p.x)) - 45, maxX = Math.max(...bounds.map(p => p.x)) + 45;
+  const minZ = Math.min(...bounds.map(p => p.z)) - 45, maxZ = Math.max(...bounds.map(p => p.z)) + 45;
   const scale = Math.min(660 / (maxX - minX), 390 / (maxZ - minZ));
   const map = (x: number, z: number) => [360 + (x - (minX + maxX) / 2) * scale, 225 + (z - (minZ + maxZ) / 2) * scale];
   const draw = (now: number) => {
     if (playing) time = Math.min(replay.durationMs, time + Math.min(now - last, 250)); last = now;
     context.fillStyle = '#e3ecd7'; context.fillRect(0, 0, 720, 450);
-    context.beginPath(); track.points.forEach((p, index) => { const [x, y] = map(p.x, p.z); if (index) context.lineTo(x, y); else context.moveTo(x, y); }); context.closePath();
-    context.strokeStyle = '#73887b'; context.lineWidth = track.width * scale; context.stroke();
+    if (currentLayout) {
+      context.beginPath(); track.points.forEach((p, index) => { const [x, y] = map(p.x, p.z); if (index) context.lineTo(x, y); else context.moveTo(x, y); }); context.closePath();
+      context.strokeStyle = '#73887b'; context.lineWidth = track.width * scale; context.stroke();
+    }
     for (const driver of replay.drivers) {
       context.beginPath(); driver.frames.filter((_, i) => i % 3 === 0).forEach((p, index) => { const [x, y] = map(p[1] / 100, p[2] / 100); if (index) context.lineTo(x, y); else context.moveTo(x, y); });
       context.globalAlpha = .25; context.strokeStyle = driver.color; context.lineWidth = 2; context.stroke(); context.globalAlpha = 1;

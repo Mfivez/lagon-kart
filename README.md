@@ -51,24 +51,24 @@ Le mode **Entraînement** permet de courir seul sur le circuit choisi. Un nouvel
 
 | Circuit | Particularités |
 | --- | --- |
-| Île des Alizés | Courbes larges, palmiers, bandes turbo et flaques de boue à éviter. |
-| Canyon solaire | Tracé plus sinueux, falaises et cactus, bonne adhérence, zones de boue sur les côtés. |
-| Banquise boréale | Neige et cristaux, adhérence réduite, plaques de glace qui prolongent les glissades. Anticiper les changements de direction. |
-| Métropole néon | Ville nocturne, chicane et trois bandes turbo disposées sur différentes lignes. |
-| Mangrove sinueuse | Racines et végétation, eau, boue et choix de trajectoire. |
-| Dunes de cuivre | Dunes, arches minérales et portions à faible adhérence. |
-| Caldeira ardente | Lave et basalte, viaduc et tremplin volcanique. |
-| Forêt des géants | Séquoias, boue évitable, pont en bois et saut. |
-| Port des cargos | Grues et conteneurs, pont métallique et rampe de quai. |
-| Archipel céleste | Îlots flottants, deux ponts et saut au-dessus des nuages. |
-| Fonderie des pistons | Usine et pistons, passerelle et rampe d'essai. |
-| Citadelle royale | Remparts et douves, pont de pierre et saut de parade. |
+| Île des Alizés | Grandes courbes autour d'un phare rayé, resort de plage et palmeraies ; turbos et boue. |
+| Canyon solaire | Tracé sinueux entre une mesa à strates, une arche rocheuse et des buttes ; bonne adhérence. |
+| Banquise boréale | Courbes glissantes autour d'une cathédrale de glace, cristaux et station polaire. |
+| Métropole néon | Boulevard nocturne, quartier de tours lumineuses, chicane et trois lignes turbo. |
+| Mangrove sinueuse | Méandres boueux, village sur pilotis, passerelles, racines aériennes et nénuphars. |
+| Dunes de cuivre | Courbes étirées, observatoire pyramidal, obélisques, oasis et caravane. |
+| Caldeira ardente | Cratère ouvert, lave visible, orgues basaltiques, viaduc et tremplin. |
+| Forêt des géants | Arbre-maison, bosquets, cascade, pont en bois, boue évitable et saut. |
+| Port des cargos | Terminal de conteneurs, grue treillis, cargo, pont métallique et rampe de quai. |
+| Archipel céleste | Observatoire et îlots flottants, montgolfières, looping de 32 m, ponts et saut. |
+| Fonderie des pistons | Aciérie, tours de refroidissement, vannes, looping de 27 m et rampe d'essai. |
+| Citadelle royale | Donjon, tours crénelées, porte de jardin, verger, pont de pierre et saut de parade. |
 
-Les tracés, largeurs, décors, zones et checkpoints sont propres à chaque circuit. Les réglages d'un salon n'affectent pas les autres salons.
+Les tracés, largeurs, décors, zones et checkpoints sont propres à chaque circuit. Les terrains suivent leur silhouette ; les reliefs et monuments laissent libres les routes et les branches qui peuvent s'ouvrir. Les réglages d'un salon n'affectent pas les autres salons. Voir [les paysages, leur coût et leurs sources](docs/SCENERY.md).
 
 Les événements se règlent du niveau **0 à 3**. Le niveau 0 garde le circuit classique. Dès le niveau 1, une déviation large avec objets et une voie turbo glissante offrent des alternatives ; un raccourci ouvre au troisième tour du leader. À partir du niveau 2, un barrage et une modification du terrain apparaissent au deuxième tour. Le niveau 3 combine météo et terrains difficiles. Tous les joueurs rencontrent la même phase, y compris ceux qui ont un tour de retard.
 
-Les bifurcations sont annoncées en amont et dessinées sur la mini-carte, avec le barrage et le raccourci fermé. Les nouveaux raccordements ont des courbes progressives et une largeur de 12 à 14 m ; les raccourcis économisent **15 à 28 % de distance** sur la portion de route normale remplacée. Les checkpoints alternatifs doivent être réellement franchis, dans l'ordre. Les six nouvelles pistes ajoutent des ponts et des tremplins, avec montée, saut et réception simulés. Voir [les tracés et les mesures des branches](docs/CIRCUITS.md) et [les six pistes à relief](docs/CIRCUITS_APPENDIX.md).
+Les bifurcations sont annoncées en amont et dessinées sur la mini-carte, avec le barrage et le raccourci fermé. Les nouveaux raccordements ont des courbes progressives et une largeur de 12 à 14 m ; les raccourcis économisent **13 à 34 % de distance** sur la portion de route normale remplacée. Les checkpoints alternatifs doivent être réellement franchis, dans l'ordre. Les six nouvelles pistes ajoutent des ponts et des tremplins, avec montée, saut et réception simulés. Voir [les tracés et les mesures des branches](docs/CIRCUITS.md) et [les six pistes à relief](docs/CIRCUITS_APPENDIX.md). Les deux [loopings de Sky et Foundry](docs/LOOPINGS.md) sont parcourus par les pilotes avec une orientation et une caméra adaptées, tout en conservant la progression des tours et la simulation partagée.
 
 L'hôte choisit **Une course** ou **Un tournoi**, avant le premier départ. Pour un tournoi de **2 à 8 courses** :
 
@@ -117,7 +117,9 @@ Il faut terminer toutes les manches et finir dans les trois premiers du classeme
 
 **Mes replays** relit les trajectoires enregistrées par le serveur, en vue de dessus, avec pause et curseur. Sur l'accueil, **Fantôme du meilleur temps en entraînement** affiche un ghost disponible pour le circuit choisi et le niveau 3 des événements de l'entraînement. Ce fantôme n'a pas de collisions et ne participe pas au classement. Les replays sont des traces de position, pas une resimulation exacte des objets et des contacts.
 
-Le navigateur conserve la clé de son profil pour retrouver statistiques, carrière et classement. Cette identité est liée au stockage du navigateur et à l'origine du site : changer d'adresse de tunnel ou effacer les données du site ne transfère pas automatiquement le profil. Aucun compte externe n'est nécessaire. Voir [la progression, les saisons et les sauvegardes](docs/PROGRESSION.md).
+À l'accueil, **Sauvegarder mon pilote** crée un compte avec un nom d'utilisateur et un mot de passe, en conservant la progression de l'invité actuel. **Se connecter** retrouve ce même pilote depuis un autre navigateur, téléphone ou lien de tunnel : XP, coupes, déblocages, classement et replays. Aucun courriel ni compte externe n'est nécessaire. Le nom d'utilisateur comporte 3 à 24 lettres, chiffres, points, tirets ou `_`, et le mot de passe au moins 6 caractères. Les mots de passe sont dérivés avec scrypt et un sel individuel, jamais enregistrés en clair.
+
+Le jeu invité reste disponible. Sans compte, son accès dépend de la clé conservée par le navigateur pour cette adresse du site : créer le compte avant d'effacer cette clé ou de changer de tunnel. Les choix visuels du garage restent propres au navigateur. Voir [les comptes et sauvegardes](docs/ACCOUNTS_STORAGE.md) et [la progression](docs/PROGRESSION.md).
 
 ## Commandes
 
@@ -129,6 +131,8 @@ Le navigateur conserve la clé de son profil pour retrouver statistiques, carri�
 | Drift | Maintenir Espace en tournant ; relâcher après la charge pour le mini-turbo |
 | Utiliser l'objet | E |
 | Remettre le kart en piste | R |
+
+Sur écran tactile, **glisser le pouce gauche pour tourner** ; les boutons de drift, objet, frein/recul et remise en piste restent sous le pouce droit. L’accélération automatique est activée par défaut et peut être désactivée pour utiliser la pédale. Plusieurs doigts fonctionnent simultanément. Une interruption ou un changement d’orientation relâche les commandes ; toucher **Reprendre** ou une commande pour repartir. Le HUD se compacte en portrait et en paysage, jusqu’à 320 px. [Analyse des jeux mobiles, fonctionnement et captures avant/après](docs/MOBILE_CONTROLS.md).
 
 Les boîtes mystères distribuent huit objets : **turbo**, **triple turbo**, **balise piège**, **projectile vert**, **fusée rouge guidée**, **comète bleue visant le leader**, **étoile d'énergie** et **bouclier**. Le triple turbo se consomme en trois pressions distinctes sur E ; le HUD indique les charges et les protections actives. Le tirage favorise les outils de rattrapage à l'arrière du peloton. Cibles, impacts et durées sont calculés par le serveur. Voir [les règles des objets](docs/ITEMS.md).
 
@@ -143,7 +147,15 @@ Pour varier la conduite sans ajouter de touches :
 
 Les checkpoints se franchissent dans l'ordre et dans le sens de la course. La remise en piste utilise le dernier checkpoint valide. Après le premier arrivé, les autres ont 25 secondes pour terminer ; la manche dure au maximum cinq minutes. Les pilotes n'ayant pas terminé sont classés selon leur progression avec une indication d'abandon/non-arrivée. Une coupure réserve la place environ 30 secondes et neutralise les commandes. L'actualisation de la page reprend la session grâce à un jeton conservé **par onglet** ; après expiration, rejoindre de nouveau le salon. Arrêter le serveur efface les salons, qui résident en mémoire.
 
-Les **profils, saisons et replays** sont enregistrés séparément sur disque. Compose monte le volume nommé **`player-data`** dans `/app/data`, avec les données de joueurs dans `/app/data/players`. Un redémarrage ou une reconstruction conserve ce volume ; `docker compose down` le conserve aussi. `docker compose down -v` l'efface. Réutiliser le même nom de projet Compose pour retrouver les données ; une autre instance a son propre volume. Hors Docker, `PLAYER_DATA_DIR` permet de choisir le répertoire de sauvegarde. Une seule instance de serveur doit écrire dans un même répertoire.
+Les **comptes, profils, saisons et replays** sont enregistrés dans **`data/players/` sur la machine hôte**. Compose monte `./data` dans `/app/data` ; les fichiers restent présents après reconstruction, recréation et même `docker compose down -v`. Un autre nom de projet retrouve les données s'il utilise ce même dossier. Une seule instance de serveur doit écrire dans un même répertoire. Hors Docker, `PLAYER_DATA_DIR` choisit le répertoire de sauvegarde.
+
+Pour reconstruire et relancer le jeu pendant les tests, en gardant les données et l'URL du tunnel :
+
+```bash
+npm run data:reset
+```
+
+Une installation utilisant encore l'ancien volume `lagon-kart_player-data` doit d'abord suivre la [migration sans écrasement](docs/ACCOUNTS_STORAGE.md#migration-de-lancien-volume-nommé). Le script conserve ce volume original. `npm run data:backup` crée une archive locale lorsque le jeu est arrêté. Les salons en cours disparaissent au redémarrage ; les résultats déjà enregistrés restent disponibles.
 
 ## Configuration facultative
 
@@ -152,6 +164,7 @@ Les valeurs par défaut fonctionnent sans fichier `.env`. Pour les changer, copi
 | Variable | Défaut | Usage |
 | --- | --- | --- |
 | `HOST_PORT` | 3000 | Port local ; par exemple 3100 donne http://localhost:3100 |
+| `PLAYER_DATA_PATH` | `./data` | Dossier dédié sur l'hôte, monté dans Docker ; conserve les comptes et la progression |
 | `MAX_ROOMS` | 16 avec Compose | Limite de salons simultanés, pas une capacité de performance garantie ; 32 par défaut hors Docker |
 | `MAX_PLAYERS` | 8 | De 2 à 8 par salon multijoueur ; entraînement limité à 1 |
 | `SIM_HZ` | 30 | Pas fixe de simulation serveur et prédiction client |
@@ -228,6 +241,15 @@ npm run test:music
 npm run test:kart-library
 npm run test:characters
 npm run test:features-browser
+
+# Comptes : deux navigateurs privés, puis persistance Docker dans un dossier temporaire
+npm run test:accounts-browser
+npm run test:accounts-persistence
+npm run test:storage-migration
+
+# CPU : fermetures tardives en salon privé, puis course sur un serveur explicitement choisi
+npm run test:cpu-obstacles-browser
+BASE_URL=http://127.0.0.1:3000 npm run test:cpu-race
 ```
 
 Les scripts réseau et le test navigateur de course complète acceptent `BASE_URL` pour tester une URL publique. Le test réseau accepte `CLIENTS=2` ou `8`, ainsi que `LATENCY_MS=75` pour retarder les commandes et la réception des instantanés de 75 ms chacun. Le test de tournoi accepte `CLIENTS=2` à `8` et fait réellement parcourir trois tours sur les quatre circuits historiques de son programme. Les tests de simulation couvrent les douze circuits et leurs branches. Le test navigateur utilise deux contextes isolés dans un même Chromium, pilotés automatiquement par les commandes clavier ordinaires. Les tests d'interface des tournois et des fonctionnalités utilisent aussi des arrivées imposées sur leur serveur privé : ils vérifient les écrans et transitions, sans constituer des courses complètes conduites. Les rapports indiquent le lot compilé réellement testé. Exemple sous bash :
@@ -239,23 +261,25 @@ LATENCY_MS=75 npm run test:network
 
 Sous PowerShell : `$env:BASE_URL="https://votre-adresse.trycloudflare.com"`, puis `npm run test:network`. Selon le script, les rapports et captures sont écrits dans `test-results/` (ignoré par Git) ou dans les sous-dossiers de `docs/` indiqués par son rapport.
 
-Dernière suite complète : **237/237 tests réussis**, sans échec ni test ignoré, en **61,38 s**. Un test supplémentaire de saut réel au-dessus d'un rail a ensuite réussi séparément. Le contrôle TypeScript et le build `index-DDvpm3uY.js` ont réussi. Les **11 contrôles Chromium de l'interface à douze circuits** et l'essai de persistance Docker ont été exécutés sur le précédent bundle `index-CU-Fug6i.js` ; la course publique finale et les captures des six nouveaux circuits restent à confirmer. Voir [VALIDATION.md](VALIDATION.md) pour les preuves, les versions testées et les limites mesurées.
+Dernière suite complète, le 7 octobre 2026 : **312/312 tests réussis**, sans échec ni test ignoré, en **107,34 s**, avec `node --import tsx --test --test-concurrency=4 tests/*.test.ts`. Elle couvre aussi les comptes et la récupération des bots lors des fermetures : huit CPU terminent les douze circuits, et 29 tests supplémentaires vérifient rails, branches et remises en piste. [Fonctionnement des bots](docs/TEAMS.md). Le parcours des comptes réussit **9 contrôles Chromium** sur deux contextes indépendants, dont un écran de 320 px. Les **15 contrôles tactiles** du lot précédent couvrent cinq formats et les commandes simultanées. Après `npm run build`, `npm run test:mobile-browser` et `npm run test:scenes-browser` exécutent ces parcours sur serveurs privés. Voir [VALIDATION.md](VALIDATION.md) pour les captures, les versions réellement testées et les limites sur appareils physiques.
 
 ## Architecture et ressources
 
 - `shared/track.ts` : catalogue des circuits, zones et checkpoints communs.
 - `shared/track-events.ts` : branches, surfaces évolutives, barrages et portes alternatives.
+- `shared/track-loop.ts`, `client/track-loops.ts` : parcours, orientation et rendu des loopings.
 - `shared/game.ts` : conduite déterministe, surfaces, aspiration, départ turbo, progression, collisions et objets.
 - `shared/tournament.ts` : configuration, tirage des circuits, points et classement cumulé.
 - `shared/garage.ts`, `shared/teams.ts`, `shared/cpu.ts` : pièces, équipes et conduite des CPU.
 - `shared/progression.ts`, `server/player-store.ts`, `server/career.ts` : coupes, MMR, saisons, stockage local, matchmaking et replays.
 - `server/` : salons Colyseus, règles d'accès, reconnexion, contrôles des messages et serveur HTTP statique.
 - `client/` : Three.js, caméra, interface, musique MP3 et effets synthétiques, prédiction locale et interpolation.
+- `client/scenery-terrain.ts`, `client/scenery-world.ts`, `client/scenery-assets.ts` : terrains polygonaux, repères des douze thèmes et cache du modèle d'arbre gratuit.
 - `tests/` : tests ciblés des règles ; `scripts/` : vérifications de bout en bout.
 
 La simulation est autoritaire à pas fixe. Les commandes sont bornées et numérotées ; leur génération de connexion (`epoch`) invalide les anciennes commandes après reprise. Le serveur ne rejoue aucune file de commandes accumulées après une coupure. Le client réconcilie sa prédiction avec les commandes acquittées ; les autres karts sont interpolés et le rendu utilise `requestAnimationFrame` indépendamment du réseau. Les instantanés complets simplifient cette première version à huit joueurs, au prix d'une bande passante plus élevée que des deltas de schéma.
 
-L'audit de [react-racing-game](https://github.com/colyseus/react-racing-game) a montré que `movementData` y recopie les positions du client. Adapter sa physique Cannon côté serveur et ses anciennes dépendances économisait moins de travail qu'une conduite arcade commune. Le projet assemble donc Three.js et Colyseus, sans React ni moteur physique externe. Les packs [Kenney Car Kit](https://kenney.nl/assets/car-kit) et [Racing Kit](https://kenney.nl/assets/racing-kit), sous CC0, ont été examinés comme solutions possibles. Les trois karts retenus sont détaillés dans les notices ; circuits, décors et personnages sont procéduraux. Toutes les ressources sont locales au serveur du jeu.
+L'audit de [react-racing-game](https://github.com/colyseus/react-racing-game) a montré que `movementData` y recopie les positions du client. Adapter sa physique Cannon côté serveur et ses anciennes dépendances économisait moins de travail qu'une conduite arcade commune. Le projet assemble donc Three.js et Colyseus, sans React ni moteur physique externe. Les packs [Kenney Car Kit](https://kenney.nl/assets/car-kit) et [Racing Kit](https://kenney.nl/assets/racing-kit), sous CC0, ont été examinés comme solutions possibles. Les trois karts retenus sont détaillés dans les notices. Les décors combinent des reliefs et monuments originaux avec [Tree de Kenney](https://poly.pizza/m/QN3Ru02ayU), sous CC0 : un GLB de 14 480 octets et 200 triangles, téléchargé une seule fois par page puis partagé entre les arbres. Sa source, son inspection et sa licence sont conservées dans `assets/sources/kenney-nature/`. Les circuits et personnages restent procéduraux. Toutes les ressources sont locales au serveur du jeu ; voir [la documentation des paysages](docs/SCENERY.md).
 
 Les licences et les versions figurent dans [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). L'usage de Colyseus 0.16 est volontaire et ses API sont vérifiées dans les sources installées ; les primitives netcode 0.18 ne sont pas utilisées. Toutes les dépendances npm sont figées dans `package-lock.json`, les images Docker ont des versions explicites.
 
@@ -266,4 +290,4 @@ Les licences et les versions figurent dans [THIRD_PARTY_NOTICES.md](THIRD_PARTY_
 - **Tunnel sans URL** : consulter `docker compose logs tunnel`. Vérifier la connexion Internet et les pare-feu/proxy autorisant cloudflared ; le tunnel utilise ici HTTP/2. Sa disponibilité dépend de Cloudflare.
 - **Salon plein** : une place déconnectée reste réservée pendant la fenêtre de reprise. Revenir après expiration ou créer un autre salon.
 - **Salon inexistant/expiré** : vérifier le code et le serveur ; le dernier départ ou un redémarrage du serveur supprime le salon.
-- **Écran 3D indisponible** : activer l'accélération graphique du navigateur et mettre à jour ses pilotes. Le jeu réduit automatiquement les ombres et la résolution si le rendu reste lent. Des boutons tactiles simples sont présents mais n'ont pas été validés sur téléphone ; la manette n'est pas prise en charge.
+- **Écran 3D indisponible** : activer l'accélération graphique du navigateur et mettre à jour ses pilotes. Le jeu réduit automatiquement les ombres et la résolution si le rendu reste lent. Les commandes tactiles sont testées en émulation Chromium ; confort et fluidité restent à vérifier sur téléphone physique. La manette n'est pas prise en charge.

@@ -1,0 +1,404 @@
+{
+  "origin": "https://exercises-inspections-playlist-char.trycloudflare.com",
+  "trackId": "sky",
+  "success": true,
+  "failure": "",
+  "checks": [
+    "Quatre profils créés par API : trois modèles GLB et quatre personnages distincts",
+    "Deux sessions Chromium indépendantes observent les pilotes qui envoient uniquement les commandes ordinaires",
+    "Trois tours et trois phases observés ; sauts réels ; résultats identiques sur les six connexions",
+    "Un chargement par modèle et par page, quatre personnages, MP3 lus puis arrêtés, même origine HTTP/WebSocket",
+    "Statistiques des quatre profils et replay commun disponibles par API, aucun secret dans snapshots ou replay",
+    "Aucune erreur JavaScript ni erreur de chargement détectée"
+  ],
+  "errors": [],
+  "durationSeconds": 143.537,
+  "drivers": 4,
+  "browserObservers": 2,
+  "inputMethod": "Four authenticated SDK drivers send ordinary controls; two Chromium contexts observe. No fixture or forced finish.",
+  "renderer": "Chromium headless / SwiftShader, desktop and 390x844 touch mobile emulation",
+  "snapshots": 10851,
+  "eventStages": [
+    0,
+    1,
+    2
+  ],
+  "airborneDrivers": [
+    "5a47f3bc-301e-4796-91b5-dae9e7d933cb",
+    "3be55d1f-06e6-4acd-ba43-8e7eb34f946f",
+    "f716d490-bf29-4c6f-ac41-078f06a2ad4b",
+    "40c427c7-4633-40d6-a6aa-1d950597a7f5"
+  ],
+  "invertedDrivers": [
+    "5a47f3bc-301e-4796-91b5-dae9e7d933cb",
+    "40c427c7-4633-40d6-a6aa-1d950597a7f5",
+    "3be55d1f-06e6-4acd-ba43-8e7eb34f946f",
+    "f716d490-bf29-4c6f-ac41-078f06a2ad4b"
+  ],
+  "maximumElevation": 31.999986840152044,
+  "requests": [
+    {
+      "glb": [
+        "https://exercises-inspections-playlist-char.trycloudflare.com/models/kart-zsky-v1.glb",
+        "https://exercises-inspections-playlist-char.trycloudflare.com/models/scenery/kenney-tree-v1.glb",
+        "https://exercises-inspections-playlist-char.trycloudflare.com/models/kart-sprint-v1.glb",
+        "https://exercises-inspections-playlist-char.trycloudflare.com/models/kart-retro-v1.glb"
+      ],
+      "mp3": [
+        "https://exercises-inspections-playlist-char.trycloudflare.com/audio/lap-1-v1.mp3",
+        "https://exercises-inspections-playlist-char.trycloudflare.com/audio/lap-2-v1.mp3"
+      ]
+    },
+    {
+      "glb": [
+        "https://exercises-inspections-playlist-char.trycloudflare.com/models/kart-zsky-v1.glb",
+        "https://exercises-inspections-playlist-char.trycloudflare.com/models/scenery/kenney-tree-v1.glb",
+        "https://exercises-inspections-playlist-char.trycloudflare.com/models/kart-sprint-v1.glb",
+        "https://exercises-inspections-playlist-char.trycloudflare.com/models/kart-retro-v1.glb"
+      ],
+      "mp3": [
+        "https://exercises-inspections-playlist-char.trycloudflare.com/audio/lap-1-v1.mp3",
+        "https://exercises-inspections-playlist-char.trycloudflare.com/audio/lap-2-v1.mp3"
+      ]
+    }
+  ],
+  "musicSelections": [
+    [
+      "lap1",
+      "lap2"
+    ],
+    [
+      "lap1",
+      "lap2"
+    ]
+  ],
+  "itemKinds": [
+    "trap",
+    "projectile",
+    "turbo",
+    "shield",
+    "tripleTurbo"
+  ],
+  "results": [
+    [
+      "-Z5VXlewf",
+      4,
+      3,
+      true,
+      120.33333333332907
+    ],
+    [
+      "F1etMKGoS",
+      1,
+      3,
+      true,
+      116.63333333332928
+    ],
+    [
+      "LUrIHq8j-",
+      3,
+      3,
+      true,
+      116.8666666666626
+    ],
+    [
+      "DrJd67WIw",
+      2,
+      3,
+      true,
+      116.69999999999594
+    ]
+  ],
+  "profiles": [
+    {
+      "id": "40c427c7-4633-40d6-a6aa-1d950597a7f5",
+      "stats": {
+        "races": 1,
+        "finishes": 1,
+        "wins": 0,
+        "podiums": 0,
+        "totalRaceTime": 120.33333333332907,
+        "bestTimes": {
+          "sky": 120.33333333332907
+        }
+      },
+      "xp": 30
+    },
+    {
+      "id": "5a47f3bc-301e-4796-91b5-dae9e7d933cb",
+      "stats": {
+        "races": 1,
+        "finishes": 1,
+        "wins": 1,
+        "podiums": 1,
+        "totalRaceTime": 116.63333333332928,
+        "bestTimes": {
+          "sky": 116.63333333332928
+        }
+      },
+      "xp": 45
+    },
+    {
+      "id": "f716d490-bf29-4c6f-ac41-078f06a2ad4b",
+      "stats": {
+        "races": 1,
+        "finishes": 1,
+        "wins": 0,
+        "podiums": 1,
+        "totalRaceTime": 116.8666666666626,
+        "bestTimes": {
+          "sky": 116.8666666666626
+        }
+      },
+      "xp": 35
+    },
+    {
+      "id": "3be55d1f-06e6-4acd-ba43-8e7eb34f946f",
+      "stats": {
+        "races": 1,
+        "finishes": 1,
+        "wins": 0,
+        "podiums": 1,
+        "totalRaceTime": 116.69999999999594,
+        "bestTimes": {
+          "sky": 116.69999999999594
+        }
+      },
+      "xp": 35
+    }
+  ],
+  "replay": {
+    "id": "9efc5fb8-3341-4d6c-a348-3ab24d015dc4",
+    "trackId": "sky",
+    "trackRevision": 2,
+    "eventLevel": 3,
+    "frames": [
+      603,
+      603,
+      603,
+      603
+    ]
+  },
+  "browserDiagnostics": [
+    {
+      "kartAssets": {
+        "status": "ready",
+        "loadCount": 3,
+        "modelUrl": "/models/kart-zsky-v1.glb",
+        "error": null,
+        "models": {
+          "zsky": {
+            "status": "ready",
+            "loadCount": 1,
+            "modelUrl": "/models/kart-zsky-v1.glb",
+            "error": null,
+            "instanceCount": 5,
+            "importedCount": 5,
+            "fallbackCount": 0,
+            "characters": [
+              "racer",
+              "queen",
+              "kim"
+            ],
+            "sourceMeshCount": 21,
+            "sourceTriangles": 4292,
+            "sourceBounds": {
+              "x": 2.2555237876350263,
+              "y": 1.5158349387043306,
+              "z": 3.8
+            }
+          },
+          "sprint": {
+            "status": "ready",
+            "loadCount": 1,
+            "modelUrl": "/models/kart-sprint-v1.glb",
+            "error": null,
+            "instanceCount": 1,
+            "importedCount": 1,
+            "fallbackCount": 0,
+            "characters": [
+              "obama"
+            ],
+            "sourceMeshCount": 22,
+            "sourceTriangles": 6440,
+            "sourceBounds": {
+              "x": 2.1503856415471465,
+              "y": 2.284549966115516,
+              "z": 3.8
+            }
+          },
+          "retro": {
+            "status": "ready",
+            "loadCount": 1,
+            "modelUrl": "/models/kart-retro-v1.glb",
+            "error": null,
+            "instanceCount": 1,
+            "importedCount": 1,
+            "fallbackCount": 0,
+            "characters": [
+              "trump"
+            ],
+            "sourceMeshCount": 25,
+            "sourceTriangles": 4528,
+            "sourceBounds": {
+              "x": 2.3506572015973197,
+              "y": 1.7875589757118744,
+              "z": 3.8
+            }
+          }
+        },
+        "instanceCount": 7,
+        "importedCount": 7,
+        "fallbackCount": 0,
+        "sharedGeometryCount": 128,
+        "paintMaterialCount": 17,
+        "sourceMeshCount": 21,
+        "sourceTriangles": 4292,
+        "sourceBounds": {
+          "x": 2.2555237876350263,
+          "y": 1.5158349387043306,
+          "z": 3.8
+        }
+      },
+      "sceneryAssets": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      },
+      "music": {
+        "title": "Lap 2",
+        "track": "sky",
+        "lap": 3,
+        "selected": "lap2",
+        "url": "/audio/lap-2-v1.mp3",
+        "wanted": false,
+        "running": false,
+        "status": "paused",
+        "currentTime": 0,
+        "duration": 99.6535,
+        "readyState": 4,
+        "paused": true,
+        "volume": 0.35,
+        "mixGain": 1.5,
+        "elementCount": 2,
+        "activeElements": 0,
+        "playCount": 2,
+        "loadCount": 2,
+        "error": null,
+        "mediaError": null
+      },
+      "fps": 2.25005625140628,
+      "quality": "light"
+    },
+    {
+      "kartAssets": {
+        "status": "ready",
+        "loadCount": 3,
+        "modelUrl": "/models/kart-zsky-v1.glb",
+        "error": null,
+        "models": {
+          "zsky": {
+            "status": "ready",
+            "loadCount": 1,
+            "modelUrl": "/models/kart-zsky-v1.glb",
+            "error": null,
+            "instanceCount": 5,
+            "importedCount": 5,
+            "fallbackCount": 0,
+            "characters": [
+              "racer",
+              "queen",
+              "kim"
+            ],
+            "sourceMeshCount": 21,
+            "sourceTriangles": 4292,
+            "sourceBounds": {
+              "x": 2.2555237876350263,
+              "y": 1.5158349387043306,
+              "z": 3.8
+            }
+          },
+          "sprint": {
+            "status": "ready",
+            "loadCount": 1,
+            "modelUrl": "/models/kart-sprint-v1.glb",
+            "error": null,
+            "instanceCount": 1,
+            "importedCount": 1,
+            "fallbackCount": 0,
+            "characters": [
+              "obama"
+            ],
+            "sourceMeshCount": 22,
+            "sourceTriangles": 6440,
+            "sourceBounds": {
+              "x": 2.1503856415471465,
+              "y": 2.284549966115516,
+              "z": 3.8
+            }
+          },
+          "retro": {
+            "status": "ready",
+            "loadCount": 1,
+            "modelUrl": "/models/kart-retro-v1.glb",
+            "error": null,
+            "instanceCount": 1,
+            "importedCount": 1,
+            "fallbackCount": 0,
+            "characters": [
+              "trump"
+            ],
+            "sourceMeshCount": 25,
+            "sourceTriangles": 4528,
+            "sourceBounds": {
+              "x": 2.3506572015973197,
+              "y": 1.7875589757118744,
+              "z": 3.8
+            }
+          }
+        },
+        "instanceCount": 7,
+        "importedCount": 7,
+        "fallbackCount": 0,
+        "sharedGeometryCount": 128,
+        "paintMaterialCount": 17,
+        "sourceMeshCount": 21,
+        "sourceTriangles": 4292,
+        "sourceBounds": {
+          "x": 2.2555237876350263,
+          "y": 1.5158349387043306,
+          "z": 3.8
+        }
+      },
+      "sceneryAssets": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      },
+      "music": {
+        "title": "Lap 2",
+        "track": "sky",
+        "lap": 3,
+        "selected": "lap2",
+        "url": "/audio/lap-2-v1.mp3",
+        "wanted": false,
+        "running": false,
+        "status": "paused",
+        "currentTime": 0,
+        "duration": 99.6535,
+        "readyState": 4,
+        "paused": true,
+        "volume": 0.35,
+        "mixGain": 1.5,
+        "elementCount": 2,
+        "activeElements": 0,
+        "playCount": 2,
+        "loadCount": 2,
+        "error": null,
+        "mediaError": null
+      },
+      "fps": 2.647370278856343,
+      "quality": "light"
+    }
+  ]
+}

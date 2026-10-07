@@ -1,0 +1,160 @@
+{
+  "passed": true,
+  "checks": [
+    "320×568 : commandes ≥44px, dans l’écran, sans chevauchement ; menu masqué.",
+    "360×640 : commandes ≥44px, dans l’écran, sans chevauchement ; menu masqué.",
+    "390×844 : commandes ≥44px, dans l’écran, sans chevauchement ; menu masqué.",
+    "568×320 : commandes ≥44px, dans l’écran, sans chevauchement ; menu masqué.",
+    "667×375 : commandes ≥44px, dans l’écran, sans chevauchement ; menu masqué.",
+    "CDP multitouch : direction analogique + drift + accélération, relâchement indépendant.",
+    "Objet + direction simultanés : une seule charge consommée par pression, autorité serveur.",
+    "Frein/recul prioritaire sur accélération auto, direction maintenue.",
+    "Mode manuel mémorisé : pédale tenue puis relâchée, aucun gaz coincé.",
+    "Annulation OS : commandes neutralisées, reprise volontaire visible.",
+    "Perte de focus simulée : gaz auto suspendu et direction neutre.",
+    "Portrait → paysage pendant un geste : aucun appui conservé.",
+    "Clavier conservé et indépendant des doigts.",
+    "Fixture 390×844 : pancarte à moins de 18 m de la caméra, capture ciblée pour vérifier sa disparition et le kart visible.",
+    "Fixture 320×568 : projection du kart hors rectangle du compteur, avec 12 px de marge."
+  ],
+  "errors": [],
+  "captures": [
+    "after-320x568.png",
+    "after-360x640.png",
+    "after-390x844.png",
+    "after-568x320.png",
+    "after-667x375.png",
+    "after-near-sign-390x844.png",
+    "after-hud-clearance-320x568.png"
+  ],
+  "evidence": {
+    "clientAssets": [
+      "/assets/index-wc3mK_Sw.js",
+      "/assets/index-DhaT9t6d.css"
+    ],
+    "steerDrift": {
+      "seq": 379,
+      "epoch": 1,
+      "throttle": 1,
+      "steer": 0.6604938271604938,
+      "brake": false,
+      "drift": true,
+      "use": false,
+      "reset": false
+    },
+    "brake": {
+      "seq": 418,
+      "epoch": 1,
+      "throttle": -1,
+      "steer": 0.6604938271604938,
+      "brake": false,
+      "drift": false,
+      "use": false,
+      "reset": false
+    },
+    "cancel": {
+      "seq": 461,
+      "epoch": 1,
+      "throttle": 0,
+      "steer": 0,
+      "brake": false,
+      "drift": false,
+      "use": false,
+      "reset": false
+    },
+    "nearSign": {
+      "sign": {
+        "x": 73.84898237762533,
+        "y": 3.8,
+        "z": -91.74893932773364
+      },
+      "kart": {
+        "x": 87.6954843150928,
+        "z": -83.73180866298145
+      },
+      "camera": {
+        "position": [
+          75.13000532171898,
+          8.599717928009893,
+          -90.96265300815443
+        ],
+        "target": [
+          92.46272108796535,
+          1.05,
+          -80.98899041817658
+        ],
+        "fov": 67.99901888009339,
+        "near": 1
+      },
+      "signCameraDistance": 5.029568385866859,
+      "tracked": {
+        "id": "YoCkYctCN",
+        "position": [
+          87.69548439686915,
+          0.015,
+          -83.73180864885134
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "projected": [
+          6.244561158132205e-05,
+          -0.1803112697148906,
+          0.8789501293180956
+        ]
+      }
+    },
+    "smallHud": {
+      "kartPixel": {
+        "x": 160.00000000274227,
+        "y": 335.1961564985329
+      },
+      "speedBox": {
+        "x": 100,
+        "y": 251,
+        "width": 120,
+        "height": 51
+      },
+      "projected": [
+        1.7139253666555848e-11,
+        -0.1802681566849751,
+        0.8789684587811535
+      ]
+    }
+  },
+  "fixtures": [
+    "Serveur privé éphémère ; course entraînement démarrée par UI ; contrôles CDP multitouch réels ; perte de focus via événement synthétique.",
+    "Un triple turbo est attribué au kart privé pour mesurer sa consommation, puis utilisé par le geste CDP normal.",
+    "Deux images ciblées : simulation privée suspendue, kart placé au sol 16 m devant une pancarte de bifurcation, vitesse/boost/stun neutralisés. Les snapshots continuent. Aucune preuve de pilotage n’est tirée de ce placement ; il vérifie seulement visibilité et absence de chevauchement du compteur."
+  ],
+  "limitations": [
+    "Chromium/SwiftShader émulé, pas de téléphone physique ni Safari iOS."
+  ],
+  "automatedChecksPassed": true,
+  "visualReview": {
+    "status": "passed",
+    "reviewedCaptures": [
+      "after-320x568.png",
+      "after-360x640.png",
+      "after-390x844.png",
+      "after-568x320.png",
+      "after-667x375.png",
+      "after-near-sign-390x844.png",
+      "after-hud-clearance-320x568.png"
+    ],
+    "targetedChecks": {
+      "nearSign390x844": "Pancarte proche effacée, kart entier visible ; une pancarte éloignée reste visible sur le côté.",
+      "hud320x568": "Compteur au-dessus du kart, sans chevauchement visuel ; projection distante de plus de 12 px du rectangle mesuré."
+    },
+    "reviewedBy": [
+      "mobile_controls",
+      "root (deux fixtures ciblées)"
+    ],
+    "notes": [
+      "Les cinq dispositions laissent la route et les commandes visibles ; les deux fixtures ont une portée visuelle seulement.",
+      "Le GO transitoire apparaît sur la capture générale 320×568 ; la capture ciblée du compteur est prise après ce message."
+    ]
+  }
+}

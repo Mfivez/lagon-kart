@@ -42,7 +42,7 @@ export class GarageUI {
   private render() {
     const stats = getKartStats(this.choice.build);
     this.dialog.innerHTML = `<div class="garage-heading"><div><small>VOTRE GARAGE · NIVEAU ${this.level}</small><h2>Un kart à votre goût</h2></div><button id="garage-close" class="secondary" aria-label="Fermer le garage">Fermer ✕</button></div><div id="garage-preview-slot"></div>
-      <label class="config-field"><span>Personnage</span><select id="character-select">${CHARACTERS.map(character => `<option value="${character.id}" ${this.choice.characterId === character.id ? 'selected' : ''}>${character.name}</option>`).join('')}</select></label>
+      <label class="config-field"><span>Personnage · ${CHARACTERS.length} pilotes</span><select id="character-select" aria-describedby="character-description">${CHARACTERS.map(character => `<option value="${character.id}" ${this.choice.characterId === character.id ? 'selected' : ''}>${character.name}</option>`).join('')}</select><small id="character-description">${CHARACTERS.find(character => character.id === this.choice.characterId)!.description}</small></label>
       <label class="config-field"><span>Modèle de carrosserie</span><select id="kart-model-select">${KART_MODELS.map(model => `<option value="${model.id}" ${this.choice.modelId === model.id ? 'selected' : ''}>${model.name}</option>`).join('')}</select></label>
       <p class="garage-hint">Le modèle change le look. Les pièces ci-dessous déterminent la conduite. La couleur choisie reste disponible sur chaque modèle.</p>
       <div class="garage-parts">${GARAGE_SLOTS.map(slot => {

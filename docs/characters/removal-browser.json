@@ -1,0 +1,78 @@
+{
+  "passed": true,
+  "at": "2026-10-07T10:13:42.717Z",
+  "origin": "https://miles-blades-tulsa-citizens.trycloudflare.com",
+  "checks": [
+    "14 pilotes dans le garage, bean absent",
+    "Ancien choix bean restauré en pilote casqué, aperçu rendu",
+    "Garage affiché sur écran 320×568 sans erreur JavaScript"
+  ],
+  "options": [
+    {
+      "id": "racer",
+      "name": "Pilote"
+    },
+    {
+      "id": "queen",
+      "name": "La Reine"
+    },
+    {
+      "id": "obama",
+      "name": "Obama"
+    },
+    {
+      "id": "trump",
+      "name": "Trump"
+    },
+    {
+      "id": "kim",
+      "name": "Kim Jong-un"
+    },
+    {
+      "id": "macron",
+      "name": "Macron"
+    },
+    {
+      "id": "merkel",
+      "name": "Angela Merkel"
+    },
+    {
+      "id": "napoleon",
+      "name": "Napoléon"
+    },
+    {
+      "id": "plumber",
+      "name": "Le Plombier turbo"
+    },
+    {
+      "id": "elf",
+      "name": "Le Lutin vert"
+    },
+    {
+      "id": "hedgehog",
+      "name": "Le Hérisson pressé"
+    },
+    {
+      "id": "block",
+      "name": "Le Mineur cubique"
+    },
+    {
+      "id": "chemist",
+      "name": "Le Prof de chimie"
+    },
+    {
+      "id": "space",
+      "name": "Le Seigneur du casque"
+    }
+  ],
+  "health": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "errors": [],
+  "scope": "Un contexte Chromium mobile émulé via HTTPS ; aucun salon ouvert, aucune course ni appareil physique testé."
+}

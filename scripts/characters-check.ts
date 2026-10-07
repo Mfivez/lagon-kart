@@ -4,12 +4,14 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import { createServer } from 'vite';
+import { CHARACTERS } from '../shared/characters.js';
+import { KART_MODELS } from '../shared/kart-catalog.js';
 
 type Kart = { modelId: string; characterId: string; source: string; position: number[]; headRotation: number[];
   mouthScale: number[] | null; armRotation: number[] | null; geometryIds: string[]; paints: string[]; colors: string[];
   meshes: number; triangles: number; bodyMinimumY: number };
 type View = { asset: { status: string; loadCount: number; instanceCount: number; fallbackCount: number }; karts: Kart[] };
-type Harness = { describe(): View; detail(id: string, model?: string): void;
+type Harness = { describe(): View; gallery(page?: number): void; detail(id: string, model?: string): void;
   animate(mode: 'impact' | 'victory' | 'drive', firstOnly?: boolean): View & { inputUnchanged: boolean };
   repaint(): View; recreate(): Promise<View & { disposed: number }> };
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
@@ -28,24 +30,29 @@ try {
   await page.goto(origin + '/tests/fixtures/characters.html');
   await page.waitForFunction(() => !!(window as unknown as { __characters?: Harness }).__characters, undefined, { timeout: 45000 });
   const before = await page.evaluate(() => (window as unknown as { __characters: Harness }).__characters.describe());
-  assert.equal(before.asset.status, 'ready'); assert.equal(before.asset.instanceCount, 30);
+  assert.equal(before.asset.status, 'ready'); assert.equal(before.asset.instanceCount, CHARACTERS.length * KART_MODELS.length * 2);
   assert.equal(before.asset.loadCount, 3); assert.equal(before.asset.fallbackCount, 0);
   assert.equal(modelRequests.length, 3); assert.ok(modelRequests.every(url => new URL(url).origin === origin));
-  assert.deepEqual([...new Set(before.karts.map(kart => kart.characterId))], ['racer', 'queen', 'obama', 'trump', 'kim']);
+  assert.deepEqual([...new Set(before.karts.map(kart => kart.characterId))], CHARACTERS.map(character => character.id));
   for (const kart of before.karts) {
     const twin = before.karts.find(other => other !== kart && other.modelId === kart.modelId && other.characterId === kart.characterId)!;
     assert.deepEqual(kart.geometryIds, twin.geometryIds);
     assert.ok(kart.paints.every(paint => !twin.paints.includes(paint)));
     assert.notDeepEqual(kart.colors, twin.colors);
-    assert.ok(kart.triangles < 16000); assert.ok(kart.meshes < 55);
+    assert.ok(kart.triangles < 16000, `${kart.characterId}/${kart.modelId}: ${kart.triangles} triangles`);
+    assert.ok(kart.meshes < 55, `${kart.characterId}/${kart.modelId}: ${kart.meshes} maillages`);
   }
-  record('Cinq personnages sur les trois modèles, 30 instances, trois GLB chargés une fois, couleurs indépendantes et géométries partagées');
+  record(`${CHARACTERS.length} personnages sur les trois modèles, ${before.karts.length} instances, trois GLB chargés une fois, couleurs indépendantes et géométries partagées ; budgets <16 000 triangles et <55 maillages respectés`);
   await page.screenshot({ path: resolve(destination, 'lineup.png') });
-  for (const id of ['racer', 'queen', 'obama', 'trump', 'kim']) {
+  for (let index = 0; index < Math.ceil(CHARACTERS.length / 5); index++) {
+    await page.evaluate(index => (window as unknown as { __characters: Harness }).__characters.gallery(index), index);
+    await page.screenshot({ path: resolve(destination, `lineup-page-${index + 1}.png`) });
+  }
+  for (const { id } of CHARACTERS) {
     await page.evaluate(id => (window as unknown as { __characters: Harness }).__characters.detail(id), id);
     await page.screenshot({ path: resolve(destination, id + '.png') });
   }
-  record('Cinq captures rapprochées et vue d’ensemble produites depuis le rendu réel');
+  record(`${CHARACTERS.length} captures rapprochées, trois pages de cinq au maximum et galerie complète produites depuis le rendu réel`);
   const isolated = await page.evaluate(() => (window as unknown as { __characters: Harness }).__characters.animate('impact', true));
   assert.equal(isolated.inputUnchanged, true);
   const firstQueen = before.karts.findIndex(kart => kart.characterId === 'queen');
@@ -69,6 +76,14 @@ try {
   await page.evaluate(() => (window as unknown as { __characters: Harness }).__characters.detail('queen'));
   await page.screenshot({ path: resolve(destination, 'queen-victory.png') });
   record('Réactions d’impact et de victoire pour tous, salut des caricatures et tête du pilote casqué, trajectoires intactes');
+  const drive = await page.evaluate(() => (window as unknown as { __characters: Harness }).__characters.animate('drive'));
+  assert.equal(drive.inputUnchanged, true);
+  for (let index = 0; index < before.karts.length; index++) {
+    assert.deepEqual(drive.karts[index]!.position, before.karts[index]!.position);
+    assert.notDeepEqual(drive.karts[index]!.headRotation, victory.karts[index]!.headRotation);
+    assert.ok(drive.karts[index]!.bodyMinimumY >= -.0001);
+  }
+  record(`Animation de conduite sur les ${before.karts.length} couples pilote/kart/couleur, sans changer la position physique`);
   const recolored = await page.evaluate(() => (window as unknown as { __characters: Harness }).__characters.repaint());
   assert.notDeepEqual(recolored.karts[firstQueen]!.colors, victory.karts[firstQueen]!.colors);
   for (let index = 0; index < before.karts.length; index++) if (index !== firstQueen) assert.deepEqual(recolored.karts[index]!.colors, victory.karts[index]!.colors);
@@ -77,5 +92,7 @@ try {
   assert.deepEqual(errors, []);
   record('Recoloration/recréation d’un couple pilote-kart sans perte de géométrie partagée, sans nouveau GLB ni erreur JavaScript');
   await writeFile(resolve(destination, 'validation.json'), JSON.stringify({ command: 'node --import tsx scripts/characters-check.ts',
-    renderer: 'Chromium headless / SwiftShader', checks, errors, modelRequests, before, impact, victory }, null, 2) + '\n');
+    passed: true, at: new Date().toISOString(), renderer: 'Chromium headless / SwiftShader',
+    scope: `Galerie de rendu isolée : ${before.karts.length} instances créées, seuls les ${CHARACTERS.length} pilotes ou le groupe choisi sont visibles ; aucune course simulée.`,
+    checks, errors, modelRequests, before, impact, victory, drive }, null, 2) + '\n');
 } finally { await browser.close(); await vite.close(); }

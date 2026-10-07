@@ -9,6 +9,7 @@ import { playerStore } from '../server/career.js';
 import type { RaceRoom } from '../server/RaceRoom.js';
 import { CHAMPIONSHIPS, type PlayerProfile } from '../shared/progression.js';
 import { TRACKS } from '../shared/track.js';
+import { CHARACTERS } from '../shared/characters.js';
 import type { World } from '../shared/game.js';
 
 // Private application server + real built client. Never accepts BASE_URL and
@@ -117,7 +118,7 @@ try {
     await page.locator('#swatches [data-color]').nth(choice.colorIndex).click();
     await page.locator('#garage-button').click(); await page.locator('#garage-dialog').waitFor({ state: 'visible' });
     assert.equal(await page.locator('#kart-model-select option').count(), 3);
-    assert.equal(await page.locator('#character-select option').count(), 5);
+    assert.equal(await page.locator('#character-select option').count(), CHARACTERS.length);
     assert.equal(await page.locator('#garage-dialog [data-slot]').count(), 6);
     assert.equal(await page.locator('#garage-dialog [data-slot] option:disabled').count(), 12);
     await page.locator('#kart-model-select').selectOption(choice.model);
@@ -128,7 +129,7 @@ try {
     await page.locator('#garage-close').click();
   }
   evidence.identities = await Promise.all(pages.map(page => profile(page).then(value => ({ id: value.id, name: value.name, careerLevel: value.careerLevel }))));
-  record('Garage : trois modèles, cinq personnages, six catégories et douze pièces verrouillées au niveau zéro ; aperçus 3D et identités distinctes');
+  record(`Garage : trois modèles, ${CHARACTERS.length} personnages, six catégories et douze pièces verrouillées au niveau zéro ; aperçus 3D et identités distinctes`);
 
   await host.locator('#create-button').click(); await phase(host, 'lobby');
   const invitation = await host.locator('#share-url').inputValue();

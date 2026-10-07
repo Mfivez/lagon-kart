@@ -2,6 +2,28 @@
 
 État au **7 octobre 2026**. `[x]` = réalisé avec preuve ; `[ ]` = travail ou validation restant à terminer. [Démo intégrée et rapports](docs/DEMO.md).
 
+## Pilotes caricaturaux : quatorze choix
+
+- [x] Retrait du personnage ambigu demandé par l’utilisateur ; le catalogue conserve les cinq anciens, Macron, Merkel, Napoléon et six références aux jeux, séries et films, soit neuf ajouts. Accessoires distinctifs et descriptions humoristiques. [Casting](docs/CHARACTERS.md).
+- [x] Animations de conduite, impact et victoire sur trois châssis et huit peintures ; géométries partagées et couleurs indépendantes. Aucun asset ou service payant, aucune dépendance ajoutée : **0 €**.
+
+- [x] Catalogue à 14 et repli de l’ancien choix vers le pilote casqué validés ; **6 contrôles de rendu** réussis sur **84 instances**. Galerie régénérée et portrait retiré. [Rapport actuel](docs/characters/validation.json).
+- [x] Build et Docker réussis ; déploiement sans salon actif, **21 fichiers de sauvegarde inchangés** et tunnel conservé. [Contrôle du retrait](docs/characters/removal-deployment.json).
+
+- [x] Chromium public : 14 choix, ancienne sélection remplacée par le pilote casqué et aperçu rendu à 320 px sans erreur JS. [Rapport](docs/characters/removal-browser.json).
+
+### Historique du lot initial à quinze pilotes, avant retrait
+
+Ces résultats concernent les dix ajouts initiaux. Ils ne valident pas le retrait
+ultérieur ; les nouveaux contrôles sont indiqués dans [VALIDATION.md](VALIDATION.md).
+
+- [x] **27 tests ciblés** et **6 contrôles de rendu Chromium** réussis sur le casting initial ; 90 instances, quinze portraits inspectés, conduite identique pour les 45 couples pilote/châssis. La [galerie courante](docs/characters/lineup.png) est régénérée après retrait.
+- [x] Sélecteurs du garage agrandis à 44 px sur petit écran ; capture à 320 × 568 sans débordement horizontal.
+- [x] **6 contrôles privés du garage/réseau**, les dix choix répliqués entre deux navigateurs, restauration et départ réel à huit karts ; aucune erreur JS/asset. [Rapport](docs/characters/roster-browser-validation.json).
+- [x] Déploiement Docker validé, cinq modules et deux assets identiques au build ; **21 fichiers de sauvegarde intacts**, tunnel conservé. [Preuves](docs/characters/deployment.json).
+- [x] **7 contrôles publics réussis** : garage mobile 320 px, deux navigateurs HTTPS/WSS, choix conservé et partagé, départ/conduite réels à deux, aucune erreur et retour à zéro salon. [Rapport](docs/characters/public/roster-browser-validation.json).
+- [ ] Essai sur téléphone physique ; ce lot n’a pas rejoué une course complète ou un championnat.
+
 ## Bots bloqués par les fermetures et les rails
 
 - [x] Cas reproduits sur plusieurs circuits : un CPU visait une autre voie à travers un rail. Conservation de la branche engagée, poursuite sur la principale après le barrage, anticipation et vitesse adaptées à la voie réelle.

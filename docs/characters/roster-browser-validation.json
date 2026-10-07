@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "at": "2026-10-07T09:51:27.692Z",
+  "command": "node --import tsx scripts/characters-roster-check.ts",
+  "origin": "http://127.0.0.1:39163",
+  "public": false,
+  "scope": "Serveur privé et stockage temporaire ; deux contextes Chromium indépendants dont un écran mobile émulé. Départ et conduite réels, aucune course complète ni téléphone physique testé.",
+  "checks": [
+    "Les quinze pilotes sont accessibles dans le garage ; aperçu 3D sur desktop et écran tactile 320×568, sélecteur ≥44 px sans débordement horizontal.",
+    "Le choix du nouveau pilote est conservé après rechargement de la page.",
+    "Deux navigateurs indépendants rejoignent le même salon Colyseus ; les personnages choisis à la connexion sont reçus et rendus des deux côtés.",
+    "Les dix nouveaux pilotes sont sélectionnés par le vrai garage, acceptés par le serveur et répliqués au second client ; les caractéristiques de conduite restent identiques.",
+    "Départ réel à 8 karts (deux humains et six CPU), déplacement au clavier confirmé pour les deux nouveaux pilotes ; aucun modèle de secours, un chargement GLB par navigateur.",
+    "Un identifiant local invalide revient au pilote par défaut sans empêcher l’ouverture du garage."
+  ],
+  "captures": [
+    "garage-roster-desktop.png",
+    "garage-roster-mobile-320.png",
+    "lobby-new-drivers.png",
+    "race-new-drivers-8-karts.png",
+    "race-new-drivers-mobile-320.png"
+  ],
+  "errors": [],
+  "evidence": {
+    "clientAssets": [
+      "/assets/index-CNhD6czR.js",
+      "/assets/index-DHM7KfgD.css"
+    ],
+    "acceptedCharacterIds": [
+      "macron",
+      "merkel",
+      "napoleon",
+      "plumber",
+      "elf",
+      "hedgehog",
+      "block",
+      "chemist",
+      "bean",
+      "space"
+    ],
+    "driving": [
+      {
+        "id": "g6x2nWkKP",
+        "characterId": "space",
+        "distance": 5.353878071923092,
+        "inputSequence": 227
+      },
+      {
+        "id": "OMm2Blk3t",
+        "characterId": "chemist",
+        "distance": 5.039509653155738,
+        "inputSequence": 215
+      }
+    ]
+  }
+}

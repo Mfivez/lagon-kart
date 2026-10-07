@@ -2,7 +2,7 @@
 
 Un jeu de kart 3D arcade à partager entre amis : **douze circuits originaux**, trois tours par course, routes évolutives, drift et mini-turbo, objets, aspiration et tournois de deux à huit courses. Le garage, six championnats progressifs, les courses classées, les replays et les équipes 4 contre 4 complètent les parties libres. L'interface est en français. Le serveur calcule les déplacements, collisions, objets et résultats ; le navigateur envoie les touches de conduite.
 
-Les **trois modèles gratuits**, Zsky, Sprint et Rétro, acceptent chacun huit peintures, des roues animées, le braquage et une légère inclinaison visuelle de la carrosserie. Cinq personnages sont disponibles. Les modèles de Zsky, Poly by Google et Ben Harrison sont crédités sous [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) ; leurs sources restent dans le dépôt. Coût des assets et de la préparation : **0 €**, sans service payant ni nouvelle dépendance. Voir [la bibliothèque de modèles](docs/KART_MODELS.md).
+Les **trois modèles gratuits**, Zsky, Sprint et Rétro, acceptent chacun huit peintures, des roues animées, le braquage et une légère inclinaison visuelle de la carrosserie. Quatorze personnages sont disponibles. Les modèles de Zsky, Poly by Google et Ben Harrison sont crédités sous [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) ; leurs sources restent dans le dépôt. Coût des assets et de la préparation : **0 €**, sans service payant ni nouvelle dépendance. Voir [la bibliothèque de modèles](docs/KART_MODELS.md).
 
 Voir la [démo intégrée, ses captures et ses tests](docs/DEMO.md), ainsi que le [suivi des tâches](todo.md).
 
@@ -98,7 +98,7 @@ Les [Quick Tunnels Cloudflare](https://developers.cloudflare.com/tunnel/get-star
 
 ## Garage, carrière et classement
 
-Le **Garage** propose trois modèles, huit couleurs et cinq personnages : Pilote, La Reine, Obama, Trump et Kim Jong-un. Ces choix sont visuels. Les **18 pièces**, trois par emplacement, modifient réellement la conduite : châssis, moteur, pneus, turbo, aileron et poids. L'interface montre leurs effets et les pièces verrouillées. Les niveaux de carrière 0 à 3 débloquent les variantes ; le serveur vérifie les choix reçus.
+Le **Garage** propose trois modèles, huit couleurs et **quatorze personnages**. Aux cinq pilotes d'origine s'ajoutent Macron, Angela Merkel, Napoléon et six clins d'œil aux jeux, séries et films : Plombier turbo, Lutin vert, Hérisson pressé, Mineur cubique, Prof de chimie et Seigneur du casque. Chaque choix a son aperçu animé et sa description humoristique. [Portraits et casting](docs/CHARACTERS.md). Ces choix sont visuels. Les **18 pièces**, trois par emplacement, modifient réellement la conduite : châssis, moteur, pneus, turbo, aileron et poids. L'interface montre leurs effets et les pièces verrouillées. Les niveaux de carrière 0 à 3 débloquent les variantes ; le serveur vérifie les choix reçus.
 
 Le bouton **Championnats, classement et replays** ouvre les six coupes :
 
@@ -237,9 +237,10 @@ npm run test:items-browser
 # Musique : lecture des MP3, changement de tour, volume et reprise
 npm run test:music
 
-# Trois modèles, cinq personnages et interface carrière/équipes sur serveurs privés
+# Trois modèles, quatorze personnages et interface carrière/équipes sur serveurs privés
 npm run test:kart-library
 npm run test:characters
+npm run test:characters-roster
 npm run test:features-browser
 
 # Comptes : deux navigateurs privés, puis persistance Docker dans un dossier temporaire
@@ -261,7 +262,7 @@ LATENCY_MS=75 npm run test:network
 
 Sous PowerShell : `$env:BASE_URL="https://votre-adresse.trycloudflare.com"`, puis `npm run test:network`. Selon le script, les rapports et captures sont écrits dans `test-results/` (ignoré par Git) ou dans les sous-dossiers de `docs/` indiqués par son rapport.
 
-Dernière suite complète, le 7 octobre 2026 : **312/312 tests réussis**, sans échec ni test ignoré, en **107,34 s**, avec `node --import tsx --test --test-concurrency=4 tests/*.test.ts`. Elle couvre aussi les comptes et la récupération des bots lors des fermetures : huit CPU terminent les douze circuits, et 29 tests supplémentaires vérifient rails, branches et remises en piste. [Fonctionnement des bots](docs/TEAMS.md). Le parcours des comptes réussit **9 contrôles Chromium** sur deux contextes indépendants, dont un écran de 320 px. Les **15 contrôles tactiles** du lot précédent couvrent cinq formats et les commandes simultanées. Après `npm run build`, `npm run test:mobile-browser` et `npm run test:scenes-browser` exécutent ces parcours sur serveurs privés. Voir [VALIDATION.md](VALIDATION.md) pour les captures, les versions réellement testées et les limites sur appareils physiques.
+Suite complète du lot précédent (bots et comptes), le 7 octobre 2026 : **312/312 tests réussis**, sans échec ni test ignoré, en **107,34 s**, avec `node --import tsx --test --test-concurrency=4 tests/*.test.ts`. Elle couvre aussi les comptes et la récupération des bots lors des fermetures : huit CPU terminent les douze circuits, et 29 tests supplémentaires vérifient rails, branches et remises en piste. [Fonctionnement des bots](docs/TEAMS.md). Le parcours des comptes réussit **9 contrôles Chromium** sur deux contextes indépendants, dont un écran de 320 px. Les **15 contrôles tactiles** du lot précédent couvrent cinq formats et les commandes simultanées. Après `npm run build`, `npm run test:mobile-browser` et `npm run test:scenes-browser` exécutent ces parcours sur serveurs privés. Le lot initial de dix nouveaux personnages avait réussi **27 tests ciblés** et **6 contrôles de rendu Chromium**, avant le retrait d’un personnage ambigu et le passage à quatorze choix ; ces résultats historiques ne valident pas ce retrait. La suite complète ci-dessus précède cet ajout. Voir [VALIDATION.md](VALIDATION.md) pour les captures, les contrôles réseau, les versions réellement testées et les limites sur appareils physiques.
 
 ## Architecture et ressources
 

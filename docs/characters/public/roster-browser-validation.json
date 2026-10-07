@@ -1,0 +1,64 @@
+{
+  "passed": true,
+  "at": "2026-10-07T09:57:26.011Z",
+  "command": "node --import tsx scripts/characters-roster-check.ts",
+  "origin": "https://miles-blades-tulsa-citizens.trycloudflare.com",
+  "public": true,
+  "scope": "Serveur public, deux pilotes invités créés par les formulaires ordinaires ; deux contextes Chromium indépendants dont un écran mobile émulé. Départ et conduite réels, aucune course complète ni téléphone physique testé.",
+  "checks": [
+    "Les quinze pilotes sont accessibles dans le garage ; aperçu 3D sur desktop et écran tactile 320×568, sélecteur ≥44 px sans débordement horizontal.",
+    "Le choix du nouveau pilote est conservé après rechargement de la page.",
+    "Deux navigateurs indépendants rejoignent le même salon Colyseus ; les personnages choisis à la connexion sont reçus et rendus des deux côtés.",
+    "Un changement de nouveau pilote dans le vrai garage est accepté par le serveur public et répliqué au second client.",
+    "Départ réel à 2 karts (deux humains), déplacement au clavier confirmé pour les deux nouveaux pilotes ; aucun modèle de secours, un chargement GLB par navigateur.",
+    "Un identifiant local invalide revient au pilote par défaut sans empêcher l’ouverture du garage.",
+    "Le serveur public est sain et ne conserve aucun salon de test après la sortie des deux joueurs."
+  ],
+  "captures": [
+    "garage-roster-desktop.png",
+    "garage-roster-mobile-320.png",
+    "lobby-new-drivers.png",
+    "race-new-drivers-2-karts.png",
+    "race-new-drivers-mobile-320.png"
+  ],
+  "errors": [],
+  "evidence": {
+    "healthBefore": {
+      "status": "ok",
+      "rooms": 0,
+      "maxRooms": 16,
+      "maxPlayers": 8,
+      "simHz": 30,
+      "snapshotHz": 20
+    },
+    "clientAssets": [
+      "/assets/index-CNhD6czR.js",
+      "/assets/index-DHM7KfgD.css"
+    ],
+    "acceptedCharacterIds": [
+      "space"
+    ],
+    "driving": [
+      {
+        "id": "w5JCnzii8",
+        "characterId": "space",
+        "distance": 5.133333333333331,
+        "inputSequence": 214
+      },
+      {
+        "id": "PztH-CpJA",
+        "characterId": "chemist",
+        "distance": 4.40458803617968,
+        "inputSequence": 134
+      }
+    ],
+    "healthAfter": {
+      "status": "ok",
+      "rooms": 0,
+      "maxRooms": 16,
+      "maxPlayers": 8,
+      "simHz": 30,
+      "snapshotHz": 20
+    }
+  }
+}

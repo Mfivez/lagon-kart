@@ -17,22 +17,41 @@ ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; ground.position.y
 const camera = new THREE.PerspectiveCamera(38, innerWidth / innerHeight, .1, 100);
 camera.position.set(11, 13, 27); camera.lookAt(0, 1, 0);
 const instances: KartModelInstance[] = [];
+const shadows = new Map<string, THREE.Object3D>();
+const labels = new Map<string, HTMLSpanElement>();
 await Promise.all(KART_MODELS.map(async model => {
   for (const [index, character] of CHARACTERS.entries()) {
     const copies = await Promise.all(['#ee824e', '#287ccd'].map(color => createKartModel(color, model.id, character.id)));
     copies.forEach((instance, copy) => {
-      instance.group.position.x = (index - 2) * 4.5;
-      instance.group.visible = model.id === 'zsky' && copy === 0; scene.add(instance.group);
+      instance.group.position.set((index % 5 - 2) * 4.5, 0, (Math.floor(index / 5) - 1) * 6);
+      instance.group.visible = false; scene.add(instance.group);
     });
     instances.push(...copies);
     if (model.id === 'zsky') {
-      const shadow = createKartContactShadow(); shadow.position.x = (index - 2) * 4.5; scene.add(shadow);
+      const shadow = createKartContactShadow();
+      shadow.position.x = copies[0]!.group.position.x; shadow.position.z = copies[0]!.group.position.z; scene.add(shadow);
+      shadows.set(character.id, shadow);
+      const label = document.createElement('span'); label.textContent = character.name;
+      Object.assign(label.style, { position: 'absolute', padding: '4px 9px', borderRadius: '12px',
+        background: '#ffffffde', color: '#14323a', font: '600 16px system-ui', transform: 'translate(-50%, -50%)', pointerEvents: 'none' });
+      document.body.append(label); labels.set(character.id, label);
     }
   }
 }));
 instances.sort((a, b) => KART_MODELS.findIndex(m => m.id === a.modelId) - KART_MODELS.findIndex(m => m.id === b.modelId)
   || CHARACTERS.findIndex(c => c.id === a.characterId) - CHARACTERS.findIndex(c => c.id === b.characterId));
-function draw() { renderer.render(scene, camera); }
+function draw() {
+  renderer.render(scene, camera);
+  for (const [id, label] of labels) {
+    const selected = instances.find(instance => instance.characterId === id && instance.group.visible);
+    label.hidden = !selected;
+    if (selected) {
+      const point = selected.group.position.clone().add(new THREE.Vector3(0, .1, 1.8)).project(camera);
+      label.style.left = `${(point.x + 1) * innerWidth / 2}px`;
+      label.style.top = `${(1 - point.y) * innerHeight / 2}px`;
+    }
+  }
+}
 function describe() {
   scene.updateMatrixWorld(true);
   return { asset: kartAssetDiagnostics(), karts: instances.map(instance => {
@@ -57,12 +76,28 @@ function describe() {
 }
 const api = {
   describe,
+  gallery(page?: number) {
+    instances.forEach(instance => instance.group.visible = false);
+    for (const [index, character] of CHARACTERS.entries()) {
+      const selected = instances.find(instance => instance.characterId === character.id && instance.modelId === 'zsky')!;
+      selected.group.visible = page === undefined || Math.floor(index / 5) === page;
+      const shadow = shadows.get(character.id)!; shadow.visible = selected.group.visible;
+    }
+    const centerZ = page === undefined ? 0 : (page - 1) * 6;
+    camera.position.set(page === undefined ? 12 : 7, page === undefined ? 23 : 9, centerZ + (page === undefined ? 29 : 24));
+    camera.lookAt(0, .7, centerZ);
+    document.querySelector('p')!.textContent = page === undefined
+      ? `${CHARACTERS.length} pilotes — caricatures géométriques originales`
+      : CHARACTERS.slice(page * 5, page * 5 + 5).map(character => character.name).join(' · ');
+    draw();
+  },
   detail(id: string, model = 'zsky') {
     instances.forEach(instance => instance.group.visible = false);
+    for (const [key, shadow] of shadows) shadow.visible = key === id;
     const selected = instances.find(instance => instance.characterId === id && instance.modelId === model)!;
     selected.group.visible = true;
-    camera.position.set(selected.group.position.x + 4.2, 3.8, 6.5);
-    camera.lookAt(selected.group.position.x, 1.13, 0);
+    camera.position.copy(selected.group.position).add(new THREE.Vector3(4.2, 3.8, 6.5));
+    camera.lookAt(selected.group.position.x, 1.13, selected.group.position.z);
     document.querySelector('p')!.textContent = CHARACTERS.find(character => character.id === id)!.name + ' — caricature géométrique originale';
     draw();
   },
@@ -91,4 +126,4 @@ const api = {
   },
 };
 (window as unknown as { __characters: typeof api }).__characters = api;
-draw();
+api.gallery();

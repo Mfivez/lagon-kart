@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "at": "2026-10-07T10:12:03.636875+00:00",
+  "origin": "https://miles-blades-tulsa-citizens.trycloudflare.com",
+  "image": "sha256:c50e9ed789b74c77a515ed7768e9e6b03eb9beb48778ddecadb57f20d91d1df3",
+  "assets": [
+    {
+      "path": "/assets/index-G7ETGeSm.js",
+      "sha256": "f84242c6992f2ba44d90a6a7a2052b7ac6f0d2f99a1e60aaa4d26833815b8c3a",
+      "matchesLocal": true
+    },
+    {
+      "path": "/assets/index-DHM7KfgD.css",
+      "sha256": "989db081322ce3916f69bef5bf12eaff1a7ae1a717d0edda7511b0e99571271d",
+      "matchesLocal": true
+    }
+  ],
+  "serverCatalogMatchesLocal": true,
+  "removedCharacter": "bean",
+  "savedFilesUnchanged": 21,
+  "containerFilesMatchHost": true,
+  "tunnelNotRecreated": true,
+  "health": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  }
+}

@@ -2,6 +2,90 @@
 
 Vérifications des 6 et 7 octobre 2026 dans WSL/Linux avec Docker Desktop 4.55.0, Docker Engine 29.1.3, Compose 2.40.3, Node 20.19.2 sur l'hôte et Node 22.21.1 dans l'image. Les résultats ci-dessous distinguent simulation, clients réseau automatisés et navigateur ; chaque lot conserve ses preuves et sa date.
 
+## 7 octobre 2026 — retrait de Monsieur Gaffe
+
+Le catalogue et le modèle `bean` sont retirés à la demande de l’utilisateur :
+**14 pilotes**, neuf ajouts conservés. L’ancien choix revient au pilote casqué.
+Le test du catalogue (14 IDs valides, `bean` invalide), le build et Docker passent.
+La galerie est régénérée : **6/6 contrôles**, **84 instances**, trois modèles,
+peintures indépendantes et animations conservées ; 11 882 triangles et
+44 maillages maximum, aucune erreur JavaScript.
+[Rapport courant](docs/characters/validation.json).
+
+Déploiement sans salon actif, client `index-G7ETGeSm.js`, catalogue serveur
+identique au build et **21 fichiers de sauvegarde inchangés**, tunnel conservé.
+[Déploiement du retrait](docs/characters/removal-deployment.json).
+
+Le contrôle Chromium public réussit également : écran 320 × 568, **14 options**,
+ancien choix local `bean` remplacé par `racer` et aperçu casqué rendu, aucune
+erreur JavaScript. Aucun salon ni course ouvert pour ce contrôle ciblé.
+[Rapport](docs/characters/removal-browser.json) ·
+[Capture actuelle](docs/characters/removal-mobile-320.png).
+
+La section suivante décrit le lot initial, avant retrait. Son rapport de rendu
+et sa galerie ont été actualisés ; les rapports réseau restent historiques.
+
+## 7 octobre 2026 — dix nouveaux pilotes caricaturaux
+
+**Quinze personnages au total**, trois modèles de kart et huit peintures.
+Trois nouvelles caricatures politiques et sept clins d’œil aux jeux, séries
+et films, en géométrie originale partagée. Aucun téléchargement de personnage,
+service payant ou nouvelle dépendance ; **0 €**. Le garage affiche le casting,
+la description humoristique et l’aperçu animé ; sélecteurs tactiles de 44 px
+minimum sur petit écran. [Casting et portraits](docs/CHARACTERS.md).
+
+**27/27 tests ciblés réussis**, sans échec, en **27,25 s** :
+`node --import tsx --test --test-concurrency=3 tests/characters.test.ts tests/garage.test.ts tests/kart-assets.test.ts tests/server.test.ts`.
+Les 45 couples personnage/châssis gardent une conduite identique à commandes
+identiques ; validation des identifiants, actifs et échanges serveur.
+Journal : `/tmp/lagon-roster-tests.log`. La suite complète **312/312** ci-dessous
+appartient au lot précédent ; elle n’a pas été rejouée pour cet ajout visuel.
+
+**6/6 contrôles de rendu Chromium réussis** : 90 instances, quinze pilotes
+sur trois karts et deux peintures. Trois GLB téléchargés une fois, géométries
+partagées, peinture indépendante, animations de conduite/impact/victoire
+isolées et aucune erreur JavaScript. Maximum mesuré : **11 882 triangles,
+44 maillages** par kart avec pilote, sous les budgets existants. Quinze portraits,
+trois groupes de cinq et la galerie complète sont produits par le moteur du jeu
+et inspectés. [Rapport](docs/characters/validation.json) ·
+[Galerie](docs/characters/lineup.png).
+
+**6/6 contrôles du garage en réseau privé réussis**, deux contextes Chromium,
+dont un écran de **320 × 568** : casting complet, aperçu, restauration après
+rechargement, transmission de chacun des dix nouveaux choix au second client,
+stats inchangées et retour au pilote par défaut pour un identifiant invalide.
+Départ réel à **huit karts**, deux humains et six CPU : les deux pilotes commandés
+au clavier avancent de **5,35 m et 5,04 m**, sans placement forcé. Aucun secours
+ou asset manquant, aucune erreur JavaScript. Le sélecteur mobile trop petit
+repéré lors d’un premier essai a été agrandi à 44 px, puis le parcours entier
+rejoué avec succès. [Rapport](docs/characters/roster-browser-validation.json) ·
+[Garage mobile](docs/characters/garage-roster-mobile-320.png) ·
+[Départ à huit](docs/characters/race-new-drivers-8-karts.png).
+
+**Build hôte, typage et Docker réussis** ; client `index-CNhD6czR.js`, styles
+`index-DHM7KfgD.css`. Déploiement sans salon actif : **21 fichiers de sauvegarde
+identiques** avant/après et lisibles à l’identique dans le conteneur ; cinq
+modules serveur et deux assets publics correspondent au build par SHA-256.
+Le montage garde le même dossier Windows/WSL et le tunnel n’est pas recréé.
+Adresse actuelle relevée dans ses logs :
+https://miles-blades-tulsa-citizens.trycloudflare.com.
+[Empreintes et déploiement](docs/characters/deployment.json).
+
+**7/7 contrôles publics réussis** sur cette version : garage complet et écran
+320 px, choix conservé après rechargement, deux navigateurs indépendants dans
+le même salon HTTPS/WSS, changement de pilote répliqué et départ réel à deux.
+Les pilotes Seigneur du casque et Prof de chimie avancent respectivement de
+**5,13 m et 4,40 m** par commandes clavier ; un GLB par navigateur, aucun secours
+ni erreur JavaScript ou ressource manquante. Deux invités créés par les
+formulaires ordinaires ; sortie propre et retour à **0 salon**, serveur sain.
+[Rapport public](docs/characters/public/roster-browser-validation.json) ·
+[Garage mobile public](docs/characters/public/garage-roster-mobile-320.png) ·
+[Départ public](docs/characters/public/race-new-drivers-2-karts.png).
+
+Le rendu automatisé utilise SwiftShader ; la fluidité sur téléphone physique
+reste à vérifier. Ce lot valide un départ et une courte conduite : aucune
+nouvelle course complète ni essai sur deux machines physiques n’est revendiqué.
+
 ## 7 octobre 2026 — bots, fermetures et rails des déviations
 
 **312/312 tests réussis**, sans échec, annulation ou test ignoré, en **107,337 s** :

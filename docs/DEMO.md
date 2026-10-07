@@ -19,12 +19,13 @@ courante depuis les logs du tunnel, l'ouvrir, puis créer et partager le salon.
 Le tunnel doit rester actif. Pour une instance déjà nommée ou un autre port,
 conserver ses options `-p` et `HOST_PORT` lors des commandes suivantes.
 
-Lien de cette session : [ouvrir Lagon Kart](https://exercises-inspections-playlist-char.trycloudflare.com).
+Lien de cette session : [ouvrir Lagon Kart](https://miles-blades-tulsa-citizens.trycloudflare.com).
 Le tunnel précédent avait expiré ; ce lien le remplace et change à sa recréation.
 Les douze tracés remaniés, les commandes tactiles et les deux loopings sont
 conservés. Les preuves ci-dessous du lot mobile concernent son build précédent
 `index-wc3mK_Sw.js` ; [VALIDATION.md](../VALIDATION.md) identifie séparément la
-version courante avec les comptes et les essais exécutés sur celle-ci.
+version testée et les essais réellement exécutés. Le catalogue courant compte
+quatorze personnages après le retrait du personnage ambigu.
 
 Compose conserve les comptes, profils, progression, saisons et replays dans
 **`data/players/` sur la machine hôte**, monté dans `/app/data/players`.
@@ -52,6 +53,24 @@ le circuit évolue. Les cas tardifs de Mangrove et Citadelle sont vérifiés dan
 des salons privés, avec une remise en piste ordinaire au besoin.
 [Fonctionnement et tests](TEAMS.md) · [Captures](cpu-obstacles/README.md).
 
+Le garage propose **quatorze personnages**, dont neuf nouvelles caricatures.
+[Casting courant et captures](CHARACTERS.md).
+
+Le retrait est déployé dans `index-G7ETGeSm.js` et vérifié en navigateur : 14 choix, ancien choix remplacé par le pilote casqué, sauvegardes conservées. [Contrôle actuel](characters/removal-browser.json).
+
+**Historique du lot initial à quinze pilotes, avant retrait :** le client
+`index-CNhD6czR.js` avec `index-DHM7KfgD.css` a été testé comme suit.
+**27 tests ciblés**, **6 contrôles de rendu** et **6 contrôles du garage en réseau
+privé** passent ; quinze portraits et un départ à huit karts ont été inspectés.
+Les **21 fichiers de sauvegarde** présents au moment de cette mise à jour sont
+restés identiques, le tunnel n’a pas été recréé.
+[Casting et captures](CHARACTERS.md) · [Déploiement](characters/deployment.json).
+Le même client réussit **7 contrôles publics** avec deux navigateurs : garage
+mobile, sauvegarde locale du choix, personnage répliqué et départ réel à deux,
+sans erreur puis retour à zéro salon. Il s’agit d’une courte conduite ; les
+courses complètes des anciens lots ne sont pas rejouées ici.
+[Rapport public des pilotes](characters/public/roster-browser-validation.json).
+
 ## Parcours conseillé pour la démo
 
 Sur mobile, glisser à gauche pour tourner ; utiliser drift, objet et frein à
@@ -66,7 +85,7 @@ les loopings magnétiques retournent réellement le kart, acceptent le freinage
 et la reprise au sommet, puis rejoignent la piste au sol. [Galerie](scenes-v2/README.md).
 
 1. Ouvrir **Garage** et comparer Zsky, Sprint et Rétro dans la même couleur.
-   Choisir l'un des cinq personnages. Les **18 pièces** sont réparties en six
+   Choisir l’un des quatorze personnages, dont neuf nouvelles caricatures. Les **18 pièces** sont réparties en six
    catégories ; les variantes verrouillées annoncent leur niveau de carrière.
 2. Choisir parmi les **douze circuits**, créer un salon et faire rejoindre un
    autre navigateur. Les modèles, personnages et peintures de chacun sont
@@ -147,7 +166,7 @@ des frontières pour en contrôler les règles.
 | Course publique finale | [Tour 1](final-public-tour-1.png) · [Tour 3](final-public-tour-3.png) · [Résultats](final-public-resultats.png) |
 | Ancien kart et kart Zsky, cadrage comparable | [Avant](kart-visuals/kart-before-detail.png) · [Après](kart-visuals/kart-after-detail.png) |
 | Trois silhouettes dans la même couleur | [Bibliothèque](kart-library/three-models.png) |
-| Les cinq personnages | [Pilotes](characters/lineup.png) |
+| Les quatorze personnages actuels | [Pilotes](characters/lineup.png) |
 | Garage et pièces verrouillées | [Garage, lot douze circuits](feature-demo-12/garage-level-zero.png) |
 | Deux humains et six CPU | [Équipes, lot douze circuits](feature-demo-12/teams-eight-pilots.png) |
 | Ponts et sauts des six nouvelles pistes | [Galerie et mesures](CIRCUITS_APPENDIX.md) |

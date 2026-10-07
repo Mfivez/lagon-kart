@@ -1,29 +1,27 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import type { CharacterId } from '../shared/characters';
+import { sphere, cube, limb, cone, ring, material, black, ivory, gold, red, paint, mesh } from './character-shapes';
+import { addPoliticalCostume } from './character-politics';
+import { addPopCultureCostume } from './character-popculture';
 
 // Original geometric caricatures. No photographs, textures or external assets.
-const sphere = new THREE.SphereGeometry(1, 12, 8);
-const cube = new THREE.BoxGeometry(1, 1, 1);
-const limb = new THREE.CylinderGeometry(1, 1, 1, 8);
-const cone = new THREE.ConeGeometry(1, 1, 5);
-const ring = new THREE.TorusGeometry(1, .17, 5, 16);
 const templates = new Map<CharacterId, THREE.Group>();
-const material = (name: string, color: string, roughness = .7, metalness = 0) => {
-  const result = new THREE.MeshStandardMaterial({ color, roughness, metalness }); result.name = name; return result;
+const styles: Record<Exclude<CharacterId, 'racer'>, { skin: string; suit: string; hair: string; cubic?: boolean; gloves?: boolean }> = {
+  queen: { skin: '#edc7a9', suit: '#6091c5', hair: '#deded8' },
+  obama: { skin: '#985b3c', suit: '#253c59', hair: '#172024' },
+  trump: { skin: '#e5a071', suit: '#253c59', hair: '#e5ba54' },
+  kim: { skin: '#ecc8ad', suit: '#303d42', hair: '#172024' },
+  macron: { skin: '#edbd9c', suit: '#253c59', hair: '#4c362b' },
+  merkel: { skin: '#f0c9ae', suit: '#b34079', hair: '#d9b25f' },
+  napoleon: { skin: '#ecc4a5', suit: '#253c59', hair: '#29232a' },
+  plumber: { skin: '#efbf96', suit: '#c94042', hair: '#523522', gloves: true },
+  elf: { skin: '#f2c69e', suit: '#3d914d', hair: '#e8bd59' },
+  hedgehog: { skin: '#f3d3a0', suit: '#286ed4', hair: '#286ed4', gloves: true },
+  block: { skin: '#bf8967', suit: '#32aeaa', hair: '#493425', cubic: true },
+  chemist: { skin: '#e6bf9d', suit: '#edc83d', hair: '#674e35', gloves: true },
+  space: { skin: '#34434d', suit: '#141b21', hair: '#141b21', gloves: true },
 };
-const black = material('CharacterBlack', '#141b21');
-const ivory = material('CharacterIvory', '#fff1d0');
-const gold = material('CharacterGold', '#e3b337', .32, .6);
-const red = material('CharacterRed', '#b92f39');
-const paint = material('DriverPaint', '#ffffff', .5);
-
-function mesh(parent: THREE.Object3D, geometry: THREE.BufferGeometry, mat: THREE.Material,
-  position: number[], scale: number[]) {
-  const result = new THREE.Mesh(geometry, mat);
-  result.position.fromArray(position); result.scale.fromArray(scale);
-  parent.add(result); return result;
-}
 
 /** Merge only each rigid part; moving facial/arm groups remain independent. */
 function batch(group: THREE.Group) {
@@ -50,9 +48,10 @@ function template(id: Exclude<CharacterId, 'racer'>) {
   const driver = new THREE.Group(); driver.name = 'LagonDriver'; driver.userData.role = 'driver';
   driver.userData.characterId = id;
   const queen = id === 'queen', obama = id === 'obama', trump = id === 'trump', kim = id === 'kim';
-  const skin = material('CharacterSkin', queen ? '#edc7a9' : obama ? '#985b3c' : trump ? '#e5a071' : '#ecc8ad');
-  const suit = material('CharacterSuit', queen ? '#6091c5' : kim ? '#303d42' : '#253c59');
-  const hair = material('CharacterHair', queen ? '#deded8' : trump ? '#e5ba54' : '#172024');
+  const style = styles[id];
+  const skin = material('CharacterSkin', style.skin);
+  const suit = material('CharacterSuit', style.suit);
+  const hair = material('CharacterHair', style.hair);
   const torso = new THREE.Group(); torso.name = 'CharacterTorso'; driver.add(torso);
   mesh(torso, sphere, suit, [0, .38, -.04], [kim ? .42 : .36, .43, .3]);
   mesh(torso, sphere, suit, [0, .08, .04], [.35, .17, .3]);
@@ -72,7 +71,7 @@ function template(id: Exclude<CharacterId, 'racer'>) {
     mesh(torso, cube, paint, [0, .73, .19], [.22, .035, .04]);
     for (let i = 0; i < 4; i++) mesh(torso, sphere, gold, [0, .6 - i * .12, .265], [.023, .023, .023]);
     mesh(torso, cube, red, [.18, .54, .25], [.1, .06, .025]);
-  } else {
+  } else if (obama || trump) {
     mesh(torso, cube, ivory, [0, .54, .24], [.18, .33, .045]);
     mesh(torso, cube, red, [0, .48, .282], [trump ? .105 : .07, trump ? .49 : .3, .045]);
     for (const side of [-1, 1]) {
@@ -80,12 +79,10 @@ function template(id: Exclude<CharacterId, 'racer'>) {
     }
     mesh(torso, sphere, paint, [.22, .59, .254], [.039, .039, .025]);
   }
-  batch(torso);
-
   const head = new THREE.Group(); head.name = 'CharacterHead'; head.position.set(0, 1.12, -.035); driver.add(head);
   const face = new THREE.Group(); head.add(face);
   const headWidth = kim ? .46 : obama ? .35 : .4;
-  mesh(face, sphere, skin, [0, 0, 0], [headWidth, kim ? .43 : .46, .36]);
+  mesh(face, style.cubic ? cube : sphere, skin, [0, 0, 0], style.cubic ? [.77, .82, .66] : [headWidth, kim ? .43 : .46, .36]);
   for (const side of [-1, 1]) mesh(face, sphere, skin, [side * (headWidth + .005), -.025, -.005],
     [obama ? .125 : .085, obama ? .16 : .11, .075]);
   mesh(face, sphere, skin, [0, -.025, .355], [obama ? .082 : .075, .09, .08]);
@@ -112,33 +109,35 @@ function template(id: Exclude<CharacterId, 'racer'>) {
     mesh(face, sphere, hair, [0, .28, -.065], [.41, .235, .34]);
     const fringe = mesh(face, sphere, hair, [-.12, .33, .22], [.38, .13, .17]); fringe.rotation.z = -.2;
     mesh(face, sphere, hair, [.315, .15, -.015], [.07, .19, .21]);
-  } else {
+  } else if (kim) {
     mesh(face, cube, hair, [0, .315, -.07], [.72, .27, .53]);
     mesh(face, sphere, hair, [0, .36, -.05], [.39, .18, .32]);
     for (const side of [-1, 1]) mesh(face, cube, hair, [side * .36, .1, -.13], [.065, .3, .32]);
   }
-  batch(face);
+  const parts = { face, torso, skin, suit, hair };
+  addPoliticalCostume(id, parts); addPopCultureCostume(id, parts);
+  batch(torso); batch(face);
   const eyes = new THREE.Group(); eyes.name = 'CharacterEyes'; head.add(eyes);
   for (const side of [-1, 1]) {
-    mesh(eyes, sphere, ivory, [side * .143, .055, .317], [.07, .046, .031]);
-    mesh(eyes, sphere, black, [side * .14, .055, .347], [.029, .033, .012]);
+    mesh(eyes, sphere, ivory, [side * .143, .055, style.cubic ? .347 : .317], [.07, .046, .031]);
+    mesh(eyes, sphere, black, [side * .14, .055, style.cubic ? .377 : .347], [.029, .033, .012]);
   }
   batch(eyes);
-  const brows = new THREE.Group(); brows.name = 'CharacterBrows'; brows.position.set(0, .13, .32); head.add(brows);
+  const brows = new THREE.Group(); brows.name = 'CharacterBrows'; brows.position.set(0, .13, style.cubic ? .35 : .32); head.add(brows);
   for (const side of [-1, 1]) {
     const brow = mesh(brows, cube, hair, [side * .14, 0, 0], [.135, .03, .038]); brow.rotation.z = side * (trump ? .14 : -.08);
   }
   batch(brows);
-  const mouth = mesh(head, sphere, queen ? red : black, [0, -.17, .329], [obama ? .155 : .115, .026, .018]);
+  const mouth = mesh(head, sphere, queen ? red : black, [0, -.17, style.cubic ? .349 : .329], [obama ? .155 : .115, .026, .018]);
   mouth.name = 'CharacterMouth'; mouth.userData.baseScale = mouth.scale.toArray();
-  const smile = mesh(head, cube, ivory, [0, -.165, .346], [obama ? .21 : .14, .016, .015]); smile.name = 'CharacterSmile';
+  const smile = mesh(head, cube, ivory, [0, -.165, style.cubic ? .366 : .346], [obama ? .21 : .14, .016, .015]); smile.name = 'CharacterSmile';
 
   for (const side of [-1, 1]) {
     const arm = new THREE.Group(); arm.name = side === 1 ? 'CharacterWaveArm' : 'CharacterFixedArm';
     arm.position.set(side * .3, .57, -.015); driver.add(arm);
     const upper = mesh(arm, limb, suit, [0, 0, 0], [.115, .3, .115]); upper.name = 'UpperArm';
     const lower = mesh(arm, limb, suit, [0, 0, 0], [.105, .3, .105]); lower.name = 'LowerArm';
-    const hand = mesh(arm, sphere, skin, [0, 0, 0], [.12, .115, .1]); hand.name = 'CharacterHand';
+    const hand = mesh(arm, sphere, style.gloves ? ivory : skin, [0, 0, 0], [.12, .115, .1]); hand.name = 'CharacterHand';
   }
   templates.set(id, driver); return driver;
 }
@@ -184,7 +183,7 @@ export function addCartoonDriver(root: THREE.Group, body: THREE.Object3D, id: Ex
     mesh(accessory, cube, gold, [0, .55, z], [.8, .1, .26]);
     for (const side of [-1, 1]) mesh(accessory, cube, gold, [side * .3, .76, z], [.17, .45, .17]);
     mesh(accessory, cube, gold, [0, .94, z], [.85, .12, .18]);
-  } else {
+  } else if (id === 'kim') {
     // Exaggerated command-chair antennas, without weapon geometry or real insignia.
     mesh(accessory, cube, suitForCommand(), [0, driver.position.y + .35, driver.position.z - .38], [.72, .62, .12]);
     for (const side of [-1, 1]) {

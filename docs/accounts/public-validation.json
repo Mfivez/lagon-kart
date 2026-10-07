@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "at": "2026-10-07T08:50:16.588Z",
+  "origin": "https://exercises-inspections-playlist-char.trycloudflare.com",
+  "scope": "Deux contextes Chromium indépendants, HTTPS/tunnel public, mobile simulé, aucun téléphone physique. Un compte de test vide conservé dans le volume ; aucune progression falsifiée.",
+  "checks": [
+    "Inscription via le vrai formulaire HTTPS et son Origin navigateur ; un compte de test sans XP fictifs est enregistré.",
+    "Connexion sur un second contexte mobile vierge : même pilote retrouvé, sans transfert de stockage navigateur.",
+    "Salon Colyseus réel à travers le tunnel : le kart utilise l’identité authentifiée récupérée.",
+    "Sortie du salon et déconnexion ; aucun salon de test laissé actif ni reconnexion locale conservée."
+  ],
+  "evidence": {
+    "clientAssets": [
+      "/assets/index-Dk-_5CP3.js",
+      "/assets/index-BxI9vH7J.css"
+    ]
+  },
+  "errors": [],
+  "healthAfter": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  }
+}

@@ -1,4 +1,4 @@
-# Démo intégrée — petits écrans, douze décors et loopings
+# Démo intégrée — comptes, sauvegardes, petits écrans et circuits
 
 État documenté le **7 octobre 2026**. Le projet conserve Three.js, Colyseus,
 Docker et les ressources servies depuis la même origine. Budget ajouté :
@@ -21,17 +21,36 @@ conserver ses options `-p` et `HOST_PORT` lors des commandes suivantes.
 
 Lien de cette session : [ouvrir Lagon Kart](https://exercises-inspections-playlist-char.trycloudflare.com).
 Le tunnel précédent avait expiré ; ce lien le remplace et change à sa recréation.
-TypeScript, build et image Docker réussis, client `index-wc3mK_Sw.js`, styles
-`index-DhaT9t6d.css`. Le conteneur sert les douze tracés remaniés, les commandes
-tactiles et les deux loopings. [Preuves du lot courant](../VALIDATION.md#7-octobre-2026--commandes-mobiles-tracés-et-décors).
+Les douze tracés remaniés, les commandes tactiles et les deux loopings sont
+conservés. Les preuves ci-dessous du lot mobile concernent son build précédent
+`index-wc3mK_Sw.js` ; [VALIDATION.md](../VALIDATION.md) identifie séparément la
+version courante avec les comptes et les essais exécutés sur celle-ci.
 
-Compose conserve les profils, la progression, les saisons et les replays dans
-le volume **`player-data`**, monté dans `/app/data`. Reconstruire le conteneur ou
-exécuter `docker compose down` conserve ces données ; `down -v` les supprime.
-Réutiliser le même nom de projet Compose permet de retrouver ce volume. Les
-salons en cours restent en mémoire et disparaissent au redémarrage du serveur.
-L'accès au profil utilise une clé conservée dans le navigateur pour cette origine ;
-un changement d'adresse de tunnel ne transfère pas automatiquement cette clé.
+Compose conserve les comptes, profils, progression, saisons et replays dans
+**`data/players/` sur la machine hôte**, monté dans `/app/data/players`.
+Reconstruire les conteneurs ou exécuter `docker compose down -v` conserve ce
+dossier. `npm run data:reset` reconstruit et relance le jeu tout en laissant le
+tunnel actif. Les salons en cours restent en mémoire et disparaissent au
+redémarrage ; leurs résultats déjà enregistrés sont conservés.
+
+À l'accueil, choisir **Sauvegarder mon pilote** pour rattacher la progression
+actuelle à un nom d'utilisateur et un mot de passe. **Se connecter** retrouve
+le compte depuis un autre navigateur, téléphone ou nouveau lien de tunnel.
+Le jeu invité reste possible ; sa clé locale ne se transfère pas automatiquement.
+[Migration de l'ancien volume, archives et comptes](ACCOUNTS_STORAGE.md).
+
+Les 21 profils existants ont été migrés ; les 20 fichiers restent identiques
+après un reset réel. Le parcours des comptes est vérifié sur le tunnel par
+deux contextes Chromium indépendants : inscription, récupération, salon et
+déconnexion, sans erreur JavaScript ni asset manquant.
+[Preuves des comptes](accounts/public-validation.json) ·
+[Migration et reset](accounts/deployment.json).
+
+Le correctif des CPU est également déployé : les bots conservent la branche
+où ils sont engagés et ne visent plus une autre voie à travers son rail lorsque
+le circuit évolue. Les cas tardifs de Mangrove et Citadelle sont vérifiés dans
+des salons privés, avec une remise en piste ordinaire au besoin.
+[Fonctionnement et tests](TEAMS.md) · [Captures](cpu-obstacles/README.md).
 
 ## Parcours conseillé pour la démo
 

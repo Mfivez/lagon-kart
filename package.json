@@ -33,7 +33,16 @@
     "test:final-race": "node --import tsx scripts/final-race-check.ts",
     "test:docker-persistence": "node --import tsx scripts/docker-persistence-check.ts",
     "test:mobile-browser": "node --import tsx scripts/mobile-browser-check.ts",
-    "test:scenes-browser": "node --import tsx scripts/scenes-browser-check.ts"
+    "test:scenes-browser": "node --import tsx scripts/scenes-browser-check.ts",
+    "test:accounts-browser": "node --import tsx scripts/accounts-browser-check.ts",
+    "test:accounts-public": "node --import tsx scripts/accounts-public-check.ts",
+    "test:cpu-obstacles-browser": "node --import tsx scripts/cpu-obstacles-browser-check.ts",
+    "test:cpu-race": "node --import tsx scripts/cpu-race-check.ts",
+    "test:accounts-persistence": "node --import tsx scripts/accounts-persistence-check.ts",
+    "test:storage-migration": "node scripts/storage-migration-check.mjs",
+    "data:migrate": "node scripts/player-data.mjs migrate",
+    "data:backup": "node scripts/player-data.mjs backup",
+    "data:reset": "node scripts/player-data.mjs reset"
   },
   "dependencies": {
     "@colyseus/core": "0.16.26",

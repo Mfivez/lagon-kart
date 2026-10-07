@@ -1,0 +1,74 @@
+{
+  "passed": true,
+  "at": "2026-10-07T08:49:34.133182+00:00",
+  "origin": "https://exercises-inspections-playlist-char.trycloudflare.com",
+  "image": "sha256:44ba41b52acb3df4adfc3f0650643f7362199699474fd0bda30fc34ba6d8f52c",
+  "user": "node",
+  "health": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "mount": {
+    "Type": "bind",
+    "Source": "/mnt/c/Users/bstorm_user/Desktop/project/data",
+    "Destination": "/app/data",
+    "Mode": "rw",
+    "RW": true,
+    "Propagation": "rprivate"
+  },
+  "migration": {
+    "verified": true,
+    "files": 20,
+    "bytes": 432207,
+    "profiles": 21,
+    "originalVolumePreserved": "lagon-kart_player-data",
+    "backup": "backups/players-2026-10-07T08-47-13-697Z.tar.gz"
+  },
+  "reset": {
+    "command": "npm run data:reset",
+    "passed": true,
+    "savedFileHashesUnchanged": true,
+    "files": 20,
+    "profiles": 21,
+    "tunnelStartedAt": "2026-10-07T07:47:18.225006436Z",
+    "tunnelNotRecreated": true
+  },
+  "assets": [
+    {
+      "path": "/assets/index-Dk-_5CP3.js",
+      "sha256": "8fa81bc7f278e72ffbe3fe9b5e1a320bc1d9f8ce04287620b345f65b6ed19c21",
+      "publicMatchesLocal": true
+    },
+    {
+      "path": "/assets/index-BxI9vH7J.css",
+      "sha256": "103894f2736475701de774c8707a3a8c603d56388e6522d9419ae021d150dd03",
+      "publicMatchesLocal": true
+    }
+  ],
+  "modules": [
+    {
+      "path": "server/career.js",
+      "sha256": "48496bff7269aa943cc092542445bcd086f4170518a0018ea743a9cc7491f472",
+      "matchesLocal": true
+    },
+    {
+      "path": "server/player-store.js",
+      "sha256": "ad133235d7adf805171e1a471821cd9ef858110f0ed3d9fd53a5c1c631761d73",
+      "matchesLocal": true
+    },
+    {
+      "path": "server/passwords.js",
+      "sha256": "7e6e3c91953ba9d364a526071901704136b2264f07901d97e546cfdd2a023367",
+      "matchesLocal": true
+    },
+    {
+      "path": "shared/progression.js",
+      "sha256": "edab9b97c0f6ae9765ec3e56c28e64668d63f9262abbac3969c10aeb7d2802e4",
+      "matchesLocal": true
+    }
+  ]
+}

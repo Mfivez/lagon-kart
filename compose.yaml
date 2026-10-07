@@ -1,5 +1,29 @@
 name: lagon-kart
 services:
+  data-init:
+    build: .
+    user: "0:0"
+    network_mode: none
+    restart: "no"
+    entrypoint: ["node", "-e"]
+    command:
+      - |
+        const fs = require('node:fs');
+        fs.mkdirSync('/app/data/players/replays', { recursive: true, mode: 0o700 });
+        function own(path) {
+          const info = fs.lstatSync(path);
+          if (info.isSymbolicLink()) throw new Error('Lien symbolique inattendu dans les sauvegardes');
+          fs.chownSync(path, 1000, 1000);
+          fs.chmodSync(path, info.isDirectory() ? 0o700 : 0o600);
+          if (info.isDirectory()) for (const name of fs.readdirSync(path)) own(path + '/' + name);
+        }
+        own('/app/data');
+    volumes: &player-data
+      - type: bind
+        source: ${PLAYER_DATA_PATH:-./data}
+        target: /app/data
+        bind:
+          create_host_path: true
   app:
     build: .
     init: true
@@ -16,8 +40,10 @@ services:
       RECONNECT_SECONDS: ${RECONNECT_SECONDS:-30}
       INPUT_TIMEOUT_MS: ${INPUT_TIMEOUT_MS:-250}
       PLAYER_DATA_DIR: /app/data/players
-    volumes:
-      - player-data:/app/data
+    volumes: *player-data
+    depends_on:
+      data-init:
+        condition: service_completed_successfully
     stop_grace_period: 10s
   tunnel:
     image: cloudflare/cloudflared:2026.10.0
@@ -27,5 +53,3 @@ services:
     depends_on:
       app:
         condition: service_healthy
-volumes:
-  player-data:

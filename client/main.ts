@@ -6,10 +6,11 @@ import { GameRenderer } from './renderer';
 import { GameAudio } from './audio';
 import { GarageUI } from './garage-ui';
 import { CareerUI } from './career-ui';
+import { AccountUI } from './account-ui';
 import { showReplay } from './replay-view';
 import { getTrackEvent } from '../shared/track-events';
 import { CHARACTERS } from '../shared/characters';
-import type { GhostData } from '../shared/progression';
+import type { GhostData, PlayerProfile } from '../shared/progression';
 import { KART_MODELS } from '../shared/kart-catalog';
 import { MobileControls, mobileControlsMarkup } from './mobile-controls';
 import './style.css';
@@ -48,6 +49,7 @@ el('app').innerHTML = `
         <label class="field-label" for="name-input">Pseudo</label>
         <div class="name-field"><span>◉</span><input id="name-input" maxlength="18" autocomplete="nickname" placeholder="Votre nom de pilote" value="${escape(chosenName)}" aria-label="Pseudo" /></div>
         <div class="color-row"><span>Couleur du kart</span><div class="swatches" id="swatches">${COLORS.map((color, i) => `<button class="swatch ${color === chosenColor ? 'selected' : ''}" style="--swatch:${color}" data-color="${color}" aria-label="Couleur ${i + 1}" aria-pressed="${color === chosenColor}"></button>`).join('')}</div></div>
+        <div id="account-card" class="account-card" aria-label="Sauvegarde du pilote"></div>
       </div>
       <button id="career-button" class="secondary wide">Championnats, classement et replays <span>♜</span></button>
       <button id="garage-button" class="secondary wide">Choisir mon kart et ses pièces <span>⚙</span></button>
@@ -84,6 +86,8 @@ let sequence = 0;
 let epoch = -1;
 let connected = false;
 let busy = false;
+let nameEdited = false;
+let accounts: AccountUI;
 let leaving = false;
 let reconnecting = false;
 let connectionGeneration = 0;
@@ -109,16 +113,37 @@ const garage = new GarageUI(choice => {
 });
 renderer.setPreviewKart(chosenColor, garage.value.modelId, garage.value.characterId);
 const career = new CareerUI({
-  profile: saved => garage.setLevel(saved.careerLevel), error: toast, replay: showReplay,
+  profile: saved => { garage.setLevel(saved.careerLevel); accounts?.update(saved); if (saved.username && !nameEdited) setSavedName(saved.name); }, error: toast, replay: showReplay,
   championship: async id => {
     if (busy || room) return;
     audio.activate(); setBusy(true);
-    try { await career.ensure(profile().name); const next = await client.create('race', { ...profile(), token: career.authToken, practice: true, trackId: chosenTrack }); attachRoom(next); next.send('configure', { championshipId: id }); }
+    try { await ensureCareer(); const next = await client.create('race', { ...profile(), token: career.authToken, practice: true, trackId: chosenTrack }); attachRoom(next); next.send('configure', { championshipId: id }); }
     finally { setBusy(false); }
   },
   ranked: async id => { if (busy || room) return; audio.activate(); setBusy(true); try { attachRoom(await client.joinById(id, { ...profile(), token: career.authToken })); } finally { setBusy(false); } },
 });
+accounts = new AccountUI(career, el('account-card'), {
+  allowed: () => {
+    if (room || reconnecting) { toast('Quittez le salon avant de changer de compte.'); return false; }
+    return !busy;
+  }, busy: setBusy, prepareGuest: ensureCareer, error: toast,
+  changed: saved => {
+    // A different account must never resume the previous pilot's room seat.
+    ++connectionGeneration; sessionStorage.removeItem('lagon-session'); resetPrediction(); renderer.setGhost(null);
+    nameEdited = false; setSavedName(saved?.name ?? ''); garage.setLevel(saved?.careerLevel ?? 0);
+    toast(saved ? `Compte ${saved.username} connecté. Votre progression est sauvegardée.` : 'Vous êtes déconnecté. Votre progression reste sauvegardée sur votre compte.');
+  },
+});
+void career.restore().catch(error => toast(errorMessage(error)));
 const tournamentControls = new TournamentControls((type, payload) => room?.send(type, payload));
+
+function setSavedName(name: string) {
+  chosenName = name; el<HTMLInputElement>('name-input').value = name; localStorage.setItem('lagon-name', name);
+}
+async function ensureCareer(): Promise<PlayerProfile> {
+  const saved = await career.ensure(profile().name, nameEdited);
+  nameEdited = false; setSavedName(saved.name); return saved;
+}
 
 function previewTrack(id: string) {
   const track = getTrack(id);
@@ -211,7 +236,7 @@ async function connect(mode: 'create' | 'join' | 'practice') {
   if (busy) return;
   audio.activate(); setBusy(true); connection('Connexion…', 'pending');
   try {
-    await career.ensure(profile().name);
+    await ensureCareer();
     const options = { ...profile(), token: career.authToken }; autoPractice = mode === 'practice';
     const code = el<HTMLInputElement>('code-input').value.trim().replace(/^.*\/room\//, '').replace(/[/?#].*$/, '').toUpperCase();
     if (mode === 'join' && !code) throw new Error('Saisissez le code du salon partagé par vos amis.');
@@ -254,8 +279,9 @@ function returnHome() {
   history.replaceState(null, '', '/'); updateUI(performance.now(), true);
 }
 
-el('garage-button').addEventListener('click', () => { if (!busy) void career.ensure(profile().name).then(() => garage.open()).catch(error => toast(error.message)); });
-el('career-button').addEventListener('click', () => { if (!busy) void career.open(profile().name); });
+el('name-input').addEventListener('input', () => { nameEdited = true; });
+el('garage-button').addEventListener('click', () => { if (!busy) void ensureCareer().then(() => garage.open()).catch(error => toast(error.message)); });
+el('career-button').addEventListener('click', () => { if (!busy) void ensureCareer().then(saved => career.open(saved.name)).catch(error => toast(error.message)); });
 el('lobby-garage-button').addEventListener('click', () => { if (connected && world?.phase === 'lobby') garage.open(); });
 el('create-button').addEventListener('click', () => void connect('create'));
 el('join-button').addEventListener('click', () => void connect('join'));

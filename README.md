@@ -117,7 +117,9 @@ Il faut terminer toutes les manches et finir dans les trois premiers du classeme
 
 **Mes replays** relit les trajectoires enregistrées par le serveur, en vue de dessus, avec pause et curseur. Sur l'accueil, **Fantôme du meilleur temps en entraînement** affiche un ghost disponible pour le circuit choisi et le niveau 3 des événements de l'entraînement. Ce fantôme n'a pas de collisions et ne participe pas au classement. Les replays sont des traces de position, pas une resimulation exacte des objets et des contacts.
 
-Le navigateur conserve la clé de son profil pour retrouver statistiques, carrière et classement. Cette identité est liée au stockage du navigateur et à l'origine du site : changer d'adresse de tunnel ou effacer les données du site ne transfère pas automatiquement le profil. Aucun compte externe n'est nécessaire. Voir [la progression, les saisons et les sauvegardes](docs/PROGRESSION.md).
+À l'accueil, **Sauvegarder mon pilote** crée un compte avec un nom d'utilisateur et un mot de passe, en conservant la progression de l'invité actuel. **Se connecter** retrouve ce même pilote depuis un autre navigateur, téléphone ou lien de tunnel : XP, coupes, déblocages, classement et replays. Aucun courriel ni compte externe n'est nécessaire. Le nom d'utilisateur comporte 3 à 24 lettres, chiffres, points, tirets ou `_`, et le mot de passe au moins 6 caractères. Les mots de passe sont dérivés avec scrypt et un sel individuel, jamais enregistrés en clair.
+
+Le jeu invité reste disponible. Sans compte, son accès dépend de la clé conservée par le navigateur pour cette adresse du site : créer le compte avant d'effacer cette clé ou de changer de tunnel. Les choix visuels du garage restent propres au navigateur. Voir [les comptes et sauvegardes](docs/ACCOUNTS_STORAGE.md) et [la progression](docs/PROGRESSION.md).
 
 ## Commandes
 
@@ -145,7 +147,15 @@ Pour varier la conduite sans ajouter de touches :
 
 Les checkpoints se franchissent dans l'ordre et dans le sens de la course. La remise en piste utilise le dernier checkpoint valide. Après le premier arrivé, les autres ont 25 secondes pour terminer ; la manche dure au maximum cinq minutes. Les pilotes n'ayant pas terminé sont classés selon leur progression avec une indication d'abandon/non-arrivée. Une coupure réserve la place environ 30 secondes et neutralise les commandes. L'actualisation de la page reprend la session grâce à un jeton conservé **par onglet** ; après expiration, rejoindre de nouveau le salon. Arrêter le serveur efface les salons, qui résident en mémoire.
 
-Les **profils, saisons et replays** sont enregistrés séparément sur disque. Compose monte le volume nommé **`player-data`** dans `/app/data`, avec les données de joueurs dans `/app/data/players`. Un redémarrage ou une reconstruction conserve ce volume ; `docker compose down` le conserve aussi. `docker compose down -v` l'efface. Réutiliser le même nom de projet Compose pour retrouver les données ; une autre instance a son propre volume. Hors Docker, `PLAYER_DATA_DIR` permet de choisir le répertoire de sauvegarde. Une seule instance de serveur doit écrire dans un même répertoire.
+Les **comptes, profils, saisons et replays** sont enregistrés dans **`data/players/` sur la machine hôte**. Compose monte `./data` dans `/app/data` ; les fichiers restent présents après reconstruction, recréation et même `docker compose down -v`. Un autre nom de projet retrouve les données s'il utilise ce même dossier. Une seule instance de serveur doit écrire dans un même répertoire. Hors Docker, `PLAYER_DATA_DIR` choisit le répertoire de sauvegarde.
+
+Pour reconstruire et relancer le jeu pendant les tests, en gardant les données et l'URL du tunnel :
+
+```bash
+npm run data:reset
+```
+
+Une installation utilisant encore l'ancien volume `lagon-kart_player-data` doit d'abord suivre la [migration sans écrasement](docs/ACCOUNTS_STORAGE.md#migration-de-lancien-volume-nommé). Le script conserve ce volume original. `npm run data:backup` crée une archive locale lorsque le jeu est arrêté. Les salons en cours disparaissent au redémarrage ; les résultats déjà enregistrés restent disponibles.
 
 ## Configuration facultative
 
@@ -154,6 +164,7 @@ Les valeurs par défaut fonctionnent sans fichier `.env`. Pour les changer, copi
 | Variable | Défaut | Usage |
 | --- | --- | --- |
 | `HOST_PORT` | 3000 | Port local ; par exemple 3100 donne http://localhost:3100 |
+| `PLAYER_DATA_PATH` | `./data` | Dossier dédié sur l'hôte, monté dans Docker ; conserve les comptes et la progression |
 | `MAX_ROOMS` | 16 avec Compose | Limite de salons simultanés, pas une capacité de performance garantie ; 32 par défaut hors Docker |
 | `MAX_PLAYERS` | 8 | De 2 à 8 par salon multijoueur ; entraînement limité à 1 |
 | `SIM_HZ` | 30 | Pas fixe de simulation serveur et prédiction client |
@@ -230,6 +241,15 @@ npm run test:music
 npm run test:kart-library
 npm run test:characters
 npm run test:features-browser
+
+# Comptes : deux navigateurs privés, puis persistance Docker dans un dossier temporaire
+npm run test:accounts-browser
+npm run test:accounts-persistence
+npm run test:storage-migration
+
+# CPU : fermetures tardives en salon privé, puis course sur un serveur explicitement choisi
+npm run test:cpu-obstacles-browser
+BASE_URL=http://127.0.0.1:3000 npm run test:cpu-race
 ```
 
 Les scripts réseau et le test navigateur de course complète acceptent `BASE_URL` pour tester une URL publique. Le test réseau accepte `CLIENTS=2` ou `8`, ainsi que `LATENCY_MS=75` pour retarder les commandes et la réception des instantanés de 75 ms chacun. Le test de tournoi accepte `CLIENTS=2` à `8` et fait réellement parcourir trois tours sur les quatre circuits historiques de son programme. Les tests de simulation couvrent les douze circuits et leurs branches. Le test navigateur utilise deux contextes isolés dans un même Chromium, pilotés automatiquement par les commandes clavier ordinaires. Les tests d'interface des tournois et des fonctionnalités utilisent aussi des arrivées imposées sur leur serveur privé : ils vérifient les écrans et transitions, sans constituer des courses complètes conduites. Les rapports indiquent le lot compilé réellement testé. Exemple sous bash :
@@ -241,7 +261,7 @@ LATENCY_MS=75 npm run test:network
 
 Sous PowerShell : `$env:BASE_URL="https://votre-adresse.trycloudflare.com"`, puis `npm run test:network`. Selon le script, les rapports et captures sont écrits dans `test-results/` (ignoré par Git) ou dans les sous-dossiers de `docs/` indiqués par son rapport.
 
-Dernière suite complète, le 7 octobre 2026 : **266/266 tests réussis**, sans échec ni test ignoré, en **63,21 s**. Elle couvre les nouveaux tracés, loopings, décors, commandes mobiles et la compatibilité des anciens replays. Les **15 contrôles tactiles Chromium** couvrent cinq formats et les commandes simultanées. Après `npm run build`, `npm run test:mobile-browser` et `npm run test:scenes-browser` exécutent les parcours sur serveurs privés. Voir [VALIDATION.md](VALIDATION.md) pour les captures, les versions réellement testées et les limites sur appareils physiques.
+Dernière suite complète, le 7 octobre 2026 : **312/312 tests réussis**, sans échec ni test ignoré, en **107,34 s**, avec `node --import tsx --test --test-concurrency=4 tests/*.test.ts`. Elle couvre aussi les comptes et la récupération des bots lors des fermetures : huit CPU terminent les douze circuits, et 29 tests supplémentaires vérifient rails, branches et remises en piste. [Fonctionnement des bots](docs/TEAMS.md). Le parcours des comptes réussit **9 contrôles Chromium** sur deux contextes indépendants, dont un écran de 320 px. Les **15 contrôles tactiles** du lot précédent couvrent cinq formats et les commandes simultanées. Après `npm run build`, `npm run test:mobile-browser` et `npm run test:scenes-browser` exécutent ces parcours sur serveurs privés. Voir [VALIDATION.md](VALIDATION.md) pour les captures, les versions réellement testées et les limites sur appareils physiques.
 
 ## Architecture et ressources
 

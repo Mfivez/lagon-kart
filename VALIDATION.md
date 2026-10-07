@@ -2,9 +2,122 @@
 
 Vérifications des 6 et 7 octobre 2026 dans WSL/Linux avec Docker Desktop 4.55.0, Docker Engine 29.1.3, Compose 2.40.3, Node 20.19.2 sur l'hôte et Node 22.21.1 dans l'image. Les résultats ci-dessous distinguent simulation, clients réseau automatisés et navigateur ; chaque lot conserve ses preuves et sa date.
 
+## 7 octobre 2026 — bots, fermetures et rails des déviations
+
+**312/312 tests réussis**, sans échec, annulation ou test ignoré, en **107,337 s** :
+`node --import tsx --test --test-concurrency=4 tests/*.test.ts`.
+Journal : `/tmp/lagon-cpu-full-tests.log`. Les **29 nouveaux tests** couvrent
+234 scénarios conduits sur les douze circuits, plus les conditions de remise en
+piste : fermeture avec un CPU déjà engagé, voies extérieures, branches jusqu'au
+premier checkpoint après leur sortie, jonctions ouvertes, hauteur et saut,
+délai et verrou du reset. Les entrées CPU ne modifient pas les karts directement.
+
+La cause reproduite était un changement de waypoint vers une autre voie à
+travers son rail. Le pilote suit désormais la branche ouverte engagée, y adapte
+son anticipation et sa vitesse, ou continue sur la principale s'il a déjà
+dépassé le barrage. Un contact réel à faible vitesse peut demander le reset
+ordinaire ; les ouvertures et dégagements au-dessus des murs restent respectés.
+La physique, les checkpoints et les règles de progression restent identiques.
+
+Un diagnostic complémentaire de **360 placements** à deux niveaux d'événements
+et trois positions latérales passe de **34 échecs avant à 0 après**. Les fixtures
+définissent les positions et portes antérieures avant l'essai ; ensuite seules
+les commandes ordinaires du CPU déplacent le kart. Les courses complètes de la
+suite font arriver **96 CPU sur 96**, soit huit sur chacun des douze circuits,
+avec objets actifs et trois phases. [Méthode et résultats](docs/cpu-obstacles/simulation-validation.json).
+
+**Navigateur privé : 3/3 contrôles réussis** avec de vrais CPU de `RaceRoom`
+et un observateur Chromium. Le franchissement physique de la ligne par un
+pilote SDK déclenche la fermeture. Mangrove : deux portes gagnées en **2,63 s**,
+aucune remise en piste. Citadelle : deux portes en **7,40 s**, une remise en piste
+normale ; aucun arrêt prolongé. Durées de simulation. Les positions initiales
+sont des fixtures de secteur, pas des courses complètes. Quatre captures
+inspectées, aucune erreur JavaScript ni ressource manquante.
+[Protocole et captures](docs/cpu-obstacles/README.md) ·
+[Rapport navigateur](docs/cpu-obstacles/browser-validation.json).
+
+**Build et Docker réussis, correctif déployé sans salon actif**. Sept modules
+de l'image correspondent aux fichiers compilés locaux ; les vingt fichiers
+de sauvegarde restent identiques après recréation. Le tunnel n'a pas été recréé.
+Le client `index-Dk-_5CP3.js` reste identique : le correctif porte sur le pilotage
+serveur. [Empreintes et déploiement](docs/cpu-obstacles/deployment.json).
+
+**Course publique du correctif réussie** sur Mangrove : **8/8 arrivées**, dont
+**sept vrais CPU serveur** et un pilote SDK, trois tours et phases 0/1/2.
+Les sept CPU sont observés sur la déviation, **aucun reset observé**, durée
+maximale sans progression **0,667 s**. Contrôle complet en **78,65 s**, sans
+placement, checkpoint ou arrivée forcés ; 1 435 snapshots reçus. La progression
+du pilote est sauvegardée à partir de la course réelle. Aucune erreur serveur
+ou Colyseus, puis `/healthz` sain et **0 salon**. Ce contrôle réseau ne lance
+pas de navigateur ; le rendu est vérifié séparément ci-dessus.
+[Rapport public](docs/cpu-obstacles/public-race.json).
+
+## 7 octobre 2026 — comptes et sauvegardes sur la machine hôte
+
+**283/283 tests réussis**, sans échec, annulation ou test ignoré, en **81,856 s** :
+`node --import tsx --test --test-concurrency=4 tests/*.test.ts`.
+Les 17 nouveaux tests couvrent les comptes et l'API HTTP/Colyseus : inscription,
+unicité des identifiants, rattachement d'un invité, récupération de progression,
+sessions indépendantes, révocation, limites de tentatives et rejet de données
+forgées. Les profils historiques restent lisibles. Une première exécution de
+la suite s'est bloquée dans un processus Node sans socket serveur ; arrêt ciblé,
+test serveur isolé réussi puis relance complète à concurrence limitée. Aucun
+test métier n'a été supprimé ou assoupli. Journal final :
+`/tmp/lagon-accounts-full-tests-retry.log`.
+
+**Compilation complète et image Docker réussies**, client `index-Dk-_5CP3.js`,
+styles `index-BxI9vH7J.css`. La première compilation hôte a rencontré une erreur
+de répertoire courant WSL (`uv_cwd`) ; la relance depuis le dossier explicite a
+réussi. Aucune dépendance ajoutée, coût **0 €**.
+
+**9/9 contrôles navigateur privés réussis**, deux contextes Chromium indépendants,
+dont un écran tactile émulé **320 × 568** : inscription depuis un invité, mêmes
+ID/XP/coupe récupérés, erreurs visibles, nom restauré après actualisation,
+salon Colyseus authentifié et déconnexion limitée à la session courante.
+Les **195 XP et la coupe sont une fixture dans un stockage temporaire**,
+pas une nouvelle course jouée. Aucun mot de passe dans les stockages navigateur,
+aucune erreur JavaScript ni ressource manquante.
+[Rapport](docs/accounts/browser-validation.json) ·
+[Formulaire mobile](docs/accounts/register-mobile-320x568.png) ·
+[Compte récupéré](docs/accounts/recovered-mobile-320x568.png).
+
+**4/4 contrôles Docker de persistance réussis** : création du compte par HTTP,
+résultat/replay de fixture enregistré serveur arrêté, `compose down -v`, nouveau
+nom de projet, puis connexion sans ancien jeton. ID, profil, **45 XP**, statistiques
+et replay restent identiques ; session révoquée après déconnexion. L'image exacte
+et le nettoyage des ressources temporaires figurent dans le
+[rapport](docs/accounts-persistence.json). **8/8 contrôles de migration réussis** :
+copie SHA-256, réexécution identique, archive restaurable, refus des sources actives,
+des écrasements, des vrais liens symboliques et des chemins non dédiés ; alias
+Windows/WSL acceptés. [Rapport](docs/storage-migration-check.json).
+
+**Migration de l'instance de démo effectuée sans salon actif** : 21 profils,
+20 fichiers et 432 207 octets copiés depuis `lagon-kart_player-data`, avec
+comparaison SHA-256 et conservation du volume original. Une archive locale
+est créée dans `backups/`. Le jeu tourne comme utilisateur `node` avec le
+dossier hôte `data/` monté dans `/app/data`. **`npm run data:reset` exécuté** :
+les 20 fichiers restent strictement identiques après reconstruction et recréation,
+le tunnel reste actif et `/healthz` est sain. JS/CSS publics et quatre modules
+serveur correspondent aux fichiers compilés locaux. [Déploiement, image et
+empreintes](docs/accounts/deployment.json).
+
+**4/4 contrôles navigateur publics réussis** sur le même bundle, via HTTPS et
+le tunnel : inscription avec l'Origin réel du navigateur, connexion depuis un
+second contexte mobile vierge, même pilote dans un vrai salon Colyseus, sortie
+et déconnexion. Aucune erreur JavaScript ni ressource manquante ; `/healthz`
+renvoie ensuite `ok` et **0 salon**. Un compte de test vide reste enregistré,
+sans XP fictifs ajoutés aux données de la classe.
+[Rapport public](docs/accounts/public-validation.json).
+
+Les essais utilisent des navigateurs indépendants sur cette machine. Aucun
+essai de comptes sur deux ordinateurs physiques ni de saisie avec un clavier
+mobile réel n'est revendiqué. Les règles de course sont couvertes par la suite ;
+les courses complètes du lot mobile ci-dessous restent des preuves historiques.
+[Mode d'emploi, migration et archives](docs/ACCOUNTS_STORAGE.md).
+
 ## 7 octobre 2026 — commandes mobiles, tracés et décors
 
-**Course publique du build courant réussie** sur [le tunnel de cette session](https://exercises-inspections-playlist-char.trycloudflare.com),
+**Course publique du build mobile réussie** sur [le tunnel de cette session](https://exercises-inspections-playlist-char.trycloudflare.com),
 en **143,537 s pour le contrôle complet**. Quatre pilotes SDK authentifiés ont
 terminé trois tours de l’Archipel céleste en envoyant uniquement les commandes
 ordinaires, sans placement artificiel ni arrivée forcée. Les quatre ont sauté

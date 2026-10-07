@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "failure": "",
+  "checks": [
+    "Compte créé par HTTP dans un conteneur isolé avec dossier hôte temporaire",
+    "Fixture annoncée : 1 victoire, 45 XP et replay enregistrés ; aucun mot de passe ni jeton en clair dans players.json",
+    "compose down -v, nouveau nom de projet et connexion sans ancien jeton : identité, stats, XP et replay identiques",
+    "Déconnexion : session révoquée et progression conservée sur le disque hôte"
+  ],
+  "imageId": "sha256:2fac7b59c387f48032b58e31863ed067a822d55536d7af4b793b8c31680f205f",
+  "bundle": "index-Dk-_5CP3.js",
+  "firstId": "94ddbf667197e6f2c257e4517c4e6600f7a09652fccbb1067f9d8cd5d1b4e21b",
+  "secondId": "fbdcac98c42b40052c43d7447acd9c48e4e74c124bb1e624dd01292f96bc584f",
+  "diskBytes": 1045,
+  "durationSeconds": 13.036,
+  "method": "Real HTTP registration/login, stopped-server progression/replay fixture, host bind mount, compose down -v, different compose project, fresh session.",
+  "playedRace": false,
+  "fixture": {
+    "races": 1,
+    "xp": 45,
+    "replay": true
+  },
+  "publicAppTouched": false,
+  "publicTunnelTouched": false,
+  "userDataTouched": false,
+  "temporaryDataRemoved": true
+}

@@ -2,7 +2,27 @@
 
 État au **7 octobre 2026**. `[x]` = réalisé avec preuve ; `[ ]` = travail ou validation restant à terminer. [Démo intégrée et rapports](docs/DEMO.md).
 
-## Petits écrans, identité des pistes et loopings
+## Bots bloqués par les fermetures et les rails
+
+- [x] Cas reproduits sur plusieurs circuits : un CPU visait une autre voie à travers un rail. Conservation de la branche engagée, poursuite sur la principale après le barrage, anticipation et vitesse adaptées à la voie réelle.
+- [x] Remise en piste ordinaire en cas de contact bloquant, respectant les ouvertures, sauts, hauteur et délai ; aucun gain artificiel de tour ou checkpoint.
+- [x] **29 nouveaux tests**, 234 scénarios conduits ; matrice complémentaire de **360 placements : 34 échecs avant → 0 après**. **96 CPU sur 96** terminent les douze pistes. [Preuves](docs/cpu-obstacles/simulation-validation.json).
+- [x] **312/312 tests** de la suite complète réussis ; **3 contrôles navigateur** avec fermetures réelles dans deux salons privés et quatre captures inspectées. [Protocole](docs/cpu-obstacles/README.md).
+- [x] Docker déployé, sept modules identiques au build ; sauvegardes et tunnel conservés. [Déploiement](docs/cpu-obstacles/deployment.json).
+- [x] Course publique Mangrove : **8/8 arrivées**, dont sept CPU serveur, trois phases, **0 reset observé**, aucune immobilisation durable ni erreur Colyseus ; résultats réellement gagnés sauvegardés et salon fermé. [Rapport](docs/cpu-obstacles/public-race.json).
+
+## Comptes de classe et sauvegardes sur la machine
+
+- [x] Compte par nom d'utilisateur et mot de passe, sans courriel ni service externe ; mot de passe dérivé avec scrypt et sel individuel. L'inscription conserve le pilote invité actuel ; connexion et déconnexion depuis l'accueil.
+- [x] Dossier hôte `data/players`, monté dans Docker et conservé après recréation ou `down -v` ; initialisation des droits et scripts de migration, archive et reset. [Mode d'emploi](docs/ACCOUNTS_STORAGE.md).
+- [x] Récupération du même ID, des XP, coupes, déblocages, statistiques et replays depuis une nouvelle session ; plusieurs sessions indépendantes. **283/283 tests** de la suite complète réussis. [Validation](VALIDATION.md#7-octobre-2026--comptes-et-sauvegardes-sur-la-machine-hôte).
+- [x] **9 contrôles navigateur privés**, écran de 320 px, aucun échec JS/asset ; fixture de progression déclarée et vrai salon Colyseus. [Rapport et captures](docs/accounts/browser-validation.json).
+- [x] **4 contrôles Docker de persistance** après `down -v` et changement de projet, puis connexion sans ancien jeton ; **8 contrôles de migration** et archive restaurable. [Persistance](docs/accounts-persistence.json) · [Migration](docs/storage-migration-check.json).
+- [x] Données de la démo migrées : **21 profils, 20 fichiers**, ancien volume conservé et archive locale créée. **Reset réel exécuté**, fichiers SHA-256 identiques après recréation, tunnel inchangé et jeu sain. [Déploiement](docs/accounts/deployment.json).
+- [ ] Essai humain de connexion depuis deux machines physiques et saisie sur téléphone réel.
+- [x] **4 contrôles publics** : inscription et connexion sur deux navigateurs indépendants via HTTPS, même pilote dans un salon Colyseus, déconnexion et retour à zéro salon ; aucune erreur JS/asset. [Rapport](docs/accounts/public-validation.json).
+
+## Petits écrans, identité des pistes et loopings — lot précédent
 
 - [x] Analyse des commandes de Mario Kart Tour et Asphalt à partir de leurs sources officielles ; direction au pouce gauche, actions au pouce droit, accélération automatique facultative. [Analyse et décisions](docs/MOBILE_CONTROLS.md).
 - [x] HUD tactile compact, boutons d’au moins 44 px, appuis simultanés et neutralisation sur interruption : six tests d’état et **15 contrôles Chromium** sur cinq formats de 320 × 568 à 667 × 375. [Rapport et captures avant/après](docs/mobile-controls/validation.json).

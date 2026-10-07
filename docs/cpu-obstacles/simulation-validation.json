@@ -1,0 +1,616 @@
+{
+  "passed": true,
+  "at": "2026-10-07T09:04:32.425832+00:00",
+  "targetedTests": {
+    "passed": 29,
+    "drivenScenarios": 234,
+    "log": "/tmp/lagon-cpu-obstacles-final.log",
+    "scope": "12 circuits, late closures at levels 1/2/3, outside lanes, 72 branch traversals through first main-road gate after exit, 12 open junctions, grounded contact and clearance/cooldown/latch checks"
+  },
+  "additionalClosureMatrix": {
+    "method": "12 circuits x levels 2/3 x five initial positions around entrance/barrier x three lanes; coherent prior checkpoints and respawn, initial speed22, one driven tick before stage0->1 closure; then ordinary getCpuInput/stepWorld for up to20seconds; at least2gates, max4seconds immobile, max3resets.",
+    "before": {
+      "total": 360,
+      "bad": 34
+    },
+    "after": {
+      "total": 360,
+      "bad": 0
+    },
+    "beforeFailures": [
+      {
+        "track": "mangrove",
+        "level": 2,
+        "name": "inside",
+        "lateral": -5.6,
+        "resets": 0,
+        "maxStuck": 18.43,
+        "advanced": 0,
+        "last": {
+          "x": -113.93555870956754,
+          "z": 6.327572394130546,
+          "progress": 515.4821004722382,
+          "next": 9,
+          "speed": 1.8857142857142857,
+          "branch": ""
+        }
+      },
+      {
+        "track": "mangrove",
+        "level": 2,
+        "name": "inside",
+        "lateral": 0,
+        "resets": 0,
+        "maxStuck": 18.57,
+        "advanced": 0,
+        "last": {
+          "x": -114.27367373973118,
+          "z": 6.897487159146837,
+          "progress": 514.8194356904623,
+          "next": 9,
+          "speed": 1.8857142857142857,
+          "branch": ""
+        }
+      },
+      {
+        "track": "mangrove",
+        "level": 2,
+        "name": "inside",
+        "lateral": 5.6,
+        "resets": 0,
+        "maxStuck": 18.6,
+        "advanced": 0,
+        "last": {
+          "x": -115.03530552587426,
+          "z": 8.204200436793226,
+          "progress": 513.4267728908819,
+          "next": 9,
+          "speed": 1.8857142857142857,
+          "branch": ""
+        }
+      },
+      {
+        "track": "mangrove",
+        "level": 2,
+        "name": "wall-back",
+        "lateral": -5.6,
+        "resets": 0,
+        "maxStuck": 18.7,
+        "advanced": 1,
+        "last": {
+          "x": -105.43695948242707,
+          "z": -8.681384029599945,
+          "progress": 534.066715572363,
+          "next": 10,
+          "speed": 1.8857142857142857,
+          "branch": ""
+        }
+      },
+      {
+        "track": "mangrove",
+        "level": 2,
+        "name": "wall-back",
+        "lateral": 0,
+        "resets": 0,
+        "maxStuck": 18.77,
+        "advanced": 0,
+        "last": {
+          "x": -105.89344607280123,
+          "z": -7.740527237539208,
+          "progress": 532.5741080072141,
+          "next": 9,
+          "speed": 1.8857142857142857,
+          "branch": ""
+        }
+      },
+      {
+        "track": "mangrove",
+        "level": 2,
+        "name": "wall-back",
+        "lateral": 5.6,
+        "resets": 0,
+        "maxStuck": 18.3,
+        "advanced": 0,
+        "last": {
+          "x": -108.32210139934743,
+          "z": -3.1946793023617364,
+          "progress": 526.8059092481092,
+          "next": 9,
+          "speed": 1.8857142857142857,
+          "branch": ""
+        }
+      },
+      {
+        "track": "mangrove",
+        "level": 3,
+        "name": "inside",
+        "lateral": -5.6,
+        "resets": 0,
+        "maxStuck": 18.43,
+        "advanced": 0,
+        "last": {
+          "x": -113.93555870956754,
+          "z": 6.327572394130546,
+          "progress": 515.4821004722382,
+          "next": 9,
+          "speed": 1.8857142857142857,
+          "branch": ""
+        }
+      },
+      {
+        "track": "mangrove",
+        "level": 3,
+        "name": "inside",
+        "lateral": 0,
+        "resets": 0,
+        "maxStuck": 18.57,
+        "advanced": 0,
+        "last": {
+          "x": -114.27367373973118,
+          "z": 6.897487159146837,
+          "progress": 514.8194356904623,
+          "next": 9,
+          "speed": 1.8857142857142857,
+          "branch": ""
+        }
+      },
+      {
+        "track": "mangrove",
+        "level": 3,
+        "name": "inside",
+        "lateral": 5.6,
+        "resets": 0,
+        "maxStuck": 18.6,
+        "advanced": 0,
+        "last": {
+          "x": -115.03530552587426,
+          "z": 8.204200436793226,
+          "progress": 513.4267728908819,
+          "next": 9,
+          "speed": 1.8857142857142857,
+          "branch": ""
+        }
+      },
+      {
+        "track": "mangrove",
+        "level": 3,
+        "name": "wall-back",
+        "lateral": -5.6,
+        "resets": 0,
+        "maxStuck": 18.7,
+        "advanced": 1,
+        "last": {
+          "x": -105.43695948242707,
+          "z": -8.681384029599945,
+          "progress": 534.066715572363,
+          "next": 10,
+          "speed": 1.8857142857142857,
+          "branch": ""
+        }
+      },
+      {
+        "track": "mangrove",
+        "level": 3,
+        "name": "wall-back",
+        "lateral": 0,
+        "resets": 0,
+        "maxStuck": 18.77,
+        "advanced": 0,
+        "last": {
+          "x": -105.89344607280123,
+          "z": -7.740527237539208,
+          "progress": 532.5741080072141,
+          "next": 9,
+          "speed": 1.8857142857142857,
+          "branch": ""
+        }
+      },
+      {
+        "track": "mangrove",
+        "level": 3,
+        "name": "wall-back",
+        "lateral": 5.6,
+        "resets": 0,
+        "maxStuck": 18.3,
+        "advanced": 0,
+        "last": {
+          "x": -108.32210139934743,
+          "z": -3.1946793023617364,
+          "progress": 526.8059092481092,
+          "next": 9,
+          "speed": 1.8857142857142857,
+          "branch": ""
+        }
+      },
+      {
+        "track": "volcan",
+        "level": 2,
+        "name": "wall-front",
+        "lateral": -7.7,
+        "resets": 0,
+        "maxStuck": 19.9,
+        "advanced": 0,
+        "last": {
+          "x": -133.76356033882325,
+          "z": 128.21863973764712,
+          "progress": 715.1997485860803,
+          "next": 8,
+          "speed": 0,
+          "branch": ""
+        }
+      },
+      {
+        "track": "volcan",
+        "level": 2,
+        "name": "wall-front",
+        "lateral": 0,
+        "resets": 0,
+        "maxStuck": 19.6,
+        "advanced": 0,
+        "last": {
+          "x": -140.19253380907006,
+          "z": 134.5554272740626,
+          "progress": 715.422820414155,
+          "next": 8,
+          "speed": 7.333333333333333,
+          "branch": ""
+        }
+      },
+      {
+        "track": "volcan",
+        "level": 2,
+        "name": "wall-front",
+        "lateral": 7.7,
+        "resets": 0,
+        "maxStuck": 19.9,
+        "advanced": 0,
+        "last": {
+          "x": -144.72923316346996,
+          "z": 138.98207978320673,
+          "progress": 715.6114888346591,
+          "next": 8,
+          "speed": 0,
+          "branch": ""
+        }
+      },
+      {
+        "track": "volcan",
+        "level": 3,
+        "name": "wall-front",
+        "lateral": -7.7,
+        "resets": 0,
+        "maxStuck": 19.9,
+        "advanced": 0,
+        "last": {
+          "x": -133.76356033882325,
+          "z": 128.21863973764712,
+          "progress": 715.1997485860803,
+          "next": 8,
+          "speed": 0,
+          "branch": ""
+        }
+      },
+      {
+        "track": "volcan",
+        "level": 3,
+        "name": "wall-front",
+        "lateral": 0,
+        "resets": 0,
+        "maxStuck": 19.6,
+        "advanced": 0,
+        "last": {
+          "x": -140.19253380907006,
+          "z": 134.5554272740626,
+          "progress": 715.422820414155,
+          "next": 8,
+          "speed": 7.333333333333333,
+          "branch": ""
+        }
+      },
+      {
+        "track": "volcan",
+        "level": 3,
+        "name": "wall-front",
+        "lateral": 7.7,
+        "resets": 0,
+        "maxStuck": 19.9,
+        "advanced": 0,
+        "last": {
+          "x": -144.72923316346996,
+          "z": 138.98207978320673,
+          "progress": 715.6114888346591,
+          "next": 8,
+          "speed": 0,
+          "branch": ""
+        }
+      },
+      {
+        "track": "forest",
+        "level": 2,
+        "name": "inside",
+        "lateral": 0,
+        "resets": 0,
+        "maxStuck": 0,
+        "advanced": 1,
+        "last": {
+          "x": -44.63053114573108,
+          "z": 188.43018773121526,
+          "progress": 691.9424140199136,
+          "next": 7,
+          "speed": 32,
+          "branch": "forest-detour"
+        }
+      },
+      {
+        "track": "forest",
+        "level": 2,
+        "name": "inside",
+        "lateral": 7.7,
+        "resets": 0,
+        "maxStuck": 0,
+        "advanced": 0,
+        "last": {
+          "x": 22.08310959388175,
+          "z": 217.15214722097446,
+          "progress": 622.472738083629,
+          "next": 6,
+          "speed": 26.666666666666675,
+          "branch": "forest-detour"
+        }
+      },
+      {
+        "track": "forest",
+        "level": 3,
+        "name": "inside",
+        "lateral": 0,
+        "resets": 0,
+        "maxStuck": 0,
+        "advanced": 1,
+        "last": {
+          "x": -44.63053114573108,
+          "z": 188.43018773121526,
+          "progress": 691.9424140199136,
+          "next": 7,
+          "speed": 32,
+          "branch": "forest-detour"
+        }
+      },
+      {
+        "track": "forest",
+        "level": 3,
+        "name": "inside",
+        "lateral": 7.7,
+        "resets": 0,
+        "maxStuck": 0,
+        "advanced": 0,
+        "last": {
+          "x": 22.08310959388175,
+          "z": 217.15214722097446,
+          "progress": 622.472738083629,
+          "next": 6,
+          "speed": 26.666666666666675,
+          "branch": "forest-detour"
+        }
+      },
+      {
+        "track": "foundry",
+        "level": 2,
+        "name": "inside",
+        "lateral": 0,
+        "resets": 0,
+        "maxStuck": 0,
+        "advanced": 1,
+        "last": {
+          "x": -145.99821983632341,
+          "z": 155.2017346485332,
+          "progress": 731.6572420138302,
+          "next": 8,
+          "speed": 12,
+          "branch": "foundry-detour"
+        }
+      },
+      {
+        "track": "foundry",
+        "level": 2,
+        "name": "inside",
+        "lateral": 7.7,
+        "resets": 0,
+        "maxStuck": 0.03,
+        "advanced": 1,
+        "last": {
+          "x": -132.8112933639551,
+          "z": 155.76024284854321,
+          "progress": 723.1895322266985,
+          "next": 8,
+          "speed": 1.8857142857142857,
+          "branch": ""
+        }
+      },
+      {
+        "track": "foundry",
+        "level": 2,
+        "name": "wall-back",
+        "lateral": 7.7,
+        "resets": 0,
+        "maxStuck": 0,
+        "advanced": 0,
+        "last": {
+          "x": -147.30083014223624,
+          "z": 154.8466654977383,
+          "progress": 732.7011955455224,
+          "next": 8,
+          "speed": 14.199999999999998,
+          "branch": "foundry-detour"
+        }
+      },
+      {
+        "track": "foundry",
+        "level": 3,
+        "name": "inside",
+        "lateral": 0,
+        "resets": 0,
+        "maxStuck": 0,
+        "advanced": 1,
+        "last": {
+          "x": -145.99821983632341,
+          "z": 155.2017346485332,
+          "progress": 731.6572420138302,
+          "next": 8,
+          "speed": 12,
+          "branch": "foundry-detour"
+        }
+      },
+      {
+        "track": "foundry",
+        "level": 3,
+        "name": "inside",
+        "lateral": 7.7,
+        "resets": 0,
+        "maxStuck": 0.03,
+        "advanced": 1,
+        "last": {
+          "x": -132.8112933639551,
+          "z": 155.76024284854321,
+          "progress": 723.1895322266985,
+          "next": 8,
+          "speed": 1.8857142857142857,
+          "branch": ""
+        }
+      },
+      {
+        "track": "foundry",
+        "level": 3,
+        "name": "wall-back",
+        "lateral": 7.7,
+        "resets": 0,
+        "maxStuck": 0,
+        "advanced": 0,
+        "last": {
+          "x": -147.30083014223624,
+          "z": 154.8466654977383,
+          "progress": 732.7011955455224,
+          "next": 8,
+          "speed": 14.199999999999998,
+          "branch": "foundry-detour"
+        }
+      },
+      {
+        "track": "castle",
+        "level": 2,
+        "name": "wall-front",
+        "lateral": -8.4,
+        "resets": 0,
+        "maxStuck": 19.9,
+        "advanced": 0,
+        "last": {
+          "x": -53.8563181431273,
+          "z": 168.82084660094517,
+          "progress": 674.9508020884542,
+          "next": 7,
+          "speed": 0,
+          "branch": ""
+        }
+      },
+      {
+        "track": "castle",
+        "level": 2,
+        "name": "wall-front",
+        "lateral": 0,
+        "resets": 0,
+        "maxStuck": 19.9,
+        "advanced": 0,
+        "last": {
+          "x": -55.383691095157296,
+          "z": 177.0629663604174,
+          "progress": 675.114642224738,
+          "next": 7,
+          "speed": 0,
+          "branch": ""
+        }
+      },
+      {
+        "track": "castle",
+        "level": 2,
+        "name": "wall-front",
+        "lateral": 8.4,
+        "resets": 0,
+        "maxStuck": 19.9,
+        "advanced": 0,
+        "last": {
+          "x": -56.911610031547475,
+          "z": 185.308030732489,
+          "progress": 675.2785412000759,
+          "next": 7,
+          "speed": 0,
+          "branch": ""
+        }
+      },
+      {
+        "track": "castle",
+        "level": 3,
+        "name": "wall-front",
+        "lateral": -8.4,
+        "resets": 0,
+        "maxStuck": 19.9,
+        "advanced": 0,
+        "last": {
+          "x": -53.8563181431273,
+          "z": 168.82084660094517,
+          "progress": 674.9508020884542,
+          "next": 7,
+          "speed": 0,
+          "branch": ""
+        }
+      },
+      {
+        "track": "castle",
+        "level": 3,
+        "name": "wall-front",
+        "lateral": 0,
+        "resets": 0,
+        "maxStuck": 19.9,
+        "advanced": 0,
+        "last": {
+          "x": -55.383691095157296,
+          "z": 177.0629663604174,
+          "progress": 675.114642224738,
+          "next": 7,
+          "speed": 0,
+          "branch": ""
+        }
+      },
+      {
+        "track": "castle",
+        "level": 3,
+        "name": "wall-front",
+        "lateral": 8.4,
+        "resets": 0,
+        "maxStuck": 19.9,
+        "advanced": 0,
+        "last": {
+          "x": -56.911610031547475,
+          "z": 185.308030732489,
+          "progress": 675.2785412000759,
+          "next": 7,
+          "speed": 0,
+          "branch": ""
+        }
+      }
+    ]
+  },
+  "fullRaces": {
+    "passed": 12,
+    "driversPerRace": 8,
+    "finishers": 96,
+    "scope": "tests/teams.test.ts, ordinary getCpuInput, three laps, all stages and items active"
+  },
+  "sources": {
+    "shared/autopilot.ts": "51489849d3b28826b8b68380eee00f9cac06439bc50df7d85657c1fbe21efeb7",
+    "shared/cpu.ts": "18d8297300721c6f2a050f9f6c467e92cf5069db56e0516c30a9cdfe27bdf4ca",
+    "tests/cpu-obstacles.test.ts": "9a7e36ff595ac2c96b7c574c1b8617d127c3eb7937e7e049f61cbcd3b1052822"
+  },
+  "limitations": [
+    "Initial positions and earlier checkpoint validation are declared private fixtures, not raced sectors.",
+    "The matrix is an executed diagnostic, not exhaustive proof for every possible collision or player position."
+  ]
+}

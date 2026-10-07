@@ -1,7 +1,7 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { mkdir, open, readFile, rename, rm, stat } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { isTrackId } from '../shared/track.js';
+import { isTrackId, TRACK_LAYOUT_REVISION } from '../shared/track.js';
 import { INITIAL_MMR, careerLevel, championshipById, rankForMmr, seasonId,
   type GhostData, type LeaderboardEntry, type PlayerProfile, type PlayerStats,
   type ReplayData, type ReplaySummary, type SeasonStats } from '../shared/progression.js';
@@ -30,7 +30,7 @@ function name(value: unknown): string {
 }
 function emptyStats(): PlayerStats { return { races: 0, finishes: 0, wins: 0, podiums: 0, totalRaceTime: 0, bestTimes: {} }; }
 function summary(replay: ReplayData): ReplaySummary {
-  return { id: replay.id, trackId: replay.trackId, createdAt: replay.createdAt, durationMs: replay.durationMs, ranked: replay.ranked, eventLevel: replay.eventLevel ?? 0,
+  return { id: replay.id, trackId: replay.trackId, trackRevision: replay.trackRevision ?? 1, createdAt: replay.createdAt, durationMs: replay.durationMs, ranked: replay.ranked, eventLevel: replay.eventLevel ?? 0,
     drivers: replay.drivers.map(({ playerId, name, finishTime, finished, rank }) => ({ playerId, name, finishTime, finished, rank })) };
 }
 
@@ -38,7 +38,7 @@ function summary(replay: ReplayData): ReplaySummary {
 export function validateReplay(value: unknown): ReplayData {
   if (!value || typeof value !== 'object') throw new Error('Replay invalide.');
   const replay = value as ReplayData;
-  if (replay.version !== 1 || !identifier(replay.id) || !isTrackId(replay.trackId) ||
+  if (replay.version !== 1 || !identifier(replay.id) || !isTrackId(replay.trackId) || !integer(replay.trackRevision ?? 1, 1, 1000) ||
     !integer(replay.createdAt, 0, 8_640_000_000_000_000) || !integer(replay.durationMs, 0, 360_000) ||
     replay.season !== seasonId(new Date(replay.createdAt)) || typeof replay.ranked !== 'boolean' || !integer(replay.eventLevel ?? 0, 0, 3) ||
     !Array.isArray(replay.drivers) || replay.drivers.length < 1 || replay.drivers.length > 8) throw new Error('En-tête de replay invalide.');
@@ -62,7 +62,7 @@ export function validateReplay(value: unknown): ReplayData {
       throw new Error('Arrivée de replay invalide.');
   }
   // Explicit projection discards any incidental private fields a caller attached.
-  return { version: 1, id: replay.id, trackId: replay.trackId, createdAt: replay.createdAt, durationMs: replay.durationMs,
+  return { version: 1, id: replay.id, trackId: replay.trackId, trackRevision: replay.trackRevision ?? 1, createdAt: replay.createdAt, durationMs: replay.durationMs,
     season: replay.season, ranked: replay.ranked, eventLevel: replay.eventLevel ?? 0, drivers: replay.drivers.map(driver => ({
       playerId: driver.playerId, name: driver.name, color: driver.color, rank: driver.rank,
       finished: driver.finished, finishTime: driver.finishTime, frames: driver.frames.map(frame => [...frame]),
@@ -227,13 +227,13 @@ export class PlayerStore {
 
   async bestGhost(trackId: string, rankedOnly = false, eventLevel?: number): Promise<GhostData | null> {
     if (!isTrackId(trackId)) throw new Error('Circuit inconnu.');
-    const best = this.data.replays.filter(replay => replay.trackId === trackId && (!rankedOnly || replay.ranked) && (eventLevel === undefined || (replay.eventLevel ?? 0) === eventLevel))
+    const best = this.data.replays.filter(replay => (replay.trackRevision ?? 1) === TRACK_LAYOUT_REVISION && replay.trackId === trackId && (!rankedOnly || replay.ranked) && (eventLevel === undefined || (replay.eventLevel ?? 0) === eventLevel))
       .flatMap(replay => replay.drivers.filter(driver => driver.finished && driver.finishTime > 0).map(driver => ({ replay, driver })))
       .sort((a, b) => a.driver.finishTime - b.driver.finishTime || a.replay.createdAt - b.replay.createdAt)[0];
     if (!best) return null;
     const replay = await this.getReplay(best.replay.id), driver = replay?.drivers.find(candidate => candidate.playerId === best.driver.playerId);
     if (!driver) return null;
-    return { version: 1, replayId: best.replay.id, trackId, playerId: driver.playerId, name: driver.name,
+    return { version: 1, replayId: best.replay.id, trackId, trackRevision: replay!.trackRevision, playerId: driver.playerId, name: driver.name,
       color: driver.color, finishTime: driver.finishTime, eventLevel: replay?.eventLevel ?? 0, frames: driver.frames };
   }
 
@@ -283,7 +283,7 @@ export class PlayerStore {
     // races. The cap remains strict even when new circuits add more potential
     // ghost records than the configured number of files.
     const fastest = new Map<string, { id: string; time: number }>();
-    for (const replay of replays) for (const driver of replay.drivers) if (driver.finished && driver.finishTime > 0) {
+    for (const replay of replays) for (const driver of replay.drivers) if ((replay.trackRevision ?? 1) === TRACK_LAYOUT_REVISION && driver.finished && driver.finishTime > 0) {
       for (const key of [replay.trackId, ...(replay.ranked ? [replay.trackId + ':ranked'] : [])])
         if (driver.finishTime < (fastest.get(key)?.time ?? Infinity)) fastest.set(key, { id: replay.id, time: driver.finishTime });
     }
@@ -317,7 +317,7 @@ export class PlayerStore {
         !integer(ranked.races, 0, Number.MAX_SAFE_INTEGER) || !integer(ranked.wins, 0, ranked.races)) throw new Error('Saison sauvegardée invalide.');
     }
     for (const receipt of data.raceReceipts) if (!identifier(receipt.id) || !integer(receipt.at, 0, 8_640_000_000_000_000)) throw new Error('Reçu de course invalide.');
-    for (const replay of data.replays) if (!identifier(replay.id) || !isTrackId(replay.trackId) || !integer(replay.createdAt, 0, 8_640_000_000_000_000) ||
+    for (const replay of data.replays) if (!identifier(replay.id) || !isTrackId(replay.trackId) || !integer(replay.trackRevision ?? 1, 1, 1000) || !integer(replay.createdAt, 0, 8_640_000_000_000_000) ||
       !integer(replay.durationMs, 0, 360_000) || typeof replay.ranked !== 'boolean' || !integer(replay.eventLevel ?? 0, 0, 3) || !Array.isArray(replay.drivers) || replay.drivers.length > 8 ||
       replay.drivers.some(driver => !identifier(driver.playerId) || name(driver.name) !== driver.name || !integer(driver.rank, 1, 8) ||
         typeof driver.finished !== 'boolean' || !Number.isFinite(driver.finishTime) || driver.finishTime < 0 || driver.finishTime > 360)) throw new Error('Index des replays invalide.');

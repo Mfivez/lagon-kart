@@ -1,6 +1,6 @@
 # Notices des composants tiers
 
-Lagon Kart utilise une identité visuelle, des circuits et des effets sonores synthétisés créés pour ce projet, un kart gratuit de Zsky et deux musiques MP3 fournies pour le jeu. Aucun asset distant ni CDN n'est nécessaire pendant une partie.
+Lagon Kart utilise une identité visuelle, des circuits et des effets sonores synthétisés créés pour ce projet, trois karts gratuits, un arbre Kenney CC0 et deux musiques MP3 fournies pour le jeu. Aucun asset distant ni CDN n'est nécessaire pendant une partie.
 
 ## Musiques MP3 fournies
 
@@ -41,7 +41,15 @@ Les textes des licences des dépendances de production sont conservés dans `nod
 - https://kenney.nl/assets/car-kit — CC0, pack de véhicules réutilisable.
 - https://kenney.nl/assets/racing-kit — CC0, pack de circuit réutilisable.
 
-Les deux packs Kenney ont été examinés comme ressources possibles. Le kart retenu vient de Zsky ; aucun fichier Kenney n'est distribué.
+Ces deux packs de véhicules et de circuit Kenney ne sont pas distribués. Les modèles de karts viennent de Zsky, Poly by Google et Ben Harrison. L’arbre décrit ci-dessous est un asset Kenney distinct.
+
+## Décor distribué : Tree de Kenney
+
+- Auteur : **Kenney** ; [fichier source et licence CC0 1.0](https://poly.pizza/m/QN3Ru02ayU).
+- Original, preuve de provenance, inspection et texte de licence : `assets/sources/kenney-nature/`.
+- Copie locale versionnée : `client/public/models/scenery/kenney-tree-v1.glb`, identique à l’original, 14 480 octets, 200 triangles, deux matériaux, aucune texture externe.
+- À l’exécution : adaptation de l’échelle et du pivot au sol, couleurs de feuillage et de bois. L’attribution est facultative sous CC0 et conservée pour la traçabilité ; aucun soutien de Kenney n’est revendiqué.
+- Les autres monuments et terrains sont des géométries originales du projet. [Recherche, composition et budget](docs/SCENERY.md). Coût ajouté : **0 €**.
 
 ## Documentation de conception
 

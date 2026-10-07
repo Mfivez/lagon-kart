@@ -5,6 +5,8 @@ import { Client, type Room } from 'colyseus.js';
 import { autopilot } from '../shared/autopilot.js';
 import { COLORS, getTrack, type World } from '../shared/game.js';
 import { KART_MODELS } from '../shared/kart-catalog.js';
+import { kartLoopPose } from '../shared/track-loop.js';
+import { TRACK_LAYOUT_REVISION } from '../shared/track.js';
 import type { PlayerProfile, ReplayData, ReplaySummary } from '../shared/progression.js';
 
 // Public interfaces only: no server fixture, debug mutation or artificial finish.
@@ -17,6 +19,7 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 const checks: string[] = [], errors: string[] = [];
 const requests = Array.from({ length: 2 }, () => ({ glb: [] as string[], mp3: [] as string[] }));
 const eventStages = new Set<number>(), airborneDrivers = new Set<string>();
+const invertedDrivers = new Set<string>();
 const musicSelections = [new Set<string>(), new Set<string>()];
 const itemKinds = new Set<string>();
 const started = Date.now();
@@ -35,6 +38,7 @@ async function api<T>(path: string, token?: string, body?: unknown): Promise<T> 
 type Assets = { status: string; loadCount: number; importedCount: number; fallbackCount: number;
   models: Record<string, { status: string; loadCount: number; importedCount: number; fallbackCount: number; characters: string[]; error: string | null }> };
 type Debug = { world: World | null; sessionId: string; fps: number; quality: string; kartAssets: Assets;
+  sceneryAssets: { state: string; requests: number; url: string };
   music: { running: boolean; selected: string; track: string; currentTime: number; activeElements: number;
     elementCount: number; loadCount: number; error: string | null } };
 type Driver = { room: Room; token: string; profile: PlayerProfile; world?: World; sequence: number; epoch: number;
@@ -53,6 +57,7 @@ function attach(room: Room, account: { token: string; profile: PlayerProfile }) 
     eventStages.add(snapshot.world.eventStage);
     for (const kart of snapshot.world.players.filter(kart => !kart.spectator)) {
       if (kart.airborne) airborneDrivers.add(kart.playerId);
+      if (driver === drivers[0] && kart.loopId && kartLoopPose(kart).up.y < -.8) invertedDrivers.add(kart.playerId);
       maximumElevation = Math.max(maximumElevation, kart.elevation);
       if (kart.item) itemKinds.add(kart.item);
       if (kart.id === room.sessionId && kart.lap < 3) driver.laps.add(kart.lap);
@@ -82,7 +87,8 @@ try {
   browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--use-gl=angle', '--use-angle=swiftshader',
     '--enable-unsafe-swiftshader', '--disable-backgrounding-occluded-windows', '--disable-renderer-backgrounding', '--disable-background-timer-throttling'] });
   for (let index = 0; index < 2; index++) {
-    const context = await browser.newContext({ viewport: { width: index === 0 ? 1280 : 900, height: index === 0 ? 800 : 650 } });
+    const context = await browser.newContext({ viewport: { width: index === 0 ? 1280 : 390, height: index === 0 ? 800 : 844 },
+      isMobile: index === 1, hasTouch: index === 1, deviceScaleFactor: 1 });
     const page = await context.newPage(); pages.push(page);
     page.on('pageerror', error => errors.push(error.message));
     page.on('request', request => {
@@ -147,6 +153,7 @@ try {
   for (const driver of drivers) assert.deepEqual([...driver.laps].sort(), [0, 1, 2]);
   assert.ok(airborneDrivers.size > 0, 'Au moins un décollage observé dans les snapshots réels');
   assert.ok(maximumElevation > 1);
+  if (getTrack(trackId).loops.length) assert.equal(invertedDrivers.size, drivers.length, 'Each driver actually reaches the inverted looping crest');
   results = racers.map(kart => [kart.id, kart.rank, kart.lap, kart.finished, kart.finishTime]);
   for (const driver of drivers) assert.deepEqual(driver.world!.players.filter(kart => !kart.spectator)
     .map(kart => [kart.id, kart.rank, kart.lap, kart.finished, kart.finishTime]), results);
@@ -165,7 +172,8 @@ try {
     for (const character of characters) assert.ok(renderedCharacters.has(character));
     assert.equal(state.music.track, trackId); assert.equal(state.music.elementCount, 2); assert.equal(state.music.loadCount, 2); assert.equal(state.music.error, null);
     assert.deepEqual([...musicSelections[index]!].sort(), ['lap1', 'lap2']);
-    assert.deepEqual(requests[index]!.glb.map(url => new URL(url).pathname).sort(), KART_MODELS.map(model => model.url).sort());
+    assert.equal(state.sceneryAssets.state, 'ready'); assert.equal(state.sceneryAssets.requests, 1);
+    assert.deepEqual(requests[index]!.glb.map(url => new URL(url).pathname).sort(), [...KART_MODELS.map(model => model.url), state.sceneryAssets.url].sort());
     assert.deepEqual([...new Set(requests[index]!.mp3.map(url => new URL(url).pathname))].sort(), ['/audio/lap-1-v1.mp3', '/audio/lap-2-v1.mp3']);
     assert.ok([...requests[index]!.glb, ...requests[index]!.mp3].every(url => new URL(url).origin === origin));
   }
@@ -184,6 +192,7 @@ try {
   assert.ok(replayId); assert.ok(replayLists.every(list => list.replays.some(replay => replay.id === replayId)));
   savedReplay = (await api<{ replay: ReplayData }>(`/api/replays/${replayId}`)).replay;
   assert.equal(savedReplay.trackId, trackId); assert.equal(savedReplay.eventLevel, 3); assert.equal(savedReplay.drivers.length, 4);
+  assert.equal(savedReplay.trackRevision, TRACK_LAYOUT_REVISION);
   for (const driver of savedReplay.drivers) { assert.ok(driver.finished); assert.equal(driver.frames.at(-1)![5], 3); assert.ok(driver.frames.length > 100); }
   const publicEvidence = JSON.stringify({ savedProfiles, savedReplay, worlds: browserStates.map(state => state.world) });
   for (const account of accounts) assert.ok(!publicEvidence.includes(account.token), 'Aucun jeton dans les projections publiques');
@@ -194,11 +203,11 @@ try {
 } finally {
   await writeFile(reportPath, JSON.stringify({ origin, trackId, success, failure, checks, errors, durationSeconds: (Date.now() - started) / 1000,
     drivers: 4, browserObservers: 2, inputMethod: 'Four authenticated SDK drivers send ordinary controls; two Chromium contexts observe. No fixture or forced finish.',
-    renderer: 'Chromium headless / SwiftShader', snapshots, eventStages: [...eventStages], airborneDrivers: [...airborneDrivers], maximumElevation,
+    renderer: 'Chromium headless / SwiftShader, desktop and 390x844 touch mobile emulation', snapshots, eventStages: [...eventStages], airborneDrivers: [...airborneDrivers], invertedDrivers: [...invertedDrivers], maximumElevation,
     requests, musicSelections: musicSelections.map(selections => [...selections]), itemKinds: [...itemKinds], results,
     profiles: savedProfiles.map(profile => ({ id: profile.id, stats: profile.stats, xp: profile.xp })),
-    replay: savedReplay ? { id: savedReplay.id, trackId: savedReplay.trackId, eventLevel: savedReplay.eventLevel, frames: savedReplay.drivers.map(driver => driver.frames.length) } : null,
-    browserDiagnostics: browserStates.map(state => ({ kartAssets: state.kartAssets, music: state.music, fps: state.fps, quality: state.quality })) }, null, 2));
+    replay: savedReplay ? { id: savedReplay.id, trackId: savedReplay.trackId, trackRevision: savedReplay.trackRevision, eventLevel: savedReplay.eventLevel, frames: savedReplay.drivers.map(driver => driver.frames.length) } : null,
+    browserDiagnostics: browserStates.map(state => ({ kartAssets: state.kartAssets, sceneryAssets: state.sceneryAssets, music: state.music, fps: state.fps, quality: state.quality })) }, null, 2));
   for (const driver of drivers) { clearInterval(driver.timer); if (driver.room.connection.isOpen) await driver.room.leave().catch(() => {}); }
   await browser?.close();
 }

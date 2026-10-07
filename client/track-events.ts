@@ -3,29 +3,42 @@ import { BRANCH_POST_HEIGHT } from '../shared/obstacle-heights';
 import { getTrack, nearestTrack, trackElevation, trackPoint, type Vec2 } from '../shared/track';
 import { getTrackEvent, type TrackBranch, type TrackEventInfo } from '../shared/track-events';
 
-function ribbon(points: Array<Vec2 & { progress?: number }>, width: number, height: number, trackId: string) {
+function ribbon(points: Array<Vec2 & { progress?: number; angle?: number }>, width: number, height: number, trackId: string, offset = 0) {
   // Branch positions carry the same virtual progress as their checkpoint gates.
   // Preserve the precise ramp lip on these ribbons as well as the main road.
   const boundaries = [...new Set(getTrack(trackId).elevations.flatMap(feature =>
     [feature.start, feature.end, feature.end + .05]))].sort((a, b) => a - b);
-  const sampled: Array<Vec2 & { progress?: number }> = [];
+  const sampled: Array<Vec2 & { progress?: number; angle?: number }> = [];
   points.forEach((point, index) => {
     sampled.push(point);
     const next = points[index + 1];
     if (point.progress === undefined || next?.progress === undefined) return;
     for (const progress of boundaries) if (progress > point.progress && progress < next.progress) {
       const t = (progress - point.progress) / (next.progress - point.progress);
-      sampled.push({ x: point.x + (next.x - point.x) * t, z: point.z + (next.z - point.z) * t, progress });
+      const turn = point.angle === undefined || next.angle === undefined ? undefined
+        : Math.atan2(Math.sin(next.angle - point.angle), Math.cos(next.angle - point.angle));
+      sampled.push({ x: point.x + (next.x - point.x) * t, z: point.z + (next.z - point.z) * t, progress,
+        angle: turn === undefined ? undefined : point.angle! + turn * t });
     }
   });
   points = sampled;
   const positions: number[] = [], indices: number[] = [];
+  // A shared one-metre lateral grid keeps the road and its coloured overlays
+  // on compatible triangles through turns and elevation changes.
+  const left = offset - width / 2, right = offset + width / 2;
+  const columns = [left, ...Array.from({ length: Math.max(0, Math.ceil(right) - Math.floor(left) - 1) }, (_, index) => Math.floor(left) + index + 1)
+    .filter(value => value > left && value < right), right];
   points.forEach((point, index) => {
     const before = points[Math.max(0, index - 1)]!, after = points[Math.min(points.length - 1, index + 1)]!;
     const dx = after.x - before.x, dz = after.z - before.z, length = Math.hypot(dx, dz) || 1;
+    const nx = point.angle === undefined ? dz / length : Math.cos(point.angle);
+    const nz = point.angle === undefined ? -dx / length : -Math.sin(point.angle);
     const y = height + trackElevation(point.progress ?? nearestTrack(point.x, point.z, trackId).progress, trackId);
-    for (const side of [-1, 1]) positions.push(point.x + dz / length * side * width / 2, y, point.z - dx / length * side * width / 2);
-    if (index < points.length - 1) { const n = index * 2; indices.push(n, n + 2, n + 1, n + 1, n + 2, n + 3); }
+    for (const column of columns) positions.push(point.x + nx * column, y, point.z + nz * column);
+    if (index < points.length - 1) for (let column = 0; column < columns.length - 1; column++) {
+      const a = index * columns.length + column, b = a + columns.length;
+      indices.push(a, b, a + 1, a + 1, b, b + 1);
+    }
   });
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3)); geometry.setIndex(indices); geometry.computeVertexNormals();
@@ -77,12 +90,21 @@ export class TrackEventsView {
     const warningPoint = { x: warning.x + Math.cos(warning.angle) * offset, z: warning.z - Math.sin(warning.angle) * offset, progress: route.start - 42 };
     if (!route.open) { this.sign('RACCOURCI · OUVRE AU TOUR 3', signPoint, '#e7aa61'); return; }
     const accent = route.kind === 'detour' ? '#ffe28c' : route.kind === 'technical' ? '#b7eeff' : '#83f6b7';
-    this.mesh(ribbon(route.points, route.width + 1.1, .023, track.id), accent);
-    this.mesh(ribbon(route.points, route.width, .035, track.id), track.palette.road);
+    // Compute the frame before slicing overlays, so their first and last rows
+    // retain the same tangent as the underlying complete branch.
+    const routePoints = route.points.map((point, index) => {
+      const before = route.points[Math.max(0, index - 1)]!, after = route.points[Math.min(route.points.length - 1, index + 1)]!;
+      return { ...point, angle: Math.atan2(after.x - before.x, after.z - before.z) };
+    });
+    for (const side of [-1, 1])
+      this.mesh(ribbon(routePoints, .55, .035, track.id, side * (route.width / 2 + .275)), accent);
+    this.mesh(ribbon(routePoints, route.width, .035, track.id), track.palette.road);
     const overlay = (from: number, to: number, color: string) => {
       const startProgress = route.start + (route.end - route.start) * from, endProgress = route.start + (route.end - route.start) * to;
-      const points = route.points.filter(point => point.progress >= startProgress && point.progress <= endProgress);
-      this.mesh(ribbon(points, route.width - .45, .051, track.id), color);
+      const points = routePoints.filter(point => point.progress >= startProgress && point.progress <= endProgress);
+      // Keep the coloured lane clear of the main road at branch joins, even
+      // from the distant overview camera (one millimetre was insufficient).
+      this.mesh(ribbon(points, route.width - .45, .095, track.id), color);
     };
     if (route.kind === 'technical') { overlay(.2, .35, '#70d9a7'); overlay(.6, .7, '#aadce9'); }
     for (let index = 5; index < route.points.length - 4; index += 5) {
@@ -165,6 +187,15 @@ export class TrackEventsView {
       const positions = this.weather.geometry.getAttribute('position') as THREE.BufferAttribute;
       for (let i = 0; i < positions.count; i++) positions.setY(i, ((i * 9.167 - time * (this.weatherKind === 'snow' ? 2.3 : 9)) % 24 + 24) % 24);
       positions.needsUpdate = true;
+    }
+  }
+  /** Roadside directions must never become a full-screen billboard when the
+   * chase camera passes close to them, especially in portrait orientation. */
+  updateCamera(camera: THREE.Camera) {
+    for (const child of this.group.children) if (child instanceof THREE.Sprite) {
+      const distance = child.position.distanceTo(camera.position);
+      child.material.opacity = Math.max(0, Math.min(1, (distance - 18) / 12));
+      child.visible = child.material.opacity > 0;
     }
   }
   private clear() {

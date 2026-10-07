@@ -1,0 +1,1172 @@
+{
+  "passed": false,
+  "checks": [
+    "Île des Alizés : panorama choisi dans le menu, scène rendue.",
+    "Canyon solaire : panorama choisi dans le menu, scène rendue.",
+    "Banquise boréale : panorama choisi dans le menu, scène rendue.",
+    "Métropole néon : panorama choisi dans le menu, scène rendue.",
+    "Mangrove sinueuse : panorama choisi dans le menu, scène rendue.",
+    "Dunes de cuivre : panorama choisi dans le menu, scène rendue.",
+    "Caldeira ardente : panorama choisi dans le menu, scène rendue.",
+    "Forêt des géants : panorama choisi dans le menu, scène rendue.",
+    "Port des cargos : panorama choisi dans le menu, scène rendue.",
+    "Archipel céleste : panorama choisi dans le menu, scène rendue.",
+    "Fonderie des pistons : panorama choisi dans le menu, scène rendue.",
+    "Citadelle royale : panorama choisi dans le menu, scène rendue.",
+    "GLB Kenney servi depuis la même origine, une requête et un chargement sur toute la page.",
+    "Archipel céleste : boucle franchie par commandes SDK, trois poses réellement atteintes, sommet inversé cadré en desktop et deux formats mobiles, sortie au sol.",
+    "Fonderie des pistons : boucle franchie par commandes SDK, trois poses réellement atteintes, sommet inversé cadré en desktop et deux formats mobiles, sortie au sol.",
+    "Aucune erreur JavaScript, aucun asset HTTP manquant, cache GLB conservé après les deux courses."
+  ],
+  "errors": [],
+  "captures": [
+    "lagon-overview.png",
+    "canyon-overview.png",
+    "glacier-overview.png",
+    "neon-overview.png",
+    "mangrove-overview.png",
+    "dunes-overview.png",
+    "volcan-overview.png",
+    "forest-overview.png",
+    "harbor-overview.png",
+    "sky-overview.png",
+    "foundry-overview.png",
+    "castle-overview.png",
+    "sky-loop-ascent.png",
+    "sky-loop-inverted.png",
+    "sky-loop-inverted-390x844.png",
+    "sky-loop-inverted-667x375.png",
+    "sky-loop-descent.png",
+    "foundry-loop-ascent.png",
+    "foundry-loop-inverted.png",
+    "foundry-loop-inverted-390x844.png",
+    "foundry-loop-inverted-667x375.png",
+    "foundry-loop-descent.png"
+  ],
+  "evidence": {
+    "clientAssets": [
+      "/assets/index-DiSqpbLA.js",
+      "/assets/index-BgIIk5rT.css"
+    ],
+    "lagon-overview": {
+      "view": {
+        "camera": {
+          "position": [
+            98.84903419418002,
+            187.0627979544495,
+            146.23062680962352
+          ],
+          "target": [
+            -40.06744713054698,
+            0,
+            -2.2928037458384694
+          ],
+          "fov": 52,
+          "near": 10
+        },
+        "tracked": null,
+        "calls": 67,
+        "triangles": 25298,
+        "compact": true
+      },
+      "scenery": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      }
+    },
+    "canyon-overview": {
+      "view": {
+        "camera": {
+          "position": [
+            107.27910708567236,
+            187.68401579799644,
+            136.53890852297053
+          ],
+          "target": [
+            -39.89977720667826,
+            0,
+            -4.884681718374474
+          ],
+          "fov": 52,
+          "near": 10
+        },
+        "tracked": null,
+        "calls": 59,
+        "triangles": 26126,
+        "compact": true
+      },
+      "scenery": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      }
+    },
+    "glacier-overview": {
+      "view": {
+        "camera": {
+          "position": [
+            115.6153150859862,
+            194.03758066116504,
+            133.95743073638423
+          ],
+          "target": [
+            -45.16850036633929,
+            0,
+            -2.6209804981748115
+          ],
+          "fov": 52,
+          "near": 10
+        },
+        "tracked": null,
+        "calls": 65,
+        "triangles": 25510,
+        "compact": true
+      },
+      "scenery": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      }
+    },
+    "neon-overview": {
+      "view": {
+        "camera": {
+          "position": [
+            121.75651706768323,
+            191.0270685889704,
+            114.32692481785111
+          ],
+          "target": [
+            -45.059483369028115,
+            0,
+            -9.050636432645673
+          ],
+          "fov": 52,
+          "near": 10
+        },
+        "tracked": null,
+        "calls": 64,
+        "triangles": 33838,
+        "compact": true
+      },
+      "scenery": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      }
+    },
+    "mangrove-overview": {
+      "view": {
+        "camera": {
+          "position": [
+            120.7844904654646,
+            183.37485162369802,
+            99.43946440303036
+          ],
+          "target": [
+            -48.65726493860786,
+            0,
+            -4.490065995391617
+          ],
+          "fov": 52,
+          "near": 10
+        },
+        "tracked": null,
+        "calls": 69,
+        "triangles": 32596,
+        "compact": true
+      },
+      "scenery": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      }
+    },
+    "dunes-overview": {
+      "view": {
+        "camera": {
+          "position": [
+            159.62632740764104,
+            224.51633666959836,
+            114.8659894849605
+          ],
+          "target": [
+            -54.50184646152626,
+            0,
+            0.013839695465501501
+          ],
+          "fov": 52,
+          "near": 10
+        },
+        "tracked": null,
+        "calls": 65,
+        "triangles": 27002,
+        "compact": true
+      },
+      "scenery": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      }
+    },
+    "volcan-overview": {
+      "view": {
+        "camera": {
+          "position": [
+            215.41203384288352,
+            285.84598129526927,
+            120.01497933136734
+          ],
+          "target": [
+            -66.11066708283492,
+            0,
+            -6.728388812251527
+          ],
+          "fov": 52,
+          "near": 10
+        },
+        "tracked": null,
+        "calls": 64,
+        "triangles": 36342,
+        "compact": true
+      },
+      "scenery": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      }
+    },
+    "forest-overview": {
+      "view": {
+        "camera": {
+          "position": [
+            238.87890305843462,
+            298.768400273326,
+            111.34721698795316
+          ],
+          "target": [
+            -62.9714395548331,
+            0,
+            -0.9951829104220307
+          ],
+          "fov": 52,
+          "near": 10
+        },
+        "tracked": null,
+        "calls": 76,
+        "triangles": 46550,
+        "compact": true
+      },
+      "scenery": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      }
+    },
+    "harbor-overview": {
+      "view": {
+        "camera": {
+          "position": [
+            278.8674938649009,
+            337.96158668492404,
+            99.87026211197282
+          ],
+          "target": [
+            -70.47097781442017,
+            0,
+            -1.018406528868272
+          ],
+          "fov": 52,
+          "near": 10
+        },
+        "tracked": null,
+        "calls": 68,
+        "triangles": 40152,
+        "compact": true
+      },
+      "scenery": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      }
+    },
+    "sky-overview": {
+      "view": {
+        "camera": {
+          "position": [
+            258.77984876588505,
+            319.76230283412514,
+            81.56709227252607
+          ],
+          "target": [
+            -76.79911892721336,
+            0,
+            8.056638835222458
+          ],
+          "fov": 52,
+          "near": 10
+        },
+        "tracked": null,
+        "calls": 73,
+        "triangles": 49634,
+        "compact": true
+      },
+      "scenery": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      }
+    },
+    "foundry-overview": {
+      "view": {
+        "camera": {
+          "position": [
+            245.27123635898252,
+            288.95706335615165,
+            46.7958110052644
+          ],
+          "target": [
+            -61.146086180650286,
+            0,
+            -0.9378978613033444
+          ],
+          "fov": 52,
+          "near": 10
+        },
+        "tracked": null,
+        "calls": 74,
+        "triangles": 49652,
+        "compact": true
+      },
+      "scenery": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      }
+    },
+    "castle-overview": {
+      "view": {
+        "camera": {
+          "position": [
+            229.34322012709117,
+            274.3125963035932,
+            26.30642465479232
+          ],
+          "target": [
+            -63.69251507443378,
+            0,
+            0.560120193687045
+          ],
+          "fov": 52,
+          "near": 10
+        },
+        "tracked": null,
+        "calls": 73,
+        "triangles": 44852,
+        "compact": true
+      },
+      "scenery": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      }
+    },
+    "sky-ascent": {
+      "logical": {
+        "x": 37.98747434767609,
+        "z": -182.58913436676158,
+        "elevation": 16.189755917703394,
+        "loopId": "sky-magnetic-loop-0",
+        "speed": 31.873202347279832,
+        "lastSeq": 62
+      },
+      "sharedPose": {
+        "x": 50.41402034671945,
+        "y": 16.169930257486698,
+        "z": -195.70299402609615,
+        "angle": 1.6481012223923075,
+        "pitch": 0.7706222107752481,
+        "right": {
+          "x": -0.631423874106346,
+          "y": 0.5036134829656936,
+          "z": -0.5896417140804208
+        },
+        "up": {
+          "x": -0.07450788435205108,
+          "y": 0.7174773878241809,
+          "z": 0.6925855709804902
+        },
+        "tangent": {
+          "x": 0.7718500284238609,
+          "y": 0.48124802102050596,
+          "z": -0.415509176656704
+        },
+        "active": true,
+        "loopId": "sky-magnetic-loop-0",
+        "fraction": 0.2518875812686458,
+        "speedScale": 0.40690164967836656
+      },
+      "rendered": {
+        "id": "WwFI7E3jZ",
+        "position": [
+          50.40992241307999,
+          16.20939151381719,
+          -195.66490181969223
+        ],
+        "up": [
+          -0.07450788435382139,
+          0.7174773878255872,
+          0.6925855709788428
+        ],
+        "projected": [
+          0.001354417335862613,
+          0.0035441098864571305,
+          0.9196021940296853
+        ]
+      },
+      "camera": {
+        "position": [
+          27.326489885835937,
+          24.358826335156426,
+          -196.58996934958543
+        ],
+        "target": [
+          50.324544843482585,
+          16.878951681570005,
+          -195.0034579482319
+        ],
+        "fov": 59.999999574524495,
+        "near": 1
+      },
+      "positionError": 0.05500000000011768,
+      "calls": 53,
+      "triangles": 47516
+    },
+    "sky-inverted": {
+      "logical": {
+        "x": 59.47172563893128,
+        "z": -184.01539349038626,
+        "elevation": 31.98966248952661,
+        "loopId": "sky-magnetic-loop-0",
+        "speed": 31.9995361620196,
+        "lastSeq": 292
+      },
+      "sharedPose": {
+        "x": 58.7409560571605,
+        "y": 31.99922854281301,
+        "z": -183.15476341011748,
+        "angle": 1.6322883338325513,
+        "pitch": 3.219903793218157,
+        "right": {
+          "x": -0.9160304533733659,
+          "y": -0.07551455081411935,
+          "z": -0.3939362399017474
+        },
+        "up": {
+          "x": 0.07745408547890836,
+          "y": -0.9969352494350425,
+          "z": 0.010998776137138538
+        },
+        "tangent": {
+          "x": -0.3935594912274526,
+          "y": -0.020436757307134536,
+          "z": 0.9190719589975301
+        },
+        "active": true,
+        "loopId": "sky-magnetic-loop-0",
+        "fraction": 0.505721455245414,
+        "speedScale": 0.49340553801308196
+      },
+      "rendered": {
+        "id": "WwFI7E3jZ",
+        "position": [
+          58.745216031861844,
+          31.944397104094083,
+          -183.15415847742995
+        ],
+        "up": [
+          0.07745408547890835,
+          -0.9969352494350423,
+          0.010998776137138533
+        ],
+        "projected": [
+          0.00010501398209337997,
+          -0.003247558467441711,
+          0.9311508651248013
+        ]
+      },
+      "camera": {
+        "position": [
+          42.612531041298894,
+          23.488370448903453,
+          -204.94234416400454
+        ],
+        "target": [
+          58.819917431340244,
+          30.9999731817,
+          -183.15143984455975
+        ],
+        "fov": 60,
+        "near": 1
+      },
+      "positionError": 0.05500000000000061,
+      "calls": 67,
+      "triangles": 48470
+    },
+    "sky-inverted-390x844": {
+      "logical": {
+        "x": 59.47172563893128,
+        "z": -184.01539349038626,
+        "elevation": 31.98966248952661,
+        "loopId": "sky-magnetic-loop-0",
+        "speed": 31.9995361620196,
+        "lastSeq": 292
+      },
+      "sharedPose": {
+        "x": 58.7409560571605,
+        "y": 31.99922854281301,
+        "z": -183.15476341011748,
+        "angle": 1.6322883338325513,
+        "pitch": 3.219903793218157,
+        "right": {
+          "x": -0.9160304533733659,
+          "y": -0.07551455081411935,
+          "z": -0.3939362399017474
+        },
+        "up": {
+          "x": 0.07745408547890836,
+          "y": -0.9969352494350425,
+          "z": 0.010998776137138538
+        },
+        "tangent": {
+          "x": -0.3935594912274526,
+          "y": -0.020436757307134536,
+          "z": 0.9190719589975301
+        },
+        "active": true,
+        "loopId": "sky-magnetic-loop-0",
+        "fraction": 0.505721455245414,
+        "speedScale": 0.49340553801308196
+      },
+      "rendered": {
+        "id": "WwFI7E3jZ",
+        "position": [
+          58.745216031861844,
+          31.944397104094083,
+          -183.15415847742995
+        ],
+        "up": [
+          0.07745408547890835,
+          -0.9969352494350423,
+          0.010998776137138533
+        ],
+        "projected": [
+          -0.0003612027681127248,
+          -0.0027272970343415726,
+          0.9348623216841125
+        ]
+      },
+      "camera": {
+        "position": [
+          43.79443240665458,
+          23.54572878024924,
+          -207.695909678233
+        ],
+        "target": [
+          58.818373874465884,
+          31.00322836599164,
+          -183.14376978419958
+        ],
+        "fov": 67.99873230939907,
+        "near": 1
+      },
+      "positionError": 0.05500000000000061,
+      "calls": 49,
+      "triangles": 47770
+    },
+    "sky-inverted-667x375": {
+      "logical": {
+        "x": 59.47172563893128,
+        "z": -184.01539349038626,
+        "elevation": 31.98966248952661,
+        "loopId": "sky-magnetic-loop-0",
+        "speed": 31.9995361620196,
+        "lastSeq": 292
+      },
+      "sharedPose": {
+        "x": 58.7409560571605,
+        "y": 31.99922854281301,
+        "z": -183.15476341011748,
+        "angle": 1.6322883338325513,
+        "pitch": 3.219903793218157,
+        "right": {
+          "x": -0.9160304533733659,
+          "y": -0.07551455081411935,
+          "z": -0.3939362399017474
+        },
+        "up": {
+          "x": 0.07745408547890836,
+          "y": -0.9969352494350425,
+          "z": 0.010998776137138538
+        },
+        "tangent": {
+          "x": -0.3935594912274526,
+          "y": -0.020436757307134536,
+          "z": 0.9190719589975301
+        },
+        "active": true,
+        "loopId": "sky-magnetic-loop-0",
+        "fraction": 0.505721455245414,
+        "speedScale": 0.49340553801308196
+      },
+      "rendered": {
+        "id": "WwFI7E3jZ",
+        "position": [
+          58.745216031861844,
+          31.944397104094083,
+          -183.15415847742995
+        ],
+        "up": [
+          0.07745408547890835,
+          -0.9969352494350423,
+          0.010998776137138533
+        ],
+        "projected": [
+          -0.00010570335195204257,
+          -0.0032989475638539783,
+          0.9311448113027084
+        ]
+      },
+      "camera": {
+        "position": [
+          42.61382279464905,
+          23.484422084176998,
+          -204.93885461259836
+        ],
+        "target": [
+          58.81841014084855,
+          31.002293339550242,
+          -183.14376463423466
+        ],
+        "fov": 60.00046659054681,
+        "near": 1
+      },
+      "positionError": 0.05500000000000061,
+      "calls": 67,
+      "triangles": 48470
+    },
+    "sky-descent": {
+      "logical": {
+        "x": 80.1762171000243,
+        "z": -184.62047505511052,
+        "elevation": 15.998246575548665,
+        "loopId": "sky-magnetic-loop-0",
+        "speed": 44.17855940485304,
+        "lastSeq": 841
+      },
+      "sharedPose": {
+        "x": 68.10939140171592,
+        "y": 16.120334280678232,
+        "z": -171.7277626459225,
+        "angle": 1.5835551869783149,
+        "pitch": 5.515923204355744,
+        "right": {
+          "x": -0.6076338473472427,
+          "y": -0.5020563218429781,
+          "z": -0.6154027601948887
+        },
+        "up": {
+          "x": 0.10083987778547618,
+          "y": 0.7198139231772523,
+          "z": -0.686803636455416
+        },
+        "tangent": {
+          "x": 0.7877895826971808,
+          "y": -0.4793822751183787,
+          "z": -0.38675600537823485
+        },
+        "active": true,
+        "loopId": "sky-magnetic-loop-0",
+        "fraction": 0.7500174416355825,
+        "speedScale": 0.4096215749680372
+      },
+      "rendered": {
+        "id": "WwFI7E3jZ",
+        "position": [
+          68.11846699071661,
+          16.185117533764185,
+          -171.7895749732035
+        ],
+        "up": [
+          0.1008398777854762,
+          0.7198139231772521,
+          -0.686803636455416
+        ],
+        "projected": [
+          -0.003035772865536546,
+          0.002792829975197616,
+          0.9204211480122155
+        ]
+      },
+      "camera": {
+        "position": [
+          46.12102093237081,
+          18.258295834754623,
+          -182.91273965116778
+        ],
+        "target": [
+          68.18345268342175,
+          16.859755219417835,
+          -172.40632348814293
+        ],
+        "fov": 66.98403074313387,
+        "near": 1
+      },
+      "positionError": 0.0900000000000008,
+      "calls": 57,
+      "triangles": 47832
+    },
+    "sky-loop-run": {
+      "entered": true,
+      "exited": true,
+      "maximumElevation": 31.99922854281301,
+      "reached": [
+        {
+          "fraction": 0.2518875812686458,
+          "time": 2.6333333333333337,
+          "elevation": 16.189755917703394,
+          "sequence": 62
+        },
+        {
+          "fraction": 0.505721455245414,
+          "time": 3.766666666666663,
+          "elevation": 31.98966248952661,
+          "sequence": 292
+        },
+        {
+          "fraction": 0.7500174416355825,
+          "time": 4.799999999999993,
+          "elevation": 15.998246575548665,
+          "sequence": 841
+        }
+      ],
+      "final": {
+        "elevation": 0,
+        "loopId": "",
+        "airborne": false
+      },
+      "snapshots": 816
+    },
+    "foundry-ascent": {
+      "logical": {
+        "x": 34.45139860356305,
+        "z": -168.17732224949273,
+        "elevation": 13.626352115179987,
+        "loopId": "foundry-magnetic-loop-0",
+        "speed": 31.880713058158445,
+        "lastSeq": 58
+      },
+      "sharedPose": {
+        "x": 45.74521312241389,
+        "y": 13.606696332430278,
+        "z": -180.0994677950044,
+        "angle": 1.6416086640721996,
+        "pitch": 0.7724535726218024,
+        "right": {
+          "x": -0.6182618434565442,
+          "y": 0.5304133616451737,
+          "z": -0.5800120332492956
+        },
+        "up": {
+          "x": -0.03924614698276824,
+          "y": 0.7162004920453802,
+          "z": 0.69679020884407
+        },
+        "tangent": {
+          "x": 0.7849917406398126,
+          "y": 0.45356203653108107,
+          "z": -0.42198275574370997
+        },
+        "active": true,
+        "loopId": "foundry-magnetic-loop-0",
+        "fraction": 0.25148961905983414,
+        "speedScale": 0.4124891562288335
+      },
+      "rendered": {
+        "id": "LwFCdreAk",
+        "position": [
+          45.74305458433265,
+          13.646087359488359,
+          -180.0611443335175
+        ],
+        "up": [
+          -0.03924614693366554,
+          0.7162004920034133,
+          0.6967902088899713
+        ],
+        "projected": [
+          0.0013756539883221432,
+          0.003712169375023425,
+          0.917357142301809
+        ]
+      },
+      "camera": {
+        "position": [
+          23.482117575645827,
+          22.24148592486326,
+          -180.21109188833552
+        ],
+        "target": [
+          45.6892363937065,
+          14.314198142041215,
+          -179.39489050634995
+        ],
+        "fov": 59.99999945367863,
+        "near": 1
+      },
+      "positionError": 0.054999999997056785,
+      "calls": 48,
+      "triangles": 43634
+    },
+    "foundry-inverted": {
+      "logical": {
+        "x": 53.73884296245055,
+        "z": -169.38160615427478,
+        "elevation": 26.9982682231648,
+        "loopId": "foundry-magnetic-loop-0",
+        "speed": 31.996148092114744,
+        "lastSeq": 256
+      },
+      "sharedPose": {
+        "x": 53.477382277410854,
+        "y": 27.001708012900536,
+        "z": -169.10448247763625,
+        "angle": 1.6272286649465637,
+        "pitch": 3.181323169449003,
+        "right": {
+          "x": -0.9154031183564245,
+          "y": -0.038791295227643276,
+          "z": -0.400664905273591
+        },
+        "up": {
+          "x": 0.03896165879147126,
+          "y": -0.9992108468704055,
+          "z": 0.0077248068418872985
+        },
+        "tangent": {
+          "x": -0.4006483745724557,
+          "y": -0.008539257057222128,
+          "z": 0.9161920983294716
+        },
+        "active": true,
+        "loopId": "foundry-magnetic-loop-0",
+        "fraction": 0.5025492877024389,
+        "speedScale": 0.49036060802960246
+      },
+      "rendered": {
+        "id": "LwFCdreAk",
+        "position": [
+          53.479525168644386,
+          26.946751416322662,
+          -169.10405761325995
+        ],
+        "up": [
+          0.03896165879147125,
+          -0.9992108468704054,
+          0.007724806841887298
+        ],
+        "projected": [
+          0.000750225443650514,
+          -0.0034013993613283906,
+          0.9289689526294352
+        ]
+      },
+      "camera": {
+        "position": [
+          38.102694444184024,
+          19.257907351909463,
+          -190.65190510478843
+        ],
+        "target": [
+          53.523059770534225,
+          25.99819411978734,
+          -169.12247795974338
+        ],
+        "fov": 60,
+        "near": 1
+      },
+      "positionError": 0.05500000000000173,
+      "calls": 63,
+      "triangles": 47164
+    },
+    "foundry-inverted-390x844": {
+      "logical": {
+        "x": 53.73884296245055,
+        "z": -169.38160615427478,
+        "elevation": 26.9982682231648,
+        "loopId": "foundry-magnetic-loop-0",
+        "speed": 31.996148092114744,
+        "lastSeq": 256
+      },
+      "sharedPose": {
+        "x": 53.477382277410854,
+        "y": 27.001708012900536,
+        "z": -169.10448247763625,
+        "angle": 1.6272286649465637,
+        "pitch": 3.181323169449003,
+        "right": {
+          "x": -0.9154031183564245,
+          "y": -0.038791295227643276,
+          "z": -0.400664905273591
+        },
+        "up": {
+          "x": 0.03896165879147126,
+          "y": -0.9992108468704055,
+          "z": 0.0077248068418872985
+        },
+        "tangent": {
+          "x": -0.4006483745724557,
+          "y": -0.008539257057222128,
+          "z": 0.9161920983294716
+        },
+        "active": true,
+        "loopId": "foundry-magnetic-loop-0",
+        "fraction": 0.5025492877024389,
+        "speedScale": 0.49036060802960246
+      },
+      "rendered": {
+        "id": "LwFCdreAk",
+        "position": [
+          53.479525168644386,
+          26.946751416322662,
+          -169.10405761325995
+        ],
+        "up": [
+          0.03896165879147125,
+          -0.9992108468704054,
+          0.007724806841887298
+        ],
+        "projected": [
+          -0.00025893376943590614,
+          -0.005106017425791538,
+          0.9329992010886813
+        ]
+      },
+      "camera": {
+        "position": [
+          39.30688278892946,
+          19.255946578958447,
+          -193.38245860430496
+        ],
+        "target": [
+          53.515427645812736,
+          26.049514098639406,
+          -169.09693934083847
+        ],
+        "fov": 67.99862191229016,
+        "near": 1
+      },
+      "positionError": 0.05500000000000173,
+      "calls": 42,
+      "triangles": 43592
+    },
+    "foundry-inverted-667x375": {
+      "logical": {
+        "x": 53.73884296245055,
+        "z": -169.38160615427478,
+        "elevation": 26.9982682231648,
+        "loopId": "foundry-magnetic-loop-0",
+        "speed": 31.996148092114744,
+        "lastSeq": 256
+      },
+      "sharedPose": {
+        "x": 53.477382277410854,
+        "y": 27.001708012900536,
+        "z": -169.10448247763625,
+        "angle": 1.6272286649465637,
+        "pitch": 3.181323169449003,
+        "right": {
+          "x": -0.9154031183564245,
+          "y": -0.038791295227643276,
+          "z": -0.400664905273591
+        },
+        "up": {
+          "x": 0.03896165879147126,
+          "y": -0.9992108468704055,
+          "z": 0.0077248068418872985
+        },
+        "tangent": {
+          "x": -0.4006483745724557,
+          "y": -0.008539257057222128,
+          "z": 0.9161920983294716
+        },
+        "active": true,
+        "loopId": "foundry-magnetic-loop-0",
+        "fraction": 0.5025492877024389,
+        "speedScale": 0.49036060802960246
+      },
+      "rendered": {
+        "id": "LwFCdreAk",
+        "position": [
+          53.479525168644386,
+          26.946751416322662,
+          -169.10405761325995
+        ],
+        "up": [
+          0.03896165879147125,
+          -0.9992108468704054,
+          0.007724806841887298
+        ],
+        "projected": [
+          -5.329660668327169e-05,
+          -0.0034001311337435265,
+          0.9289457829344998
+        ]
+      },
+      "camera": {
+        "position": [
+          38.10498788713983,
+          19.230329878196596,
+          -190.63399715549158
+        ],
+        "target": [
+          53.51634393620222,
+          26.002497166035837,
+          -169.0967576707944
+        ],
+        "fov": 60.000334271019526,
+        "near": 1
+      },
+      "positionError": 0.05500000000000173,
+      "calls": 63,
+      "triangles": 47164
+    },
+    "foundry-descent": {
+      "logical": {
+        "x": 73.13791828642061,
+        "z": -170.065287890594,
+        "elevation": 13.092564294073961,
+        "loopId": "foundry-magnetic-loop-0",
+        "speed": 32.12209960562985,
+        "lastSeq": 794
+      },
+      "sharedPose": {
+        "x": 62.44597358915284,
+        "y": 13.188146018465257,
+        "z": -158.75025311817876,
+        "angle": 1.5855629535873128,
+        "pitch": 5.543282272906091,
+        "right": {
+          "x": -0.6077583114321189,
+          "y": -0.5009165663375144,
+          "z": -0.6162081048264574
+        },
+        "up": {
+          "x": 0.07107839219029488,
+          "y": 0.7385339380750392,
+          "z": -0.6704591594385274
+        },
+        "tangent": {
+          "x": 0.7909346983467234,
+          "y": -0.4512762079702505,
+          "z": -0.41324579498304514
+        },
+        "active": true,
+        "loopId": "foundry-magnetic-loop-0",
+        "fraction": 0.7548040929471149,
+        "speedScale": 0.4090638210009001
+      },
+      "rendered": {
+        "id": "LwFCdreAk",
+        "position": [
+          62.44988290072331,
+          13.22876538505939,
+          -158.7871283719479
+        ],
+        "up": [
+          0.07107839219025677,
+          0.7385339380750374,
+          -0.6704591594385334
+        ],
+        "projected": [
+          -0.0018374280958211903,
+          0.002639582002411407,
+          0.9167354530965268
+        ]
+      },
+      "camera": {
+        "position": [
+          41.20577805236213,
+          15.347939796541619,
+          -169.06449019792007
+        ],
+        "target": [
+          62.51045709975136,
+          13.931149649973742,
+          -159.4187056209361
+        ],
+        "fov": 60.000000000000036,
+        "near": 1
+      },
+      "positionError": 0.05500000000000795,
+      "calls": 48,
+      "triangles": 43634
+    },
+    "foundry-loop-run": {
+      "entered": true,
+      "exited": true,
+      "maximumElevation": 27.001708012900536,
+      "reached": [
+        {
+          "fraction": 0.25148961905983414,
+          "time": 2.500000000000001,
+          "elevation": 13.626352115179987,
+          "sequence": 58
+        },
+        {
+          "fraction": 0.5025492877024389,
+          "time": 3.4999999999999973,
+          "elevation": 26.9982682231648,
+          "sequence": 256
+        },
+        {
+          "fraction": 0.7548040929471149,
+          "time": 4.499999999999994,
+          "elevation": 13.092564294073961,
+          "sequence": 794
+        }
+      ],
+      "final": {
+        "elevation": 0,
+        "loopId": "",
+        "airborne": false
+      },
+      "snapshots": 788
+    },
+    "treeRequests": [
+      "http://127.0.0.1:43311/models/scenery/kenney-tree-v1.glb"
+    ]
+  },
+  "fixtures": [
+    "Les 12 panoramas utilisent la caméra d’accueil et une sélection normale de circuit. Les panneaux HTML sont masqués seulement pendant chaque capture du décor.",
+    "sky : une place spectateur ajoutée au salon solo privé ; kart posé au sol 3 m avant l’entrée, vitesse initiale nulle. Événements désactivés par configure normal. Ensuite uniquement commandes SDK ordinaires ; aucune altitude, orientation ou loopId imposés.",
+    "sky : seule la simulation privée est suspendue aux fractions réellement atteintes 0.252, 0.506, 0.750 pour les images. Les snapshots continuent et la simulation reprend après chaque image ; sortie au sol atteinte par le même pilote.",
+    "foundry : une place spectateur ajoutée au salon solo privé ; kart posé au sol 3 m avant l’entrée, vitesse initiale nulle. Événements désactivés par configure normal. Ensuite uniquement commandes SDK ordinaires ; aucune altitude, orientation ou loopId imposés.",
+    "foundry : seule la simulation privée est suspendue aux fractions réellement atteintes 0.251, 0.503, 0.755 pour les images. Les snapshots continuent et la simulation reprend après chaque image ; sortie au sol atteinte par le même pilote."
+  ],
+  "limitations": [
+    "Un seul Chromium avec SwiftShader, aucun téléphone physique/GPU mesuré.",
+    "Les boucles sont parcourues ; ces essais de cadrage ne sont pas des courses complètes ni des preuves réseau sur deux machines physiques."
+  ],
+  "automatedChecksPassed": true,
+  "visualReview": {
+    "status": "failed",
+    "issues": [
+      "Kart occulté au sommet de Sky en desktop et portrait, étiquette seule visible.",
+      "Kart occulté au sommet de Foundry, grande surface sombre couvrant la vue.",
+      "Triangulation ou superpositions produisant de fortes rayures sur la chaussée de boucle.",
+      "Panoramas accueil coupés en bas et à droite ; brouillard masquant des décors éloignés."
+    ]
+  }
+}

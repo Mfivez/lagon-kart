@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "checks": [],
+  "errors": [],
+  "captures": [
+    "before-320x568.png",
+    "before-360x640.png",
+    "before-390x844.png",
+    "before-568x320.png",
+    "before-667x375.png"
+  ],
+  "fixtures": [
+    "Serveur privé éphémère ; course entraînement démarrée par UI ; contrôles CDP multitouch réels ; perte de focus via événement synthétique."
+  ],
+  "limitations": [
+    "Chromium/SwiftShader émulé, pas de téléphone physique ni Safari iOS."
+  ]
+}

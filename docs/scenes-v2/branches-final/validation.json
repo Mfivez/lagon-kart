@@ -1,0 +1,405 @@
+{
+  "passed": true,
+  "automatedChecksPassed": true,
+  "visualReview": {
+    "status": "passed",
+    "scope": "Douze panoramas seulement ; les loopings ne sont pas rejoués dans cette passe.",
+    "reviewedBy": [
+      "scenery_assets (12 panoramas)",
+      "mobile_controls (Harbor, Foundry, Castle)"
+    ],
+    "reviewedCaptures": [
+      "lagon-overview.png",
+      "canyon-overview.png",
+      "glacier-overview.png",
+      "neon-overview.png",
+      "mangrove-overview.png",
+      "dunes-overview.png",
+      "volcan-overview.png",
+      "forest-overview.png",
+      "harbor-overview.png",
+      "sky-overview.png",
+      "foundry-overview.png",
+      "castle-overview.png"
+    ],
+    "notes": [
+      "Plus de dents ou striures sur les routes secondaires, y compris Harbor en haut et sous le pont, Foundry à gauche, Castle à gauche et en bas.",
+      "Cadrage complet, brouillard lisible, aucun décor occultant la chaussée."
+    ]
+  },
+  "checks": [
+    "Île des Alizés : panorama choisi dans le menu, scène rendue.",
+    "Canyon solaire : panorama choisi dans le menu, scène rendue.",
+    "Banquise boréale : panorama choisi dans le menu, scène rendue.",
+    "Métropole néon : panorama choisi dans le menu, scène rendue.",
+    "Mangrove sinueuse : panorama choisi dans le menu, scène rendue.",
+    "Dunes de cuivre : panorama choisi dans le menu, scène rendue.",
+    "Caldeira ardente : panorama choisi dans le menu, scène rendue.",
+    "Forêt des géants : panorama choisi dans le menu, scène rendue.",
+    "Port des cargos : panorama choisi dans le menu, scène rendue.",
+    "Archipel céleste : panorama choisi dans le menu, scène rendue.",
+    "Fonderie des pistons : panorama choisi dans le menu, scène rendue.",
+    "Citadelle royale : panorama choisi dans le menu, scène rendue.",
+    "GLB Kenney servi depuis la même origine, une requête et un chargement sur toute la page.",
+    "Aucune erreur JavaScript, aucun asset HTTP manquant, cache GLB conservé après les douze panoramas."
+  ],
+  "errors": [],
+  "captures": [
+    "lagon-overview.png",
+    "canyon-overview.png",
+    "glacier-overview.png",
+    "neon-overview.png",
+    "mangrove-overview.png",
+    "dunes-overview.png",
+    "volcan-overview.png",
+    "forest-overview.png",
+    "harbor-overview.png",
+    "sky-overview.png",
+    "foundry-overview.png",
+    "castle-overview.png"
+  ],
+  "evidence": {
+    "validationScope": {
+      "panoramas": true,
+      "loops": false
+    },
+    "clientAssets": [
+      "/assets/index-wc3mK_Sw.js",
+      "/assets/index-DhaT9t6d.css"
+    ],
+    "lagon-overview": {
+      "view": {
+        "camera": {
+          "position": [
+            163.7595974960432,
+            336.71288523714503,
+            204.69235611194046
+          ],
+          "target": [
+            3.3308576277790185,
+            0,
+            -2.2928129125240733
+          ],
+          "fov": 52,
+          "near": 42.65627823362406
+        },
+        "tracked": null,
+        "calls": 73,
+        "triangles": 30584,
+        "compact": true
+      },
+      "scenery": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      }
+    },
+    "canyon-overview": {
+      "view": {
+        "camera": {
+          "position": [
+            178.33589946934825,
+            337.8309324902752,
+            191.37664919244676
+          ],
+          "target": [
+            3.6428316137045034,
+            0,
+            -4.8839954104397245
+          ],
+          "fov": 52,
+          "near": 42.79799116288676
+        },
+        "tracked": null,
+        "calls": 62,
+        "triangles": 31290,
+        "compact": true
+      },
+      "scenery": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      }
+    },
+    "glacier-overview": {
+      "view": {
+        "camera": {
+          "position": [
+            194.37876487675382,
+            349.26728810764155,
+            186.97627430981439
+          ],
+          "target": [
+            -0.1516632936805803,
+            0,
+            -2.621050669569974
+          ],
+          "fov": 52,
+          "near": 44.246714117740545
+        },
+        "tracked": null,
+        "calls": 67,
+        "triangles": 30558,
+        "compact": true
+      },
+      "scenery": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      }
+    },
+    "neon-overview": {
+      "view": {
+        "camera": {
+          "position": [
+            204.5823319609368,
+            343.8550315752275,
+            162.31060132354446
+          ],
+          "target": [
+            -0.7405175183754866,
+            0,
+            -9.043152184414932
+          ],
+          "fov": 52,
+          "near": 43.56135813754511
+        },
+        "tracked": null,
+        "calls": 68,
+        "triangles": 38926,
+        "compact": true
+      },
+      "scenery": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      }
+    },
+    "mangrove-overview": {
+      "view": {
+        "camera": {
+          "position": [
+            212.2333064386855,
+            330.07443405317366,
+            130.51524366099915
+          ],
+          "target": [
+            -6.114415950104007,
+            0,
+            -4.489967027800222
+          ],
+          "fov": 52,
+          "near": 41.815220645274465
+        },
+        "tracked": null,
+        "calls": 72,
+        "triangles": 37728,
+        "compact": true
+      },
+      "scenery": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      }
+    },
+    "dunes-overview": {
+      "view": {
+        "camera": {
+          "position": [
+            287.0779263151696,
+            404.32484580916605,
+            122.8533610632063
+          ],
+          "target": [
+            -2.404290797582786,
+            0,
+            0.025725920880513165
+          ],
+          "fov": 52,
+          "near": 51.22158770907321
+        },
+        "tracked": null,
+        "calls": 68,
+        "triangles": 32122,
+        "compact": true
+      },
+      "scenery": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      }
+    },
+    "volcan-overview": {
+      "view": {
+        "camera": {
+          "position": [
+            382.2396077186044,
+            514.550761964948,
+            112.44404280992765
+          ],
+          "target": [
+            0.20626456041248864,
+            0,
+            -6.7301003033473705
+          ],
+          "fov": 52,
+          "near": 65.18546054205014
+        },
+        "tracked": null,
+        "calls": 69,
+        "triangles": 42748,
+        "compact": true
+      },
+      "scenery": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      }
+    },
+    "forest-overview": {
+      "view": {
+        "camera": {
+          "position": [
+            415.19741667268147,
+            537.7886819088459,
+            87.22607811208684
+          ],
+          "target": [
+            6.344296411669274,
+            0,
+            -0.9938124835668137
+          ],
+          "fov": 52,
+          "near": 68.12925169127477
+        },
+        "tracked": null,
+        "calls": 78,
+        "triangles": 52552,
+        "compact": true
+      },
+      "scenery": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      }
+    },
+    "harbor-overview": {
+      "view": {
+        "camera": {
+          "position": [
+            477.01881055642474,
+            608.3293882601484,
+            60.699274397807024
+          ],
+          "target": [
+            7.93607731866305,
+            0,
+            -1.0184058707653363
+          ],
+          "fov": 52,
+          "near": 77.06569138993449
+        },
+        "tracked": null,
+        "calls": 77,
+        "triangles": 46440,
+        "compact": true
+      },
+      "scenery": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      }
+    },
+    "sky-overview": {
+      "view": {
+        "camera": {
+          "position": [
+            444.74184820125237,
+            575.5581544021994,
+            23.811232813994103
+          ],
+          "target": [
+            -2.6187702804619453,
+            0,
+            8.060514378526126
+          ],
+          "fov": 52,
+          "near": 72.91414968965
+        },
+        "tracked": null,
+        "calls": 79,
+        "triangles": 72350,
+        "compact": true
+      },
+      "scenery": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      }
+    },
+    "foundry-overview": {
+      "view": {
+        "camera": {
+          "position": [
+            409.8936763222778,
+            520.0667954858803,
+            -20.776984734951604
+          ],
+          "target": [
+            5.900530846062531,
+            0,
+            -0.9469686292304812
+          ],
+          "fov": 52,
+          "near": 65.88408289022321
+        },
+        "tracked": null,
+        "calls": 79,
+        "triangles": 68998,
+        "compact": true
+      },
+      "scenery": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      }
+    },
+    "castle-overview": {
+      "view": {
+        "camera": {
+          "position": [
+            380.33582095062127,
+            493.7536716584612,
+            -52.08610755367664
+          ],
+          "target": [
+            -0.054022156226199776,
+            0,
+            0.5606315360678369
+          ],
+          "fov": 52,
+          "near": 62.55088521168924
+        },
+        "tracked": null,
+        "calls": 79,
+        "triangles": 51086,
+        "compact": true
+      },
+      "scenery": {
+        "state": "ready",
+        "url": "/models/scenery/kenney-tree-v1.glb",
+        "requests": 1
+      }
+    },
+    "treeRequests": [
+      "http://127.0.0.1:44099/models/scenery/kenney-tree-v1.glb"
+    ]
+  },
+  "fixtures": [
+    "Les 12 panoramas utilisent la caméra d’accueil et une sélection normale de circuit. Les panneaux HTML sont masqués seulement pendant chaque capture du décor."
+  ],
+  "limitations": [
+    "Un seul Chromium avec SwiftShader, aucun téléphone physique/GPU mesuré.",
+    "Cette passe photographie les douze circuits ; aucun looping ni course n’est parcouru."
+  ]
+}

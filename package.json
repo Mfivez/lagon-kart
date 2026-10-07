@@ -31,7 +31,9 @@
     "test:features-browser": "node --import tsx scripts/features-browser-check.ts",
     "test:circuits-browser": "node --import tsx scripts/circuits-browser-check.ts",
     "test:final-race": "node --import tsx scripts/final-race-check.ts",
-    "test:docker-persistence": "node --import tsx scripts/docker-persistence-check.ts"
+    "test:docker-persistence": "node --import tsx scripts/docker-persistence-check.ts",
+    "test:mobile-browser": "node --import tsx scripts/mobile-browser-check.ts",
+    "test:scenes-browser": "node --import tsx scripts/scenes-browser-check.ts"
   },
   "dependencies": {
     "@colyseus/core": "0.16.26",

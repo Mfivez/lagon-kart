@@ -59,13 +59,17 @@ export interface ReplayDriver {
 }
 export interface ReplayData {
   version: 1; id: string; trackId: string; createdAt: number; durationMs: number;
+  /** Missing on recordings made before the October circuit redesign. */
+  trackRevision?: number;
   season: string; ranked: boolean; eventLevel?: number; drivers: ReplayDriver[];
 }
 export interface ReplaySummary {
   id: string; trackId: string; createdAt: number; durationMs: number; ranked: boolean; eventLevel?: number;
+  trackRevision?: number;
   drivers: { playerId: string; name: string; finishTime: number; finished: boolean; rank: number }[];
 }
 export interface GhostData {
   version: 1; replayId: string; trackId: string; playerId: string; name: string; color: string;
+  trackRevision?: number;
   finishTime: number; eventLevel?: number; frames: ReplayFrame[];
 }

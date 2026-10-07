@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { TRACK_LAYOUT_REVISION } from '../shared/track.js';
 import { INITIAL_MMR, seasonId, type ReplayData, type ReplayDriver, type ReplayFrame } from '../shared/progression.js';
 
 export interface RatingEntry { playerId: string; mmr: number; rank: number; finished: boolean }
@@ -164,7 +165,7 @@ export class ReplayRecorder {
 
   finish(time: number, players: readonly ReplaySample[]): ReplayData {
     this.sample(time, players, true);
-    return { version: 1, id: this.options.id, trackId: this.options.trackId, createdAt: this.createdAt,
+    return { version: 1, id: this.options.id, trackId: this.options.trackId, trackRevision: TRACK_LAYOUT_REVISION, createdAt: this.createdAt,
       durationMs: Math.max(0, Math.min(360_000, Math.round(time * 1000))), season: seasonId(new Date(this.createdAt)),
       ranked: this.options.ranked === true, eventLevel: Math.max(0, Math.min(3, this.options.eventLevel ?? 0)), drivers: structuredClone([...this.drivers.values()]) };
   }

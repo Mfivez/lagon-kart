@@ -1,6 +1,6 @@
-# Démo intégrée — douze circuits, garage et progression
+# Démo intégrée — petits écrans, douze décors et loopings
 
-État documenté le **6 octobre 2026**. Le projet conserve Three.js, Colyseus,
+État documenté le **7 octobre 2026**. Le projet conserve Three.js, Colyseus,
 Docker et les ressources servies depuis la même origine. Budget ajouté :
 **0 €**, sans asset payant, abonnement, API IA payante ni dépendance npm nouvelle.
 
@@ -19,17 +19,11 @@ courante depuis les logs du tunnel, l'ouvrir, puis créer et partager le salon.
 Le tunnel doit rester actif. Pour une instance déjà nommée ou un autre port,
 conserver ses options `-p` et `HOST_PORT` lors des commandes suivantes.
 
-Les anciennes URL et empreintes de build conservées plus bas correspondent aux
-lots précédents. **Elles ne prouvent pas le déploiement du lot à douze circuits.**
-Le contrôle TypeScript et le build final `index-DCnyszy_.js` ont réussi.
-Lien vérifié de cette session : [ouvrir Lagon Kart](https://lunch-governmental-prep-rainbow.trycloudflare.com).
-Le lien reste disponible tant que le tunnel est actif ; il change à sa recréation.
-Les six nouveaux circuits ont réussi leurs huit contrôles navigateur, avec
-25 captures. La course publique finale a réussi : quatre pilotes SDK finissent
-les trois tours, deux navigateurs observent, sans arrivée imposée. Le contrôle
-dure **125,721 s**, sans erreur JavaScript ni asset manquant. Profils et replay
-commun sont enregistrés. [Rapport](final-public-race.json), [arrivée](final-public-resultats.png). Les preuves Docker antérieures et les résultats courants sont
-distingués dans [VALIDATION.md](../VALIDATION.md).
+Lien de cette session : [ouvrir Lagon Kart](https://exercises-inspections-playlist-char.trycloudflare.com).
+Le tunnel précédent avait expiré ; ce lien le remplace et change à sa recréation.
+TypeScript, build et image Docker réussis, client `index-wc3mK_Sw.js`, styles
+`index-DhaT9t6d.css`. Le conteneur sert les douze tracés remaniés, les commandes
+tactiles et les deux loopings. [Preuves du lot courant](../VALIDATION.md#7-octobre-2026--commandes-mobiles-tracés-et-décors).
 
 Compose conserve les profils, la progression, les saisons et les replays dans
 le volume **`player-data`**, monté dans `/app/data`. Reconstruire le conteneur ou
@@ -41,6 +35,17 @@ un changement d'adresse de tunnel ne transfère pas automatiquement cette clé.
 
 ## Parcours conseillé pour la démo
 
+Sur mobile, glisser à gauche pour tourner ; utiliser drift, objet et frein à
+droite. L’accélération automatique évite de tenir une troisième commande et
+reste désactivable. Tourner le téléphone relâche les appuis ; toucher une
+commande pour reprendre. [Commandes, analyse et avant/après](MOBILE_CONTROLS.md).
+
+Comparer les douze silhouettes et leurs monuments : phare, glacier, canyon,
+ville, mangrove, pyramide, volcan, arbre-maison, port, observatoire, fonderie,
+citadelle. Essayer ensuite **Archipel céleste** et **Fonderie des pistons** :
+les loopings magnétiques retournent réellement le kart, acceptent le freinage
+et la reprise au sommet, puis rejoignent la piste au sol. [Galerie](scenes-v2/README.md).
+
 1. Ouvrir **Garage** et comparer Zsky, Sprint et Rétro dans la même couleur.
    Choisir l'un des cinq personnages. Les **18 pièces** sont réparties en six
    catégories ; les variantes verrouillées annoncent leur niveau de carrière.
@@ -51,7 +56,7 @@ un changement d'adresse de tunnel ne transfère pas automatiquement cette clé.
 3. Activer les événements pour voir les déviations larges, la voie turbo,
    le barrage du deuxième tour et le raccourci du troisième tour du leader.
    Les panneaux anticipent les entrées et la mini-carte affiche les ouvertures.
-   Les raccourcis coupent réellement **15 à 28 % de distance** sur la route
+   Les raccourcis coupent réellement **13 à 34 % de distance** sur la route
    principale remplacée. Les six nouvelles pistes possèdent ponts et tremplins.
 4. Essayer **4 contre 4** : Corail et Lagon totalisent les points de leurs membres,
    avec des CPU pour compléter les places. Les objets épargnent les coéquipiers ;
@@ -77,7 +82,27 @@ Les huit objets mystères et les MP3 fournis restent disponibles sur les douze
 pistes : **Lap 1** au premier tour, puis **Lap 2** aux deuxième et troisième tours.
 Les crédits, les sources et les fichiers audio/modèles restent locaux au jeu.
 
-## Preuves disponibles et portée des essais
+## Preuves du lot mobile et décors du 7 octobre
+
+- **Course publique actuelle réussie en 143,537 s** : 4/4 pilotes SDK terminent trois tours sur Sky par commandes ordinaires, sans arrivée forcée ; tous sautent et passent inversés dans le looping. Quatre pilotes et deux observateurs Chromium desktop/mobile partagent le même classement sur six connexions. Profils enregistrés et replay commun de révision 2, 603 images par pilote ; aucun échec JavaScript ou asset. [Rapport](mobile-scenes-public-race.json) · [Tour 1](mobile-scenes-public-tour-1.png) · [Tour 3](mobile-scenes-public-tour-3.png) · [Résultats](mobile-scenes-public-resultats.png).
+- **266/266 tests** des règles, du stockage, des contrôles et de la géométrie ; build et TypeScript réussis.
+- **15/15 contrôles mobiles**, sept captures inspectées sur le build livré, dont la pancarte proche et le compteur en 320 × 568. [Avant/après et limites](MOBILE_CONTROLS.md).
+- **14/14 contrôles de panoramas**, douze images finales inspectées ; routes dégagées, cadrage et précision de profondeur corrigés. [Rapport](scenes-v2/branches-final/validation.json).
+- **Deux loopings**, douze vues de montée, inversion, descente et sortie, sur desktop et deux formats mobiles. Leur preuve sur le build précédent est conservée séparément ; le code de boucle est inchangé. [Galerie et fixtures](scenes-v2/README.md).
+- **Docker et tunnel** : huit assets et sept modules serveur identiques au build local, volume de progression conservé. [Empreintes](mobile-scenes-public-assets.json).
+
+Les navigateurs de la course publique utilisent Chromium/SwiftShader sur un
+seul hôte, avec **2,25 et 2,65 FPS** relevés en fin de contrôle. Cela ne valide
+pas la fluidité GPU ni une partie sur deux machines physiques. Confort des
+pouces, Safari iOS et reprise audio après verrouillage nécessitent encore
+des essais sur de vrais téléphones.
+
+## Preuves historiques du lot du 6 octobre
+
+Les rapports de cette table conservent leurs bundles et URL d’origine. Les
+nouveaux tracés, commandes mobiles et décors sont validés séparément dans
+[VALIDATION.md](../VALIDATION.md), [les commandes](mobile-controls/validation.json)
+et [les scènes](scenes-v2/validation.json).
 
 | Lot | Vérification exécutée et preuve |
 | --- | --- |

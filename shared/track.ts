@@ -2,7 +2,8 @@ export const TRACK_LAYOUT_REVISION = 2;
 export interface TrackLoop { id: string; start: number; end: number; height: number; lateralSpread: number }
 export interface Vec2 { x: number; z: number }
 export const TRACK_IDS = ['lagon', 'canyon', 'glacier', 'neon', 'mangrove', 'dunes', 'volcan', 'forest', 'harbor', 'sky', 'foundry', 'castle'] as const;
-export type TrackId = typeof TRACK_IDS[number];
+export type BuiltinTrackId = typeof TRACK_IDS[number];
+export type TrackId = BuiltinTrackId | `custom-${string}-v${number}`;
 export interface TrackZone {
   id: string; kind: 'boost' | 'ice' | 'mud';
   /** Metres from start; intervals never wrap across the finish line. */
@@ -31,21 +32,20 @@ export type Surface = 'road' | 'offroad' | TrackZone['kind'];
 export const TOTAL_LAPS = 3;
 export const COLORS = ['#fc735d', '#69cbd0', '#fed36a', '#bca4ef', '#92cf84', '#fa9ac4', '#638ce6', '#f4f1de'];
 interface ArcTable { lengths: number[]; cumulative: number[] }
-const arcTables = new Map<TrackId, ArcTable>();
+const arcTables = new WeakMap<TrackDefinition, ArcTable>();
 function spline(p0: number, p1: number, p2: number, p3: number, t: number): number {
   return 0.5 * ((2 * p1) + (-p0 + p2) * t +
     (2 * p0 - 5 * p1 + 4 * p2 - p3) * t * t +
     (-p0 + 3 * p1 - 3 * p2 + p3) * t * t * t);
 }
-type TrackSeed = Omit<TrackDefinition, 'points' | 'length' | 'checkpoints' | 'zones' | 'elevations' | 'loops'> & {
+export type TrackSeed = Omit<TrackDefinition, 'points' | 'length' | 'checkpoints' | 'zones' | 'elevations' | 'loops'> & {
   anchors: [number, number][];
   zones: Array<Omit<TrackZone, 'id'>>;
   elevations?: Array<Omit<TrackElevation, 'id'>>;
   loops?: Array<Omit<TrackLoop, 'id'>>;
 };
-function makeTrack(seed: TrackSeed): TrackDefinition {
-  const anchors = seed.anchors.map(([x, z]) => ({ x, z }));
-  const points = anchors.flatMap((point, i) => {
+export function sampleTrackAnchors(anchors: readonly Vec2[]): Vec2[] {
+  return anchors.flatMap((point, i) => {
     const previous = anchors[(i + anchors.length - 1) % anchors.length]!;
     const next = anchors[(i + 1) % anchors.length]!;
     const after = anchors[(i + 2) % anchors.length]!;
@@ -54,11 +54,13 @@ function makeTrack(seed: TrackSeed): TrackDefinition {
       z: spline(previous.z, point.z, next.z, after.z, j / 24),
     }));
   });
+}
+export function makeTrack(seed: TrackSeed): TrackDefinition {
+  const points = sampleTrackAnchors(seed.anchors.map(([x, z]) => ({ x, z })));
   const lengths = points.map((point, i) => Math.hypot(
     points[(i + 1) % points.length]!.x - point.x, points[(i + 1) % points.length]!.z - point.z));
   const cumulative = [0];
   for (const length of lengths) cumulative.push(cumulative[cumulative.length - 1]! + length);
-  arcTables.set(seed.id, { lengths, cumulative });
   const length = cumulative[cumulative.length - 1]!;
   const track: TrackDefinition = { id: seed.id, name: seed.name, description: seed.description,
     difficulty: seed.difficulty, theme: seed.theme, width: seed.width, palette: seed.palette, grip: seed.grip,
@@ -67,6 +69,7 @@ function makeTrack(seed: TrackSeed): TrackDefinition {
       id: `${seed.id}-${feature.kind}-${index}`, start: feature.start * length, end: feature.end * length })),
     zones: seed.zones.map((zone, index) => ({ ...zone,
       id: seed.id + '-' + zone.kind + '-' + index, start: zone.start * length, end: zone.end * length })) };
+  arcTables.set(track, { lengths, cumulative });
   track.checkpoints = Array.from({ length: 12 }, (_, i) => ({
     ...pointOnTrack(i * length / 12, track), progress: i * length / 12,
   }));
@@ -200,10 +203,27 @@ export const TRACKS: TrackDefinition[] = [
       { kind: 'jump', start: .516, end: .536, height: 1.8, approach: 0, launchSpeed: 6.8 }],
   }),
 ];
-export function isTrackId(id: unknown): id is TrackId {
-  return typeof id === 'string' && TRACK_IDS.includes(id as TrackId);
+const customTracks = new Map<string, TrackDefinition>();
+const latestCustomTracks = new Map<string, { revision: number; track: TrackDefinition }>();
+/** Retain old immutable versions for races and saved replays while advertising the latest revision. */
+export function registerTrackDefinition(track: TrackDefinition, logicalId: string, revision: number): TrackDefinition {
+  if (!/^custom-[a-z0-9-]{1,64}$/.test(logicalId) || !Number.isInteger(revision) || revision < 1 || revision > 10000 ||
+    track.id !== `${logicalId}-v${revision}` || !arcTables.has(track)) throw new Error('Identifiant de circuit personnalisé invalide.');
+  const existing = customTracks.get(track.id);
+  if (existing && JSON.stringify(existing) !== JSON.stringify(track)) throw new Error('Cette version de circuit est déjà publiée.');
+  const result = existing ?? track;
+  customTracks.set(track.id, result);
+  const latest = latestCustomTracks.get(logicalId);
+  if (!latest || revision > latest.revision) latestCustomTracks.set(logicalId, { revision, track: result });
+  return result;
 }
-export function getTrack(id = 'lagon'): TrackDefinition { return TRACKS.find(track => track.id === id) ?? TRACKS[0]!; }
+export function getAvailableTracks(): TrackDefinition[] {
+  return [...TRACKS, ...Array.from(latestCustomTracks.values(), entry => entry.track)];
+}
+export function isTrackId(id: unknown): id is TrackId {
+  return typeof id === 'string' && ((TRACK_IDS as readonly string[]).includes(id) || customTracks.has(id));
+}
+export function getTrack(id = 'lagon'): TrackDefinition { return customTracks.get(id) ?? TRACKS.find(track => track.id === id) ?? TRACKS[0]!; }
 export function trackElevation(progress: number, trackId = 'lagon'): number {
   const track = getTrack(trackId);
   const remainder = progress % track.length;
@@ -235,7 +255,7 @@ export function trackJumpAt(progress: number, trackId = 'lagon'): TrackElevation
 }
 function pointOnTrack(progress: number, track: TrackDefinition): Vec2 & { angle: number } {
   const wrapped = ((progress % track.length) + track.length) % track.length;
-  const { cumulative, lengths } = arcTables.get(track.id)!;
+  const { cumulative, lengths } = arcTables.get(track)!;
   let low = 0; let high = track.points.length - 1;
   while (low < high) { const middle = (low + high) >>> 1; if (cumulative[middle + 1]! <= wrapped) low = middle + 1; else high = middle; }
   const point = track.points[low]!;
@@ -249,7 +269,7 @@ export function trackPoint(progress: number, trackId = 'lagon'): Vec2 & { angle:
 }
 export function nearestTrack(x: number, z: number, trackId = 'lagon'): Vec2 & { distance: number; progress: number; index: number; angle: number } {
   const track = getTrack(trackId);
-  const { lengths, cumulative } = arcTables.get(track.id)!;
+  const { lengths, cumulative } = arcTables.get(track)!;
   let result = { x: 0, z: 0, distance: Infinity, progress: 0, index: 0, angle: 0 };
   let bestSquared = Infinity;
   for (let i = 0; i < track.points.length; i++) {

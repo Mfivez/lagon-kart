@@ -1,0 +1,271 @@
+{
+  "origin": "https://miles-blades-tulsa-citizens.trycloudflare.com",
+  "initial": {
+    "passed": true,
+    "at": "2026-10-07T10:50:51.577576+00:00",
+    "command": [
+      "docker",
+      "compose",
+      "-p",
+      "lagon-kart",
+      "up",
+      "-d",
+      "--no-deps",
+      "app"
+    ],
+    "previousAppId": "a9cbefc01ddcd340302bbdc05a553676d66432dc62fc8625ea5156727aa0d658",
+    "app": {
+      "id": "8a875738a40b25ff1aa7c9dae702f87336515a23dfdea483b90df5f95b911707",
+      "startedAt": "2026-10-07T10:50:42.503087652Z",
+      "image": "sha256:8397896b6d4f6162e76d208e6f3b8c973277ecf3ab46963b11b25fbe6229a11f",
+      "state": "running",
+      "health": "healthy",
+      "user": "node",
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "/mnt/c/Users/bstorm_user/Desktop/project/data",
+          "Destination": "/app/data",
+          "RW": true
+        }
+      ]
+    },
+    "health": {
+      "status": "ok",
+      "rooms": 0,
+      "maxRooms": 16,
+      "maxPlayers": 8,
+      "simHz": 30,
+      "snapshotHz": 20
+    },
+    "savedFileCount": 21,
+    "profiles": 27,
+    "savedFileHashesUnchanged": true,
+    "savedFilesDigest": "0af8566f5f099912d5ae01a7cf3740d1cccf4c5f73fae5eed5ac3d7d466d5774",
+    "savedFiles": {
+      "players/players.json": "173eb424c1eaff56400c834ab3fb1a866aa68f052baff256cdc7de554958d99d",
+      "players/replays/068660ad-a130-45c6-b540-3cc8c871d82e.json": "4d06eb75f48231476b58736019ca509d5ebb734c6d08dde9d16744e05781164f",
+      "players/replays/235b2a15-6794-4007-b51c-d995f1dc3ffc.json": "f2362d017ca6ab233094c85395a543b36ca47ce2c14f7be7737490fedcf99f56",
+      "players/replays/282e7d60-b672-4b56-84fb-6003ea9cd04e.json": "570810c7969f6b7234f4e5b4106ce0deb45bd48ae704bd5c05c71d6bb76349c6",
+      "players/replays/2896a0b0-d8f4-4b82-b7e5-52f8eccbade0.json": "28ba367b8de930bf099ac854ac4dfc9b2db9ef49708c68a8750c2f3bc14c6c1b",
+      "players/replays/4121cc8f-6a61-4aee-b8d9-b48e61f6747d.json": "a3c401bc5920588f76bd8bfea19d82c87b4c1b01bb0f8dda0921f9a3c8b7697e",
+      "players/replays/41d8fa6e-f317-4352-976b-b32d09b541a3.json": "178addaeb5949e2c1ab3d744e4a18cadead569088e9f3d15cde5bd72ca1d7774",
+      "players/replays/43e59290-9835-4c29-a104-af16eb722f9d.json": "bf5bebf997536585df40e452d9b22ee706f13286e20d39a621b6595d010f1fcc",
+      "players/replays/609aec27-fcf6-4b47-a999-a117482fccc6.json": "10b39a3d0f8b7af5d8016a3421188bcb11ea2d73b8834f172b9ac53e850bccf1",
+      "players/replays/77a0dae3-ff24-457d-9e5a-c0d78c56e5aa.json": "ae4c19b5c5ac397ebf6344990e97f8887a44631f3780b6e349e067e557ea50ef",
+      "players/replays/7ba74ae1-7a79-4980-8b1c-3b1cfa461219.json": "9d532d2c5718c86ab3822748b4a869c4cbe8848f4ec71d737c1b39f1c8244e5b",
+      "players/replays/8e115dc4-f0aa-4ed0-88d9-c7b6c679c362.json": "f31861013bd57f2845ec69279e39e1f6e4326c970f989ba957ce9cb68bbcd891",
+      "players/replays/9221cdb9-a8a5-46e9-b3fc-fced41bedea6.json": "dbaebd6258c5f205e2ea4157ff3c8570b87d52ea8a2300ca030b05f647b639f7",
+      "players/replays/94eb05cb-eea0-43a6-8f72-7edda3d0db6c.json": "263331b72b213a75847fd8f4cfa8f49e072bd390bdbfe27ac25a747af8771816",
+      "players/replays/9efc5fb8-3341-4d6c-a348-3ab24d015dc4.json": "cc2ef2e60f4c9f93326a34e46560b8e24d89de90b238cdd761a3f5016abd9f76",
+      "players/replays/a03d8f61-ae0d-40b6-b5de-92017f5a6bb1.json": "7bddded21aebe2e941851c8773bc0dd5ac5808a6ba55c373709a3eadcca4a083",
+      "players/replays/b2d14808-0c04-47d4-8863-86d535bd17cd.json": "02a1f3e1d2ab34f3240953ceff77e125ac61fce38b72e4e6bdddf3ce56377a66",
+      "players/replays/e196af29-8b91-46a8-a121-e2d7701c617a.json": "35243bc30b5fcbb13559f7f83081edf98ee8e4c1ae47913d036d4756dbcead20",
+      "players/replays/e1f4cf65-0222-494b-a267-4c29d3acf65c.json": "cf2849d78c0873ea413f0069f0539e5f603218c98aea1f6dbffd28d95f266a7a",
+      "players/replays/f1d797f1-1e9c-4b5f-9385-429d78e052a9.json": "cfb9fb5fdc7f53386ac62de438b31e475693c51e5a245d8c600393d434f72492",
+      "players/replays/feb18a09-d955-4564-b212-9c6d003a8f60.json": "78997cce28ea9b1ce38abed02d7629dbf620be483e07136c8306fa97fcb1566a"
+    },
+    "tunnelUnchanged": true,
+    "tunnelId": "1dc0cee3485156687d71717db0a07c90be5b7b3ecb64476a0ff6861eac62205c",
+    "tunnelStartedAt": "2026-10-07T09:11:41.01608771Z",
+    "assets": [
+      {
+        "path": "/assets/index-Dv6xbDio.js",
+        "sha256": "c6f4faeaecbd4607c26750eac97fe6c2472fcfafc43b4cb8ce918e19c4e0cede",
+        "publicAndLocalMatchDist": true
+      },
+      {
+        "path": "/assets/index-Jqpo2WEV.css",
+        "sha256": "75538ca8dbed7909a088fe5525408e7aad5730d07d07cb70c0e2835c8791dd0c",
+        "publicAndLocalMatchDist": true
+      }
+    ],
+    "modules": [
+      {
+        "path": "shared/custom-tracks.js",
+        "sha256": "f7ea665f5418011bcb73de39532e35711e4865564c316634a8fcade586eba23c",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "shared/track.js",
+        "sha256": "43a72920e30fc2a847b2aa9b7f7e9a274e8c4678d123ceaa8ce0abaed41b8180",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "shared/track-events.js",
+        "sha256": "a85ef2a9e68053ab3365996eaf124a045bbd18072c2c19c5036828106ac70159",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "shared/tournament.js",
+        "sha256": "316f369206aa8e79fddc93140da88c844af749b22238b09916cfca4d134cffcd",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "server/app.js",
+        "sha256": "07448a19f9cf34ec37f9b58f2ec5d2d4a8b5e7cc8bb1f7b974303163e67faec3",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "server/RaceRoom.js",
+        "sha256": "e2374271b92b9812d6f27dc3dc8beea2a439abe4aba03daf69e0428bf4b500be",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "server/custom-track-store.js",
+        "sha256": "7c0aff68138394318370ef16eae5895ce9c9120d82dfbc896dfdd20571e7734b",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "server/custom-tracks-api.js",
+        "sha256": "aa02a2db8fd466b3a9c68abeafb9878ffab2d6c6b87bff3e34a900c54e0dc19f",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "server/player-store.js",
+        "sha256": "8b9bc9fb4bbbc5f8493abe6a2f472dd9732cf1deed2d6cb3927ff281c99a2b5b",
+        "containerMatchesDist": true
+      }
+    ],
+    "customTracksInCatalogue": 0,
+    "persistedRuntimeIdsReopened": [],
+    "allSourcesUnchanged": false
+  },
+  "passed": true,
+  "note": "Initial deployment and subsequent forced app recreation are checked separately. Public tests legitimately create profiles and circuits between these two snapshots. The tunnel is never restarted.",
+  "persistence": {
+    "passed": true,
+    "at": "2026-10-07T10:52:46.094142+00:00",
+    "command": [
+      "docker",
+      "compose",
+      "-p",
+      "lagon-kart",
+      "up",
+      "-d",
+      "--no-deps",
+      "--force-recreate",
+      "app"
+    ],
+    "previousAppId": "8a875738a40b25ff1aa7c9dae702f87336515a23dfdea483b90df5f95b911707",
+    "app": {
+      "id": "d968ceb02fb070fca29dea003ed2a33387e277eec90d008272ab3f790230e16f",
+      "startedAt": "2026-10-07T10:52:39.755418627Z",
+      "image": "sha256:8397896b6d4f6162e76d208e6f3b8c973277ecf3ab46963b11b25fbe6229a11f",
+      "state": "running",
+      "health": "healthy",
+      "user": "node",
+      "mounts": [
+        {
+          "Type": "bind",
+          "Source": "/mnt/c/Users/bstorm_user/Desktop/project/data",
+          "Destination": "/app/data",
+          "RW": true
+        }
+      ]
+    },
+    "health": {
+      "status": "ok",
+      "rooms": 0,
+      "maxRooms": 16,
+      "maxPlayers": 8,
+      "simHz": 30,
+      "snapshotHz": 20
+    },
+    "savedFileCount": 22,
+    "profiles": 29,
+    "savedFileHashesUnchanged": true,
+    "savedFilesDigest": "14af9a42107820e00b0fb513ee3fb9de430c4d80eeaa44afbf418e3df08ca9ab",
+    "savedFiles": {
+      "players/players.json": "0082694f8c410cacd69fd12627ef1949fd71bb4ea9dc1cdbda0fc6881aa324c3",
+      "players/replays/068660ad-a130-45c6-b540-3cc8c871d82e.json": "4d06eb75f48231476b58736019ca509d5ebb734c6d08dde9d16744e05781164f",
+      "players/replays/235b2a15-6794-4007-b51c-d995f1dc3ffc.json": "f2362d017ca6ab233094c85395a543b36ca47ce2c14f7be7737490fedcf99f56",
+      "players/replays/282e7d60-b672-4b56-84fb-6003ea9cd04e.json": "570810c7969f6b7234f4e5b4106ce0deb45bd48ae704bd5c05c71d6bb76349c6",
+      "players/replays/2896a0b0-d8f4-4b82-b7e5-52f8eccbade0.json": "28ba367b8de930bf099ac854ac4dfc9b2db9ef49708c68a8750c2f3bc14c6c1b",
+      "players/replays/4121cc8f-6a61-4aee-b8d9-b48e61f6747d.json": "a3c401bc5920588f76bd8bfea19d82c87b4c1b01bb0f8dda0921f9a3c8b7697e",
+      "players/replays/41d8fa6e-f317-4352-976b-b32d09b541a3.json": "178addaeb5949e2c1ab3d744e4a18cadead569088e9f3d15cde5bd72ca1d7774",
+      "players/replays/43e59290-9835-4c29-a104-af16eb722f9d.json": "bf5bebf997536585df40e452d9b22ee706f13286e20d39a621b6595d010f1fcc",
+      "players/replays/609aec27-fcf6-4b47-a999-a117482fccc6.json": "10b39a3d0f8b7af5d8016a3421188bcb11ea2d73b8834f172b9ac53e850bccf1",
+      "players/replays/77a0dae3-ff24-457d-9e5a-c0d78c56e5aa.json": "ae4c19b5c5ac397ebf6344990e97f8887a44631f3780b6e349e067e557ea50ef",
+      "players/replays/7ba74ae1-7a79-4980-8b1c-3b1cfa461219.json": "9d532d2c5718c86ab3822748b4a869c4cbe8848f4ec71d737c1b39f1c8244e5b",
+      "players/replays/8e115dc4-f0aa-4ed0-88d9-c7b6c679c362.json": "f31861013bd57f2845ec69279e39e1f6e4326c970f989ba957ce9cb68bbcd891",
+      "players/replays/9221cdb9-a8a5-46e9-b3fc-fced41bedea6.json": "dbaebd6258c5f205e2ea4157ff3c8570b87d52ea8a2300ca030b05f647b639f7",
+      "players/replays/94eb05cb-eea0-43a6-8f72-7edda3d0db6c.json": "263331b72b213a75847fd8f4cfa8f49e072bd390bdbfe27ac25a747af8771816",
+      "players/replays/9efc5fb8-3341-4d6c-a348-3ab24d015dc4.json": "cc2ef2e60f4c9f93326a34e46560b8e24d89de90b238cdd761a3f5016abd9f76",
+      "players/replays/a03d8f61-ae0d-40b6-b5de-92017f5a6bb1.json": "7bddded21aebe2e941851c8773bc0dd5ac5808a6ba55c373709a3eadcca4a083",
+      "players/replays/b2d14808-0c04-47d4-8863-86d535bd17cd.json": "02a1f3e1d2ab34f3240953ceff77e125ac61fce38b72e4e6bdddf3ce56377a66",
+      "players/replays/e196af29-8b91-46a8-a121-e2d7701c617a.json": "35243bc30b5fcbb13559f7f83081edf98ee8e4c1ae47913d036d4756dbcead20",
+      "players/replays/e1f4cf65-0222-494b-a267-4c29d3acf65c.json": "cf2849d78c0873ea413f0069f0539e5f603218c98aea1f6dbffd28d95f266a7a",
+      "players/replays/f1d797f1-1e9c-4b5f-9385-429d78e052a9.json": "cfb9fb5fdc7f53386ac62de438b31e475693c51e5a245d8c600393d434f72492",
+      "players/replays/feb18a09-d955-4564-b212-9c6d003a8f60.json": "78997cce28ea9b1ce38abed02d7629dbf620be483e07136c8306fa97fcb1566a",
+      "tracks/custom-26140903-573d-4b02-9da7-ec4c8d589058-v1.json": "d37633dd96dd0373c6306f41d7bdc08c207b6d701133f5ac96061b487eb2ac24"
+    },
+    "tunnelUnchanged": true,
+    "tunnelId": "1dc0cee3485156687d71717db0a07c90be5b7b3ecb64476a0ff6861eac62205c",
+    "tunnelStartedAt": "2026-10-07T09:11:41.01608771Z",
+    "assets": [
+      {
+        "path": "/assets/index-Dv6xbDio.js",
+        "sha256": "c6f4faeaecbd4607c26750eac97fe6c2472fcfafc43b4cb8ce918e19c4e0cede",
+        "publicAndLocalMatchDist": true
+      },
+      {
+        "path": "/assets/index-Jqpo2WEV.css",
+        "sha256": "75538ca8dbed7909a088fe5525408e7aad5730d07d07cb70c0e2835c8791dd0c",
+        "publicAndLocalMatchDist": true
+      }
+    ],
+    "modules": [
+      {
+        "path": "shared/custom-tracks.js",
+        "sha256": "f7ea665f5418011bcb73de39532e35711e4865564c316634a8fcade586eba23c",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "shared/track.js",
+        "sha256": "43a72920e30fc2a847b2aa9b7f7e9a274e8c4678d123ceaa8ce0abaed41b8180",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "shared/track-events.js",
+        "sha256": "a85ef2a9e68053ab3365996eaf124a045bbd18072c2c19c5036828106ac70159",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "shared/tournament.js",
+        "sha256": "316f369206aa8e79fddc93140da88c844af749b22238b09916cfca4d134cffcd",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "server/app.js",
+        "sha256": "07448a19f9cf34ec37f9b58f2ec5d2d4a8b5e7cc8bb1f7b974303163e67faec3",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "server/RaceRoom.js",
+        "sha256": "e2374271b92b9812d6f27dc3dc8beea2a439abe4aba03daf69e0428bf4b500be",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "server/custom-track-store.js",
+        "sha256": "7c0aff68138394318370ef16eae5895ce9c9120d82dfbc896dfdd20571e7734b",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "server/custom-tracks-api.js",
+        "sha256": "aa02a2db8fd466b3a9c68abeafb9878ffab2d6c6b87bff3e34a900c54e0dc19f",
+        "containerMatchesDist": true
+      },
+      {
+        "path": "server/player-store.js",
+        "sha256": "8b9bc9fb4bbbc5f8493abe6a2f472dd9732cf1deed2d6cb3927ff281c99a2b5b",
+        "containerMatchesDist": true
+      }
+    ],
+    "customTracksInCatalogue": 1,
+    "persistedRuntimeIdsReopened": [
+      "custom-26140903-573d-4b02-9da7-ec4c8d589058-v1"
+    ],
+    "allSourcesUnchanged": true
+  }
+}

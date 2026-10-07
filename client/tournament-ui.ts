@@ -1,4 +1,4 @@
-import { TRACKS, getTrack, type TrackDefinition } from '../shared/track';
+import { getAvailableTracks, getTrack, type TrackDefinition } from '../shared/track';
 import type { World } from '../shared/game';
 import type { TournamentEntry } from '../shared/tournament';
 import { teamStandings } from '../shared/teams';
@@ -21,7 +21,7 @@ export function trackOutline(track: TrackDefinition) {
   return `<svg viewBox="0 0 120 64" aria-hidden="true"><path d="${path}" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/></svg>`;
 }
 export function trackCards(selected: string) {
-  return TRACKS.map((track, index) => `<button class="track-card ${track.id === selected ? 'selected' : ''}" data-track="${track.id}" aria-pressed="${track.id === selected}" style="--track-accent:${track.palette.accent}"><span class="track-card-number">${String(index + 1).padStart(2, '0')}</span>${trackOutline(track)}<strong>${escape(track.name)}</strong><small>${escape(track.difficulty)}</small></button>`).join('');
+  return getAvailableTracks().map((track, index) => `<button class="track-card ${track.id === selected ? 'selected' : ''}" data-track="${track.id}" aria-pressed="${track.id === selected}" style="--track-accent:${track.palette.accent}"><span class="track-card-number">${String(index + 1).padStart(2, '0')}</span>${trackOutline(track)}<strong>${escape(track.name)}</strong><small>${track.id.startsWith('custom-') ? 'Création des joueurs' : escape(track.difficulty)}</small></button>`).join('');
 }
 export function standingsTable(entries: TournamentEntry[], me: string, final = false) {
   return `<div class="standings-heading"><span>${final ? 'CLASSEMENT FINAL DU TOURNOI' : 'CLASSEMENT DU TOURNOI'}</span><span>POINTS</span></div>${entries.map(entry => `<div class="standing-row ${entry.id === me ? 'is-you' : ''}"><b>${entry.rank}</b><i style="background:${escape(entry.color)}"></i><span>${escape(entry.name)}${entry.id === me ? '<small> VOUS</small>' : ''}</span><strong>${entry.points}<small> pts</small></strong></div>`).join('')}<p class="score-note" title="À égalité : victoires, courses terminées, puis temps cumulé.">15 · 12 · 10 · 8 · 6 · 4 · 2 · 1 points à l’arrivée. Abandon : 0.</p>`;
@@ -35,7 +35,7 @@ export const configurationMarkup = `<details id="race-configuration" class="race
 
 type Draft = { mode: 'single' | 'tournament'; selection: 'manual' | 'random'; trackId: string; raceCount: number; schedule: string[]; trackPool: string[] };
 export class TournamentControls {
-  private draft: Draft = { mode: 'single', selection: 'manual', trackId: 'lagon', raceCount: 4, schedule: TRACKS.map(track => track.id), trackPool: TRACKS.map(track => track.id) };
+  private draft: Draft = { mode: 'single', selection: 'manual', trackId: 'lagon', raceCount: 4, schedule: getAvailableTracks().map(track => track.id), trackPool: getAvailableTracks().map(track => track.id) };
   private signature = '';
   private allowed = false;
   private teamMode = false;
@@ -54,7 +54,7 @@ export class TournamentControls {
       else if (input.id === 'track-select') this.draft.trackId = input.value;
       else if (input.id === 'count-select') {
         this.draft.raceCount = Number(input.value);
-        while (this.draft.schedule.length < this.draft.raceCount) this.draft.schedule.push(TRACKS[this.draft.schedule.length % TRACKS.length].id);
+        while (this.draft.schedule.length < this.draft.raceCount) this.draft.schedule.push(getAvailableTracks()[this.draft.schedule.length % getAvailableTracks().length].id);
       } else if (input.dataset.scheduleIndex !== undefined) this.draft.schedule[Number(input.dataset.scheduleIndex)] = input.value;
       else if (input instanceof HTMLInputElement && input.dataset.poolTrack) {
         this.draft.trackPool = input.checked ? [...this.draft.trackPool, input.dataset.poolTrack] : this.draft.trackPool.filter(id => id !== input.dataset.poolTrack);
@@ -76,13 +76,13 @@ export class TournamentControls {
     const allowed = editable && world.hostId === sessionId && !world.ranked;
     this.teamMode = world.teamMode; this.cpuCount = world.players.filter(kart => kart.cpu).length;
     this.eventLevel = world.eventLevel; this.championshipId = world.championshipId;
-    const signature = JSON.stringify([cup.mode, cup.selection, cup.trackPool, cup.schedule, cup.raceCount, world.trackId, this.teamMode, this.cpuCount, this.eventLevel, this.championshipId]);
+    const signature = JSON.stringify([cup.mode, cup.selection, cup.trackPool, cup.schedule, cup.raceCount, world.trackId, this.teamMode, this.cpuCount, this.eventLevel, this.championshipId, getAvailableTracks().map(track => track.id)]);
     if (signature !== this.signature) {
       this.signature = signature;
       this.draft = { mode: cup.mode, selection: cup.selection, trackId: world.trackId,
         raceCount: cup.mode === 'tournament' ? cup.raceCount : 4,
-        schedule: cup.mode === 'tournament' ? [...cup.schedule] : TRACKS.map(track => track.id),
-        trackPool: cup.mode === 'tournament' ? [...cup.trackPool] : TRACKS.map(track => track.id) };
+        schedule: cup.mode === 'tournament' ? [...cup.schedule] : getAvailableTracks().map(track => track.id),
+        trackPool: cup.mode === 'tournament' ? [...cup.trackPool] : getAvailableTracks().map(track => track.id) };
       this.allowed = allowed; this.render();
     } else if (allowed !== this.allowed) { this.allowed = allowed; this.render(); }
     element('configuration-summary').textContent = cup.mode === 'single' ? 'Une course' : `${cup.raceCount} courses · ${cup.selection === 'random' ? 'Au hasard' : 'À la carte'}`;
@@ -96,18 +96,20 @@ export class TournamentControls {
 
   private render() {
     const draft = this.draft;
-    const options = (selected: string) => TRACKS.map(track => `<option value="${track.id}" ${selected === track.id ? 'selected' : ''}>${escape(track.name)}</option>`).join('');
+    const tracks = [...getAvailableTracks()];
+    for (const id of [draft.trackId, ...draft.schedule, ...draft.trackPool]) if (!tracks.some(track => track.id === id)) tracks.push(getTrack(id));
+    const options = (selected: string) => tracks.map(track => `<option value="${track.id}" ${selected === track.id ? 'selected' : ''}>${escape(track.name)}</option>`).join('');
     const select = (id: string, label: string, values: string) => `<label class="config-field" for="${id}"><span>${label}</span><select id="${id}">${values}</select></label>`;
     let controls = select('mode-select', 'La formule', `<option value="single" ${draft.mode === 'single' ? 'selected' : ''}>Une course</option><option value="tournament" ${draft.mode === 'tournament' ? 'selected' : ''}>Un tournoi</option>`);
     if (draft.mode === 'single') controls += select('track-select', 'Le circuit', options(draft.trackId));
     else {
       controls += `<div class="config-columns">${select('count-select', 'Nombre de courses', Array.from({ length: 7 }, (_, i) => `<option value="${i + 2}" ${draft.raceCount === i + 2 ? 'selected' : ''}>${i + 2} courses</option>`).join(''))}${select('selection-select', 'Choix des circuits', `<option value="manual" ${draft.selection === 'manual' ? 'selected' : ''}>À la carte</option><option value="random" ${draft.selection === 'random' ? 'selected' : ''}>Au hasard</option>`)}</div>`;
       if (draft.selection === 'manual') controls += `<div class="schedule-editor">${Array.from({ length: draft.raceCount }, (_, i) => `<label class="config-field"><span>Course ${i + 1}</span><select data-schedule-index="${i}" aria-label="Circuit de la course ${i + 1}">${options(draft.schedule[i])}</select></label>`).join('')}</div>`;
-      else controls += `<fieldset class="pool-editor"><legend>Les circuits possibles</legend>${TRACKS.map(track => `<label><input type="checkbox" data-pool-track="${track.id}" ${draft.trackPool.includes(track.id) ? 'checked' : ''}/><span>${escape(track.name)}</span></label>`).join('')}<p>Le programme sera tiré au sort pour tout le salon.</p></fieldset>`;
+      else controls += `<fieldset class="pool-editor"><legend>Les circuits possibles</legend>${getAvailableTracks().map(track => `<label><input type="checkbox" data-pool-track="${track.id}" ${draft.trackPool.includes(track.id) ? 'checked' : ''}/><span>${escape(track.name)}</span></label>`).join('')}<p>Le programme sera tiré au sort pour tout le salon.</p></fieldset>`;
     }
     controls += `<button id="configure-button" class="secondary wide" ${draft.mode === 'tournament' && draft.selection === 'random' && draft.trackPool.length === 0 ? 'disabled' : ''}>${draft.mode === 'tournament' && draft.selection === 'random' ? 'Tirer le programme au sort' : 'Appliquer ce choix'} <span>✓</span></button>`;
     controls += `<div class="config-columns">${select('teams-select', 'Participants', `<option value="solo" ${!this.teamMode ? 'selected' : ''}>Individuel</option><option value="teams" ${this.teamMode ? 'selected' : ''}>Équipes 4 contre 4</option>`)}${this.teamMode ? '<p class="garage-hint">Les places libres sont occupées par des CPU.</p>' : select('cpu-select', 'Adversaires CPU', Array.from({ length: 8 }, (_, index) => `<option value="${index}" ${this.cpuCount === index ? 'selected' : ''}>${index} CPU</option>`).join(''))}</div>`;
-    if (!this.championshipId) controls += select('events-select', 'Évolution du circuit', ['Classique', 'Routes alternatives', 'Météo et obstacles', 'Tous les événements'].map((name, level) => `<option value="${level}" ${this.eventLevel === level ? 'selected' : ''}>${name}</option>`).join(''));
+    if (!this.championshipId && !draft.trackId.startsWith('custom-')) controls += select('events-select', 'Évolution du circuit', ['Classique', 'Routes alternatives', 'Météo et obstacles', 'Tous les événements'].map((name, level) => `<option value="${level}" ${this.eventLevel === level ? 'selected' : ''}>${name}</option>`).join(''));
     element('configuration-controls').innerHTML = controls;
   }
 }

@@ -1,0 +1,122 @@
+{
+  "passed": true,
+  "at": "2026-10-07T10:52:09.030Z",
+  "origin": "https://miles-blades-tulsa-citizens.trycloudflare.com",
+  "checks": [
+    "Un circuit utile créé par l’interface : boucle large, point déplacé à la souris, forêt, bande turbo et boue latérale ; sauvegarde confirmée par l’API publique.",
+    "Un second navigateur vierge découvre le circuit publié dans la bibliothèque et le sélectionne depuis l’accueil.",
+    "Deux joueurs partagent un vrai salon et avancent avec le clavier sur le circuit créé ; rendu 3D actif sans kart de secours.",
+    "Aucune erreur JavaScript ni ressource manquante détectée ; sortie propre des deux joueurs et zéro salon restant."
+  ],
+  "captures": [
+    "editor-published.png",
+    "community-circuit.png",
+    "race-custom-track.png",
+    "race-second-player.png"
+  ],
+  "errors": [],
+  "evidence": {
+    "origin": "https://miles-blades-tulsa-citizens.trycloudflare.com",
+    "inputMethod": "Formulaires, souris et clavier ordinaires ; diagnostics en lecture seule.",
+    "healthBefore": {
+      "status": "ok",
+      "rooms": 0,
+      "maxRooms": 16,
+      "maxPlayers": 8,
+      "simHz": 30,
+      "snapshotHz": 20
+    },
+    "clientAssets": [
+      "/assets/index-Dv6xbDio.js",
+      "/assets/index-Jqpo2WEV.css"
+    ],
+    "savedTrack": {
+      "id": "custom-26140903-573d-4b02-9da7-ec4c8d589058",
+      "revision": 1,
+      "draft": {
+        "name": "La boucle de l’atelier",
+        "theme": "forest",
+        "width": 22,
+        "anchors": [
+          {
+            "x": 0,
+            "z": -110
+          },
+          {
+            "x": 120.20815280171307,
+            "z": -77.78174593052023
+          },
+          {
+            "x": 179.5,
+            "z": 2.5
+          },
+          {
+            "x": 120.20815280171308,
+            "z": 77.78174593052022
+          },
+          {
+            "x": 2.0818995585505004e-14,
+            "z": 110
+          },
+          {
+            "x": -120.20815280171307,
+            "z": 77.78174593052024
+          },
+          {
+            "x": -170,
+            "z": 2.0206672185931328e-14
+          },
+          {
+            "x": -120.20815280171311,
+            "z": -77.7817459305202
+          }
+        ],
+        "zones": [
+          {
+            "kind": "boost",
+            "start": 0.18,
+            "end": 0.205,
+            "offset": 0,
+            "width": 8
+          },
+          {
+            "kind": "mud",
+            "start": 0.52,
+            "end": 0.56,
+            "offset": 7,
+            "width": 8
+          }
+        ]
+      },
+      "authorId": "a11ebdb7-54e7-4a3a-8619-a61b895b48b6",
+      "authorName": "Atelier circuits",
+      "createdAt": "2026-10-07T10:51:25.188Z",
+      "updatedAt": "2026-10-07T10:51:25.188Z",
+      "runtimeId": "custom-26140903-573d-4b02-9da7-ec4c8d589058-v1"
+    },
+    "draftSha256": "bcfe70723713daac7ba364cad3ae66c027e558edd2026af2ff1289c5e5c19d74",
+    "driving": [
+      {
+        "id": "xY6t8-agw",
+        "distance": 4.952241964366869,
+        "inputSequence": 83,
+        "trackId": "custom-26140903-573d-4b02-9da7-ec4c8d589058-v1"
+      },
+      {
+        "id": "128cT2oDZ",
+        "distance": 4.12029139698921,
+        "inputSequence": 60,
+        "trackId": "custom-26140903-573d-4b02-9da7-ec4c8d589058-v1"
+      }
+    ],
+    "healthAfter": {
+      "status": "ok",
+      "rooms": 0,
+      "maxRooms": 16,
+      "maxPlayers": 8,
+      "simHz": 30,
+      "snapshotHz": 20
+    }
+  },
+  "scope": "Serveur Docker public à travers le tunnel HTTPS/WSS ; deux contextes Chromium indépendants. Un circuit conservé dans data/tracks et deux profils invités ordinaires. Départ et déplacement réels, aucune course complète ni téléphone physique dans ce contrôle."
+}

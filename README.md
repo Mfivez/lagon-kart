@@ -6,6 +6,19 @@ Les **trois modèles gratuits**, Zsky, Sprint et Rétro, acceptent chacun huit p
 
 Voir la [démo intégrée, ses captures et ses tests](docs/DEMO.md), ainsi que le [suivi des tâches](todo.md).
 
+## Créer et partager un circuit
+
+Depuis l’accueil, **Créer un circuit** ouvre l’atelier : déplacer/ajouter des
+points, choisir la largeur et le thème, puis ajouter des bandes turbo, glace
+ou boue. **Sauvegarder et essayer** lance l’entraînement ; **Retour à l’éditeur**
+permet de reprendre le tracé. Les créations sauvegardées apparaissent dans la
+sélection des circuits et les programmes de tournoi de tous les joueurs.
+
+Les fichiers sont conservés sur la machine hôte dans **`data/tracks/`**, à côté
+des comptes. Chaque modification crée une version : les courses déjà ouvertes
+et les anciens replays gardent leur tracé. Un joueur modifie ses créations ou
+duplique celles de la classe. [Utilisation et validation](docs/TRACK_EDITOR.md).
+
 ## Lancer une partie avec Docker
 
 Seuls **Docker et Docker Compose** sont nécessaires sur l'ordinateur qui héberge la partie. Les amis utilisent un navigateur récent sur ordinateur (Chrome, Edge ou Firefox avec WebGL activé).

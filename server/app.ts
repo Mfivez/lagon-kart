@@ -7,6 +7,8 @@ import { WebSocketTransport } from '@colyseus/ws-transport';
 import { config } from './config.js';
 import { RaceRoom } from './RaceRoom.js';
 import { handleCareerRequest } from './career.js';
+import { handleCustomTracksRequest } from './custom-tracks-api.js';
+import { customTrackStore } from './custom-track-store.js';
 
 const mime: Record<string, string> = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
@@ -65,6 +67,7 @@ function readOptions(req: IncomingMessage): Promise<Record<string, unknown>> {
 
 /** Uses Colyseus 0.16's public matchmaking controller with a bounded HTTP body. */
 class BoundedServer extends Server {
+  readiness: Promise<unknown> = Promise.resolve();
   private readonly requests = new Map<string, { at: number; count: number }>();
 
   protected override async handleMatchMakeRequest(req: IncomingMessage, res: ServerResponse) {
@@ -87,6 +90,7 @@ class BoundedServer extends Server {
     }
     if (++rate.count > 300) { req.resume(); json(res, 429, { error: 'Trop de connexions. Réessayez dans une minute.' }); return; }
     try {
+      await this.readiness;
       const options = await readOptions(req);
       const authorization = req.headers.authorization;
       const result = await matchMaker.controller.invokeMethod(route[1]!, route[2]!, options, {
@@ -110,13 +114,20 @@ class BoundedServer extends Server {
 
 export function createGameServer(clientDirectory = resolve(process.cwd(), 'dist/client')) {
   const clientRoot = resolve(clientDirectory);
+  const ready = customTrackStore();
+  // Callers may await ready before listen; HTTP and matchmaking also await it themselves.
+  void ready.catch(() => {});
   const httpServer = createServer((req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'same-origin');
     const serve = async () => {
       const pathname = new URL(req.url || '/', 'http://internal.invalid').pathname;
+      if (pathname === '/api/tracks' || pathname.startsWith('/api/tracks/')) {
+        await handleCustomTracksRequest(req, res); return;
+      }
       if (pathname.startsWith('/api/')) { await handleCareerRequest(req, res, () => readOptions(req)); return; }
       if (pathname === '/healthz') {
+        try { await ready; } catch { json(res, 503, { status: 'unavailable', error: 'Bibliothèque de circuits indisponible.' }); return; }
         json(res, 200, { status: 'ok', rooms: RaceRoom.roomCount,
           maxRooms: config.maxRooms, maxPlayers: config.maxPlayers,
           simHz: config.simHz, snapshotHz: config.snapshotHz });
@@ -157,7 +168,8 @@ export function createGameServer(clientDirectory = resolve(process.cwd(), 'dist/
     greet: false,
     gracefullyShutdown: true,
   });
+  gameServer.readiness = ready;
   gameServer.define('race', RaceRoom);
   if (config.simulatedLatencyMs > 0) gameServer.simulateLatency(config.simulatedLatencyMs);
-  return { gameServer, httpServer };
+  return { gameServer, httpServer, ready };
 }

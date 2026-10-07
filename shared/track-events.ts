@@ -127,7 +127,8 @@ function layout(trackId: string) {
 
 /** Shared phase comes from the leader's lap, never from an individual client. */
 export function getTrackEvent(trackId: string, stage = 0, level = 0): TrackEventInfo {
-  const track = getTrack(trackId), currentStage = clampStage(stage), currentLevel = clampLevel(level);
+  // Arbitrary authored layouts have no automatically generated detours or closures.
+  const track = getTrack(trackId), currentStage = clampStage(stage), currentLevel = track.id.startsWith('custom-') ? 0 : clampLevel(level);
   const key = [track.id, currentStage, currentLevel].join(':');
   const cached = events.get(key);
   if (cached) return cached;

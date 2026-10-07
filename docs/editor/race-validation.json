@@ -1,0 +1,258 @@
+{
+  "origin": "http://127.0.0.1:3005",
+  "bundle": "/assets/index-BTCWOXZS.js",
+  "success": true,
+  "failure": "",
+  "checks": [
+    "Circuit v1 créé par HTTP, source et auteur conservés dans la bibliothèque.",
+    "Deux connexions Colyseus indépendantes, définition v1 reçue et acquittée par chacune, six CPU serveur.",
+    "Version 2 publiée pendant la course : catalogue actualisé, source v1 inchangée et huit pilotes toujours sur v1.",
+    "8/8 arrivées après trois tours, classement identique transmis aux deux SDK.",
+    "Les six CPU progressent : aucun blocage de 12 secondes, au maximum trois récupérations observées par CPU.",
+    "Progression de la course réellement sauvegardée pour les deux invités : course, arrivée, XP et meilleur temps sur v1.",
+    "Les deux connexions du test sont fermées ; serveur sain, autres salons laissés intacts."
+  ],
+  "errors": [],
+  "notices": [],
+  "startedAt": "2026-10-07T10:34:57.372Z",
+  "durationSeconds": 78.766,
+  "scope": "Real HTTP and Colyseus SDK connections. Two authenticated SDK guests send normal autopilot inputs; six CPU are driven by RaceRoom. No browser or touch ergonomics claim. No forced position, checkpoint, finish, profile or XP.",
+  "browser": false,
+  "initialHealth": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 32,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "finalHealth": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 32,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "publishedDuringRaceAt": 20.066666666666823,
+  "versions": [
+    {
+      "id": "custom-8fcefef7-d797-4bcd-ad82-19f8441585d9",
+      "revision": 1,
+      "runtimeId": "custom-8fcefef7-d797-4bcd-ad82-19f8441585d9-v1",
+      "name": "Boucle de validation"
+    },
+    {
+      "id": "custom-8fcefef7-d797-4bcd-ad82-19f8441585d9",
+      "revision": 2,
+      "runtimeId": "custom-8fcefef7-d797-4bcd-ad82-19f8441585d9-v2",
+      "name": "Boucle de validation — version 2"
+    }
+  ],
+  "clients": [
+    {
+      "roomId": "BK4APR",
+      "playerId": "315a8df3-2afb-436c-97dc-80ed0de52082",
+      "sessionId": "KEh32753f",
+      "snapshots": 1569,
+      "commands": 2057,
+      "definitions": [
+        "custom-8fcefef7-d797-4bcd-ad82-19f8441585d9-v1"
+      ],
+      "definitionsReceived": 1,
+      "acknowledgments": 1
+    },
+    {
+      "roomId": "BK4APR",
+      "playerId": "13516c1a-1bce-4d51-9882-7c768150a289",
+      "sessionId": "l2mSrVSvY",
+      "snapshots": 1568,
+      "commands": 2063,
+      "definitions": [
+        "custom-8fcefef7-d797-4bcd-ad82-19f8441585d9-v1"
+      ],
+      "definitionsReceived": 1,
+      "acknowledgments": 1
+    }
+  ],
+  "results": [
+    {
+      "id": "KEh32753f",
+      "cpu": false,
+      "rank": 3,
+      "lap": 3,
+      "finished": true,
+      "finishTime": 68.46666666666535
+    },
+    {
+      "id": "l2mSrVSvY",
+      "cpu": false,
+      "rank": 4,
+      "lap": 3,
+      "finished": true,
+      "finishTime": 68.69999999999867
+    },
+    {
+      "id": "cpu-6a471532-cc15-46e2-9ab7-9395c774ad0f",
+      "cpu": true,
+      "rank": 5,
+      "lap": 3,
+      "finished": true,
+      "finishTime": 68.76666666666533
+    },
+    {
+      "id": "cpu-852ff1e0-6886-4860-a490-3bee5cb3d260",
+      "cpu": true,
+      "rank": 7,
+      "lap": 3,
+      "finished": true,
+      "finishTime": 68.96666666666532
+    },
+    {
+      "id": "cpu-a154a79b-1460-42e2-9b1c-2c024079f7f9",
+      "cpu": true,
+      "rank": 1,
+      "lap": 3,
+      "finished": true,
+      "finishTime": 68.36666666666535
+    },
+    {
+      "id": "cpu-dc84e16b-73d1-4089-b6f3-3be80cbe211c",
+      "cpu": true,
+      "rank": 6,
+      "lap": 3,
+      "finished": true,
+      "finishTime": 68.83333333333199
+    },
+    {
+      "id": "cpu-65d9c561-2bd1-48fa-93b7-e8eab2ba1e0f",
+      "cpu": true,
+      "rank": 8,
+      "lap": 3,
+      "finished": true,
+      "finishTime": 75.16666666666497
+    },
+    {
+      "id": "cpu-166aa395-819f-4a85-8a06-8b408a4dc7ce",
+      "cpu": true,
+      "rank": 2,
+      "lap": 3,
+      "finished": true,
+      "finishTime": 68.39999999999868
+    }
+  ],
+  "observations": [
+    {
+      "id": "KEh32753f",
+      "cpu": false,
+      "name": "Validation éditeur",
+      "bestProgress": 2664.808760167969,
+      "lastAdvance": 68.49999999999868,
+      "maximumNoProgressSeconds": 0.3,
+      "previousResetCooldown": 0,
+      "observedResets": 0
+    },
+    {
+      "id": "l2mSrVSvY",
+      "cpu": false,
+      "name": "Validation éditeur",
+      "bestProgress": 2664.808760167969,
+      "lastAdvance": 68.69999999999867,
+      "maximumNoProgressSeconds": 0.3,
+      "previousResetCooldown": 0,
+      "observedResets": 0
+    },
+    {
+      "id": "cpu-6a471532-cc15-46e2-9ab7-9395c774ad0f",
+      "cpu": true,
+      "name": "CPU 3",
+      "bestProgress": 2664.487086352905,
+      "lastAdvance": 68.733333333332,
+      "maximumNoProgressSeconds": 0.16666666666666666,
+      "previousResetCooldown": 0,
+      "observedResets": 0
+    },
+    {
+      "id": "cpu-852ff1e0-6886-4860-a490-3bee5cb3d260",
+      "cpu": true,
+      "name": "CPU 4",
+      "bestProgress": 2664.808760167969,
+      "lastAdvance": 68.99999999999865,
+      "maximumNoProgressSeconds": 0.20000000000000284,
+      "previousResetCooldown": 0,
+      "observedResets": 0
+    },
+    {
+      "id": "cpu-a154a79b-1460-42e2-9b1c-2c024079f7f9",
+      "cpu": true,
+      "name": "CPU 5",
+      "bestProgress": 2664.571352419371,
+      "lastAdvance": 68.33333333333202,
+      "maximumNoProgressSeconds": 0.26666666666666666,
+      "previousResetCooldown": 0,
+      "observedResets": 0
+    },
+    {
+      "id": "cpu-dc84e16b-73d1-4089-b6f3-3be80cbe211c",
+      "cpu": true,
+      "name": "CPU 6",
+      "bestProgress": 2664.324067902042,
+      "lastAdvance": 68.79999999999866,
+      "maximumNoProgressSeconds": 0.26666666666666666,
+      "previousResetCooldown": 0,
+      "observedResets": 0
+    },
+    {
+      "id": "cpu-65d9c561-2bd1-48fa-93b7-e8eab2ba1e0f",
+      "cpu": true,
+      "name": "CPU 7",
+      "bestProgress": 2664.4562263937487,
+      "lastAdvance": 75.13333333333163,
+      "maximumNoProgressSeconds": 0.6666666666666666,
+      "previousResetCooldown": 0,
+      "observedResets": 0
+    },
+    {
+      "id": "cpu-166aa395-819f-4a85-8a06-8b408a4dc7ce",
+      "cpu": true,
+      "name": "CPU 8",
+      "bestProgress": 2664.808760167969,
+      "lastAdvance": 68.39999999999868,
+      "maximumNoProgressSeconds": 0.6666666666666666,
+      "previousResetCooldown": 0,
+      "observedResets": 0
+    }
+  ],
+  "savedProfiles": [
+    {
+      "id": "315a8df3-2afb-436c-97dc-80ed0de52082",
+      "xp": 35,
+      "stats": {
+        "races": 1,
+        "finishes": 1,
+        "wins": 0,
+        "podiums": 1,
+        "totalRaceTime": 68.46666666666535,
+        "bestTimes": {
+          "custom-8fcefef7-d797-4bcd-ad82-19f8441585d9-v1": 68.46666666666535
+        }
+      }
+    },
+    {
+      "id": "13516c1a-1bce-4d51-9882-7c768150a289",
+      "xp": 30,
+      "stats": {
+        "races": 1,
+        "finishes": 1,
+        "wins": 0,
+        "podiums": 0,
+        "totalRaceTime": 68.69999999999867,
+        "bestTimes": {
+          "custom-8fcefef7-d797-4bcd-ad82-19f8441585d9-v1": 68.69999999999867
+        }
+      }
+    }
+  ],
+  "resetMeasurement": "Observed rises of resetCooldown >0.5 seconds between snapshots. No private instrumentation.",
+  "cleanup": "Only the two created SDK connections leave their room. Global rooms=0 is deliberately not required on a shared validation server."
+}

@@ -1,0 +1,42 @@
+{
+  "passed": true,
+  "timestamp": "2026-10-07T10:47:40.520Z",
+  "checks": [
+    "Création réelle : nom, ambiance, déplacement souris, annuler/rétablir, ajustement clavier, départ repositionnable, point ajouté/supprimé et zone de glace.",
+    "Sauvegarde HTTP : erreur réseau simulée sans perte, réessai réussi, circuit et zones relus dans l’API.",
+    "Un brouillon non publié survit à la fermeture de l’éditeur et au rechargement de la page.",
+    "Un tracé invalide produit une explication française et bloque la publication ; Annuler rétablit la piste.",
+    "Sauvegarder et essayer ouvre le vrai circuit en entraînement ; accélération réelle et retour dans l’éditeur sans perte.",
+    "Mobile 320×568 : aucun débordement, contrôles ≥44 px, vrai geste tactile, copie d’un autre joueur et sauvegarde indépendante."
+  ],
+  "captures": [
+    "editor-desktop.png",
+    "editor-invalid-curve.png",
+    "editor-trial-race.png",
+    "editor-mobile-320.png",
+    "editor-mobile-settings-320.png"
+  ],
+  "errors": [],
+  "evidence": {
+    "origin": "http://127.0.0.1:3005",
+    "inputMethod": "Actions souris, clavier et tactile Chromium ; aucune modification directe du circuit ou de la simulation.",
+    "created": {
+      "id": "custom-bec6b9ef-ad1f-4378-84bb-5a97572a6c00",
+      "revision": 1,
+      "name": "Grande boucle atelier 027008",
+      "authorName": "Créateur atelier"
+    },
+    "duplicate": {
+      "id": "custom-de3125d0-d98d-42b2-891b-9dc69bf242c9",
+      "name": "La boucle de mon téléphone"
+    },
+    "clientAssets": [
+      "/assets/index-CqX3Pz4s.js",
+      "/assets/index-Jqpo2WEV.css"
+    ]
+  },
+  "remaining": [
+    "Téléphone physique non testé.",
+    "Ce scénario UI ne termine pas une course complète ; un contrôle serveur séparé couvre le comptage des tours."
+  ]
+}

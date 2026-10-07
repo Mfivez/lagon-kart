@@ -2,6 +2,7 @@ import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { mkdir, open, readFile, rename, rm, stat } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { isTrackId, TRACK_LAYOUT_REVISION } from '../shared/track.js';
+import { isCustomTrackRuntimeId } from '../shared/custom-tracks.js';
 import { INITIAL_MMR, careerLevel, championshipById, rankForMmr, seasonId,
   type GhostData, type LeaderboardEntry, type PlayerProfile, type PlayerStats,
   type ReplayData, type ReplaySummary, type SeasonStats } from '../shared/progression.js';
@@ -396,12 +397,12 @@ export class PlayerStore {
       const stats = player.stats;
       if (![stats.races, stats.finishes, stats.wins, stats.podiums].every(count => integer(count, 0, Number.MAX_SAFE_INTEGER)) ||
         !Number.isFinite(stats.totalRaceTime) || stats.totalRaceTime < 0 || !stats.bestTimes || typeof stats.bestTimes !== 'object' ||
-        Object.entries(stats.bestTimes).some(([id, time]) => !isTrackId(id) || !Number.isFinite(time) || time <= 0 || time > 360)) throw new Error('Statistiques sauvegardées invalides.');
+        Object.entries(stats.bestTimes).some(([id, time]) => !(isTrackId(id) || isCustomTrackRuntimeId(id)) || !Number.isFinite(time) || time <= 0 || time > 360)) throw new Error('Statistiques sauvegardées invalides.');
       for (const ranked of player.seasons) if (!/^\d{4}-Q[1-4]$/.test(ranked.season) || !integer(ranked.mmr, 0, 4000) || !integer(ranked.peakMmr, 0, 4000) ||
         !integer(ranked.races, 0, Number.MAX_SAFE_INTEGER) || !integer(ranked.wins, 0, ranked.races)) throw new Error('Saison sauvegardée invalide.');
     }
     for (const receipt of data.raceReceipts) if (!identifier(receipt.id) || !integer(receipt.at, 0, 8_640_000_000_000_000)) throw new Error('Reçu de course invalide.');
-    for (const replay of data.replays) if (!identifier(replay.id) || !isTrackId(replay.trackId) || !integer(replay.trackRevision ?? 1, 1, 1000) || !integer(replay.createdAt, 0, 8_640_000_000_000_000) ||
+    for (const replay of data.replays) if (!identifier(replay.id) || !(isTrackId(replay.trackId) || isCustomTrackRuntimeId(replay.trackId)) || !integer(replay.trackRevision ?? 1, 1, 1000) || !integer(replay.createdAt, 0, 8_640_000_000_000_000) ||
       !integer(replay.durationMs, 0, 360_000) || typeof replay.ranked !== 'boolean' || !integer(replay.eventLevel ?? 0, 0, 3) || !Array.isArray(replay.drivers) || replay.drivers.length > 8 ||
       replay.drivers.some(driver => !identifier(driver.playerId) || name(driver.name) !== driver.name || !integer(driver.rank, 1, 8) ||
         typeof driver.finished !== 'boolean' || !Number.isFinite(driver.finishTime) || driver.finishTime < 0 || driver.finishTime > 360)) throw new Error('Index des replays invalide.');

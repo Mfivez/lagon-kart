@@ -3,6 +3,8 @@ import { Room, ServerError, type Client } from '@colyseus/core';
 import { createKart, createWorld, neutralInput, startRace, stepWorld, validateInput,
   type Input, type Kart, type World } from '../shared/game.js';
 import { isTrackId } from '../shared/track.js';
+import { isCustomTrackRuntimeId, customTrackRuntimeId, type StoredCustomTrack } from '../shared/custom-tracks.js';
+import { customTrackStore, type CustomTrackStore } from './custom-track-store.js';
 import { DEFAULT_KART_MODEL, isKartModelId } from '../shared/kart-catalog.js';
 import { DEFAULT_CHARACTER, isCharacterId } from '../shared/characters.js';
 import { normalizeBuild } from '../shared/garage.js';
@@ -50,12 +52,17 @@ export class RaceRoom extends Room {
   private championshipId = '';
   private recorder?: ReplayRecorder;
   private recordedRound = -1;
+  private customStore!: CustomTrackStore;
+  private readonly knownTracks = new Map<string, Set<string>>();
+  private trackPayloadKey = '';
+  private trackPayload: StoredCustomTrack[] = [];
 
   static get roomCount() { return activeRoomIds.size; }
 
-  onCreate(options: { practice?: boolean; trackId?: string; internalKey?: string; rankedPlayers?: string[]; rankedMatchId?: string } = {}) {
+  async onCreate(options: { practice?: boolean; trackId?: string; internalKey?: string; rankedPlayers?: string[]; rankedMatchId?: string } = {}) {
+    this.customStore = await customTrackStore();
     const trackId = options.trackId ?? 'lagon';
-    if (!isTrackId(trackId)) throw new ServerError(4216, 'Ce circuit est inconnu.');
+    if (!isTrackId(trackId) || isCustomTrackRuntimeId(trackId) && !this.customStore.get(trackId)) throw new ServerError(4216, 'Ce circuit est inconnu.');
     if (activeRoomIds.size >= config.maxRooms) {
       throw new ServerError(4210, 'Le serveur a atteint sa limite de salons. Réessayez plus tard.');
     }
@@ -86,6 +93,12 @@ export class RaceRoom extends Room {
     this.setPatchRate(0); // snapshots are explicit; no duplicate Schema payloads.
 
     this.onMessage('input', (client, data) => this.onInput(client, data));
+    this.onMessage('tracksReady', (client, data) => {
+      if (!this.authorize(client) || !Array.isArray(data?.ids) || data.ids.length > 9) return;
+      const known = this.knownTracks.get(client.sessionId) ?? new Set<string>();
+      for (const id of data.ids) if (typeof id === 'string' && this.customStore.get(id)) known.add(id);
+      this.knownTracks.set(client.sessionId, known);
+    });
     this.onMessage('ready', (client, data) => {
       const kart = this.authorize(client);
       if (!kart || this.world.phase !== 'lobby' || typeof data?.ready !== 'boolean') return;
@@ -140,6 +153,7 @@ export class RaceRoom extends Room {
     if (this.world.players.filter(player => !player.abandoned).length >= this.maxClients) {
       throw new ServerError(4211, 'Ce salon est complet, y compris les places réservées aux reconnexions.');
     }
+    this.knownTracks.delete(client.sessionId);
     const index = this.world.players.length;
     const saved = auth?.profile;
     const identity = profile(options, index, undefined, saved?.careerLevel ?? 0);
@@ -167,6 +181,7 @@ export class RaceRoom extends Room {
   async onLeave(client: Client, consented: boolean) {
     const kart = this.findKart(client.sessionId);
     if (!kart) return;
+    this.knownTracks.delete(client.sessionId);
     kart.connected = false;
     kart.ready = false;
     kart.epoch += 1;
@@ -218,6 +233,7 @@ export class RaceRoom extends Room {
     if (this.snapshotInterval) clearInterval(this.snapshotInterval);
     this.inputs.clear();
     this.rates.clear();
+    this.knownTracks.clear();
   }
 
   async cancelRankedLobby() {
@@ -331,6 +347,7 @@ export class RaceRoom extends Room {
         this.resetLobby(configured.trackId, configured.tournament); this.fillCpu(4); this.sendSnapshot(); return;
       }
       const configured = applyConfiguration(this.world.tournament, data, this.world.trackId, () => randomInt(0x1000000) / 0x1000000);
+      if ([...configured.tournament.schedule, ...configured.tournament.trackPool].some(id => isCustomTrackRuntimeId(id) && !this.customStore.get(id))) throw new Error('Un circuit du programme est indisponible. Actualisez la bibliothèque.');
       this.championshipId = '';
       this.resetLobby(configured.trackId, configured.tournament);
       this.sendSnapshot();
@@ -430,6 +447,7 @@ export class RaceRoom extends Room {
     this.world = next;
     this.inputs.clear();
     this.rates.clear();
+    this.knownTracks.clear();
     for (const player of next.players) {
       this.initializeInputs(player);
       registerTournamentDriver(tournament, player);
@@ -468,9 +486,20 @@ export class RaceRoom extends Room {
   }
 
   private sendSnapshot() {
-    this.broadcast('snapshot', {
-      world: this.world, serverTime: Date.now(), tick: this.tick, simHz: config.simHz,
-    });
+    const ids = [...new Set([this.world.trackId, ...this.world.tournament.schedule])].filter(isCustomTrackRuntimeId);
+    const key = ids.join('|');
+    if (key !== this.trackPayloadKey) {
+      this.trackPayloadKey = key;
+      this.trackPayload = ids.map(id => this.customStore.get(id)).filter((record): record is NonNullable<typeof record> => !!record);
+    }
+    const snapshot = { world: this.world, serverTime: Date.now(), tick: this.tick, simHz: config.simHz };
+    for (const client of this.clients) {
+      const known = this.knownTracks.get(client.sessionId);
+      const tracks = this.trackPayload.filter(record => !known?.has(customTrackRuntimeId(record)));
+      // Repeat definitions until acknowledged: the first message can precede the
+      // client's subscription, especially when joining or restoring a session.
+      client.send('snapshot', tracks.length ? { ...snapshot, tracks } : snapshot);
+    }
   }
 
   private notice(client: Client, message: string) { client.send('notice', { message }); }

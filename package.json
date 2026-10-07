@@ -43,7 +43,9 @@
     "test:storage-migration": "node scripts/storage-migration-check.mjs",
     "data:migrate": "node scripts/player-data.mjs migrate",
     "data:backup": "node scripts/player-data.mjs backup",
-    "data:reset": "node scripts/player-data.mjs reset"
+    "data:reset": "node scripts/player-data.mjs reset",
+    "test:track-editor": "node --import tsx scripts/track-editor-browser-check.ts",
+    "test:custom-track-race": "node --import tsx scripts/custom-track-race-check.ts"
   },
   "dependencies": {
     "@colyseus/core": "0.16.26",

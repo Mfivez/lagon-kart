@@ -1,0 +1,128 @@
+{
+  "passed": true,
+  "timestamp": "2026-10-07T10:51:16.142Z",
+  "scope": "10 thèmes générés avec le compilateur réel, empreintes décor hors route ; une course forêt lancée par les commandes normales, sans déplacement imposé.",
+  "themes": [
+    {
+      "theme": "tropical",
+      "runtimeId": "custom-editor-theme-tropical-v1",
+      "landmarks": 13,
+      "meshes": 143,
+      "minRoadClearance": 8.999999999999986
+    },
+    {
+      "theme": "canyon",
+      "runtimeId": "custom-editor-theme-canyon-v1",
+      "landmarks": 12,
+      "meshes": 84,
+      "minRoadClearance": 12.999999999999993
+    },
+    {
+      "theme": "ice",
+      "runtimeId": "custom-editor-theme-ice-v1",
+      "landmarks": 14,
+      "meshes": 76,
+      "minRoadClearance": 10.999999999999975
+    },
+    {
+      "theme": "neon",
+      "runtimeId": "custom-editor-theme-neon-v1",
+      "landmarks": 10,
+      "meshes": 755,
+      "minRoadClearance": 8.25265739747051
+    },
+    {
+      "theme": "volcano",
+      "runtimeId": "custom-editor-theme-volcano-v1",
+      "landmarks": 11,
+      "meshes": 87,
+      "minRoadClearance": 15.999999999999986
+    },
+    {
+      "theme": "forest",
+      "runtimeId": "custom-editor-theme-forest-v1",
+      "landmarks": 26,
+      "meshes": 141,
+      "minRoadClearance": 8.999999999999993
+    },
+    {
+      "theme": "harbor",
+      "runtimeId": "custom-editor-theme-harbor-v1",
+      "landmarks": 3,
+      "meshes": 102,
+      "minRoadClearance": 25
+    },
+    {
+      "theme": "sky",
+      "runtimeId": "custom-editor-theme-sky-v1",
+      "landmarks": 9,
+      "meshes": 54,
+      "minRoadClearance": 47.999999999999986
+    },
+    {
+      "theme": "foundry",
+      "runtimeId": "custom-editor-theme-foundry-v1",
+      "landmarks": 8,
+      "meshes": 109,
+      "minRoadClearance": 37.99999999999998
+    },
+    {
+      "theme": "castle",
+      "runtimeId": "custom-editor-theme-castle-v1",
+      "landmarks": 14,
+      "meshes": 142,
+      "minRoadClearance": 9.999999999999993
+    }
+  ],
+  "clientAssets": [
+    "/assets/index-Dv6xbDio.js",
+    "/assets/index-Jqpo2WEV.css"
+  ],
+  "render": {
+    "view": {
+      "camera": {
+        "position": [
+          31.60704928734486,
+          6.3,
+          -108.9301269758414
+        ],
+        "target": [
+          48.60066791043361,
+          1.0499999992381202,
+          -109.6269655638537
+        ],
+        "fov": 55,
+        "near": 1
+      },
+      "tracked": {
+        "id": "BW_rvONoS",
+        "position": [
+          43.120009449779715,
+          0.055,
+          -109.4022262433001
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "projected": [
+          1.5285829222658518e-15,
+          -0.246771395310771,
+          0.8427742426565362
+        ]
+      },
+      "calls": 48,
+      "triangles": 27330,
+      "compact": false
+    },
+    "sceneryAssets": {
+      "state": "ready",
+      "url": "/models/scenery/kenney-tree-v1.glb",
+      "requests": 1
+    },
+    "worldTrack": "custom-bec6b9ef-ad1f-4378-84bb-5a97572a6c00-v1"
+  },
+  "errors": [],
+  "capture": "editor-trial-forest.png"
+}

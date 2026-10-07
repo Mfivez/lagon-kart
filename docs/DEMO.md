@@ -1,4 +1,4 @@
-# Démo intégrée — comptes, sauvegardes, petits écrans et circuits
+# Démo intégrée — éditeur, comptes, petits écrans et circuits
 
 État documenté le **7 octobre 2026**. Le projet conserve Three.js, Colyseus,
 Docker et les ressources servies depuis la même origine. Budget ajouté :
@@ -26,6 +26,15 @@ conservés. Les preuves ci-dessous du lot mobile concernent son build précéden
 `index-wc3mK_Sw.js` ; [VALIDATION.md](../VALIDATION.md) identifie séparément la
 version testée et les essais réellement exécutés. Le catalogue courant compte
 quatorze personnages après le retrait du personnage ambigu.
+
+À l’accueil, **Créer un circuit** ouvre maintenant l’atelier. Dessiner la piste,
+choisir un thème et des zones, puis **Sauvegarder et essayer**. Les créations
+publiées apparaissent dans le choix des circuits et les tournois des autres
+joueurs ; **Actualiser les circuits** recharge le catalogue. Le dossier
+**`data/tracks/`** conserve chaque révision. [Guide de l’atelier](TRACK_EDITOR.md).
+Un exemple **La boucle de l’atelier** est déjà publié : forêt, route large,
+turbo et boue latérale. Il a été créé depuis l’éditeur et joué à deux par le
+tunnel. [Capture en course](editor/public/race-custom-track.png).
 
 Compose conserve les comptes, profils, progression, saisons et replays dans
 **`data/players/` sur la machine hôte**, monté dans `/app/data/players`.

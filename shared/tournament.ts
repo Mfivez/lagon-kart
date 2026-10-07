@@ -1,4 +1,4 @@
-import { isTrackId, TRACK_IDS } from './track.js';
+import { isTrackId, getAvailableTracks } from './track.js';
 
 export type TournamentMode = 'single' | 'tournament';
 export type TrackSelection = 'manual' | 'random';
@@ -66,7 +66,7 @@ export function applyConfiguration(current: TournamentState, payload: unknown, c
   if (options.trackId !== undefined && (typeof options.trackId !== 'string' || !isTrackId(options.trackId))) {
     throw new Error('Ce circuit est inconnu.');
   }
-  const pool = options.trackPool === undefined ? undefined : tracks(options.trackPool, 'Sélection de circuits', TRACK_IDS.length);
+  const pool = options.trackPool === undefined ? undefined : tracks(options.trackPool, 'Sélection de circuits', getAvailableTracks().length);
   const requestedSchedule = options.schedule === undefined ? undefined : tracks(options.schedule, 'Programme');
   if (pool && new Set(pool).size !== pool.length) throw new Error('La sélection aléatoire ne doit pas contenir de doublon.');
   if (mode === 'single') {

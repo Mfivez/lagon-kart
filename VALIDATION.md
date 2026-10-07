@@ -2,6 +2,95 @@
 
 Vérifications des 6 et 7 octobre 2026 dans WSL/Linux avec Docker Desktop 4.55.0, Docker Engine 29.1.3, Compose 2.40.3, Node 20.19.2 sur l'hôte et Node 22.21.1 dans l'image. Les résultats ci-dessous distinguent simulation, clients réseau automatisés et navigateur ; chaque lot conserve ses preuves et sa date.
 
+## 7 octobre 2026 — atelier des circuits
+
+Éditeur visuel intégré à l’accueil : tracé lissé, ajout/déplacement/suppression
+des points, départ déplaçable, annuler/rétablir, largeur, dix thèmes et zones
+turbo/glace/boue. Les créations sont publiées dans `data/tracks/`, utilisables
+en entraînement, en salon et en tournoi. Le montage de `data/` existant est
+conservé ; aucune dépendance ajoutée. [Mode d’emploi](docs/TRACK_EDITOR.md).
+
+Les versions publiées restent immuables. Une nouvelle publication actualise
+le catalogue sans déplacer la piste d’un salon déjà ouvert. Les clients reçoivent
+la définition par Colyseus et l’acquittent ; les profils historiques restent
+lisibles même si le fichier d’un ancien circuit devient introuvable.
+
+Vérifications exécutées :
+
+- **330/330 tests** de la suite complète réussis en **125,70 s** :
+  `node --import tsx --test --test-concurrency=4 tests/*.test.ts`.
+- **8/8 tests complémentaires** ajoutés ensuite dans
+  `tests/custom-track-room.test.ts` : transmission à deux clients, acquittements,
+  publication pendant une course, arrivée tardive, tournoi mixte, rejet des
+  circuits absents du stockage et compatibilité des profils/replays. Le résultat
+  et le replay de ce dernier contrôle sont des **fixtures synthétiques** déclarées.
+- Les suites ciblées géométrie (**8 tests**) et stockage/API (**10 tests**)
+  font déjà partie des 330 ; elles ne s’ajoutent pas à ce total. Quatre courses
+  déterministes de huit CPU terminent trois tours sur des créations différentes.
+- **Course HTTP/Colyseus réelle : 8/8 arrivées**, deux pilotes SDK et six CPU
+  serveur, trois tours, commandes ordinaires et aucune position imposée. Une
+  version 2 publiée à 20 secondes laisse la course sur la version 1. Aucun reset
+  CPU observé ; progression réellement enregistrée (**35 et 30 XP**), classement
+  identique, connexions fermées. Durée totale **78,77 s**.
+  [Rapport](docs/editor/race-validation.json).
+- **6 contrôles Chromium privés réussis**, zéro erreur JavaScript : dessin à la
+  souris/clavier, départ déplacé, ajout/suppression de point, annuler/rétablir,
+  zones, sauvegarde et réessai après erreur HTTP 503 simulée, brouillon après
+  rechargement, refus d’un tracé invalide, entraînement réel et retour à l’éditeur.
+  Un second profil en **320 × 568** duplique et publie sa propre piste avec un
+  geste tactile simulé, sans débordement et avec des commandes d’au moins 44 px.
+  [Rapport](docs/editor/browser-validation.json) ·
+  [Éditeur desktop](docs/editor/editor-desktop.png) ·
+  [Mobile](docs/editor/editor-mobile-320.png).
+
+Ces essais ont conduit à conserver les boutons dans le DOM pendant l’édition
+pour que le premier clic sur Annuler fonctionne, corriger le côté et la longueur
+des bandes de surface, adapter les cibles tactiles après ouverture/redimensionnement
+et compacter la barre d’outils mobile. Le rendu 3D est suspendu tant que le plan
+de l’éditeur est ouvert. Les erreurs de réseau laissent le brouillon intact.
+
+L’inspection visuelle a aussi révélé que les créations reprenaient les couleurs
+du thème sans ses décors. Le choix du décor utilise désormais le thème, tandis
+que son placement conserve la géométrie réelle du circuit. **10/10 thèmes**
+génèrent des décors dont les empreintes restent hors route (marge minimale
+observée **8,25 m** sur le tracé contrôlé). Une nouvelle course d’essai forêt
+montre les arbres, sans erreur JavaScript. Le parcours UI utilise
+`index-CqX3Pz4s.js` ; ce dernier contrôle utilise le build final
+`index-Dv6xbDio.js` / `index-Jqpo2WEV.css`.
+[Rapport décors](docs/editor/scenery-validation.json) ·
+[Course forêt corrigée](docs/editor/editor-trial-forest.png).
+
+**4 contrôles publics réussis** sur ce build final, via HTTPS/WSS : création
+de « La boucle de l’atelier » par l’interface, découverte par un autre navigateur
+vierge, sélection, salon partagé et départ réel à deux. Les touches ordinaires
+déplacent les karts de **4,95 m et 4,12 m** ; le rendu utilise les modèles GLB.
+Aucune erreur JavaScript ni ressource manquante détectée, deux connexions fermées
+et zéro salon restant. L’exemple, sa forêt et ses zones turbo/boue sont conservés
+pour les joueurs. [Rapport public](docs/editor/public/browser-validation.json) ·
+[Course publique](docs/editor/public/race-custom-track.png).
+
+Ce contrôle public utilise deux contextes Chromium sur un seul hôte et vérifie
+le départ et la conduite ; il ne prétend pas terminer une course complète ni
+utiliser deux ordinateurs physiques.
+
+**Docker et persistance vérifiés** : build hôte et image réussis, client final
+public identique au build par SHA-256, neuf modules serveur/shared identiques.
+Après publication de l’exemple, `docker compose up -d --no-deps --force-recreate app`
+recrée réellement l’application : **22 fichiers de données, 29 profils et la
+source du circuit sont inchangés**. Le catalogue et l’API retrouvent sa version 1.
+Le conteneur du tunnel, son heure de démarrage et son URL sont conservés ;
+l’application reste saine. Une dernière lecture HTTPS retrouve exactement le
+même circuit, propriétaire, révision et SHA-256 du tracé, sans créer de nouveau
+profil. [Preuve de déploiement](docs/editor/deployment.json) ·
+[Relecture publique après redémarrage](docs/editor/public/persistence-validation.json).
+
+La course réseau utilise le serveur TypeScript privé et deux clients SDK,
+sans navigateur. Le bundle indiqué dans son rapport précède les derniers
+ajustements visuels ; la géométrie et le serveur n’ont pas changé depuis.
+L’éditeur produit des routes au sol : ponts, sauts, loopings et déviations ne
+sont pas éditables dans ce premier atelier. Le confort sur téléphone physique
+et la fluidité sur les GPU des collègues restent des essais humains.
+
 ## 7 octobre 2026 — retrait de Monsieur Gaffe
 
 Le catalogue et le modèle `bean` sont retirés à la demande de l’utilisateur :

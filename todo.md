@@ -2,6 +2,17 @@
 
 État au **7 octobre 2026**. `[x]` = réalisé avec preuve ; `[ ]` = travail ou validation restant à terminer. [Démo intégrée et rapports](docs/DEMO.md).
 
+## Éditeur de circuits et bibliothèque de la classe
+
+- [x] Atelier visuel : points manipulables, ajout/suppression, départ déplaçable, annuler/rétablir, dix thèmes, largeur et zones turbo/glace/boue. Brouillon local par profil, erreurs de tracé expliquées et publication bloquée si la piste est invalide. [Mode d’emploi](docs/TRACK_EDITOR.md).
+- [x] Sauvegardes dans `data/tracks/`, révisions immuables, bibliothèque partagée, édition par l’auteur et duplication pour les autres joueurs ; authentification et montage de données existants conservés.
+- [x] Créations jouables en entraînement, salon et tournoi ; définitions synchronisées avec Colyseus et anciennes versions conservées pendant les courses et pour les replays.
+- [x] **330/330 tests** de la suite complète et **8/8 tests complémentaires** de salon réussis. **8/8 pilotes** terminent trois tours dans une vraie course réseau malgré une publication pendant la course, sans reset CPU, avec progression sauvegardée. [Rapport](docs/editor/race-validation.json).
+- [x] **6 contrôles navigateur** réussis : édition souris/clavier/tactile, annulation, erreur réseau sans perte, brouillon restauré, entraînement et retour à l’éditeur, duplication par un second profil à 320 px. Cinq captures inspectées ; corrections d’ergonomie appliquées. [Rapport](docs/editor/browser-validation.json).
+- [x] Décors raccordés aux créations : **10 thèmes contrôlés**, empreintes hors route et forêt inspectée en jeu. **4 contrôles publics** réussis : publication par l’UI, découverte par un autre profil et conduite réelle dans un salon partagé à deux, sans erreur JS/asset. Exemple « La boucle de l’atelier » conservé. [Rapport public](docs/editor/public/browser-validation.json).
+- [x] Build et Docker déployés ; recréation réelle après publication, **22 fichiers de données et 29 profils inchangés**, circuit toujours proposé, bundles/modules identiques au build et tunnel conservé. [Persistance et déploiement](docs/editor/deployment.json).
+- [ ] Essai humain sur téléphone physique. Les ponts, sauts, loopings et déviations ne sont pas encore dessinables dans l’atelier.
+
 ## Pilotes caricaturaux : quatorze choix
 
 - [x] Retrait du personnage ambigu demandé par l’utilisateur ; le catalogue conserve les cinq anciens, Macron, Merkel, Napoléon et six références aux jeux, séries et films, soit neuf ajouts. Accessoires distinctifs et descriptions humoristiques. [Casting](docs/CHARACTERS.md).

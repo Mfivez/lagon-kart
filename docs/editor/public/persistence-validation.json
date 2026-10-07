@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "at": "2026-10-07T10:53:55.165Z",
+  "origin": "https://miles-blades-tulsa-citizens.trycloudflare.com",
+  "checks": [
+    "Après redémarrage : même circuit, même révision, même propriétaire et même géométrie relus depuis le tunnel public."
+  ],
+  "health": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "trackId": "custom-26140903-573d-4b02-9da7-ec4c8d589058",
+  "revision": 1,
+  "draftSha256": "bcfe70723713daac7ba364cad3ae66c027e558edd2026af2ff1289c5e5c19d74",
+  "scope": "Lecture HTTP seule après redémarrage ; aucun nouveau compte, circuit ou salon créé."
+}

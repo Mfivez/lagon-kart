@@ -1,6 +1,6 @@
 import { Client, type Room } from 'colyseus.js';
 import { COLORS, TOTAL_LAPS, neutralInput, stepKart, type Input, type Kart, type World } from '../shared/game';
-import { TRACKS, getTrack, trackPoint } from '../shared/track';
+import { getAvailableTracks, getTrack, isTrackId, trackPoint } from '../shared/track';
 import { configurationMarkup, TournamentControls, trackCards, trackFeatures, standingsTable, teamsTable } from './tournament-ui';
 import { GameRenderer } from './renderer';
 import { GameAudio } from './audio';
@@ -14,6 +14,9 @@ import type { GhostData, PlayerProfile } from '../shared/progression';
 import { KART_MODELS } from '../shared/kart-catalog';
 import { MobileControls, mobileControlsMarkup } from './mobile-controls';
 import './style.css';
+import { TrackEditor } from './track-editor';
+import { listCustomTracks, saveCustomTrack, ensureCustomTrack } from './custom-track-library';
+import { customTrackRuntimeId, registerCustomTrack, type StoredCustomTrack } from '../shared/custom-tracks';
 
 const escape = (value: string) => value.replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]!);
 const el = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -29,7 +32,8 @@ const audio = new GameAudio();
 let chosenColor = localStorage.getItem('lagon-color') ?? COLORS[0];
 if (!COLORS.includes(chosenColor)) chosenColor = COLORS[0];
 let chosenName = localStorage.getItem('lagon-name') ?? '';
-let chosenTrack = getTrack(localStorage.getItem('lagon-track') ?? 'lagon').id;
+const savedTrackChoice = localStorage.getItem('lagon-track') ?? 'lagon';
+let chosenTrack = getTrack(savedTrackChoice).id;
 const invitedCode = /^\/room\/([a-zA-Z0-9_-]+)\/?$/.exec(location.pathname)?.[1] ?? '';
 
 el('app').innerHTML = `
@@ -60,7 +64,7 @@ el('app').innerHTML = `
       <p class="home-note"><span>●</span> 2 à 8 pilotes · 3 tours · Dans votre navigateur</p>
     </section>
     <aside class="island-card" id="island-card"><span class="island-number" id="track-number">01</span><div><span class="eyebrow">VOTRE PROCHAINE ESCALE</span><h2 id="track-name">Île des Alizés</h2><p id="track-description"></p><div class="track-tags" id="track-tags"></div></div></aside>
-    <aside class="home-circuit-picker" id="home-circuit-picker"><div class="eyebrow">${TRACKS.length} CIRCUITS. VOTRE TERRAIN DE JEU.</div><div class="track-card-grid" id="track-cards">${trackCards(chosenTrack)}</div><p>Une course ou un tournoi de 2 à 8 manches.<br>Composez votre programme dans le salon.</p></aside>
+    <aside class="home-circuit-picker" id="home-circuit-picker"><div class="eyebrow" id="track-catalog-count">${getAvailableTracks().length} CIRCUITS. VOTRE TERRAIN DE JEU.</div><div class="track-card-grid" id="track-cards">${trackCards(chosenTrack)}</div><p>Une course ou un tournoi de 2 à 8 manches.<br>Composez votre programme dans le salon.</p><div class="editor-entry"><button id="track-editor-button" class="secondary">✎ Créer un circuit</button><button id="track-refresh-button" class="quiet">Actualiser les circuits</button></div></aside>
     <section class="lobby-panel hidden" id="lobby-panel"><div class="eyebrow">LE DÉPART APPROCHE</div><h2>Tout le monde<br>sur la grille.</h2><p class="muted" id="lobby-description">Partagez le lien, rassemblez votre équipe.</p><div class="room-share"><div><span>CODE DU SALON</span><strong id="room-code">—</strong></div><button class="secondary" id="copy-button">Copier le lien ↗</button></div><input class="share-url" id="share-url" aria-label="Lien d’invitation du salon" readonly />${configurationMarkup}<button id="lobby-garage-button" class="secondary wide">Mon kart et ses pièces ⚙</button><div class="players-heading"><span>PILOTES</span><span id="player-count">0 / 8</span></div><div id="player-list" class="player-list"></div><button class="secondary wide" id="ready-button">Je suis prêt</button><button class="primary wide" id="start-button">Lancer la course <span>→</span></button><p class="lobby-hint muted" id="lobby-hint"></p></section>
     <section class="results-panel hidden" id="results-panel"><div class="eyebrow">LE DRAPEAU EST TOMBÉ</div><div class="result-icon">⚑</div><h2 id="results-title">Bien joué,<br>les pilotes.</h2><p class="muted" id="results-subtitle">Même soleil, une nouvelle chance ?</p><div id="results-list" class="results-list"></div><div id="cup-standings" class="cup-standings hidden"></div><button class="primary wide hidden" id="next-race-button">Prochaine course <span>→</span></button><button class="primary wide" id="rematch-button">On remet ça <span>↻</span></button><p class="muted" id="results-hint"></p></section>
   </main>
@@ -86,6 +90,7 @@ let sequence = 0;
 let epoch = -1;
 let connected = false;
 let busy = false;
+let editorPractice = false;
 let nameEdited = false;
 let accounts: AccountUI;
 let leaving = false;
@@ -104,7 +109,7 @@ const keys = new Set<string>();
 let usePressed = false;
 let resetPressed = false;
 const mobileControls = new MobileControls(() => audio.activate());
-type Snapshot = { world: World; serverTime: number; tick: number; simHz: number };
+type Snapshot = { world: World; serverTime: number; tick: number; simHz: number; tracks?: StoredCustomTrack[] };
 const snapshots: { at: number; world: World }[] = [];
 let serverClockOffset = 0;
 const garage = new GarageUI(choice => {
@@ -113,7 +118,7 @@ const garage = new GarageUI(choice => {
 });
 renderer.setPreviewKart(chosenColor, garage.value.modelId, garage.value.characterId);
 const career = new CareerUI({
-  profile: saved => { garage.setLevel(saved.careerLevel); accounts?.update(saved); if (saved.username && !nameEdited) setSavedName(saved.name); }, error: toast, replay: showReplay,
+  profile: saved => { garage.setLevel(saved.careerLevel); accounts?.update(saved); if (saved.username && !nameEdited) setSavedName(saved.name); }, error: toast, replay: replay => { void ensureCustomTrack(replay.trackId).then(() => showReplay(replay)).catch(error => toast(errorMessage(error))); },
   championship: async id => {
     if (busy || room) return;
     audio.activate(); setBusy(true);
@@ -136,6 +141,26 @@ accounts = new AccountUI(career, el('account-card'), {
 });
 void career.restore().catch(error => toast(errorMessage(error)));
 const tournamentControls = new TournamentControls((type, payload) => room?.send(type, payload));
+const trackEditor = new TrackEditor({
+  getPlayerId: () => career.currentProfile?.id ?? '',
+  list: async () => { const tracks = await listCustomTracks(); refreshTrackCards(); return tracks; },
+  save: async (draft, previous) => { await ensureCareer(); return saveCustomTrack(draft, career.authToken, previous); },
+  onSaved: record => { previewTrack(customTrackRuntimeId(record)); refreshTrackCards(); },
+  onTry: async record => {
+    previewTrack(customTrackRuntimeId(record));
+    if (!await connect('practice')) throw new Error('Connexion à l’entraînement impossible. Réessayez.');
+    editorPractice = true; el('leave-button').textContent = 'Retour à l’éditeur';
+  },
+});
+function refreshTrackCards() {
+  el('track-cards').innerHTML = trackCards(chosenTrack);
+  el('track-catalog-count').textContent = `${getAvailableTracks().length} CIRCUITS. VOTRE TERRAIN DE JEU.`;
+}
+const catalogReady = listCustomTracks().then(() => {
+  if (!room && isTrackId(savedTrackChoice)) previewTrack(savedTrackChoice);
+  refreshTrackCards();
+}).catch(() => { toast('Les créations des joueurs sont momentanément indisponibles. Vous pouvez actualiser les circuits.'); });
+
 
 function setSavedName(name: string) {
   chosenName = name; el<HTMLInputElement>('name-input').value = name; localStorage.setItem('lagon-name', name);
@@ -152,7 +177,7 @@ function previewTrack(id: string) {
   renderer.setPreviewTrack(chosenTrack);
   el('track-cards').innerHTML = trackCards(chosenTrack);
   el('track-name').textContent = track.name;
-  el('track-number').textContent = String(TRACKS.findIndex(option => option.id === track.id) + 1).padStart(2, '0');
+  el('track-number').textContent = track.id.startsWith('custom-') ? '✎' : String(getAvailableTracks().findIndex(option => option.id === track.id) + 1).padStart(2, '0');
   el('track-description').textContent = track.description;
   el('track-tags').innerHTML = `<span>${escape(track.difficulty.toUpperCase())}</span><span>⚑ 3 TOURS</span>`;
   el('home-circuit-picker').dataset.theme = track.theme;
@@ -169,7 +194,7 @@ function connection(text: string, state: 'online' | 'offline' | 'pending') {
 }
 function setBusy(value: boolean) {
   busy = value;
-  for (const id of ['create-button', 'join-button', 'practice-button']) el<HTMLButtonElement>(id).disabled = value;
+  for (const id of ['create-button', 'join-button', 'practice-button', 'track-editor-button', 'track-refresh-button']) el<HTMLButtonElement>(id).disabled = value;
 }
 function profile() {
   chosenName = el<HTMLInputElement>('name-input').value.trim().slice(0, 18) || 'Pilote';
@@ -197,6 +222,13 @@ function attachRoom(next: Room) {
   el('leave-button').classList.remove('hidden');
   next.onMessage('snapshot', (snapshot: Snapshot) => {
     if (room !== next) return;
+    if (snapshot.tracks?.length) {
+      try {
+        for (const record of snapshot.tracks) registerCustomTrack(record);
+        next.send('tracksReady', { ids: snapshot.tracks.map(customTrackRuntimeId) });
+      } catch { toast('Impossible de charger la version du circuit du salon.'); return; }
+    }
+    if (!isTrackId(snapshot.world.trackId)) { toast('La version du circuit est en cours de chargement.'); return; }
     const now = performance.now();
     const trackChanged = world?.trackId !== snapshot.world.trackId;
     if (trackChanged) resetPrediction();
@@ -232,10 +264,11 @@ function attachRoom(next: Room) {
   setBusy(false);
 }
 
-async function connect(mode: 'create' | 'join' | 'practice') {
-  if (busy) return;
+async function connect(mode: 'create' | 'join' | 'practice'): Promise<boolean> {
+  if (busy) return false;
   audio.activate(); setBusy(true); connection('Connexion…', 'pending');
   try {
+    await catalogReady;
     await ensureCareer();
     const options = { ...profile(), token: career.authToken }; autoPractice = mode === 'practice';
     const code = el<HTMLInputElement>('code-input').value.trim().replace(/^.*\/room\//, '').replace(/[/?#].*$/, '').toUpperCase();
@@ -246,8 +279,8 @@ async function connect(mode: 'create' | 'join' | 'practice') {
       if (result.ghost) renderer.setGhost(result.ghost); else toast('Aucun fantôme enregistré pour ce circuit et ces événements.');
     }
     const next = mode === 'join' ? await client.joinById(code, options) : await client.create('race', { ...options, practice: mode === 'practice', trackId: chosenTrack });
-    attachRoom(next);
-  } catch (error) { autoPractice = false; toast(errorMessage(error)); connection('Hors ligne', 'offline'); setBusy(false); }
+    attachRoom(next); return true;
+  } catch (error) { autoPractice = false; toast(errorMessage(error)); connection('Hors ligne', 'offline'); setBusy(false); return false; }
 }
 
 async function reconnect(token: string) {
@@ -275,6 +308,7 @@ async function reconnect(token: string) {
 
 function returnHome() {
   world = null; room = null; connected = false; reconnecting = false; resetPrediction(); setBusy(false);
+  editorPractice = false; el('leave-button').textContent = 'Quitter le salon';
   connection('Prêt à rouler', 'offline'); el('reconnect').classList.add('hidden'); el('leave-button').classList.add('hidden');
   history.replaceState(null, '', '/'); updateUI(performance.now(), true);
 }
@@ -286,6 +320,21 @@ el('lobby-garage-button').addEventListener('click', () => { if (connected && wor
 el('create-button').addEventListener('click', () => void connect('create'));
 el('join-button').addEventListener('click', () => void connect('join'));
 el('practice-button').addEventListener('click', () => void connect('practice'));
+el('track-editor-button').addEventListener('click', async () => {
+  if (busy || room) return;
+  setBusy(true);
+  try { await ensureCareer(); trackEditor.open(); }
+  catch (error) { toast(errorMessage(error)); }
+  finally { setBusy(false); }
+});
+el('track-refresh-button').addEventListener('click', async () => {
+  if (busy || room) return;
+  setBusy(true);
+  try { await listCustomTracks(); refreshTrackCards(); toast('La liste des circuits est à jour.'); }
+  catch (error) { toast(errorMessage(error)); }
+  finally { setBusy(false); }
+});
+
 el('track-cards').addEventListener('click', event => {
   const button = event.target instanceof Element ? event.target.closest<HTMLButtonElement>('[data-track]') : null;
   if (button && !busy) previewTrack(button.dataset.track!);
@@ -303,7 +352,9 @@ el('rematch-button').addEventListener('click', () => room?.send('rematch', {}));
 el('next-race-button').addEventListener('click', () => room?.send('nextRace', {}));
 el('leave-button').addEventListener('click', async () => {
   leaving = true; connectionGeneration++; sessionStorage.removeItem('lagon-session');
+  const reopenEditor = editorPractice;
   const previousRoom = room; returnHome(); await previousRoom?.leave(true);
+  if (reopenEditor) trackEditor.open();
 });
 el('copy-button').addEventListener('click', async () => {
   const input = el<HTMLInputElement>('share-url');
@@ -315,6 +366,7 @@ el('volume-input').addEventListener('input', event => { audio.activate(); audio.
 const driveKeys = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyZ', 'KeyQ', 'Space', 'KeyE', 'KeyR']);
 function press(code: string) { if (!keys.has(code)) { if (code === 'KeyE') usePressed = true; if (code === 'KeyR') resetPressed = true; } keys.add(code); }
 window.addEventListener('keydown', event => {
+  if (trackEditor.isOpen) return;
   if (event.target instanceof HTMLElement && event.target.matches('input, textarea, select')) return;
   if (driveKeys.has(event.code) && world && world.phase !== 'lobby') { event.preventDefault(); press(event.code); audio.activate(); }
 });
@@ -526,7 +578,7 @@ function frame(now: number) {
   } else accumulator = 0;
   const decay = Math.exp(-dt * 11); correction.x *= decay; correction.z *= decay;
   const players = renderPlayers(now);
-  renderer.render(world, players, room?.sessionId ?? '', dt, now);
+  if (!trackEditor.isOpen) renderer.render(world, players, room?.sessionId ?? '', dt, now);
   if (world?.phase === 'racing' || world?.phase === 'countdown') drawMap(players);
   updateUI(now); requestAnimationFrame(frame);
 }

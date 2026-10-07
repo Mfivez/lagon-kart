@@ -5,6 +5,7 @@ import { matchMaker } from '@colyseus/core';
 import { AccountError, PlayerStore } from './player-store.js';
 import { MatchmakingQueue } from './competitive.js';
 import { TRACK_IDS } from '../shared/track.js';
+import { customTrackStore } from './custom-track-store.js';
 import type { RaceRoom } from './RaceRoom.js';
 
 // This nonce is never sent to a browser. Only the queue may create rated rooms.
@@ -15,7 +16,7 @@ const stores = new Map<string, Promise<PlayerStore>>();
 export function playerStore(): Promise<PlayerStore> {
   const directory = resolve(process.env.PLAYER_DATA_DIR ?? 'data/players');
   let store = stores.get(directory);
-  if (!store) { store = PlayerStore.open(directory); stores.set(directory, store); }
+  if (!store) { store = customTrackStore().then(() => PlayerStore.open(directory)); stores.set(directory, store); }
   return store;
 }
 let pumping: Promise<void> | undefined;

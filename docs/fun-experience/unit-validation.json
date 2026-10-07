@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "timestamp": "2026-10-07T14:04:42.672887+00:00",
+  "command": "npm test",
+  "tests": 407,
+  "pass": 407,
+  "fail": 0,
+  "cancelled": 0,
+  "skipped": 0,
+  "todo": 0,
+  "duration_ms": 128821.002016,
+  "scope": "Simulation, bot routes, authoritative Colyseus rooms, persistence, accounts, tournaments, track authoring and new race mechanics. No browser or physical-device claims."
+}

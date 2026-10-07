@@ -2,8 +2,8 @@ import { randomInt, randomUUID } from 'node:crypto';
 import { Room, ServerError, type Client } from '@colyseus/core';
 import { createKart, createWorld, neutralInput, startRace, stepWorld, validateInput,
   type Input, type Kart, type World } from '../shared/game.js';
-import { isTrackId } from '../shared/track.js';
-import { isCustomTrackRuntimeId, customTrackRuntimeId, type StoredCustomTrack } from '../shared/custom-tracks.js';
+import { isTrackId, getTrack, trackPoint, trackElevation } from '../shared/track.js';
+import { isCustomTrackRuntimeId, customTrackRuntimeId, getTrackWorkshopStart, type TrackWorkshopSelection, type StoredCustomTrack } from '../shared/custom-tracks.js';
 import { customTrackStore, type CustomTrackStore } from './custom-track-store.js';
 import { DEFAULT_KART_MODEL, isKartModelId } from '../shared/kart-catalog.js';
 import { DEFAULT_CHARACTER, isCharacterId } from '../shared/characters.js';
@@ -17,6 +17,8 @@ import { championshipById, type PlayerProfile } from '../shared/progression.js';
 import { getCpuInput } from '../shared/cpu.js';
 import { assignTeam } from '../shared/teams.js';
 import { COLORS } from '../shared/track.js';
+import { createCrownState } from '../shared/crown.js';
+import { createPartyState, startPartyVote, castPartyVote, resolvePartyVote, RaceHighlights } from '../shared/party.js';
 
 const activeRoomIds = new Set<string>();
 const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -51,6 +53,7 @@ export class RaceRoom extends Room {
   private rankedMatchId = '';
   private championshipId = '';
   private recorder?: ReplayRecorder;
+  private highlights = new RaceHighlights();
   private recordedRound = -1;
   private customStore!: CustomTrackStore;
   private readonly knownTracks = new Map<string, Set<string>>();
@@ -59,10 +62,12 @@ export class RaceRoom extends Room {
 
   static get roomCount() { return activeRoomIds.size; }
 
-  async onCreate(options: { practice?: boolean; trackId?: string; internalKey?: string; rankedPlayers?: string[]; rankedMatchId?: string } = {}) {
+  async onCreate(options: { practice?: boolean; trackId?: string; internalKey?: string; rankedPlayers?: string[]; rankedMatchId?: string; workshop?: TrackWorkshopSelection } = {}) {
     this.customStore = await customTrackStore();
     const trackId = options.trackId ?? 'lagon';
     if (!isTrackId(trackId) || isCustomTrackRuntimeId(trackId) && !this.customStore.get(trackId)) throw new ServerError(4216, 'Ce circuit est inconnu.');
+    const workshop = options.workshop === undefined ? undefined : getTrackWorkshopStart(trackId, options.workshop);
+    if (options.workshop !== undefined && (!workshop || options.practice !== true || options.rankedPlayers?.length)) throw new ServerError(4216, 'Choisissez un module existant pour un essai solo.');
     if (activeRoomIds.size >= config.maxRooms) {
       throw new ServerError(4210, 'Le serveur a atteint sa limite de salons. Réessayez plus tard.');
     }
@@ -75,6 +80,7 @@ export class RaceRoom extends Room {
     this.counted = true;
     this.world = createWorld(options.practice === true, trackId);
     this.world.eventLevel = 3;
+    if (workshop && options.workshop) this.world.workshop = { selection: structuredClone(options.workshop), label: workshop.label, startProgress: workshop.progress, endProgress: workshop.end, eventStage: workshop.eventStage };
     if (options.internalKey === INTERNAL_ROOM_KEY && options.rankedPlayers?.length) {
       this.rankedPlayers = [...options.rankedPlayers];
       this.rankedMatchId = options.rankedMatchId ?? '';
@@ -94,7 +100,7 @@ export class RaceRoom extends Room {
 
     this.onMessage('input', (client, data) => this.onInput(client, data));
     this.onMessage('tracksReady', (client, data) => {
-      if (!this.authorize(client) || !Array.isArray(data?.ids) || data.ids.length > 9) return;
+      if (!this.authorize(client) || !Array.isArray(data?.ids) || data.ids.length > 16) return;
       const known = this.knownTracks.get(client.sessionId) ?? new Set<string>();
       for (const id of data.ids) if (typeof id === 'string' && this.customStore.get(id)) known.add(id);
       this.knownTracks.set(client.sessionId, known);
@@ -118,6 +124,19 @@ export class RaceRoom extends Room {
       this.sendSnapshot();
     });
     this.onMessage('configure', (client, data) => this.configure(client, data));
+    this.onMessage('funConfigure', (client, data) => this.configureFun(client, data));
+    this.onMessage('partyVote', (client, data) => {
+      const kart = this.authorize(client);
+      if (!kart || kart.spectator || !this.world.party || typeof data?.trackId !== 'string' || !castPartyVote(this.world.party, kart.id, data.trackId, Date.now())) return;
+      this.sendSnapshot();
+    });
+    this.onMessage('workshop-restart', client => {
+      const kart = this.authorize(client);
+      if (!kart || kart.id !== this.world.hostId || !this.world.workshop) return;
+      this.resetLobby(this.world.trackId, restartTournament(this.world.tournament, this.world.trackId));
+      for (const player of this.world.players) player.ready = true;
+      this.beginRace(client);
+    });
     this.onMessage('start', client => this.beginRace(client));
     this.onMessage('nextRace', client => this.nextRace(client));
     this.onMessage('rematch', client => this.rematch(client));
@@ -183,6 +202,7 @@ export class RaceRoom extends Room {
     if (!kart) return;
     this.knownTracks.delete(client.sessionId);
     kart.connected = false;
+    if (this.world.party) delete this.world.party.votes[kart.id];
     kart.ready = false;
     kart.epoch += 1;
     kart.lastSeq = -1;
@@ -303,7 +323,10 @@ export class RaceRoom extends Room {
     for (const player of this.world.players) if (!player.connected) player.spectator = true;
     for (const player of participants) registerTournamentDriver(this.world.tournament, player);
     startRace(this.world);
-    this.recorder = new ReplayRecorder({ id: randomUUID(), trackId: this.world.trackId, ranked: this.rankedPlayers.length > 0, eventLevel: this.world.eventLevel });
+    this.highlights = new RaceHighlights(); this.world.highlights = []; delete this.world.replayId;
+    if (this.world.party) { this.world.party.phase = 'idle'; this.world.party.votes = {}; this.world.party.endsAt = 0; }
+    this.prepareWorkshop();
+    this.recorder = this.world.workshop ? undefined : new ReplayRecorder({ id: randomUUID(), trackId: this.world.trackId, ranked: this.rankedPlayers.length > 0, eventLevel: this.world.eventLevel, ...(this.world.crown ? { mode: 'crown' } : {}) });
     this.sendSnapshot();
   }
 
@@ -316,6 +339,7 @@ export class RaceRoom extends Room {
       return this.notice(client, 'Les réglages sont verrouillés jusqu’à la fin du tournoi.');
     }
     try {
+      if (this.world.workshop) throw new Error('L’atelier garde ce module. Revenez à l’éditeur pour changer le circuit.');
       if (data && typeof data === 'object' && 'eventLevel' in data) {
         const level = (data as { eventLevel: unknown }).eventLevel;
         if (!Number.isInteger(level) || Number(level) < 0 || Number(level) > 3 || this.championshipId) throw new Error('Le niveau des événements est fixé par le championnat ou doit être compris entre 0 et 3.');
@@ -324,6 +348,7 @@ export class RaceRoom extends Room {
       if (data && typeof data === 'object' && ('teamMode' in data || 'cpuCount' in data)) {
         const options = data as { teamMode?: unknown; cpuCount?: unknown };
         if (options.teamMode !== undefined && typeof options.teamMode !== 'boolean') throw new Error('Mode équipes invalide.');
+        if (options.teamMode === true && this.world.crown) throw new Error('Désactivez Couronne avant de choisir les équipes.');
         if (options.cpuCount !== undefined && (!Number.isInteger(options.cpuCount) || Number(options.cpuCount) < 0 || Number(options.cpuCount) > 7)) throw new Error('Choisissez de 0 à 7 CPU.');
         this.world.players = this.world.players.filter(kart => !kart.cpu);
         if (options.teamMode !== undefined) this.world.teamMode = options.teamMode;
@@ -338,6 +363,7 @@ export class RaceRoom extends Room {
         this.sendSnapshot(); return;
       }
       if (data && typeof data === 'object' && 'championshipId' in data) {
+        if (this.world.crown || this.world.party) throw new Error('Désactivez Soirée et Couronne avant de choisir un championnat.');
         const cup = championshipById(String((data as { championshipId: unknown }).championshipId));
         if (!cup || !host.playerId || cup.unlockLevel > host.careerLevel) throw new Error('Ce championnat est encore verrouillé.');
         this.championshipId = cup.id;
@@ -347,6 +373,7 @@ export class RaceRoom extends Room {
         this.resetLobby(configured.trackId, configured.tournament); this.fillCpu(4); this.sendSnapshot(); return;
       }
       const configured = applyConfiguration(this.world.tournament, data, this.world.trackId, () => randomInt(0x1000000) / 0x1000000);
+      if (this.world.party && configured.tournament.mode !== 'tournament') throw new Error('Désactivez Soirée avant de choisir une course simple.');
       if ([...configured.tournament.schedule, ...configured.tournament.trackPool].some(id => isCustomTrackRuntimeId(id) && !this.customStore.get(id))) throw new Error('Un circuit du programme est indisponible. Actualisez la bibliothèque.');
       this.championshipId = '';
       this.resetLobby(configured.trackId, configured.tournament);
@@ -366,20 +393,83 @@ export class RaceRoom extends Room {
     }
   }
 
+  private configureFun(client: Client, payload: unknown) {
+    const host = this.authorize(client); if (!host) return;
+    if (host.id !== this.world.hostId || this.rankedPlayers.length || this.championshipId || this.world.practice || this.world.workshop || this.world.phase !== 'lobby' || this.world.tournament.rounds.length) {
+      return this.notice(client, 'Le créateur choisit ces modes dans un salon libre, avant la première manche.');
+    }
+    try {
+      if (!payload || typeof payload !== 'object' || Array.isArray(payload)) throw new Error('Modes du salon invalides.');
+      const data = payload as Record<string, unknown>;
+      if (Object.keys(data).some(key => !['crown', 'party', 'choices'].includes(key)) || typeof data.crown !== 'boolean' || typeof data.party !== 'boolean') throw new Error('Modes du salon invalides.');
+      if (data.crown && this.world.teamMode) throw new Error('Désactivez les équipes avant de choisir Couronne.');
+      let choices: string[] = [];
+      if (data.party) {
+        if (!Array.isArray(data.choices) || data.choices.length !== 3 || new Set(data.choices).size !== 3 || data.choices.some(id => typeof id !== 'string' || !isTrackId(id) || isCustomTrackRuntimeId(id) && !this.customStore.get(id))) throw new Error('Choisissez trois circuits différents et disponibles.');
+        choices = data.choices as string[];
+      }
+      const tournament = data.party && this.world.tournament.mode === 'single' ? applyConfiguration(this.world.tournament,
+        { mode: 'tournament', selection: 'manual', raceCount: 4, schedule: [this.world.trackId, choices[0], choices[1], choices[2]] }, this.world.trackId).tournament : this.world.tournament;
+      this.world.crown = data.crown ? createCrownState() : undefined;
+      this.world.party = data.party ? createPartyState(choices) : undefined;
+      this.resetLobby(this.world.trackId, tournament); this.sendSnapshot();
+    } catch (error) { this.notice(client, error instanceof Error ? error.message : 'Modes du salon invalides.'); }
+  }
+
+  private prepareWorkshop() {
+    const workshop = this.world.workshop; if (!workshop) return;
+    const source = getTrackWorkshopStart(this.world.trackId, workshop.selection);
+    if (!source) return;
+    const track = getTrack(this.world.trackId), point = trackPoint(source.progress, track.id);
+    this.world.phase = 'racing'; this.world.countdown = 0;
+    this.world.eventStage = source.eventStage ?? 0;
+    for (const kart of this.world.players) {
+      kart.x = point.x; kart.z = point.z; kart.angle = point.angle;
+      kart.elevation = trackElevation(source.progress, track.id); kart.verticalVelocity = 0; kart.airborne = false; kart.loopId = '';
+      kart.speed = 0; kart.progress = source.progress; kart.nextCheckpoint = track.checkpoints.findIndex(checkpoint => checkpoint.progress > source.progress);
+      if (kart.nextCheckpoint < 0) kart.nextCheckpoint = 0;
+      kart.respawnX = point.x; kart.respawnZ = point.z; kart.respawnAngle = point.angle;
+      kart.eventStage = this.world.eventStage; kart.eventLevel = this.world.eventLevel;
+      kart.lastSeq = -1; this.initializeInputs(kart);
+    }
+  }
+
+  private advancePartyVote(now: number) {
+    const party = this.world.party;
+    if (!party || party.phase !== 'voting' || now < party.endsAt || this.world.phase !== 'finished' || this.world.tournament.completed) return;
+    const tournament = this.world.tournament;
+    const winner = resolvePartyVote(party, this.world.players.filter(kart => kart.connected && !kart.spectator && !kart.cpu).map(kart => kart.id), tournament.raceIndex + 1);
+    tournament.raceIndex++; tournament.schedule[tournament.raceIndex] = winner;
+    tournament.trackPool = [...new Set([...tournament.trackPool, winner])];
+    this.resetLobby(winner, tournament);
+    this.broadcast('notice', { message: `${getTrack(winner).name} choisi. Confirmez que vous êtes prêt pour le prochain départ.` });
+    this.sendSnapshot();
+  }
+
   private recordFinishedRound() {
+    if (this.world.workshop) return;
     if (this.world.phase === 'finished') recordRound(this.world.tournament, this.world.trackId, this.world.players);
     if (this.world.phase !== 'finished' || this.recordedRound === this.world.round) return;
     this.recordedRound = this.world.round;
+    if (this.world.party) {
+      this.world.party.lastRound = this.world.round;
+      this.world.party.lastHighlights = structuredClone(this.world.highlights ?? []);
+      delete this.world.party.lastReplayId;
+      if (!this.world.tournament.completed) startPartyVote(this.world.party, Date.now());
+    }
     const world = structuredClone(this.world), cupId = this.championshipId;
     const samples = world.players.filter(kart => !kart.spectator && !kart.cpu).map(kart => ({ ...kart, playerId: kart.playerId || kart.id }));
-    const replay = this.recorder?.finish(world.raceTime, samples);
+    const replay = this.recorder?.finish(world.raceTime, samples, world.highlights);
     void (async () => {
       const humans = world.players.filter(kart => kart.playerId && !kart.spectator);
-      if (!humans.length) return;
       const store = await playerStore();
-      await store.recordRace({ id: replay?.id ?? `${this.roomId}-${world.round}`, trackId: world.trackId, ranked: this.rankedPlayers.length > 0,
+      if (humans.length && !world.crown) await store.recordRace({ id: replay?.id ?? `${this.roomId}-${world.round}`, trackId: world.trackId, ranked: this.rankedPlayers.length > 0,
         finishedAt: Date.now(), entries: humans.map(kart => ({ playerId: kart.playerId, rank: kart.rank, finished: kart.finished, finishTime: kart.finished ? kart.finishTime : 0 })) });
-      if (replay) await store.saveReplay(replay);
+      if (replay?.drivers.length) {
+        await store.saveReplay(replay);
+        if (this.world.round === world.round) this.world.replayId = replay.id;
+        if (this.world.party?.lastRound === world.round) this.world.party.lastReplayId = replay.id;
+      }
       if (cupId && world.tournament.completed) {
         for (const kart of humans) {
           const result = world.tournament.standings.find(entry => entry.id === kart.id);
@@ -398,6 +488,7 @@ export class RaceRoom extends Room {
     const host = this.authorize(client);
     if (!host) return;
     if (host.id !== this.world.hostId) return this.notice(client, 'Seul le créateur du salon peut préparer la course suivante.');
+    if (this.world.party?.phase === 'voting') return this.notice(client, 'Le vote choisit la prochaine piste. Il se termine après huit secondes.');
     if (this.world.phase !== 'finished' || this.world.tournament.mode !== 'tournament') {
       return this.notice(client, 'Terminez la course du tournoi avant de passer à la suivante.');
     }
@@ -428,6 +519,9 @@ export class RaceRoom extends Room {
     const old = this.world;
     const next = createWorld(old.practice, trackId);
     next.eventLevel = old.eventLevel; next.teamMode = old.teamMode;
+    if (old.crown) next.crown = createCrownState();
+    if (old.party) next.party = structuredClone(old.party);
+    if (old.workshop) next.workshop = structuredClone(old.workshop);
     next.ranked = this.rankedPlayers.length > 0; next.championshipId = this.championshipId;
     next.tournament = tournament;
     next.hostId = old.hostId;
@@ -473,6 +567,7 @@ export class RaceRoom extends Room {
           ? incoming.input : neutralInput(kart.lastSeq, kart.epoch));
       }
       stepWorld(this.world, controls, dt);
+      if (!this.world.workshop) this.highlights.sample(this.world, dt);
       if (this.world.phase === 'racing') this.recorder?.sample(this.world.raceTime,
         this.world.players.filter(kart => !kart.cpu).map(kart => ({ ...kart, playerId: kart.playerId || kart.id })));
       this.recordFinishedRound();
@@ -483,10 +578,11 @@ export class RaceRoom extends Room {
       this.tick += 1;
       this.accumulator -= dt;
     }
+    this.advancePartyVote(now);
   }
 
   private sendSnapshot() {
-    const ids = [...new Set([this.world.trackId, ...this.world.tournament.schedule])].filter(isCustomTrackRuntimeId);
+    const ids = [...new Set([this.world.trackId, ...this.world.tournament.schedule, ...(this.world.party?.choices ?? [])])].filter(isCustomTrackRuntimeId);
     const key = ids.join('|');
     if (key !== this.trackPayloadKey) {
       this.trackPayloadKey = key;

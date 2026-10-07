@@ -22,6 +22,12 @@ export interface TrackElevation {
   /** Vertical launch velocity at the end of a jump ramp, metres per second. */
   launchSpeed?: number;
 }
+export interface TrackInteraction {
+  id: string; kind: 'boost' | 'jump';
+  /** Trigger and target in metres. The plate covers the selected lane. */
+  trigger: number; start: number; end: number; offset: number; width: number;
+  duration: number; height?: number; launchSpeed?: number; elevationId?: string;
+}
 export interface TrackDefinition {
   id: TrackId; name: string; description: string;
   difficulty: 'Facile' | 'Intermédiaire' | 'Technique';
@@ -34,6 +40,7 @@ export interface TrackDefinition {
   /** Omitted by historical tracks; three laps remain the default. */
   lapCount?: number;
   lapEvents?: TrackLapEvent[];
+  interactions?: TrackInteraction[];
   palette: { sky: string; water: string; ground: string; road: string; accent: string };
   grip: number;
 }

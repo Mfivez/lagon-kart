@@ -129,7 +129,7 @@ export interface ReplaySample {
   lap: number; rank: number; finished: boolean; finishTime: number; spectator?: boolean;
   boost?: number; invincible?: number; shield?: number; stun?: number;
 }
-export interface ReplayRecorderOptions { id: string; trackId: string; ranked?: boolean; eventLevel?: number; createdAt?: number; sampleIntervalMs?: number }
+export interface ReplayRecorderOptions { id: string; trackId: string; ranked?: boolean; eventLevel?: number; createdAt?: number; sampleIntervalMs?: number; mode?: 'crown' }
 export class ReplayRecorder {
   private readonly drivers = new Map<string, ReplayDriver>();
   private lastSample = -Infinity;
@@ -173,10 +173,11 @@ export class ReplayRecorder {
     }
   }
 
-  finish(time: number, players: readonly ReplaySample[]): ReplayData {
+  finish(time: number, players: readonly ReplaySample[], highlights?: ReplayData['highlights']): ReplayData {
     this.sample(time, players, true);
     return { version: 1, id: this.options.id, trackId: this.options.trackId, trackRevision: TRACK_LAYOUT_REVISION, createdAt: this.createdAt,
       durationMs: Math.max(0, Math.min(getTrackReplayTimeLimit(this.options.trackId) * 1000, Math.round(time * 1000))), season: seasonId(new Date(this.createdAt)),
-      ranked: this.options.ranked === true, eventLevel: Math.max(0, Math.min(3, this.options.eventLevel ?? 0)), drivers: structuredClone([...this.drivers.values()]) };
+      ranked: this.options.ranked === true, eventLevel: Math.max(0, Math.min(3, this.options.eventLevel ?? 0)), drivers: structuredClone([...this.drivers.values()]),
+      ...(this.options.mode ? { mode: this.options.mode } : {}), ...(highlights?.length ? { highlights: structuredClone(highlights) } : {}) };
   }
 }

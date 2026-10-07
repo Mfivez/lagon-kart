@@ -2,6 +2,20 @@
 
 État au **7 octobre 2026**. `[x]` = réalisé avec preuve ; `[ ]` = travail ou validation restant à terminer. [Démo intégrée et rapports](docs/DEMO.md).
 
+## Conduite, atelier et soirées
+
+- [x] Contacts de mur selon l’angle, sans avantage à rouler contre le rail ; enchaînements de drift, saut, looping et réception avec bonus plafonnés.
+- [x] Objets de remontée selon l’écart réel, protection contre les attentes/reculs/resets, relais d’aspiration alliés limités. [Règles](docs/race-fun/README.md).
+- [x] Plaques partageant temporairement turbo ou impulsion de tremplin, annonce préalable, géométrie stable et sources sauvegardées. Quatre CPU terminent trois tours avec ces modules.
+- [x] Essayer un passage, recommencer instantanément et revenir aux réglages ; aucune récompense de carrière. **4 contrôles navigateur** réussis, mobile 320 px inclus. [Preuves atelier](docs/interactive-workshop/README.md).
+- [x] Soirée : trois choix de circuit, vote de huit secondes, même salon et scores conservés ; faits marquants calculés et replay partageable au bon passage.
+- [x] Couronne : 90 secondes sans élimination, points par progression, vols après attaques efficaces, protection temporaire, aucun XP/MMR/record. **3 parcours navigateur** à deux profils passent. [Mode d’emploi et preuves](docs/party-crown/README.md).
+- [x] **407/407 tests**, TypeScript, build de production et image Docker réussis. [Validation](VALIDATION.md#7-octobre-2026--conduite-atelier-et-soirées).
+- [x] Essai de l’expérience existante et neuf améliorations UX proposées, avec observations et critères de réussite. [Audit](docs/fun-experience/README.md).
+- [x] Docker déployé sans salon actif : **31 fichiers et 36 profils conservés**, modules et bundles identiques au build, tunnel inchangé. [Preuve](docs/fun-experience/deployment.json).
+- [x] **3 parcours publics** sans fixture passent : deux profils, Couronne 90 s, vote 8 s, salon et points conservés, second départ, replay horodaté ; zéro erreur JS et salon fermé. [Rapport](docs/party-crown/public/browser-validation.json).
+- [ ] Essai humain de l’équilibrage ; téléphone physique, Safari iOS, deux machines et performances GPU.
+
 ## Accueil connecté et circuits à plusieurs tours
 
 - [x] Panneau des joueurs en ligne : pseudos, nombre de joueurs, activités et recherches classées réelles ; déduplication multi-onglets, exclusion des CPU et expiration des connexions coupées. [Fonctionnement](docs/PRESENCE.md).

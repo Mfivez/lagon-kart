@@ -10,7 +10,7 @@ export function replayPosition(frames: ReplayFrame[], timeMs: number) {
   const angle = a[3] / 1000, turn = Math.atan2(Math.sin((b[3] - a[3]) / 1000), Math.cos((b[3] - a[3]) / 1000));
   return { x: (a[1] + (b[1] - a[1]) * t) / 100, z: (a[2] + (b[2] - a[2]) * t) / 100, angle: angle + turn * t };
 }
-export function showReplay(replay: ReplayData) {
+export function showReplay(replay: ReplayData, startMs = 0) {
   const dialog = document.createElement('dialog'); dialog.className = 'garage-dialog replay-dialog';
   dialog.innerHTML = '<div class="garage-heading"><h2>Revoir la course</h2><button class="secondary" data-close>Fermer ✕</button></div><p data-title class="garage-hint"></p><canvas width="720" height="450" aria-label="Trajectoires enregistrées de la course"></canvas><div class="replay-controls"><button class="secondary" data-play>Pause</button><input type="range" min="0" step="100" value="0" aria-label="Position dans le replay"><output></output></div><p class="garage-hint">Vue de dessus des trajectoires enregistrées par le serveur. Faites glisser le curseur pour revoir un passage.</p>';
   document.body.append(dialog);
@@ -18,7 +18,16 @@ export function showReplay(replay: ReplayData) {
   const currentLayout = (replay.trackRevision ?? 1) === TRACK_LAYOUT_REVISION;
   dialog.querySelector('[data-title]')!.textContent = `${track.name} · ${replay.drivers.map(driver => driver.name).join(' / ')}${currentLayout ? '' : ' · Ancien tracé : trajectoires archivées, sans fond de circuit'}`;
   const slider = dialog.querySelector('input')!; slider.max = String(replay.durationMs);
-  let time = 0, last = performance.now(), playing = true, frame = 0;
+  let time = Math.max(0, Math.min(replay.durationMs, Number.isFinite(startMs) ? startMs : 0)), last = performance.now(), playing = true, frame = 0;
+  slider.value = String(time);
+  if (replay.highlights?.length) {
+    const moments = document.createElement('div'); moments.className = 'replay-moments';
+    for (const highlight of replay.highlights) {
+      const button = document.createElement('button'); button.className = 'secondary'; button.textContent = `${highlight.label} · ${(highlight.atMs / 1000).toFixed(1)} s`;
+      button.addEventListener('click', () => { time = Math.max(0, highlight.atMs - 2500); playing = true; dialog.querySelector('[data-play]')!.textContent = 'Pause'; }); moments.append(button);
+    }
+    dialog.append(moments);
+  }
   const bounds = currentLayout ? track.points : replay.drivers.flatMap(driver => driver.frames.map(frame => ({ x: frame[1] / 100, z: frame[2] / 100 })));
   const minX = Math.min(...bounds.map(p => p.x)) - 45, maxX = Math.max(...bounds.map(p => p.x)) + 45;
   const minZ = Math.min(...bounds.map(p => p.z)) - 45, maxZ = Math.max(...bounds.map(p => p.z)) + 45;

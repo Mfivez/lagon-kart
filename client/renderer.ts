@@ -10,6 +10,7 @@ import { TrackEventsView } from './track-events';
 import { trackZoneGeometry } from './track-zone-geometry';
 import { loopMeshRows, roadMeshRows } from './track-mesh-sampling';
 import { GhostView } from './ghost-view';
+import { CrownView } from './crown-view';
 import { buildTrackExtras, hasExtraScenery } from './scenery-extras';
 import { buildTrackTerrain } from './scenery-terrain';
 import { preloadSceneryAssets, sceneryAssetDiagnostics } from './scenery-assets';
@@ -132,6 +133,7 @@ export class GameRenderer {
   private readonly scene = new THREE.Scene();
   private readonly trackEvents = new TrackEventsView(this.scene);
   private readonly ghost = new GhostView(this.scene);
+  private readonly crown = new CrownView(this.scene);
   private readonly scenery = new THREE.Group();
   // Keep nearby karts visible; the distant panorama uses a larger near plane
   // below so road ribbons a centimetre apart retain distinct depth values.
@@ -489,7 +491,7 @@ export class GameRenderer {
     this.eventStage = eventStage; this.eventLevel = eventLevel;
     // Rebuild the static rail openings only at a phase change, preserving the camera.
     this.setTrack(world?.trackId ?? this.previewTrack, openingsChanged);
-    this.trackEvents.update(world?.trackId ?? this.previewTrack, world?.eventStage ?? 0, world?.eventLevel ?? 3, now / 1000);
+    this.trackEvents.update(world?.trackId ?? this.previewTrack, world?.eventStage ?? 0, world?.eventLevel ?? 3, world?.time ?? now / 1000, world?.interactions);
     this.ghost.update(world);
     this.frames++;
     if (now - this.fpsTime >= 1000) {
@@ -538,6 +540,7 @@ export class GameRenderer {
       visual.shield.visible = kart.shield > 0; visual.shield.scale.setScalar(1 + Math.sin(now * 0.006) * 0.025);
     }
     this.renderObjects(world, now);
+    this.crown.update(world, players, now);
     const local = players.find(k => k.id === localId && !k.spectator && !k.abandoned) ?? (world && world.phase !== 'lobby' ? players.find(k => !k.spectator && !k.abandoned) : undefined);
     const following = local && world && world.phase !== 'lobby' && world.phase !== 'finished';
     if (following) {

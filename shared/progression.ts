@@ -64,10 +64,12 @@ export interface ReplayData {
   /** Missing on recordings made before the October circuit redesign. */
   trackRevision?: number;
   season: string; ranked: boolean; eventLevel?: number; drivers: ReplayDriver[];
+  mode?: 'crown'; highlights?: import('./party.js').RaceHighlight[];
 }
 export interface ReplaySummary {
   id: string; trackId: string; createdAt: number; durationMs: number; ranked: boolean; eventLevel?: number;
   trackRevision?: number;
+  mode?: 'crown'; highlights?: import('./party.js').RaceHighlight[];
   drivers: { playerId: string; name: string; finishTime: number; finished: boolean; rank: number }[];
 }
 export interface GhostData {

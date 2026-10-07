@@ -1,0 +1,175 @@
+{
+  "startedAt": "2026-10-07T14:08:37.629Z",
+  "checks": [
+    "Deux profils ; brouillon Soirée/Couronne conservé pendant le changement CPU, départ bloqué avant Appliquer, commandes hôte et mobile 320 px.",
+    "Couronne jouée pendant les vraies 90 s ; deux pilotes toujours actifs ; vote réel de 8 s, piste choisie, points et quatre manches conservés dans le même salon.",
+    "Replay réel à deux pilotes, moment mesuré et lien horodaté ; aucun XP/MMR/record ajouté ; prochain départ normal puis fermeture du salon."
+  ],
+  "errors": [],
+  "captures": [
+    "party-options-mobile-320.png",
+    "crown-race-desktop.png",
+    "crown-race-mobile-320.png",
+    "party-vote-mobile-320.png",
+    "party-replay-desktop.png"
+  ],
+  "external": false,
+  "origin": "http://127.0.0.1:40159",
+  "healthBefore": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 32,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "clientAssets": [
+    "/assets/index-92gPEffb.js",
+    "/assets/index-oCmcxhXo.css"
+  ],
+  "profileIds": [
+    "485c31c8-0ce2-47bb-99c4-f6bef13e6337",
+    "69e647bb-cbce-4de7-b9b8-75ef066cd77c"
+  ],
+  "mobileClockSkewMs": 60000,
+  "roomId": "NT5LF3",
+  "appliedModes": [
+    {
+      "crown": true,
+      "party": true,
+      "tournament": {
+        "mode": "tournament",
+        "selection": "manual",
+        "trackPool": [
+          "lagon",
+          "neon",
+          "canyon"
+        ],
+        "schedule": [
+          "lagon",
+          "lagon",
+          "neon",
+          "canyon"
+        ],
+        "raceCount": 4,
+        "raceIndex": 0,
+        "completed": false,
+        "standings": [
+          {
+            "id": "C9VeHWBi9",
+            "name": "Démo Couronne 2",
+            "color": "#fc735d",
+            "team": 1,
+            "points": 0,
+            "wins": 0,
+            "totalTime": 0,
+            "racesCompleted": 0,
+            "rank": 1
+          },
+          {
+            "id": "dM1SDsx7T",
+            "name": "Démo Couronne 1",
+            "color": "#fc735d",
+            "team": 0,
+            "points": 0,
+            "wins": 0,
+            "totalTime": 0,
+            "racesCompleted": 0,
+            "rank": 2
+          }
+        ],
+        "rounds": []
+      }
+    },
+    {
+      "crown": true,
+      "party": true,
+      "tournament": {
+        "mode": "tournament",
+        "selection": "manual",
+        "trackPool": [
+          "lagon",
+          "neon",
+          "canyon"
+        ],
+        "schedule": [
+          "lagon",
+          "lagon",
+          "neon",
+          "canyon"
+        ],
+        "raceCount": 4,
+        "raceIndex": 0,
+        "completed": false,
+        "standings": [
+          {
+            "id": "C9VeHWBi9",
+            "name": "Démo Couronne 2",
+            "color": "#fc735d",
+            "team": 1,
+            "points": 0,
+            "wins": 0,
+            "totalTime": 0,
+            "racesCompleted": 0,
+            "rank": 1
+          },
+          {
+            "id": "dM1SDsx7T",
+            "name": "Démo Couronne 1",
+            "color": "#fc735d",
+            "team": 0,
+            "points": 0,
+            "wins": 0,
+            "totalTime": 0,
+            "racesCompleted": 0,
+            "rank": 2
+          }
+        ],
+        "rounds": []
+      }
+    }
+  ],
+  "fixture": "Serveur privé : un piège placé au porteur après 6 s ; impact, protection, transfert et fait marquant calculés par la simulation. Aucune modification d’horloge, de résultat, de vote ou de replay.",
+  "finish": {
+    "wallSeconds": 89.993,
+    "raceTime": 89.99999999999746,
+    "scores": {
+      "dM1SDsx7T": 0,
+      "C9VeHWBi9": 17
+    },
+    "highlights": [
+      {
+        "kind": "crown",
+        "atMs": 6133,
+        "label": "Démo Couronne 1 récupère la couronne",
+        "playerId": "485c31c8-0ce2-47bb-99c4-f6bef13e6337"
+      }
+    ]
+  },
+  "replay": {
+    "id": "689b2b25-88cb-4d3e-a8ab-b920611c9a7a",
+    "durationMs": 90000,
+    "highlights": [
+      {
+        "kind": "crown",
+        "atMs": 6133,
+        "label": "Démo Couronne 1 récupère la couronne",
+        "playerId": "485c31c8-0ce2-47bb-99c4-f6bef13e6337"
+      }
+    ],
+    "drivers": [
+      "Démo Couronne 1",
+      "Démo Couronne 2"
+    ]
+  },
+  "healthAfter": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 32,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "passed": true,
+  "finishedAt": "2026-10-07T14:11:07.264Z"
+}

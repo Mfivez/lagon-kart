@@ -4,6 +4,7 @@ import { getTrack, nearestTrack, trackElevation, trackPoint, type Vec2 } from '.
 import { getTrackEvent, type TrackBranch, type TrackEventInfo } from '../shared/track-events';
 import { trackZoneGeometry } from './track-zone-geometry';
 import { trackLoopPose } from '../shared/track-loop';
+import { interactionStatus, interactionZones, type TrackInteractionState } from '../shared/track-interactions';
 
 function ribbon(points: Array<Vec2 & { progress?: number; angle?: number }>, width: number, height: number, trackId: string, offset = 0) {
   // Branch positions carry the same virtual progress as their checkpoint gates.
@@ -125,10 +126,23 @@ export class TrackEventsView {
     }
   }
 
-  private rebuild(event: TrackEventInfo) {
+  private rebuild(event: TrackEventInfo, states?:readonly TrackInteractionState[], time=0) {
     this.clear();
     const track = getTrack(event.trackId);
     this.trackId = track.id;
+    for (const [index,module] of (track.interactions??[]).entries()) {
+      const status=interactionStatus(module,states,time),color=status==='active'?'#75f4ba':status==='warning'?'#ffcc62':status==='cooldown'?'#7e8e92':'#68c8cb';
+      const plate=this.mesh(trackZoneGeometry(track.id,{start:Math.max(0,module.trigger-1.3),end:Math.min(track.length,module.trigger+1.3),width:module.width,offset:module.offset},.21),color);
+      plate.name=`interaction-plate-${module.id}`; plate.renderOrder=150;
+      const target=this.mesh(trackZoneGeometry(track.id,module,.13),status==='active'?'#75f4ba':'#426d76');
+      target.name=`interaction-target-${module.id}`;
+      const pose=trackLoopPose(module.trigger,track.id,track.width/2+2);
+      if (!pose.active) this.sign(`PLAQUE ${index+1} → ${module.kind==='boost'?'TURBO':'SAUT'} · ${status==='active'?'ACTIF':status==='warning'?'DANS 1 s':status==='cooldown'?'RECHARGE':'ROULEZ DESSUS'}`,
+        {x:pose.x,z:pose.z,progress:module.trigger},color);
+      const destination=trackLoopPose(module.start,track.id,track.width/2+2);
+      if (!destination.active) this.sign(`CIBLE ${index+1} · ${module.kind==='boost'?'TURBO':'SAUT'} ${status==='active'?'ACTIF':'SUR PLAQUE'}`,
+        {x:destination.x,z:destination.z,progress:module.start},color);
+    }
     for (const route of event.branches) this.route(route, event);
     for (const blocker of event.blockers) {
       const icy = track.theme === 'ice', wet = track.theme === 'tropical';
@@ -198,9 +212,11 @@ export class TrackEventsView {
     }
   }
 
-  update(trackId: string, stage = 0, level = 0, time = 0) {
-    const event = getTrackEvent(trackId, stage, level), key = [event.trackId, event.stage, event.level].join(':');
-    if (key !== this.key) { this.key = key; this.rebuild(event); }
+  update(trackId: string, stage = 0, level = 0, time = 0, states?:readonly TrackInteractionState[]) {
+    const base=getTrackEvent(trackId,stage,level),active=interactionZones(trackId,states,time);
+    const event=active.length?{...base,zones:[...active,...(base.zones??[])]}:base;
+    const key = [event.trackId,event.stage,event.level,...(getTrack(trackId).interactions??[]).map(module=>`${module.id}:${interactionStatus(module,states,time)}`)].join(':');
+    if (key !== this.key) { this.key = key; this.rebuild(event,states,time); }
     if (this.weather) {
       const positions = this.weather.geometry.getAttribute('position') as THREE.BufferAttribute;
       for (let i = 0; i < positions.count; i++) positions.setY(i, ((i * 9.167 - time * (this.weatherKind === 'snow' ? 2.3 : 9)) % 24 + 24) % 24);

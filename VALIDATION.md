@@ -2,6 +2,66 @@
 
 Vérifications des 6 et 7 octobre 2026 dans WSL/Linux avec Docker Desktop 4.55.0, Docker Engine 29.1.3, Compose 2.40.3, Node 20.19.2 sur l'hôte et Node 22.21.1 dans l'image. Les résultats ci-dessous distinguent simulation, clients réseau automatisés et navigateur ; chaque lot conserve ses preuves et sa date.
 
+## 7 octobre 2026 — conduite, atelier et soirées
+
+Huit améliorations intégrées : frôlements moins pénalisants selon l’angle,
+enchaînements plafonnés, tirages d’objets selon l’écart réel, relais alliés,
+plaques interactives, essais ciblés dans l’éditeur, soirées avec votes et
+faits marquants, mode Couronne de 90 secondes. Les nouvelles décisions restent
+sur le serveur ; aucune dépendance ni asset payant ajouté.
+
+- **407/407 tests** passent en **128,821 s**, sans échec ni test ignoré.
+  Simulation, CPU, objets, comptes, persistance, tournois, éditeur et réseau :
+  [rapport complet de la suite](docs/fun-experience/unit-validation.json).
+- Frôlement/frontal, pression prolongée sur un mur, vrais drift/saut/réception/
+  looping, plafond par tour, attente/recul/reset, aspiration puis dépassement
+  allié : [règles et preuves ciblées](docs/race-fun/README.md).
+- **4 parcours navigateur atelier** passent : création des deux plaques par
+  l’interface, turbo et saut réels, recommencement instantané, retour aux réglages,
+  XP/statistiques/MMR/replays inchangés et contrôles de 44 px minimum à 320 px.
+  [Rapport et captures](docs/interactive-workshop/README.md). Ce parcours utilise
+  le build `index-DSJ-VYI_.js` ; les seules corrections produit suivantes touchent
+  le compte à rebours du vote et les libellés d’abandon Couronne.
+- **3 parcours navigateur Soirée/Couronne** passent sur le build final
+  `index-92gPEffb.js` / `index-oCmcxhXo.css` : deux profils, vraie durée de 90 s,
+  vote réel de 8 s, même salon, points conservés, prochain départ, replay
+  horodaté et lien partageable. Horloge mobile volontairement décalée de +60 s ;
+  le compte à rebours reste correct grâce à l’heure serveur. Aucun XP/MMR/record
+  gagné en Couronne. [Rapport et cinq captures](docs/party-crown/README.md).
+- TypeScript, build Vite/serveur et image Docker réussis. Vite conserve son
+  avertissement de bundle supérieur à 500 ko ; aucun test de fluidité GPU
+  n’est déduit de ce build ou des captures SwiftShader.
+
+- Déploiement Docker réussi après fermeture du salon qui avait temporairement
+  retardé le redémarrage : **31 fichiers et 36 profils** comparés avant/après par
+  SHA-256, montage `data` identique, tunnel inchangé. Les deux bundles et dix-huit
+  modules serveur correspondent au build local. [Preuve de déploiement](docs/fun-experience/deployment.json).
+
+- **3 parcours publics** passent sur le même build, via HTTPS/WSS et deux
+  profils Chromium indépendants : Couronne dure **90,033 s murales / 90 s
+  simulées**, vote réel, points et salon conservés, second départ, replay réel
+  à deux pilotes et lien au passage choisi. **Aucune fixture serveur** dans cet
+  essai ; aucun transfert de couronne ni fait marquant n’y a été observé, ceux-ci
+  sont prouvés séparément en privé et en simulation. Zéro erreur JavaScript,
+  cinq captures inspectées, deux profils sortis, serveur sain et zéro salon
+  à la fermeture. [Rapport public](docs/party-crown/public/browser-validation.json).
+
+Portée des essais : le navigateur atelier conduit par les touches ordinaires,
+sans imposer position ou résultat. Le navigateur Couronne attend le vrai chrono ;
+un piège est placé sur son serveur privé pour provoquer un impact physique et un
+fait marquant reproductible. Les tests réseau isolés raccourcissent explicitement
+certaines échéances et placent un kart devant une plaque. Ces fixtures restent
+dans les tests. Les nouveaux bonus sont couverts en simulation ; leur équilibrage
+et leur confort à plusieurs humains, deux machines physiques et Safari iOS
+restent à vérifier. Le scénario navigateur commence la deuxième manche sans
+jouer les quatre manches complètes.
+
+L’[audit de l’expérience et les neuf propositions d’ergonomie](docs/fun-experience/README.md)
+s’appuient sur les captures et actions réelles du build précédent. À 320 × 568,
+l’action Entraînement demande 827 px de défilement ; le compteur peut masquer
+le kart. Ces propositions sont documentées pour le prochain lot et ne sont pas
+présentées comme des améliorations déjà appliquées.
+
 ## 7 octobre 2026 — présence et éditeur avancé
 
 L’accueil affiche les joueurs connectés et ceux en recherche classée, avec

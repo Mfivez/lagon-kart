@@ -119,3 +119,6 @@
   #editor-status{max-height:30px}
 }
 @media(max-width:680px) and (orientation:landscape) and (max-height:500px){#editor-canvas{height:clamp(130px,calc(100dvh - 150px),230px)}}
+.editor-test-passage { min-height: 44px; border-color: #218b7a; color: #15594e; font-weight: 700; }
+.editor-feature .editor-section-heading { flex-wrap: wrap; }
+.editor-feature .editor-section-heading > strong { flex: 1 1 120px; }

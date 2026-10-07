@@ -1,5 +1,5 @@
 import { Client, type Room } from 'colyseus.js';
-import { COLORS, neutralInput, stepKart, type Input, type Kart, type World } from '../shared/game';
+import { COLORS, neutralInput, stepKart, cloneKartForPrediction, type Input, type Kart, type World } from '../shared/game';
 import { getAvailableTracks, getTrack, getTrackLapCount, isTrackId, trackPoint } from '../shared/track';
 import { configurationMarkup, TournamentControls, trackCards, trackFeatures, standingsTable, teamsTable } from './tournament-ui';
 import { GameRenderer } from './renderer';
@@ -14,10 +14,15 @@ import type { GhostData, PlayerProfile } from '../shared/progression';
 import { KART_MODELS } from '../shared/kart-catalog';
 import { MobileControls, mobileControlsMarkup } from './mobile-controls';
 import { OnlinePlayersPanel, onlinePlayersMarkup } from './online-players';
+import { RaceFeedback, raceFeedbackMarkup } from './race-feedback';
+import { PartyUi, partyMarkup } from './party-ui';
+import { openSharedReplay, shareReplay } from './replay-sharing';
+import { workshopMarkup, updateWorkshop } from './workshop-ui';
+import { trackInteractionNotice } from '../shared/track-interactions';
 import './style.css';
 import { TrackEditor } from './track-editor';
 import { listCustomTracks, saveCustomTrack, ensureCustomTrack } from './custom-track-library';
-import { customTrackRuntimeId, registerCustomTrack, type StoredCustomTrack } from '../shared/custom-tracks';
+import { customTrackRuntimeId, registerCustomTrack, type StoredCustomTrack, type TrackWorkshopSelection } from '../shared/custom-tracks';
 
 const escape = (value: string) => value.replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]!);
 const el = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -44,6 +49,9 @@ el('app').innerHTML = `
     <span class="tournament-badge hidden" id="tournament-badge"></span>
     <div class="top-actions"><span class="connection" id="connection"><i></i> Prêt à rouler</span><button class="quiet compact hidden" id="leave-button">Quitter le salon</button></div>
   </header>
+  ${raceFeedbackMarkup}
+  ${workshopMarkup}
+  ${partyMarkup}
   <main class="menu" id="menu">
     <section class="home-panel" id="home-panel">
       <div class="eyebrow"><span></span> DU SOLEIL. DES VIRAGES. DES AMIS.</div>
@@ -150,14 +158,21 @@ const onlinePlayers = new OnlinePlayersPanel(async () => {
   return { token: career.authToken, playerId: saved.id };
 });
 const tournamentControls = new TournamentControls((type, payload) => room?.send(type, payload));
+const raceFeedback = new RaceFeedback();
+const partyUi = new PartyUi({
+  configure: payload => room?.send('funConfigure', payload),
+  vote: trackId => room?.send('partyVote', { trackId }),
+  replay: (id, time) => { void openSharedReplay(id, time).catch(error => toast(errorMessage(error))); },
+  share: (id, time) => { void shareReplay(id, time).then(copied => { if (copied) toast('Lien du passage copié !'); }).catch(error => toast(errorMessage(error))); },
+});
 const trackEditor = new TrackEditor({
   getPlayerId: () => career.currentProfile?.id ?? '',
   list: async () => { const tracks = await listCustomTracks(); refreshTrackCards(); return tracks; },
   save: async (draft, previous) => { await ensureCareer(); return saveCustomTrack(draft, career.authToken, previous); },
   onSaved: record => { previewTrack(customTrackRuntimeId(record)); refreshTrackCards(); },
-  onTry: async record => {
+  onTry: async (record, selection) => {
     previewTrack(customTrackRuntimeId(record));
-    if (!await connect('practice')) throw new Error('Connexion à l’entraînement impossible. Réessayez.');
+    if (!await connect('practice', selection)) throw new Error('Connexion à l’entraînement impossible. Réessayez.');
     editorPractice = true; el('leave-button').textContent = 'Retour à l’éditeur';
   },
 });
@@ -261,7 +276,7 @@ function attachRoom(next: Room) {
       if (epoch !== me.epoch) { epoch = me.epoch; pending = []; sequence = Math.max(0, me.lastSeq + 1); correction = { x: 0, z: 0 }; accumulator = 0; }
       pending = pending.filter(input => input.epoch === epoch && input.seq > me.lastSeq).slice(-90);
       const previous = predicted;
-      predicted = { ...me };
+      predicted = cloneKartForPrediction(me);
       if (world.phase === 'racing') for (const input of pending) stepKart(predicted, input, fixedStep);
       if (previous && world.phase === 'racing' && previous.epoch === epoch) {
         const dx = previous.x - predicted.x, dz = previous.z - predicted.z;
@@ -282,7 +297,7 @@ function attachRoom(next: Room) {
   setBusy(false);
 }
 
-async function connect(mode: 'create' | 'join' | 'practice'): Promise<boolean> {
+async function connect(mode: 'create' | 'join' | 'practice', workshop?: TrackWorkshopSelection): Promise<boolean> {
   if (busy) return false;
   audio.activate(); setBusy(true); connection('Connexion…', 'pending');
   try {
@@ -292,11 +307,11 @@ async function connect(mode: 'create' | 'join' | 'practice'): Promise<boolean> {
     const code = el<HTMLInputElement>('code-input').value.trim().replace(/^.*\/room\//, '').replace(/[/?#].*$/, '').toUpperCase();
     if (mode === 'join' && !code) throw new Error('Saisissez le code du salon partagé par vos amis.');
     renderer.setGhost(null);
-    if (mode === 'practice' && el<HTMLInputElement>('ghost-toggle').checked) {
+    if (mode === 'practice' && !workshop && el<HTMLInputElement>('ghost-toggle').checked) {
       const result = await fetch(`/api/ghost?track=${encodeURIComponent(chosenTrack)}&level=3`).then(response => response.json()) as { ghost?: GhostData | null };
       if (result.ghost) renderer.setGhost(result.ghost); else toast('Aucun fantôme enregistré pour ce circuit et ces événements.');
     }
-    const next = mode === 'join' ? await client.joinById(code, options) : await client.create('race', { ...options, practice: mode === 'practice', trackId: chosenTrack });
+    const next = mode === 'join' ? await client.joinById(code, options) : await client.create('race', { ...options, practice: mode === 'practice', trackId: chosenTrack, ...(workshop ? { workshop } : {}) });
     attachRoom(next); return true;
   } catch (error) { autoPractice = false; toast(errorMessage(error)); connection('Hors ligne', 'offline'); setBusy(false); return false; }
 }
@@ -367,10 +382,14 @@ el('swatches').addEventListener('click', event => {
   renderer.setPreviewKart(chosenColor, garage.value.modelId, garage.value.characterId);
   document.querySelectorAll<HTMLButtonElement>('[data-color]').forEach(swatch => { const selected = swatch.dataset.color === chosenColor; swatch.classList.toggle('selected', selected); swatch.setAttribute('aria-pressed', String(selected)); });
 });
-el('ready-button').addEventListener('click', () => { if (tournamentControls.hasPendingChanges) { toast(tournamentControls.pendingMessage); return; } audio.activate(); room?.send('ready', { ready: !world?.players.find(p => p.id === room?.sessionId)?.ready }); });
-el('start-button').addEventListener('click', () => { if (tournamentControls.hasPendingChanges) { toast(tournamentControls.pendingMessage); return; } audio.activate(); room?.send('start', {}); });
+el('ready-button').addEventListener('click', () => { if (tournamentControls.hasPendingChanges || partyUi.hasPendingChanges) { toast(tournamentControls.hasPendingChanges ? tournamentControls.pendingMessage : partyUi.pendingMessage); return; } audio.activate(); room?.send('ready', { ready: !world?.players.find(p => p.id === room?.sessionId)?.ready }); });
+el('start-button').addEventListener('click', () => { if (tournamentControls.hasPendingChanges || partyUi.hasPendingChanges) { toast(tournamentControls.hasPendingChanges ? tournamentControls.pendingMessage : partyUi.pendingMessage); return; } audio.activate(); room?.send('start', {}); });
 el('rematch-button').addEventListener('click', () => room?.send('rematch', {}));
 el('next-race-button').addEventListener('click', () => room?.send('nextRace', {}));
+el('workshop-restart').addEventListener('click', () => {
+  clearControls();
+  if (world?.workshop && connected) room?.send('workshop-restart', {});
+});
 el('leave-button').addEventListener('click', async () => {
   leaving = true; connectionGeneration++; sessionStorage.removeItem('lagon-session');
   const reopenEditor = editorPractice;
@@ -431,6 +450,9 @@ function show(id: string, visible: boolean) { el(id).classList.toggle('hidden', 
 function updateUI(now: number, force = false) {
   if (!force && now - uiTime < 100) return;
   uiTime = now;
+  raceFeedback.update(world, room?.sessionId ?? '', now);
+  partyUi.update(world, room?.sessionId ?? null, now - serverClockOffset);
+  updateWorkshop(world, connected);
   const phase = world?.phase ?? 'home';
   const racing = phase === 'racing' || phase === 'countdown';
   show('menu', !racing); show('home-panel', phase === 'home'); show('island-card', phase === 'home');
@@ -438,6 +460,8 @@ function updateUI(now: number, force = false) {
   show('lobby-panel', phase === 'lobby'); show('results-panel', phase === 'finished'); show('race-hud', racing);
   show('screen-wash', !racing);
   document.body.classList.toggle('in-race', racing);
+  document.body.classList.toggle('in-workshop', !!world?.workshop);
+  document.body.classList.toggle('in-crown', !!world?.crown);
   const me = world?.players.find(p => p.id === room?.sessionId);
   mobileControls.setDriving(racing && connected && !!me && !me.spectator && !me.finished);
   const players = [...(world?.players ?? [])].sort((a, b) => a.rank - b.rank);
@@ -463,31 +487,31 @@ function updateUI(now: number, force = false) {
       }
       el('ready-button').textContent = me?.ready ? '✓ Prêt · Annuler' : 'Je suis prêt';
       el('ready-button').classList.toggle('is-ready', !!me?.ready);
-      const pendingConfiguration = host && tournamentControls.hasPendingChanges;
+      const pendingConfiguration = host && (tournamentControls.hasPendingChanges || partyUi.hasPendingChanges);
       el<HTMLButtonElement>('ready-button').disabled = !connected || pendingConfiguration;
       show('start-button', host);
       const connectedCompetitors = competitors.filter(p => p.connected);
       el<HTMLButtonElement>('start-button').disabled = !connected || pendingConfiguration || connectedCompetitors.length < (world.practice ? 1 : 2) || connectedCompetitors.some(p => !p.ready);
       const laps = getTrackLapCount(displayedTrack.id);
       el('lobby-description').textContent = `${displayedTrack.name} · ${laps} tour${laps > 1 ? 's' : ''} · ${trackFeatures[displayedTrack.id] ?? displayedTrack.description}`;
-      el('lobby-hint').textContent = pendingConfiguration ? tournamentControls.pendingMessage : host ? 'Chaque pilote doit être prêt pour lancer la course.' : 'Le créateur lancera la course quand tout le monde sera prêt.';
+      el('lobby-hint').textContent = pendingConfiguration ? tournamentControls.hasPendingChanges ? tournamentControls.pendingMessage : partyUi.pendingMessage : host ? 'Chaque pilote doit être prêt pour lancer la course.' : 'Le créateur lancera la course quand tout le monde sera prêt.';
     }
     if (phase === 'finished') {
-      const signature = JSON.stringify([players.map(p => [p.id, p.rank, p.finishTime, p.finished, p.spectator, p.name]), cup]);
+      const signature = JSON.stringify([players.map(p => [p.id, p.rank, p.finishTime, p.finished, p.spectator, p.name]), cup, world.crown?.scores]);
       if (signature !== lastResultSignature) {
-        el('results-list').innerHTML = competitors.map(p => `<div class="result-row ${p.id === room?.sessionId ? 'is-you' : ''}"><strong>${p.rank}<small>${p.rank === 1 ? 'er' : 'e'}</small></strong><span class="result-swatch" style="background:${escape(p.color)}"></span><span>${escape(p.name)}</span><b>${p.finished ? formatTime(p.finishTime) : p.abandoned ? 'Abandon' : 'Non classé'}</b></div>`).join('');
+        el('results-list').innerHTML = competitors.map(p => `<div class="result-row ${p.id === room?.sessionId ? 'is-you' : ''}"><strong>${p.rank}<small>${p.rank === 1 ? 'er' : 'e'}</small></strong><span class="result-swatch" style="background:${escape(p.color)}"></span><span>${escape(p.name)}</span><b>${world?.crown ? `${p.finished ? '' : p.abandoned || !p.connected ? 'Abandon · ' : 'Non classé · '}${world.crown.scores[p.id] ?? 0} pts` : p.finished ? formatTime(p.finishTime) : p.abandoned ? 'Abandon' : 'Non classé'}</b></div>`).join('');
         lastResultSignature = signature;
         if (cup.mode === 'tournament') el('cup-standings').innerHTML = (world.teamMode ? teamsTable(cup.standings) : '') + standingsTable(cup.standings, room.sessionId, cup.completed);
       }
       const intermediate = cup.mode === 'tournament' && !cup.completed;
       show('cup-standings', cup.mode === 'tournament');
-      show('next-race-button', host && intermediate);
+      show('next-race-button', host && intermediate && world.party?.phase !== 'voting');
       show('rematch-button', host && !intermediate);
       el('results-title').innerHTML = cup.mode === 'tournament' ? cup.completed ? 'Le podium<br>du tournoi.' : 'Une escale<br>de plus.' : 'Bien joué,<br>les pilotes.';
       el('results-subtitle').textContent = cup.mode === 'tournament' ? cup.completed ? `${cup.standings[0]?.name ?? 'Le premier'} remporte le tournoi · ${cup.raceCount} courses` : `Course ${cup.raceIndex + 1}/${cup.raceCount} · ${displayedTrack.name}` : displayedTrack.name;
       if (intermediate) el('next-race-button').textContent = `Prochaine course · ${getTrack(cup.schedule[cup.raceIndex + 1]).name} →`;
       el('rematch-button').innerHTML = cup.mode === 'tournament' ? 'Rejouer le tournoi <span>↻</span>' : 'On remet ça <span>↻</span>';
-      el('results-hint').textContent = intermediate ? host ? 'Les points sont conservés. Tout le monde se prépare dans le prochain salon.' : 'Le créateur passera à la prochaine course.' : host ? 'Une revanche ramène tous les pilotes au salon.' : 'Le créateur du salon peut proposer une revanche.';
+      el('results-hint').textContent = world.party?.phase === 'voting' ? 'Votez ci-dessus. Vous resterez ensemble dans ce salon pour la prochaine manche.' : intermediate ? host ? 'Les points sont conservés. Tout le monde se prépare pour la prochaine manche.' : 'Le créateur passera à la prochaine course.' : host ? 'Une revanche ramène tous les pilotes au salon.' : 'Le créateur du salon peut proposer une revanche.';
     }
     if (racing) {
       const speed = tracked?.id === room.sessionId ? predicted?.speed ?? tracked?.speed ?? 0 : tracked?.speed ?? 0;
@@ -495,7 +519,9 @@ function updateUI(now: number, force = false) {
       el('position').innerHTML = `${rank}<span>${rank === 1 ? 'er' : 'e'}</span>`;
       el('field-size').textContent = `SUR ${competitors.length} PILOTE${competitors.length > 1 ? 'S' : ''}`;
       const laps = getTrackLapCount(world.trackId);
-      el('lap').innerHTML = `${Math.min(laps, (tracked?.lap ?? 0) + 1)} <em>/ ${laps}</em>`;
+      el('lap').innerHTML = world.crown ? `${Math.ceil(world.crown.remaining)} <em>s</em>` : world.workshop ? 'LIBRE' : `${Math.min(laps, (tracked?.lap ?? 0) + 1)} <em>/ ${laps}</em>`;
+      const lapLabel = document.querySelector('.lap-card > span');
+      if (lapLabel) lapLabel.textContent = world.crown ? 'RESTE' : world.workshop ? 'ESSAI' : 'TOUR';
       el('race-time').textContent = formatTime(world.raceTime);
       el('speed').textContent = String(Math.round(Math.abs(speed) * 3.6));
       const item = me?.item ?? '';
@@ -512,7 +538,7 @@ function updateUI(now: number, force = false) {
       el('boost-label').textContent = (predicted?.boost ?? 0) > 0 ? 'TURBO !' : (predicted?.driftCharge ?? 0) >= 0.65 ? 'RELÂCHEZ : MINI-TURBO' : (predicted?.driftCharge ?? 0) > 0 ? 'DRIFT EN CHARGE' : surfaceLabels[predicted?.surface ?? 'road'];
       el('draft-fill').style.width = `${Math.min(100, (me?.draftCharge ?? 0) * 100)}%`;
       el('draft-label').textContent = (me?.draftCharge ?? 0) > 0 ? 'ASPIRATION EN CHARGE' : (me?.draftCooldown ?? 0) > 0 ? 'ASPIRATION · TURBO' : 'SUIVEZ UN KART : ASPIRATION';
-      el('leaderboard').innerHTML = competitors.map(p => `<div class="${p.id === room?.sessionId ? 'is-you' : ''}"><b>${p.rank}</b><i style="background:${escape(p.color)}"></i><span>${escape(p.name)}</span>${p.finished ? '<small>⚑</small>' : !p.connected ? '<small>…</small>' : cup.mode === 'tournament' ? `<small>${cup.standings.find(entry => entry.id === p.id)?.points ?? 0} pts</small>` : ''}</div>`).join('');
+      el('leaderboard').innerHTML = competitors.map(p => `<div class="${p.id === room?.sessionId ? 'is-you' : ''}"><b>${p.rank}</b><i style="background:${escape(p.color)}"></i><span>${escape(p.name)}</span>${world?.crown ? `<small>${p.connected ? '' : '… · '}${world.crown.scores[p.id] ?? 0} pts</small>` : p.finished ? '<small>⚑</small>' : !p.connected ? '<small>…</small>' : cup.mode === 'tournament' ? `<small>${cup.standings.find(entry => entry.id === p.id)?.points ?? 0} pts</small>` : ''}</div>`).join('');
     }
   }
   const count = world?.phase === 'countdown' ? Math.max(1, Math.ceil(world.countdown)) : world?.phase === 'racing' && world.raceTime < 0.8 ? 0 : -1;
@@ -522,7 +548,13 @@ function updateUI(now: number, force = false) {
   show('race-banner', !!banner); el('race-banner').textContent = banner;
   audio.update(predicted?.speed ?? 0, connected && phase === 'racing' && !me?.finished && !me?.spectator, me?.item ?? '', (predicted?.boost ?? 0) > 0, count, world?.trackId, connected && phase === 'racing', tracked?.lap ?? 0);
   show('event-banner', phase === 'racing' && (world?.eventLevel ?? 0) > 0);
-  if (world) { const event = getTrackEvent(world.trackId, world.eventStage, world.eventLevel); el('event-banner').textContent = event.title; el('event-banner').title = event.description; }
+  if (world) {
+    const event = getTrackEvent(world.trackId, world.eventStage, world.eventLevel);
+    const interaction = trackInteractionNotice(world.trackId, world.interactions, world.time);
+    show('event-banner', phase === 'racing' && (!!interaction || event.level > 0));
+    el('event-banner').textContent = interaction?.title ?? event.title;
+    el('event-banner').title = interaction?.description ?? event.description;
+  }
   if (phase !== previousPhase && phase === 'finished') void career.refresh().catch(() => {});
   if (phase !== previousPhase) { if (!(previousPhase === 'countdown' && phase === 'racing')) clearControls(); previousPhase = phase; }
 }
@@ -615,6 +647,11 @@ try {
   if (saved?.token && saved.roomId === invitedCode) void reconnect(saved.token);
   else if (invitedCode) toast('Vous êtes invité ! Choisissez votre pseudo, puis rejoignez le salon.');
 } catch { sessionStorage.removeItem('lagon-session'); }
+
+const sharedReplay = new URLSearchParams(location.search);
+if (!invitedCode && sharedReplay.has('replay')) {
+  void catalogReady.then(() => openSharedReplay(sharedReplay.get('replay')!, Number(sharedReplay.get('t') ?? 0))).catch(error => toast(errorMessage(error)));
+}
 
 // Read-only copies support browser diagnostics without exposing gameplay mutations.
 Object.defineProperty(window, '__lagonDebug', { value: Object.freeze({

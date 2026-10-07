@@ -1,0 +1,389 @@
+{
+  "passed": true,
+  "timestamp": "2026-10-07T13:59:59.789Z",
+  "checks": [
+    "Plaque turbo et plaque tremplin créées et configurées uniquement par UI ; source API et fichier privé identiques.",
+    "Essai turbo depuis son approche, effet physique observé après annonce, recommencement à la même position puis retour aux réglages conservés.",
+    "Impulsion active réelle et réception observées ; aucune progression, statistique, MMR ni replay modifiés après les séances.",
+    "Mobile 320 × 568 : réglages accessibles, boutons et champs ≥44px, modification tactile possible, aucun débordement du dialogue."
+  ],
+  "errors": [],
+  "captures": [
+    "editor-interactive-modules.png",
+    "workshop-shared-turbo.png",
+    "editor-interactions-mobile-320.png"
+  ],
+  "evidence": {
+    "origin": "http://127.0.0.1:41161",
+    "assets": [
+      {
+        "path": "/assets/index-DSJ-VYI_.js",
+        "status": 200,
+        "bytes": 1071392
+      },
+      {
+        "path": "/assets/index-oCmcxhXo.css",
+        "status": 200,
+        "bytes": 62460
+      }
+    ],
+    "source": {
+      "id": "custom-a50c1c05-89b5-43c5-b542-615bcecb76f5",
+      "revision": 1,
+      "interactions": [
+        {
+          "kind": "boost",
+          "trigger": 0.12,
+          "start": 0.19,
+          "end": 0.23,
+          "duration": 10,
+          "width": 16,
+          "offset": 0
+        },
+        {
+          "kind": "jump",
+          "trigger": 0.35,
+          "start": 0.42,
+          "end": 0.445,
+          "duration": 10,
+          "width": 16,
+          "offset": 0,
+          "height": 2,
+          "launchSpeed": 9
+        }
+      ]
+    },
+    "progressionBefore": {
+      "xp": 0,
+      "careerLevel": 0,
+      "completedChampionships": [],
+      "stats": {
+        "races": 0,
+        "finishes": 0,
+        "wins": 0,
+        "podiums": 0,
+        "totalRaceTime": 0,
+        "bestTimes": {}
+      },
+      "mmr": 800,
+      "replays": []
+    },
+    "turbo": {
+      "state": {
+        "phase": "racing",
+        "time": 10.966666666666638,
+        "raceTime": 10.799999999999972,
+        "round": 1,
+        "trackId": "custom-a50c1c05-89b5-43c5-b542-615bcecb76f5-v1",
+        "sessionId": "Q6-CCHSS0",
+        "connected": true,
+        "players": 1,
+        "workshop": {
+          "selection": {
+            "group": "interactions",
+            "index": 0
+          },
+          "label": "Interrupteur 1",
+          "startProgress": 71.30739600028619,
+          "endProgress": 203.75584233388182
+        },
+        "interactions": [
+          {
+            "id": "custom-a50c1c05-89b5-43c5-b542-615bcecb76f5-v1-interaction-0",
+            "triggeredAt": 3.3666666666666645,
+            "activeAt": 4.3666666666666645,
+            "expiresAt": 14.366666666666664,
+            "triggeredBy": "Q6-CCHSS0"
+          }
+        ],
+        "kart": {
+          "id": "Q6-CCHSS0",
+          "trackId": "custom-a50c1c05-89b5-43c5-b542-615bcecb76f5-v1",
+          "x": 155.09759895887987,
+          "z": -47.465018339397616,
+          "angle": 0.9379322813425536,
+          "speed": 38.8,
+          "elevation": 0,
+          "airborne": false,
+          "verticalVelocity": 0,
+          "progress": 171.77126252304444,
+          "nextCheckpoint": 3,
+          "resetCooldown": 0,
+          "resetLatch": false,
+          "item": "trap",
+          "itemLatch": false,
+          "epoch": 1,
+          "eventStage": 0,
+          "eventLevel": 3,
+          "boost": 0.9833333333333333,
+          "lap": 0,
+          "finished": false
+        }
+      },
+      "maxSpeed": 38.8,
+      "maxElevation": 0,
+      "maxVerticalVelocity": 0,
+      "active": true,
+      "elapsedMs": 10568
+    },
+    "repeat": {
+      "before": {
+        "x": 70.2533606178973,
+        "z": -99.156349373273
+      },
+      "after": {
+        "x": 70.2533606178973,
+        "z": -99.156349373273
+      },
+      "interactions": []
+    },
+    "jump": {
+      "state": {
+        "phase": "racing",
+        "time": 7.066666666666651,
+        "raceTime": 6.999999999999985,
+        "round": 1,
+        "trackId": "custom-a50c1c05-89b5-43c5-b542-615bcecb76f5-v1",
+        "sessionId": "W4J1vtfwu",
+        "connected": true,
+        "players": 1,
+        "workshop": {
+          "selection": {
+            "group": "interactions",
+            "index": 1
+          },
+          "label": "Interrupteur 2",
+          "startProgress": 275.063238334168,
+          "endProgress": 394.22326016772786
+        },
+        "interactions": [
+          {
+            "id": "custom-a50c1c05-89b5-43c5-b542-615bcecb76f5-v1-interaction-1",
+            "triggeredAt": 2.066666666666669,
+            "activeAt": 3.066666666666669,
+            "expiresAt": 13.06666666666667,
+            "triggeredBy": "W4J1vtfwu"
+          }
+        ],
+        "kart": {
+          "id": "W4J1vtfwu",
+          "trackId": "custom-a50c1c05-89b5-43c5-b542-615bcecb76f5-v1",
+          "x": 47.37816347585731,
+          "z": 104.32724039614334,
+          "angle": -1.7049251523741782,
+          "speed": 28.627454671697702,
+          "elevation": 2.2888888888888888,
+          "airborne": true,
+          "verticalVelocity": 8.333333333333334,
+          "progress": 395.1163758834124,
+          "nextCheckpoint": 6,
+          "resetCooldown": 0,
+          "resetLatch": false,
+          "item": "trap",
+          "itemLatch": false,
+          "epoch": 1,
+          "eventStage": 0,
+          "eventLevel": 3,
+          "boost": 0,
+          "lap": 0,
+          "finished": false
+        }
+      },
+      "maxSpeed": 32,
+      "maxElevation": 2.2888888888888888,
+      "maxVerticalVelocity": 8.333333333333334,
+      "active": true,
+      "elapsedMs": 7042
+    },
+    "progressionAfter": {
+      "xp": 0,
+      "careerLevel": 0,
+      "completedChampionships": [],
+      "stats": {
+        "races": 0,
+        "finishes": 0,
+        "wins": 0,
+        "podiums": 0,
+        "totalRaceTime": 0,
+        "bestTimes": {}
+      },
+      "mmr": 800,
+      "replays": []
+    },
+    "mobile": {
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "controls": [
+        {
+          "tag": "BUTTON",
+          "label": "+ Plaque → turbo",
+          "height": 46,
+          "width": 127.5,
+          "x": 29,
+          "right": 156.5
+        },
+        {
+          "tag": "BUTTON",
+          "label": "+ Plaque → tremplin",
+          "height": 46,
+          "width": 127.5,
+          "x": 163.5,
+          "right": 291
+        },
+        {
+          "tag": "BUTTON",
+          "label": "Essayer ce passage",
+          "height": 44,
+          "width": 161.5,
+          "x": 42,
+          "right": 203.5
+        },
+        {
+          "tag": "BUTTON",
+          "label": "Supprimer la plaque 1",
+          "height": 44,
+          "width": 44,
+          "x": 234,
+          "right": 278
+        },
+        {
+          "tag": "INPUT",
+          "label": "Plaque (%), module 1",
+          "height": 44,
+          "width": 113,
+          "x": 42,
+          "right": 155
+        },
+        {
+          "tag": "INPUT",
+          "label": "Position (%), module 1",
+          "height": 44,
+          "width": 113,
+          "x": 165,
+          "right": 278
+        },
+        {
+          "tag": "INPUT",
+          "label": "Longueur (%), module 1",
+          "height": 44,
+          "width": 113,
+          "x": 42,
+          "right": 155
+        },
+        {
+          "tag": "INPUT",
+          "label": "Durée active (s), module 1",
+          "height": 44,
+          "width": 113,
+          "x": 165,
+          "right": 278
+        },
+        {
+          "tag": "INPUT",
+          "label": "Largeur plaque / turbo (m), module 1",
+          "height": 44,
+          "width": 113,
+          "x": 42,
+          "right": 155
+        },
+        {
+          "tag": "INPUT",
+          "label": "Décalage plaque / turbo (m), module 1",
+          "height": 44,
+          "width": 113,
+          "x": 165,
+          "right": 278
+        },
+        {
+          "tag": "BUTTON",
+          "label": "Essayer ce passage",
+          "height": 44,
+          "width": 161.5,
+          "x": 42,
+          "right": 203.5
+        },
+        {
+          "tag": "BUTTON",
+          "label": "Supprimer la plaque 2",
+          "height": 44,
+          "width": 44,
+          "x": 234,
+          "right": 278
+        },
+        {
+          "tag": "INPUT",
+          "label": "Plaque (%), module 2",
+          "height": 44,
+          "width": 113,
+          "x": 42,
+          "right": 155
+        },
+        {
+          "tag": "INPUT",
+          "label": "Position (%), module 2",
+          "height": 44,
+          "width": 113,
+          "x": 165,
+          "right": 278
+        },
+        {
+          "tag": "INPUT",
+          "label": "Longueur (%), module 2",
+          "height": 44,
+          "width": 113,
+          "x": 42,
+          "right": 155
+        },
+        {
+          "tag": "INPUT",
+          "label": "Durée active (s), module 2",
+          "height": 44,
+          "width": 113,
+          "x": 165,
+          "right": 278
+        },
+        {
+          "tag": "INPUT",
+          "label": "Largeur plaque / turbo (m), module 2",
+          "height": 44,
+          "width": 113,
+          "x": 42,
+          "right": 155
+        },
+        {
+          "tag": "INPUT",
+          "label": "Décalage plaque / turbo (m), module 2",
+          "height": 44,
+          "width": 113,
+          "x": 165,
+          "right": 278
+        },
+        {
+          "tag": "INPUT",
+          "label": "Hauteur fixe (m), module 2",
+          "height": 44,
+          "width": 113,
+          "x": 42,
+          "right": 155
+        },
+        {
+          "tag": "INPUT",
+          "label": "Impulsion active (m/s), module 2",
+          "height": 44,
+          "width": 113,
+          "x": 165,
+          "right": 278
+        }
+      ]
+    }
+  },
+  "fixtures": [
+    "Serveur/données privés et éphémères. Création et essais via UI ; conduite par commandes clavier normales calculées depuis les snapshots. Aucune mutation de trajectoire, position, progression ou résultat."
+  ],
+  "remaining": [
+    "Téléphone physique et Safari iOS non testés.",
+    "La cohérence de deux clients sur une activation est vérifiée séparément par les tests réseau."
+  ]
+}

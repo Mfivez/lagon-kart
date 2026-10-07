@@ -1,0 +1,159 @@
+{
+  "startedAt": "2026-10-07T14:15:28.472Z",
+  "checks": [
+    "Deux profils ; brouillon Soirée/Couronne conservé pendant le changement CPU, départ bloqué avant Appliquer, commandes hôte et mobile 320 px.",
+    "Couronne jouée pendant les vraies 90 s ; deux pilotes toujours actifs ; vote réel de 8 s, piste choisie, points et quatre manches conservés dans le même salon.",
+    "Replay réel à deux pilotes, lien horodaté ; aucun XP/MMR/record ajouté ; prochain départ normal puis fermeture du salon."
+  ],
+  "errors": [],
+  "captures": [
+    "party-options-mobile-320.png",
+    "crown-race-desktop.png",
+    "crown-race-mobile-320.png",
+    "party-vote-mobile-320.png",
+    "party-replay-desktop.png"
+  ],
+  "external": true,
+  "origin": "https://miles-blades-tulsa-citizens.trycloudflare.com",
+  "healthBefore": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "clientAssets": [
+    "/assets/index-92gPEffb.js",
+    "/assets/index-oCmcxhXo.css"
+  ],
+  "profileIds": [
+    "1400f77e-2606-42a1-8091-6c9ea3272798",
+    "2661ec21-5eb8-435a-aeca-6347b622dc97"
+  ],
+  "mobileClockSkewMs": 60000,
+  "roomId": "ZX74F4",
+  "appliedModes": [
+    {
+      "crown": true,
+      "party": true,
+      "tournament": {
+        "mode": "tournament",
+        "selection": "manual",
+        "trackPool": [
+          "lagon",
+          "neon",
+          "canyon"
+        ],
+        "schedule": [
+          "lagon",
+          "lagon",
+          "neon",
+          "canyon"
+        ],
+        "raceCount": 4,
+        "raceIndex": 0,
+        "completed": false,
+        "standings": [
+          {
+            "id": "3-X5zlG8e",
+            "name": "Démo Couronne 1",
+            "color": "#fc735d",
+            "team": 0,
+            "points": 0,
+            "wins": 0,
+            "totalTime": 0,
+            "racesCompleted": 0,
+            "rank": 1
+          },
+          {
+            "id": "JwIvPYE4W",
+            "name": "Démo Couronne 2",
+            "color": "#fc735d",
+            "team": 1,
+            "points": 0,
+            "wins": 0,
+            "totalTime": 0,
+            "racesCompleted": 0,
+            "rank": 2
+          }
+        ],
+        "rounds": []
+      }
+    },
+    {
+      "crown": true,
+      "party": true,
+      "tournament": {
+        "mode": "tournament",
+        "selection": "manual",
+        "trackPool": [
+          "lagon",
+          "neon",
+          "canyon"
+        ],
+        "schedule": [
+          "lagon",
+          "lagon",
+          "neon",
+          "canyon"
+        ],
+        "raceCount": 4,
+        "raceIndex": 0,
+        "completed": false,
+        "standings": [
+          {
+            "id": "3-X5zlG8e",
+            "name": "Démo Couronne 1",
+            "color": "#fc735d",
+            "team": 0,
+            "points": 0,
+            "wins": 0,
+            "totalTime": 0,
+            "racesCompleted": 0,
+            "rank": 1
+          },
+          {
+            "id": "JwIvPYE4W",
+            "name": "Démo Couronne 2",
+            "color": "#fc735d",
+            "team": 1,
+            "points": 0,
+            "wins": 0,
+            "totalTime": 0,
+            "racesCompleted": 0,
+            "rank": 2
+          }
+        ],
+        "rounds": []
+      }
+    }
+  ],
+  "finish": {
+    "wallSeconds": 90.033,
+    "raceTime": 89.99999999999746,
+    "scores": {
+      "3-X5zlG8e": 19,
+      "JwIvPYE4W": 0
+    },
+    "highlights": []
+  },
+  "replay": {
+    "id": "97d03719-2e15-4e7b-a6d1-d4dd082272de",
+    "durationMs": 90000,
+    "drivers": [
+      "Démo Couronne 1",
+      "Démo Couronne 2"
+    ]
+  },
+  "healthAfter": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "passed": true,
+  "finishedAt": "2026-10-07T14:17:57.924Z"
+}

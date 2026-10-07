@@ -8,7 +8,7 @@ import type { World } from '../shared/game.js';
 // Uses the actual application through HTTP and its normal guest/profile flow.
 // Run against a private server/store; it intentionally publishes two test tracks.
 const origin = (process.env.BASE_URL ?? 'http://127.0.0.1:3005').replace(/\/$/, '');
-const destination = resolve('docs/editor'); await mkdir(destination, { recursive: true });
+const destination = resolve(process.env.REPORT_DIR ?? 'docs/editor'); await mkdir(destination, { recursive: true });
 const browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--disable-backgrounding-occluded-windows', '--disable-renderer-backgrounding', '--disable-background-timer-throttling'] });
 const checks: string[] = [], captures: string[] = [], errors: string[] = [];
 const evidence: Record<string, unknown> = { origin, inputMethod: 'Actions souris, clavier et tactile Chromium ; aucune modification directe du circuit ou de la simulation.' };
@@ -84,16 +84,27 @@ try {
 
   await host.locator('#editor-canvas').scrollIntoViewIfNeeded(); const first = await pointPosition(host, 0); const second = await pointPosition(host, 1);
   await drag(host, 1, first.x - second.x, first.y - second.y);
-  assert.match(await host.locator('#editor-validation').innerText(), /trop proches|serré|croisent/); assert.equal(await host.locator('#editor-save').isDisabled(), true);
-  await capture(host, 'editor-invalid-curve.png'); await host.locator('#editor-undo').click(); assert.equal(await host.locator('#editor-save').isEnabled(), true);
+  assert.match(await host.locator('#editor-validation').innerText(), /prête à rouler/); assert.equal(await host.locator('#editor-save').isEnabled(), true);
+  await save(host); const tightSaved = (await allTracks()).find(item => item.id === saved.id); assert.ok(tightSaved); assert.equal(tightSaved.revision,2);
+  assert.ok(Math.hypot(tightSaved.draft.anchors[0]!.x-tightSaved.draft.anchors[1]!.x,tightSaved.draft.anchors[0]!.z-tightSaved.draft.anchors[1]!.z)<1);
+  await capture(host, 'editor-creative-curve.png'); await host.locator('#editor-undo').click(); assert.equal(await host.locator('#editor-save').isEnabled(), true);
   await host.locator('#editor-name').fill(title); await host.locator('#editor-name').blur();
-  record('Un tracé invalide produit une explication française et bloque la publication ; Annuler rétablit la piste.');
+  record('Des points collés sont autorisés et réellement sauvegardés en version 2 ; Annuler rétablit la piste sans perdre la version publiée.');
 
   await host.locator('#editor-try').click(); await until(async () => (await readWorld(host)).world?.phase === 'racing', 'Démarrage de la course d’essai');
-  const trial = await readWorld(host); assert.equal(trial.world?.trackId, `${saved.id}-v1`);
+  const trial = await readWorld(host); assert.equal(trial.world?.trackId, `${saved.id}-v3`);
   assert.equal(await host.locator('#leave-button').innerText(), 'Retour à l’éditeur');
-  await host.keyboard.down('ArrowUp'); await pause(1800); await host.keyboard.up('ArrowUp'); await capture(host, 'editor-trial-race.png');
-  const driven = await readWorld(host); const kart = driven.world?.players.find(player => player.id === driven.sessionId); assert.ok(kart); assert.ok(Math.abs(kart.speed) > 0);
+  const initialKart = trial.world?.players.find(player => player.id === trial.sessionId); assert.ok(initialKart);
+  await host.keyboard.down('ArrowUp');
+  try {
+    await until(async () => {
+      const driven = await readWorld(host); const kart = driven.world?.players.find(player => player.id === driven.sessionId);
+      return !!kart && Math.abs(kart.speed) > 1 && Math.hypot(kart.x-initialKart.x,kart.z-initialKart.z)>2;
+    }, 'Accélération et déplacement réels pendant l’appui');
+    const driven = await readWorld(host); const kart = driven.world?.players.find(player => player.id === driven.sessionId)!;
+    evidence.trial = { trackId:driven.world?.trackId, speed:kart.speed, distance:Math.hypot(kart.x-initialKart.x,kart.z-initialKart.z) };
+    await capture(host, 'editor-trial-race.png');
+  } finally { await host.keyboard.up('ArrowUp'); }
   await host.locator('#leave-button').click(); await host.locator('#track-editor-dialog').waitFor({ state: 'visible' }); assert.equal(await host.locator('#editor-name').inputValue(), title);
   record('Sauvegarder et essayer ouvre le vrai circuit en entraînement ; accélération réelle et retour dans l’éditeur sans perte.');
 

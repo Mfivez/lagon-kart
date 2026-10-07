@@ -102,4 +102,20 @@ test('same-origin custom track API publishes usable revisions and preserves play
     assert.equal(updated.status, 200); assert.equal(updated.data.track.revision, 3);
     assert.equal(updated.data.track.authorId, first.authorId);
   });
+  await t.test('tight and coincident points can be saved and reloaded without changing their authored shape', async () => {
+    const creative = structuredClone(draft); creative.name = 'Épingles et points collés';
+    creative.anchors[1] = {...creative.anchors[0]!};
+    creative.anchors[4]!.z *= .05;
+    creative.zones = [{kind:'boost',start:0,end:1,width:8,offset:0},{kind:'ice',start:0,end:1,width:8,offset:0}];
+    const response = await request('/api/tracks','POST',{draft:creative},owner.token);
+    assert.equal(response.status,201);
+    const saved = response.data.track as StoredCustomTrack & {runtimeId:string};
+    assert.deepEqual(saved.draft,creative);
+    assert.deepEqual((await request('/api/tracks/'+saved.runtimeId)).data.track,saved);
+    const {CustomTrackStore} = await import('../server/custom-track-store.js');
+    const reopened = await CustomTrackStore.open(join(directory,'tracks'));
+    assert.deepEqual(reopened.get(saved.runtimeId)!.draft,creative);
+    assert.deepEqual(JSON.parse(await readFile(join(directory,'tracks',saved.runtimeId+'.json'),'utf8')).draft,creative);
+  });
+
 });

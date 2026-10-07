@@ -1,0 +1,240 @@
+{
+  "passed": true,
+  "timestamp": "2026-10-07T12:29:22.175Z",
+  "checks": [
+    "320×568 : commandes ≥44 px, dans l’écran, sans chevauchement.",
+    "320×568 : haut accélère, bas freine puis recule ; diagonales et retour du pouce au centre au relâchement.",
+    "320×568 : AUTO commutable et mémorisé ; descendre le stick interrompt les gaz, relâcher réactive AUTO.",
+    "667×375 : commandes ≥44 px, dans l’écran, sans chevauchement.",
+    "667×375 : haut accélère, bas freine puis recule ; diagonales et retour du pouce au centre au relâchement.",
+    "667×375 : AUTO commutable et mémorisé ; descendre le stick interrompt les gaz, relâcher réactive AUTO.",
+    "Vrai multitouch : stick diagonal + drift/objet ; relâchements indépendants, une seule charge consommée par pression.",
+    "Pédales conservées : frein/recul prioritaire sur tout accélérateur, commandes indépendantes au relâchement.",
+    "Annulation tactile CDP : pouce centré et reprise volontaire visible ; gaz AUTO et drift suspendus.",
+    "Perte de focus simulée : commandes relâchées et AUTO suspendu.",
+    "Passage paysage → portrait pendant le geste : aucun axe ni gaz conservé.",
+    "Clavier : accélération et relâchement restent indépendants du tactile."
+  ],
+  "errors": [],
+  "captures": [
+    "stick-320x568.png",
+    "stick-667x375.png",
+    "stick-320x568-neutral.png"
+  ],
+  "evidence": {
+    "origin": "http://127.0.0.1:45013",
+    "mode": "private-input-validation",
+    "clientAssets": [
+      "/assets/index-CWZ4_iAy.js",
+      "/assets/index-C9CS0-o2.css"
+    ],
+    "layout320x568": [
+      {
+        "id": "touch-auto",
+        "x": 10,
+        "y": 372,
+        "w": 79.125,
+        "h": 44
+      },
+      {
+        "id": "reset",
+        "x": 222.15625,
+        "y": 372,
+        "w": 87.84375,
+        "h": 44
+      },
+      {
+        "id": "touch-steer",
+        "x": 10,
+        "y": 440,
+        "w": 128,
+        "h": 116
+      },
+      {
+        "id": "drift",
+        "x": 178,
+        "y": 424,
+        "w": 62,
+        "h": 62
+      },
+      {
+        "id": "touch-item",
+        "x": 248,
+        "y": 424,
+        "w": 62,
+        "h": 62
+      },
+      {
+        "id": "brake",
+        "x": 178,
+        "y": 494,
+        "w": 62,
+        "h": 62
+      },
+      {
+        "id": "accelerate",
+        "x": 248,
+        "y": 494,
+        "w": 62,
+        "h": 62
+      }
+    ],
+    "320x568Up": {
+      "seq": 50,
+      "epoch": 1,
+      "throttle": 1,
+      "steer": 0,
+      "brake": false,
+      "drift": false,
+      "use": false,
+      "reset": false,
+      "speed": 2.933333333333333
+    },
+    "320x568Down": {
+      "seq": 59,
+      "epoch": 1,
+      "throttle": 0,
+      "steer": 0,
+      "brake": true,
+      "drift": false,
+      "use": false,
+      "reset": false,
+      "speed": 16.257271379123996
+    },
+    "320x568Reverse": {
+      "seq": 67,
+      "epoch": 1,
+      "throttle": -1,
+      "steer": 0,
+      "brake": false,
+      "drift": false,
+      "use": false,
+      "reset": false,
+      "speed": -2.1999999999999997
+    },
+    "320x568AutoDown": {
+      "seq": 167,
+      "epoch": 1,
+      "throttle": 0,
+      "steer": 0.8148148516078055,
+      "brake": true,
+      "drift": false,
+      "use": false,
+      "reset": false,
+      "speed": 1.5002594634042934
+    },
+    "layout667x375": [
+      {
+        "id": "touch-auto",
+        "x": 16,
+        "y": 199,
+        "w": 79.125,
+        "h": 44
+      },
+      {
+        "id": "reset",
+        "x": 559.15625,
+        "y": 199,
+        "w": 91.84375,
+        "h": 44
+      },
+      {
+        "id": "touch-steer",
+        "x": 16,
+        "y": 259,
+        "w": 128,
+        "h": 108
+      },
+      {
+        "id": "drift",
+        "x": 532,
+        "y": 248,
+        "w": 56,
+        "h": 56
+      },
+      {
+        "id": "touch-item",
+        "x": 595,
+        "y": 248,
+        "w": 56,
+        "h": 56
+      },
+      {
+        "id": "brake",
+        "x": 532,
+        "y": 311,
+        "w": 56,
+        "h": 56
+      },
+      {
+        "id": "accelerate",
+        "x": 595,
+        "y": 311,
+        "w": 56,
+        "h": 56
+      }
+    ],
+    "667x375Up": {
+      "seq": 99,
+      "epoch": 1,
+      "throttle": 1,
+      "steer": 0,
+      "brake": false,
+      "drift": false,
+      "use": false,
+      "reset": false,
+      "speed": 2.1999999999999997
+    },
+    "667x375Down": {
+      "seq": 105,
+      "epoch": 1,
+      "throttle": 0,
+      "steer": 0,
+      "brake": true,
+      "drift": false,
+      "use": false,
+      "reset": false,
+      "speed": 4.466666666666667
+    },
+    "667x375Reverse": {
+      "seq": 111,
+      "epoch": 1,
+      "throttle": -1,
+      "steer": 0,
+      "brake": false,
+      "drift": false,
+      "use": false,
+      "reset": false,
+      "speed": -1.2666666666666662
+    },
+    "667x375AutoDown": {
+      "seq": 202,
+      "epoch": 1,
+      "throttle": 0,
+      "steer": 0.8148148516078055,
+      "brake": true,
+      "drift": false,
+      "use": false,
+      "reset": false,
+      "speed": 2.3935227028577106
+    },
+    "stickAndDrift": {
+      "seq": 231,
+      "epoch": 1,
+      "throttle": 1,
+      "steer": 0.8148148516078055,
+      "brake": false,
+      "drift": true,
+      "use": false,
+      "reset": false,
+      "speed": 4.075574481838061
+    }
+  },
+  "fixtures": [
+    "Serveur et données privés éphémères ; préférence AUTO OFF initiale via localStorage ; entraînement lancé par UI ; gestes CDP Chromium ; événement blur synthétique.",
+    "Un triple turbo attribué au kart privé pour mesurer une consommation par appui. Toutes les accélérations, directions et vitesses sont produites par les contrôles normaux ; aucune mutation de trajectoire ni suspension de simulation."
+  ],
+  "limitations": [
+    "Chromium/SwiftShader émulé : téléphone physique et Safari iOS non testés."
+  ]
+}

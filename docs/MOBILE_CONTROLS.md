@@ -15,10 +15,13 @@ Ces choix sont une adaptation à Lagon Kart, pas une reproduction exacte des com
 
 | Geste | Résultat |
 | --- | --- |
-| Pouce gauche sur le volant, glisser horizontalement | Direction analogique progressive, petite zone neutre au centre |
+| Pouce gauche sur le joystick, glisser horizontalement | Direction analogique progressive, petite zone neutre au centre |
+| Glisser le joystick vers le haut | Accélération manuelle, avec ou sans AUTO |
+| Glisser le joystick vers le bas | Frein prioritaire sur AUTO et l’accélérateur, puis marche arrière |
+| Glisser en diagonale | Tourner et accélérer ou freiner/reculer en un seul geste |
 | `AUTO ON` | Accélération dès le GO ; réglage mémorisé sur cet appareil |
-| `AUTO OFF`, maintenir ↑ | Accélération manuelle |
-| Maintenir ↑ pendant la dernière seconde du départ | Départ turbo selon les règles existantes |
+| `AUTO OFF` | Pilotage manuel au joystick ; les pédales séparées restent disponibles |
+| Joystick vers le haut ou pédale ↑ pendant la dernière seconde du départ | Départ turbo selon les règles existantes |
 | Maintenir FREIN / RECUL | Frein prioritaire sur le gaz automatique, puis marche arrière |
 | Maintenir DRIFT, relâcher | Drift puis mini-turbo selon la charge existante |
 | Toucher OBJET | Utilisation unique ; l’icône indique l’objet tenu |
@@ -26,13 +29,38 @@ Ces choix sont une adaptation à Lagon Kart, pas une reproduction exacte des com
 
 Le clavier reste utilisable. Les doigts ne modifient plus le jeu de touches clavier. Deux doigts sur une même action ne l’annulent pas quand un seul se relève. Le joystick conserve son doigt propriétaire jusqu’au relâchement.
 
+Au relâchement, le pouce se recentre sur les deux axes. Avec **AUTO ON**, les gaz reprennent ; avec **AUTO OFF**, le kart roule sur son élan. La zone neutre verticale permet de tourner horizontalement sans déclencher involontairement le frein. Un second doigt peut utiliser DRIFT ou OBJET pendant un geste diagonal.
+
 Une annulation tactile par le système, une perte de focus ou un changement portrait/paysage libère tous les appuis **et suspend le gaz automatique**. Une nouvelle action ou `Reprendre` réactive les commandes. Les spectateurs et pilotes ayant terminé ne voient pas de commandes actives. Le mode automatique attend le GO pour ne pas provoquer de faux départ.
 
 ## Écran
 
 Les commandes restent dans les coins inférieurs. Le centre est transparent et ne capture aucun geste. Les zones tactiles font au moins 44 × 44 px ; les actions principales font 62 × 62 px en portrait et 56 × 56 px en paysage compact. Les marges tiennent compte des encoches et de l’indicateur d’accueil (`safe-area-inset-*`, `viewport-fit=cover`). La mini-carte et les tours occupent les coins supérieurs ; le classement détaillé, la carte d’objet redondante et les raccourcis clavier sont retirés du HUD tactile en course. Les menus restent disponibles hors course.
 
-## Validation reproductible
+## Validation du joystick sur deux axes
+
+Le 7 octobre 2026 : **11/11 tests d’état**, puis **12 contrôles Chromium** à
+320 × 568 et 667 × 375. Accélération, freinage puis vitesse négative, diagonales,
+priorité sur AUTO/pédales, relâchements indépendants, drift/objet multitouch,
+annulation, changement de format et clavier sont vérifiés. Aucune erreur JS.
+Les trois captures ont été inspectées : [portrait](mobile-stick/stick-320x568.png),
+[paysage](mobile-stick/stick-667x375.png), [retour au centre](mobile-stick/stick-320x568-neutral.png).
+
+```sh
+npm run build
+node --import tsx --test tests/mobile-controls.test.ts
+npm run test:mobile-stick
+```
+
+Le script démarre un serveur et un stockage temporaires ; chaque format ouvre
+un entraînement neuf par l’interface. Les gestes CDP produisent les déplacements
+réels et les entrées Colyseus sont lues sans modification. Un triple turbo
+attribué sur le serveur privé permet de tester une seule charge par pression ;
+la perte de focus est un événement synthétique. [Rapport détaillé](mobile-stick/validation.json).
+La suite complète intégrée passe également : [349/349 tests](mobile-stick/unit-validation.json).
+Les essais sur téléphone physique et Safari iOS restent à faire.
+
+## Validation historique de la disposition initiale
 
 Exécuté le 7 octobre 2026 : **6/6 tests d’état et 15/15 vérifications navigateur**, aucune erreur JavaScript. Formats : 320 × 568, 360 × 640, 390 × 844, 568 × 320 et 667 × 375. La dernière passe utilise le build intégré `index-wc3mK_Sw.js` / `index-DhaT9t6d.css`. Elle couvre les treize contrôles de disposition et de pilotage, puis deux contrôles visuels ciblés ; sept captures ont été produites.
 

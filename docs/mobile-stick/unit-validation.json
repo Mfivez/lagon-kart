@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "at": "2026-10-07T12:28:19.236912+00:00",
+  "command": "node --import tsx --test --test-concurrency=4 tests/*.test.ts",
+  "durationMs": 181128.702738,
+  "tests": 349,
+  "pass": 349,
+  "fail": 0,
+  "cancelled": 0,
+  "skipped": 0,
+  "build": "npm run build: passed",
+  "dockerImageBuild": "docker compose -p lagon-kart build app: passed",
+  "clientAssets": [
+    "index-CWZ4_iAy.js",
+    "index-C9CS0-o2.css"
+  ],
+  "scope": "Automated tests of simulation, rooms, persistence, tournaments, creative layouts and mobile input state. Browser checks have separate reports."
+}

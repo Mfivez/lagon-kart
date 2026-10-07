@@ -494,7 +494,7 @@ function updateUI(now: number, force = false) {
   }
   const count = world?.phase === 'countdown' ? Math.max(1, Math.ceil(world.countdown)) : world?.phase === 'racing' && world.raceTime < 0.8 ? 0 : -1;
   show('countdown', count >= 0); if (count >= 0) el('countdown').textContent = count === 0 ? 'GO !' : String(count);
-  const launchHint = world?.phase === 'countdown' ? me?.launchFault ? 'Trop tôt ! Vous prendrez un départ normal.' : world.countdown <= 1 ? 'MAINTENANT ! Maintenez l’accélérateur pour le départ turbo.' : mobileControls.available ? 'AUTO démarre au GO · Pour un turbo, touchez ↑ à 1.' : 'Départ turbo : attendez la dernière seconde pour accélérer.' : '';
+  const launchHint = world?.phase === 'countdown' ? me?.launchFault ? 'Trop tôt ! Vous prendrez un départ normal.' : world.countdown <= 1 ? 'MAINTENANT ! Maintenez l’accélérateur pour le départ turbo.' : mobileControls.available ? 'Turbo : joystick ↑ à 1 · ↓ pour freiner/reculer.' : 'Départ turbo : attendez la dernière seconde pour accélérer.' : '';
   const banner = me?.spectator && racing ? 'Vous arrivez en cours de route · À vous la prochaine course !' : me?.finished && racing ? `Arrivée ! ${me.rank}${me.rank === 1 ? 'er' : 'e'} · Les autres pilotes terminent…` : launchHint;
   show('race-banner', !!banner); el('race-banner').textContent = banner;
   audio.update(predicted?.speed ?? 0, connected && phase === 'racing' && !me?.finished && !me?.spectator, me?.item ?? '', (predicted?.boost ?? 0) > 0, count, world?.trackId, connected && phase === 'racing', tracked?.lap ?? 0);

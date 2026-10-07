@@ -2,6 +2,52 @@
 
 Vérifications des 6 et 7 octobre 2026 dans WSL/Linux avec Docker Desktop 4.55.0, Docker Engine 29.1.3, Compose 2.40.3, Node 20.19.2 sur l'hôte et Node 22.21.1 dans l'image. Les résultats ci-dessous distinguent simulation, clients réseau automatisés et navigateur ; chaque lot conserve ses preuves et sa date.
 
+## 7 octobre 2026 — joystick complet et tracés libres
+
+Le joystick mobile pilote les deux axes : haut accélère, bas freine puis recule,
+et les diagonales combinent direction et pédale. Le bas prime sur AUTO et
+l’accélérateur séparé ; AUTO OFF permet la conduite manuelle au même pouce.
+Les boutons drift/objet et le clavier restent indépendants.
+[Commandes et captures](docs/mobile-stick/README.md).
+
+Dans l’atelier, points proches ou collés, virages serrés, croisements, portions
+et zones superposées ne bloquent plus la sauvegarde. La limite de longueur est
+retirée ; capacités portées à 3–128 points, largeur 4–80 m, coordonnées ±2 000 m
+et 64 zones. Seules les données invalides ou une route de longueur nulle restent
+refusées. Le spline historique reste identique : les versions publiées ne bougent pas.
+
+- **349/349 tests automatisés** réussis en **181,129 s**, aucun échec ni test
+  ignoré. Les nouveaux cas incluent les commandes verticales, la sauvegarde et
+  réouverture de points collés, les empreintes historiques et dix formes
+  créatives simulées avec huit CPU sans valeur non finie. Le contrôle ciblé
+  renforcé couvre dix secondes de conduite après le compte à rebours ; il ne
+  prétend pas que toutes les créations extrêmes soient terminables.
+  Les quatre courses de référence personnalisées terminent à **8/8 CPU**.
+  [Rapport intégré](docs/mobile-stick/unit-validation.json).
+- **12 contrôles mobiles privés Chromium** réussis à 320 × 568 et 667 × 375 :
+  vrais gestes CDP, vitesses avant/arrière, entrées reçues par Colyseus, priorité
+  AUTO/pédales, diagonales, drift/objet multitouch, relâchement, annulation,
+  changement de format et clavier. Aucune erreur JS. Un triple turbo privé et
+  un événement de perte de focus synthétique sont explicitement déclarés.
+  Trois captures inspectées. [Rapport](docs/mobile-stick/validation.json).
+- **6 contrôles navigateur de l’atelier** réussis : modification, brouillon
+  restauré, erreur HTTP synthétique sans perte puis sauvegarde réelle, points
+  collés publiés en version 2, essai de la version 3 après annulation, et
+  duplication tactile par un second profil à 320 px. Déplacement de **2,57 m**
+  mesuré pendant l’accélération, vitesse **10,27 m/s** ; aucune erreur JS.
+  Cinq captures ; aucune arrivée imposée, mais ce parcours ne termine pas de
+  course. [Rapport](docs/creative-tracks/browser-validation.json) ·
+  [Points collés sauvegardés](docs/creative-tracks/editor-creative-curve.png).
+
+Build, TypeScript et image Docker réussis. Recréation de l’application à zéro
+salon : **25 fichiers de données et 31 profils conservés**, circuit publié
+rouvert à l’identique, tunnel inchangé. JS `index-CWZ4_iAy.js` et CSS
+`index-C9CS0-o2.css` publics identiques au build ; neuf modules serveur/shared
+comparés également. [Déploiement](docs/mobile-stick/deployment.json).
+
+Téléphone physique, Safari iOS et confort humain restent à vérifier. Aucun
+nouvel asset, service payant ou dépendance n’est ajouté.
+
 ## 7 octobre 2026 — tournoi ramené à deux courses
 
 Bug reproduit dans Chromium : choisir huit courses puis activer les équipes

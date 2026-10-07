@@ -50,3 +50,13 @@
 @media(max-width:680px){.garage-dialog select{min-height:44px;font-size:16px}}
 
 .editor-entry{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.editor-entry button{min-height:44px}
+
+/* Two-axis driving pad: direction and pedals share the left thumb. */
+.touch-controls .touch-steer-arrows{position:absolute;inset:0;display:block;padding:0;font-size:23px!important;pointer-events:none}
+.touch-steer-arrows>span{position:absolute;line-height:1;color:#fff8dfd9;text-shadow:0 1px 3px #173c48}
+.touch-steer-up{top:4px;left:50%;transform:translateX(-50%)}
+.touch-steer-down{bottom:4px;left:50%;transform:translateX(-50%)}
+.touch-steer-left{left:7px;top:50%;transform:translateY(-50%)}
+.touch-steer-right{right:7px;top:50%;transform:translateY(-50%)}
+.touch-controls .touch-knob{left:calc(50% - 20px);top:calc(50% - 20px);width:40px;height:40px;font-size:22px;transform:translate(var(--thumb-x,0px),var(--thumb-y,0px));pointer-events:none}
+.touch-steering .touch-caption{font-size:7px;letter-spacing:.1px;white-space:nowrap}

@@ -35,6 +35,7 @@
     "test:final-race": "node --import tsx scripts/final-race-check.ts",
     "test:docker-persistence": "node --import tsx scripts/docker-persistence-check.ts",
     "test:mobile-browser": "node --import tsx scripts/mobile-browser-check.ts",
+    "test:mobile-stick": "node --import tsx scripts/mobile-stick-check.ts",
     "test:scenes-browser": "node --import tsx scripts/scenes-browser-check.ts",
     "test:accounts-browser": "node --import tsx scripts/accounts-browser-check.ts",
     "test:accounts-public": "node --import tsx scripts/accounts-public-check.ts",

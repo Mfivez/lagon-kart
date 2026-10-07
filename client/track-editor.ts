@@ -1,5 +1,5 @@
 import './track-editor.css';
-import { CUSTOM_TRACK_THEMES, CUSTOM_TRACK_TEMPLATES, sampleCustomTrackAnchors, validateCustomTrackDraft, type CustomTrackDraft, type StoredCustomTrack } from '../shared/custom-tracks';
+import { CUSTOM_TRACK_LIMITS, CUSTOM_TRACK_THEMES, CUSTOM_TRACK_TEMPLATES, sampleCustomTrackAnchors, validateCustomTrackDraft, type CustomTrackDraft, type StoredCustomTrack } from '../shared/custom-tracks';
 import type { Vec2 } from '../shared/track';
 
 export interface TrackEditorOptions {
@@ -113,10 +113,10 @@ export class TrackEditor {
       const stored = JSON.parse(localStorage.getItem(this.storageKey) ?? 'null');
       const candidate = stored?.draft as CustomTrackDraft | undefined;
       if (!candidate || typeof candidate.name !== 'string' || !CUSTOM_TRACK_THEMES.some(theme => theme.id === candidate.theme)
-        || !Number.isFinite(candidate.width) || candidate.width < 14 || candidate.width > 28
-        || !Array.isArray(candidate.anchors) || candidate.anchors.length < 6 || candidate.anchors.length > 32
-        || !candidate.anchors.every(point => Number.isFinite(point?.x) && Number.isFinite(point?.z) && Math.abs(point.x) <= 450 && Math.abs(point.z) <= 450)
-        || !Array.isArray(candidate.zones) || candidate.zones.length > 12
+        || !Number.isFinite(candidate.width) || candidate.width < CUSTOM_TRACK_LIMITS.minWidth || candidate.width > CUSTOM_TRACK_LIMITS.maxWidth
+        || !Array.isArray(candidate.anchors) || candidate.anchors.length < CUSTOM_TRACK_LIMITS.minAnchors || candidate.anchors.length > CUSTOM_TRACK_LIMITS.maxAnchors
+        || !candidate.anchors.every(point => Number.isFinite(point?.x) && Number.isFinite(point?.z) && Math.abs(point.x) <= CUSTOM_TRACK_LIMITS.coordinate && Math.abs(point.z) <= CUSTOM_TRACK_LIMITS.coordinate)
+        || !Array.isArray(candidate.zones) || candidate.zones.length > CUSTOM_TRACK_LIMITS.maxZones
         || !candidate.zones.every(zone => ['boost', 'ice', 'mud'].includes(zone?.kind) && [zone.start, zone.end, zone.offset, zone.width].every(Number.isFinite))) return;
       this.draft = copy(candidate);
       if (typeof stored.previous?.id === 'string' && Number.isInteger(stored.previous?.revision)) this.previous = stored.previous;
@@ -211,7 +211,7 @@ export class TrackEditor {
     if (action === 'fit') { this.fit(); this.renderDrawing(); }
     if (action === 'zoom') {
       const factor = target.dataset.direction === 'in' ? .8 : 1.25;
-      const width = Math.max(120, Math.min(1200, this.view.width * factor));
+      const width = Math.max(20, Math.min(CUSTOM_TRACK_LIMITS.coordinate * 2.5, this.view.width * factor));
       const height = this.view.height * width / this.view.width;
       this.view = { x: this.view.x + (this.view.width - width) / 2, z: this.view.z + (this.view.height - height) / 2, width, height };
       this.renderDrawing();
@@ -222,7 +222,7 @@ export class TrackEditor {
       const next = from.pop();
       if (next) { to.push(copy(this.draft)); this.draft = next; this.selected = Math.min(this.selected, this.draft.anchors.length - 1); this.changed(); this.renderFields(); this.renderZones(); }
     }
-    if (action === 'delete-point' && this.draft.anchors.length > 6) {
+    if (action === 'delete-point' && this.draft.anchors.length > CUSTOM_TRACK_LIMITS.minAnchors) {
       this.remember(); this.draft.anchors.splice(this.selected, 1); this.selected = Math.max(0, this.selected - 1); this.changed();
     }
     if (action === 'start' && this.selected !== 0) {
@@ -238,7 +238,7 @@ export class TrackEditor {
       const owned = record?.authorId === this.options.getPlayerId?.();
       if (record) this.confirmReplace(() => this.load(action === 'copy' || !owned ? { ...record.draft, name: `${record.draft.name.slice(0, 35)} — copie` } : record.draft, action === 'open' && owned ? record : undefined));
     }
-    if (action === 'add-zone' && this.draft.zones.length < 12) {
+    if (action === 'add-zone' && this.draft.zones.length < CUSTOM_TRACK_LIMITS.maxZones) {
       let start = .25;
       for (let candidate = .08; candidate <= .88; candidate += .06) {
         if (!this.draft.zones.some(zone => candidate < zone.end + .015 && candidate + .04 > zone.start - .015)) { start = Math.round(candidate * 100) / 100; break; }
@@ -283,9 +283,9 @@ export class TrackEditor {
       this.remember();
       if (target.dataset.field === 'kind') zone.kind = target.value as typeof zone.kind;
       if (target.dataset.field === 'start') {
-        const duration = zone.end - zone.start; zone.start = Math.max(.05, Math.min(.90, Number(target.value) / 100)); zone.end = Math.min(.94, zone.start + duration);
+        const duration = zone.end - zone.start; zone.start = Math.max(0, Math.min(.999, Number(target.value) / 100)); zone.end = Math.min(1, zone.start + duration);
       }
-      if (target.dataset.field === 'duration') zone.end = Math.min(.94, zone.start + Math.max(.01, Math.min(.12, Number(target.value) / 100)));
+      if (target.dataset.field === 'duration') zone.end = Math.min(1, zone.start + Math.max(.001, Math.min(1, Number(target.value) / 100)));
       if (target.dataset.field === 'lane') {
         zone.width = Math.min(8, this.draft.width * .6);
         zone.offset = Number(target.value) * (this.draft.width - zone.width) / 2;
@@ -294,8 +294,8 @@ export class TrackEditor {
       this.changed();
       const position = this.dialog.querySelector<HTMLInputElement>(`[data-zone="${index}"][data-field="start"]`);
       const duration = this.dialog.querySelector<HTMLInputElement>(`[data-zone="${index}"][data-field="duration"]`);
-      if (position) position.value = String(Math.round(zone.start * 100));
-      if (duration) duration.value = String(Math.round((zone.end - zone.start) * 100));
+      if (position) position.value = String(Math.round(zone.start * 1000) / 10);
+      if (duration) duration.value = String(Math.round((zone.end - zone.start) * 1000) / 10);
     }
   }
 
@@ -326,14 +326,14 @@ export class TrackEditor {
     if (!direction) return;
     event.preventDefault(); this.selected = Number(point.dataset.point); this.remember();
     const anchor = this.draft.anchors[this.selected]!; const step = event.shiftKey ? 1 : 5;
-    anchor.x = Math.max(-440, Math.min(440, anchor.x + direction.x * step)); anchor.z = Math.max(-440, Math.min(440, anchor.z + direction.z * step));
+    anchor.x = Math.max(-CUSTOM_TRACK_LIMITS.coordinate, Math.min(CUSTOM_TRACK_LIMITS.coordinate, anchor.x + direction.x * step)); anchor.z = Math.max(-CUSTOM_TRACK_LIMITS.coordinate, Math.min(CUSTOM_TRACK_LIMITS.coordinate, anchor.z + direction.z * step));
     this.changed(); this.dialog.querySelector<SVGElement>(`[data-point="${this.selected}"]`)?.focus();
   }
 
   private worldPoint(event: PointerEvent): Vec2 | undefined {
     const svg = this.dialog.querySelector<SVGSVGElement>('#editor-canvas'); const matrix = svg?.getScreenCTM(); if (!svg || !matrix) return;
     const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix.inverse());
-    return { x: Math.round(Math.max(-440, Math.min(440, point.x)) * 2) / 2, z: Math.round(Math.max(-440, Math.min(440, point.y)) * 2) / 2 };
+    return { x: Math.round(Math.max(-CUSTOM_TRACK_LIMITS.coordinate, Math.min(CUSTOM_TRACK_LIMITS.coordinate, point.x)) * 2) / 2, z: Math.round(Math.max(-CUSTOM_TRACK_LIMITS.coordinate, Math.min(CUSTOM_TRACK_LIMITS.coordinate, point.y)) * 2) / 2 };
   }
 
   private pointerDown(event: PointerEvent) {
@@ -346,7 +346,7 @@ export class TrackEditor {
       svg.setPointerCapture(event.pointerId); event.preventDefault(); this.renderDrawing(); this.renderToolbar();
       this.dialog.querySelector<SVGElement>(`[data-point="${this.selected}"]`)?.focus();
     } else if (this.mode === 'add') {
-      if (this.draft.anchors.length >= 32) { this.notice = 'Votre circuit a déjà 32 points. Déplacez les points existants pour affiner son tracé.'; this.noticeKind = 'info'; this.renderFeedback(); return; }
+      if (this.draft.anchors.length >= CUSTOM_TRACK_LIMITS.maxAnchors) { this.notice = `Votre circuit atteint la capacité de ${CUSTOM_TRACK_LIMITS.maxAnchors} points. Déplacez les points existants pour affiner son tracé.`; this.noticeKind = 'info'; this.renderFeedback(); return; }
       const points = sampleCustomTrackAnchors(this.draft.anchors);
       let nearest = 0; let distance = Infinity;
       points.forEach((sample, index) => { const next = Math.hypot(sample.x - world.x, sample.z - world.z); if (next < distance) { distance = next; nearest = index; } });
@@ -386,9 +386,9 @@ export class TrackEditor {
       <p class="editor-canvas-hint" id="editor-canvas-hint"></p><div class="editor-canvas-frame"><svg id="editor-canvas" role="group" aria-label="Plan du circuit. Faites glisser les points pour modifier la route." xmlns="http://www.w3.org/2000/svg"></svg></div>
       <div class="editor-point-tools"><span id="editor-selection"></span><button type="button" data-action="start" id="editor-set-start" class="editor-button">Départ ici</button><button type="button" data-action="delete-point" id="editor-delete-point" class="editor-button">Supprimer le point</button></div>
       <div class="editor-route-stats" id="editor-route-stats"></div><div id="editor-validation" class="editor-validation" tabindex="-1" aria-live="polite"></div>
-      <details class="editor-help"><summary>Comment créer un circuit agréable ?</summary><ol><li>Partez d’un modèle, puis faites glisser les points blancs. Prévoyez de grandes courbes.</li><li>Pour allonger la route, choisissez « Ajouter un point » puis touchez le tracé.</li><li>Le drapeau marque le départ. Sélectionnez un point puis « Départ ici » pour le déplacer.</li><li>Les zones turbo, glace ou boue sont facultatives. Le pourcentage indique leur position dans le tour.</li><li>Sauvegardez pour partager. « Sauvegarder et essayer » lance une course d’entraînement.</li></ol><p>Clavier : tabulation pour choisir un point, flèches pour le déplacer, Maj pour affiner. Ctrl/Cmd + Z annule, Ctrl/Cmd + S sauvegarde.</p></details></section>
+      <details class="editor-help"><summary>Comment créer un circuit agréable ?</summary><ol><li>Partez d’un modèle, puis faites glisser les points blancs. Virages serrés, points collés et croisements sont autorisés.</li><li>Pour allonger la route, choisissez « Ajouter un point » puis touchez le tracé.</li><li>Le drapeau marque le départ. Sélectionnez un point puis « Départ ici » pour le déplacer.</li><li>Les zones turbo, glace ou boue sont facultatives. Le pourcentage indique leur position dans le tour.</li><li>Sauvegardez pour partager. « Sauvegarder et essayer » lance une course d’entraînement.</li></ol><p>Clavier : tabulation pour choisir un point, flèches pour le déplacer, Maj pour affiner. Ctrl/Cmd + Z annule, Ctrl/Cmd + S sauvegarde.</p></details></section>
       <aside class="editor-settings"><section class="editor-card"><h3>1. Donnez-lui un style</h3><div id="editor-fields"></div></section>
-      <section class="editor-card"><div class="editor-section-heading"><h3>2. Pimentez le tour</h3><button type="button" class="editor-button" data-action="add-zone" id="editor-add-zone">+ Zone</button></div><p class="editor-muted">Facultatif : des bandes colorées sur la route.</p><div id="editor-zones"></div></section>
+      <section class="editor-card"><div class="editor-section-heading"><h3>2. Pimentez le tour</h3><button type="button" class="editor-button" data-action="add-zone" id="editor-add-zone">+ Zone</button></div><p class="editor-muted">Facultatif : des bandes colorées sur la route. En cas de superposition, la première zone de la liste agit.</p><div id="editor-zones"></div></section>
       <details class="editor-card editor-library" open><summary>Vos circuits et ceux de la classe</summary><div class="editor-new"><label for="editor-template">Partir d’un modèle</label><select id="editor-template">${CUSTOM_TRACK_TEMPLATES.map(template => `<option value="${escape(template.id)}">${escape(template.name)}</option>`).join('')}</select><button type="button" class="editor-button" data-action="new" id="editor-new">Nouveau circuit</button></div><div id="editor-library"></div></details></aside></div>
       <footer class="editor-footer"><div><strong id="editor-save-state"></strong><p id="editor-status" role="status"></p></div><div class="editor-footer-actions"><button type="button" class="editor-button" data-action="save" id="editor-save">Sauvegarder</button><button type="button" class="editor-button editor-primary" data-action="try" id="editor-try">Sauvegarder et essayer →</button></div></footer><div id="editor-confirmation"></div>`;
     this.renderFields(); this.renderZones(); this.renderToolbar(); this.renderDrawing(); this.renderFeedback(); this.renderLibrary();
@@ -396,25 +396,25 @@ export class TrackEditor {
 
   private renderFields() {
     const target = this.dialog.querySelector('#editor-fields'); if (!target) return;
-    target.innerHTML = `<label class="editor-field" for="editor-name">Nom du circuit<input id="editor-name" maxlength="48" autocomplete="off" value="${escape(this.draft.name)}" placeholder="Ex. La grande boucle de la classe"></label><label class="editor-field" for="editor-theme">Ambiance<select id="editor-theme">${CUSTOM_TRACK_THEMES.map(theme => `<option value="${theme.id}" ${theme.id === this.draft.theme ? 'selected' : ''}>${escape(theme.label)}</option>`).join('')}</select></label><label class="editor-field" for="editor-width"><span>Largeur de la route <output id="editor-width-value" for="editor-width">${this.draft.width} m</output></span><input type="range" id="editor-width" min="14" max="28" step="1" value="${this.draft.width}"><small>Une route large facilite les dépassements.</small></label>`;
+    target.innerHTML = `<label class="editor-field" for="editor-name">Nom du circuit<input id="editor-name" maxlength="48" autocomplete="off" value="${escape(this.draft.name)}" placeholder="Ex. La grande boucle de la classe"></label><label class="editor-field" for="editor-theme">Ambiance<select id="editor-theme">${CUSTOM_TRACK_THEMES.map(theme => `<option value="${theme.id}" ${theme.id === this.draft.theme ? 'selected' : ''}>${escape(theme.label)}</option>`).join('')}</select></label><label class="editor-field" for="editor-width"><span>Largeur de la route <output id="editor-width-value" for="editor-width">${this.draft.width} m</output></span><input type="range" id="editor-width" min="${CUSTOM_TRACK_LIMITS.minWidth}" max="${CUSTOM_TRACK_LIMITS.maxWidth}" step="1" value="${this.draft.width}"><small>Une route large facilite les dépassements.</small></label>`;
   }
 
   private renderToolbar() {
     const target = this.dialog.querySelector('#editor-toolbar'); if (!target) return;
-    if (!target.childElementCount) target.innerHTML = `<div class="editor-tool-group"><button type="button" id="editor-mode-move" class="editor-button ${this.mode === 'move' ? 'is-active' : ''}" data-action="mode" data-mode="move" aria-pressed="${this.mode === 'move'}">↔ Déplacer</button><button type="button" id="editor-mode-add" class="editor-button ${this.mode === 'add' ? 'is-active' : ''}" data-action="mode" data-mode="add" aria-pressed="${this.mode === 'add'}" ${this.draft.anchors.length >= 32 ? 'disabled' : ''}>+ Ajouter un point</button></div><div class="editor-tool-group"><button type="button" class="editor-button" data-action="undo" id="editor-undo" ${!this.undoStack.length ? 'disabled' : ''} aria-label="Annuler la dernière modification"><span aria-hidden="true">↶</span><span>Annuler</span></button><button type="button" class="editor-button" data-action="redo" id="editor-redo" ${!this.redoStack.length ? 'disabled' : ''} aria-label="Rétablir la modification"><span aria-hidden="true">↷</span><span>Rétablir</span></button></div><div class="editor-tool-group"><button type="button" class="editor-button editor-square" data-action="zoom" data-direction="in" aria-label="Agrandir le plan">＋</button><button type="button" class="editor-button editor-square" data-action="zoom" data-direction="out" aria-label="Réduire le plan">−</button><button type="button" class="editor-button" data-action="fit" id="editor-fit">Tout voir</button></div>`;
+    if (!target.childElementCount) target.innerHTML = `<div class="editor-tool-group"><button type="button" id="editor-mode-move" class="editor-button ${this.mode === 'move' ? 'is-active' : ''}" data-action="mode" data-mode="move" aria-pressed="${this.mode === 'move'}">↔ Déplacer</button><button type="button" id="editor-mode-add" class="editor-button ${this.mode === 'add' ? 'is-active' : ''}" data-action="mode" data-mode="add" aria-pressed="${this.mode === 'add'}" ${this.draft.anchors.length >= CUSTOM_TRACK_LIMITS.maxAnchors ? 'disabled' : ''}>+ Ajouter un point</button></div><div class="editor-tool-group"><button type="button" class="editor-button" data-action="undo" id="editor-undo" ${!this.undoStack.length ? 'disabled' : ''} aria-label="Annuler la dernière modification"><span aria-hidden="true">↶</span><span>Annuler</span></button><button type="button" class="editor-button" data-action="redo" id="editor-redo" ${!this.redoStack.length ? 'disabled' : ''} aria-label="Rétablir la modification"><span aria-hidden="true">↷</span><span>Rétablir</span></button></div><div class="editor-tool-group"><button type="button" class="editor-button editor-square" data-action="zoom" data-direction="in" aria-label="Agrandir le plan">＋</button><button type="button" class="editor-button editor-square" data-action="zoom" data-direction="out" aria-label="Réduire le plan">−</button><button type="button" class="editor-button" data-action="fit" id="editor-fit">Tout voir</button></div>`;
     for (const value of ['move', 'add'] as const) {
       const button = this.dialog.querySelector<HTMLButtonElement>(`#editor-mode-${value}`);
-      if (button) { button.classList.toggle('is-active', this.mode === value); button.setAttribute('aria-pressed', String(this.mode === value)); button.disabled = this.busy || (value === 'add' && this.draft.anchors.length >= 32); }
+      if (button) { button.classList.toggle('is-active', this.mode === value); button.setAttribute('aria-pressed', String(this.mode === value)); button.disabled = this.busy || (value === 'add' && this.draft.anchors.length >= CUSTOM_TRACK_LIMITS.maxAnchors); }
     }
     const undo = this.dialog.querySelector<HTMLButtonElement>('#editor-undo'); if (undo) undo.disabled = this.busy || !this.undoStack.length;
     const redo = this.dialog.querySelector<HTMLButtonElement>('#editor-redo'); if (redo) redo.disabled = this.busy || !this.redoStack.length;
     const hint = this.dialog.querySelector('#editor-canvas-hint'); if (hint) hint.textContent = this.mode === 'add' ? 'Touchez la route à l’endroit où vous voulez ajouter un point.' : 'Faites glisser les points blancs pour dessiner de grandes courbes.';
     const selection = this.dialog.querySelector('#editor-selection'); if (selection) selection.textContent = `Point ${this.selected + 1} / ${this.draft.anchors.length}${this.selected === 0 ? ' · Départ' : ''}`;
     const start = this.dialog.querySelector<HTMLButtonElement>('#editor-set-start'); if (start) start.disabled = this.selected === 0 || this.busy;
-    const remove = this.dialog.querySelector<HTMLButtonElement>('#editor-delete-point'); if (remove) { remove.disabled = this.draft.anchors.length <= 6 || this.busy; remove.title = this.draft.anchors.length <= 6 ? 'Gardez au moins 6 points pour une boucle agréable.' : ''; }
+    const remove = this.dialog.querySelector<HTMLButtonElement>('#editor-delete-point'); if (remove) { remove.disabled = this.draft.anchors.length <= CUSTOM_TRACK_LIMITS.minAnchors || this.busy; remove.title = this.draft.anchors.length <= CUSTOM_TRACK_LIMITS.minAnchors ? `Gardez au moins ${CUSTOM_TRACK_LIMITS.minAnchors} points pour définir une boucle.` : ''; }
     for (const id of ['editor-save', 'editor-try']) { const button = this.dialog.querySelector<HTMLButtonElement>(`#${id}`); if (button) button.disabled = this.busy || !this.validation.ok; }
     const close = this.dialog.querySelector<HTMLButtonElement>('#editor-close'); if (close) close.disabled = this.busy;
-    const zone = this.dialog.querySelector<HTMLButtonElement>('#editor-add-zone'); if (zone) zone.disabled = this.draft.zones.length >= 12 || this.busy;
+    const zone = this.dialog.querySelector<HTMLButtonElement>('#editor-add-zone'); if (zone) zone.disabled = this.draft.zones.length >= CUSTOM_TRACK_LIMITS.maxZones || this.busy;
     for (const input of this.dialog.querySelectorAll<HTMLInputElement | HTMLSelectElement>('.editor-settings input, .editor-settings select')) input.disabled = this.busy;
   }
 
@@ -432,7 +432,7 @@ export class TrackEditor {
       const t = Math.max(0, Math.min(1, (distance - lengths[segment]!) / norm));
       return { x: point.x + dx * t + dz / norm * offset, z: point.z + dz * t - dx / norm * offset };
     };
-    const zones = this.draft.zones.map(zone => {
+    const zones = [...this.draft.zones].reverse().map(zone => {
       const start = zone.start * length, end = zone.end * length;
       const subset = [atDistance(start, zone.offset), ...lengths.slice(0, -1)
         .filter(distance => distance > start && distance < end).map(distance => atDistance(distance, zone.offset)), atDistance(end, zone.offset)];
@@ -455,7 +455,7 @@ export class TrackEditor {
     const validation = this.dialog.querySelector<HTMLElement>('#editor-validation');
     if (validation) {
       validation.classList.toggle('is-invalid', !this.validation.ok);
-      validation.innerHTML = this.validation.ok ? '<strong>✓ La piste est prête à rouler</strong><span>Essayez-la pour vérifier le plaisir de conduite.</span>' : `<strong>Encore quelques ajustements</strong><ul>${this.validation.errors.map(error => `<li>${escape(error)}</li>`).join('')}</ul>`;
+      validation.innerHTML = this.validation.ok ? '<strong>✓ La piste est prête à rouler</strong><span>Tracé libre : virages serrés, points collés et croisements autorisés. Essayez la piste pour ajuster la conduite.</span>' : `<strong>Encore quelques ajustements</strong><ul>${this.validation.errors.map(error => `<li>${escape(error)}</li>`).join('')}</ul>`;
     }
     const status = this.dialog.querySelector<HTMLElement>('#editor-status');
     if (status) { status.textContent = this.notice || (this.localStorageFailed ? 'Le brouillon ne peut pas être conservé dans ce navigateur. Sauvegardez avant de partir.' : 'Le brouillon est gardé automatiquement sur ce navigateur.'); status.dataset.kind = this.noticeKind; }
@@ -466,7 +466,7 @@ export class TrackEditor {
     const target = this.dialog.querySelector('#editor-zones'); if (!target) return;
     target.innerHTML = this.draft.zones.length ? this.draft.zones.map((zone, index) => {
       const lane = zone.width >= this.draft.width - .1 ? 'full' : zone.offset < -1 ? '-1' : zone.offset > 1 ? '1' : '0';
-      return `<div class="editor-zone" data-zone-card="${index}"><div class="editor-zone-top"><label>Zone ${index + 1}<select data-zone="${index}" data-field="kind" aria-label="Type de la zone ${index + 1}">${Object.entries(ZONE_NAMES).map(([kind, name]) => `<option value="${kind}" ${zone.kind === kind ? 'selected' : ''}>${name}</option>`).join('')}</select></label><button type="button" class="editor-button editor-square" data-action="remove-zone" data-zone="${index}" aria-label="Supprimer la zone ${index + 1}">✕</button></div><div class="editor-zone-fields"><label>Position (%)<input type="number" min="5" max="90" step="1" value="${Math.round(zone.start * 100)}" data-zone="${index}" data-field="start" aria-label="Position de la zone ${index + 1} en pourcentage du tour"></label><label>Longueur (%)<input type="number" min="1" max="12" step="1" value="${Math.round((zone.end - zone.start) * 100)}" data-zone="${index}" data-field="duration" aria-label="Longueur de la zone ${index + 1} en pourcentage du tour"></label></div><label>Placement<select data-zone="${index}" data-field="lane" aria-label="Placement de la zone ${index + 1}"><option value="0" ${lane === '0' ? 'selected' : ''}>Au centre</option><option value="-1" ${lane === '-1' ? 'selected' : ''}>Côté droit</option><option value="1" ${lane === '1' ? 'selected' : ''}>Côté gauche</option><option value="full" ${lane === 'full' ? 'selected' : ''}>Toute la largeur</option></select></label></div>`;
+      return `<div class="editor-zone" data-zone-card="${index}"><div class="editor-zone-top"><label>Zone ${index + 1}<select data-zone="${index}" data-field="kind" aria-label="Type de la zone ${index + 1}">${Object.entries(ZONE_NAMES).map(([kind, name]) => `<option value="${kind}" ${zone.kind === kind ? 'selected' : ''}>${name}</option>`).join('')}</select></label><button type="button" class="editor-button editor-square" data-action="remove-zone" data-zone="${index}" aria-label="Supprimer la zone ${index + 1}">✕</button></div><div class="editor-zone-fields"><label>Position (%)<input type="number" min="0" max="99.9" step="0.1" value="${Math.round(zone.start * 1000) / 10}" data-zone="${index}" data-field="start" aria-label="Position de la zone ${index + 1} en pourcentage du tour"></label><label>Longueur (%)<input type="number" min="0.1" max="100" step="0.1" value="${Math.round((zone.end - zone.start) * 1000) / 10}" data-zone="${index}" data-field="duration" aria-label="Longueur de la zone ${index + 1} en pourcentage du tour"></label></div><label>Placement<select data-zone="${index}" data-field="lane" aria-label="Placement de la zone ${index + 1}"><option value="0" ${lane === '0' ? 'selected' : ''}>Au centre</option><option value="-1" ${lane === '-1' ? 'selected' : ''}>Côté droit</option><option value="1" ${lane === '1' ? 'selected' : ''}>Côté gauche</option><option value="full" ${lane === 'full' ? 'selected' : ''}>Toute la largeur</option></select></label></div>`;
     }).join('') : '<p class="editor-empty">Un tracé simple, c’est déjà un circuit. Ajoutez une zone quand vous le souhaitez.</p>';
   }
 

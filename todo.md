@@ -2,6 +2,17 @@
 
 État au **7 octobre 2026**. `[x]` = réalisé avec preuve ; `[ ]` = travail ou validation restant à terminer. [Démo intégrée et rapports](docs/DEMO.md).
 
+## Joystick complet et liberté de création
+
+- [x] Joystick mobile sur deux axes : haut pour accélérer, bas pour freiner puis reculer, diagonales et multitouch. Le frein prime sur AUTO ; AUTO OFF permet le pilotage manuel au même pouce.
+- [x] Suppression des blocages de proximité, virages serrés, croisements, portions superposées et longueur du circuit. Points exactement collés et zones superposées acceptés ; géométrie des anciennes versions conservée. [Mode d’emploi](docs/TRACK_EDITOR.md).
+- [x] Capacité étendue à 3–128 points, route de 4–80 m, coordonnées ±2 000 m et 64 zones. Les valeurs non finies et routes entièrement réduites à un point restent refusées.
+- [x] **349/349 tests** passent, dont les entrées mobiles, la publication/persistance des points collés et dix formes créatives avec huit CPU sans état invalide. Build et image Docker réussis. [Rapport](docs/mobile-stick/unit-validation.json).
+- [x] **12 contrôles mobiles Chromium** passent à 320 × 568 et 667 × 375 : mouvements réels, entrées Colyseus, AUTO, drift/objet multitouch et neutralisation. Trois captures inspectées ; triple turbo privé et perte de focus synthétique déclarés. [Rapport](docs/mobile-stick/validation.json).
+- [x] **6 contrôles de l’atelier** passent : points collés réellement publiés, essai en jeu et retour, brouillon restauré, duplication tactile à 320 px ; aucune erreur JS. [Rapport](docs/creative-tracks/browser-validation.json).
+- [x] Docker mis à jour à zéro salon ; 25 fichiers de données et 31 profils conservés, circuit rouvert et tunnel inchangé. [Preuve](docs/mobile-stick/deployment.json).
+- [ ] Confort sur téléphone physique et Safari iOS ; la simulation finie ne garantit pas que chaque création extrême soit terminable par les CPU.
+
 ## Tournois : nombre de courses conservé
 
 - [x] Bug reproduit : un tournoi de huit courses non encore appliqué revenait à deux lors de l’activation des équipes. Le brouillon survit désormais aux réglages CPU/événements/équipes ; un message et les boutons Prêt/Départ évitent de partir sur l’ancien programme. [Détails](docs/tournament-fix/README.md).
@@ -11,7 +22,7 @@
 
 ## Éditeur de circuits et bibliothèque de la classe
 
-- [x] Atelier visuel : points manipulables, ajout/suppression, départ déplaçable, annuler/rétablir, dix thèmes, largeur et zones turbo/glace/boue. Brouillon local par profil, erreurs de tracé expliquées et publication bloquée si la piste est invalide. [Mode d’emploi](docs/TRACK_EDITOR.md).
+- [x] Atelier visuel : points manipulables, ajout/suppression, départ déplaçable, annuler/rétablir, dix thèmes, largeur et zones turbo/glace/boue. Brouillon local par profil et contrôle des données ; les restrictions créatives du lot initial sont désormais levées. [Mode d’emploi](docs/TRACK_EDITOR.md).
 - [x] Sauvegardes dans `data/tracks/`, révisions immuables, bibliothèque partagée, édition par l’auteur et duplication pour les autres joueurs ; authentification et montage de données existants conservés.
 - [x] Créations jouables en entraînement, salon et tournoi ; définitions synchronisées avec Colyseus et anciennes versions conservées pendant les courses et pour les replays.
 - [x] **330/330 tests** de la suite complète et **8/8 tests complémentaires** de salon réussis. **8/8 pilotes** terminent trois tours dans une vraie course réseau malgré une publication pendant la course, sans reset CPU, avec progression sauvegardée. [Rapport](docs/editor/race-validation.json).

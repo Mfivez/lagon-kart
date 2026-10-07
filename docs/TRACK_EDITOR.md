@@ -12,7 +12,7 @@ abonnement, service externe ou dépendance supplémentaire : **0 €**.
    points blancs. **Ajouter un point** insère un virage ; **Annuler/Rétablir**
    aide à expérimenter. **Tout voir** recadre le plan.
 3. Choisir un point puis **Départ ici** pour déplacer la ligne. Le plan indique
-   le sens de circulation et signale les virages trop serrés ou les croisements.
+   le sens de circulation. Virages serrés, points collés et croisements sont autorisés.
 4. Donner un nom, choisir l’un des dix thèmes et régler la largeur de la route.
    Les zones turbo, glace et boue sont facultatives ; leur position est exprimée
    en pourcentage du tour. Les décors du thème sont générés autour de la piste.
@@ -63,14 +63,25 @@ comptes illisibles. Les fichiers de sauvegarde restent exclus de Git.
 
 ## Ce que l’atelier autorise
 
-- Boucle lissée à 6–32 points, route de 14–28 m, longueur de 400–2 400 m.
-- Dix thèmes et jusqu’à douze zones turbo/glace/boue ; objets mystères et bots
+- Boucle lissée à 3–128 points, route de 4–80 m, dessin jusqu’à 2 000 m autour
+  du centre. La longueur n’est plus limitée à 400–2 400 m.
+- Points voisins ou exactement superposés, épingles, croisements et portions
+  de route superposées ne bloquent plus la sauvegarde. Le zoom permet de les affiner.
+- Dix thèmes et jusqu’à 64 zones turbo/glace/boue ; objets mystères et bots
   restent ceux du jeu normal.
+- Les zones peuvent occuper tout le tour et se superposer ; la première de la
+  liste a priorité, comme dans la simulation.
 - Checkpoints, grille et bordures calculés automatiquement. Validation du même
   tracé côté éditeur et côté serveur, avec erreurs en français.
 - Les créations sont des routes au sol : l’atelier ne dessine pas encore de pont,
   tremplin, looping ou déviation. Les événements automatiques de fermeture sont
   désactivés sur ces tracés ; ceux des circuits officiels sont conservés.
+
+Les contrôles restants assurent que les données sont lisibles et la route non
+nulle : tous les points confondus sont refusés, mais plusieurs points collés
+sur une boucle sont acceptés. Les anciennes versions conservent exactement
+leur géométrie. Une création très serrée ou croisée peut être difficile à
+parcourir, notamment pour les CPU ; l’atelier vous laisse l’essayer et l’ajuster.
 
 ## Vérifications
 
@@ -82,3 +93,10 @@ sont consignés dans [VALIDATION.md](../VALIDATION.md).
 Captures inspectées : [éditeur sur ordinateur](editor/editor-desktop.png),
 [éditeur sur mobile 320 px](editor/editor-mobile-320.png) et
 [circuit forêt en jeu](editor/editor-trial-forest.png).
+
+L’assouplissement des tracés possède ses propres preuves :
+[6 contrôles navigateur](creative-tracks/browser-validation.json),
+[points collés publiés](creative-tracks/editor-creative-curve.png) et
+[duplication à 320 px](creative-tracks/editor-mobile-320.png). La sauvegarde
+des points collés est relue via l’API ; après annulation, une version suivante
+est essayée en jeu. Ce parcours vérifie le déplacement, pas une course complète.

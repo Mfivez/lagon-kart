@@ -1,0 +1,43 @@
+{
+  "passed": true,
+  "timestamp": "2026-10-07T12:32:45.769Z",
+  "checks": [
+    "Création réelle : nom, ambiance, déplacement souris, annuler/rétablir, ajustement clavier, départ repositionnable, point ajouté/supprimé et zone de glace.",
+    "Sauvegarde HTTP : erreur réseau simulée sans perte, réessai réussi, circuit et zones relus dans l’API.",
+    "Un brouillon non publié survit à la fermeture de l’éditeur et au rechargement de la page.",
+    "Des points collés sont autorisés et réellement sauvegardés en version 2 ; Annuler rétablit la piste sans perdre la version publiée.",
+    "Sauvegarder et essayer ouvre le vrai circuit en entraînement ; accélération réelle et retour dans l’éditeur sans perte.",
+    "Mobile 320×568 : aucun débordement, contrôles ≥44 px, vrai geste tactile, copie d’un autre joueur et sauvegarde indépendante."
+  ],
+  "captures": [
+    "editor-desktop.png",
+    "editor-creative-curve.png",
+    "editor-trial-race.png",
+    "editor-mobile-320.png",
+    "editor-mobile-settings-320.png"
+  ],
+  "errors": [],
+  "evidence": {
+    "origin": "http://127.0.0.1:3012",
+    "inputMethod": "Actions souris, clavier et tactile Chromium ; aucune modification directe du circuit ou de la simulation.",
+    "created": {
+      "id": "custom-1839cf62-d167-437f-b9f1-92ff26783dc4",
+      "revision": 1,
+      "name": "Grande boucle atelier 319192",
+      "authorName": "Créateur atelier"
+    },
+    "trial": {
+      "trackId": "custom-1839cf62-d167-437f-b9f1-92ff26783dc4-v3",
+      "speed": 10.266666666666664,
+      "distance": 2.566666666666665
+    },
+    "duplicate": {
+      "id": "custom-b7ab415e-ef02-4886-a402-fad6d3b8c1df",
+      "name": "La boucle de mon téléphone"
+    }
+  },
+  "remaining": [
+    "Téléphone physique non testé.",
+    "Ce scénario UI ne termine pas une course complète ; un contrôle serveur séparé couvre le comptage des tours."
+  ]
+}

@@ -46,6 +46,10 @@ export class GameAudio {
     this.music?.update(this.musicTrack, this.musicActive, this.volume, this.musicLap);
   }
 
+  bounce() {
+    this.tone(523, 0.08);
+  }
+
   private tone(frequency: number, duration = 0.13, delay = 0) {
     if (!this.context || !this.master) return;
     const oscillator = this.context.createOscillator();

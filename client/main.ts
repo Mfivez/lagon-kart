@@ -39,7 +39,7 @@ const itemIcons = { turbo: '↗', tripleTurbo: '↗³', trap: '△', projectile:
 const itemColors = { turbo: '#ffbe5c', tripleTurbo: '#ffc66d', trap: '#f3ac48', projectile: '#68dd91',
   seeker: '#ff737d', leaderBolt: '#74b8ff', star: '#ffe67c', shield: '#84e6ff', '': '#a2c8cd' };
 const itemHints = { turbo: 'Une accélération franche', tripleTurbo: 'Une pression par accélération', trap: 'Pose une balise derrière vous',
-  projectile: 'Lance un disque droit devant', seeker: 'Vise le pilote juste devant', leaderBolt: 'Poursuit le premier pilote',
+  projectile: 'Lance un disque qui rebondit sur les murs', seeker: 'Vise le pilote juste devant', leaderBolt: 'Poursuit le premier pilote',
   star: 'Invincible + turbo pendant 5,5 s', shield: 'Absorbe un impact pendant 8 s', '': 'Attrapez un cube sur la piste' };
 const audio = new GameAudio();
 let chosenColor = localStorage.getItem('lagon-color') ?? COLORS[0];
@@ -269,8 +269,10 @@ function errorMessage(error: unknown) {
   return message.length < 180 ? message : 'La connexion au salon a échoué. Réessayez dans un instant.';
 }
 
+const previousObjectAngles = new Map<string, number>();
+
 function attachRoom(next: Room) {
-  room = next; connected = true; reconnecting = false; leaving = false; resetPrediction();
+  room = next; connected = true; reconnecting = false; leaving = false; resetPrediction(); previousObjectAngles.clear();
   raceProfileBaseline = undefined;
   saveSession(); history.replaceState(null, '', `/room/${encodeURIComponent(next.roomId)}`);
   connection('En ligne', 'online'); el('reconnect').classList.add('hidden');
@@ -295,6 +297,17 @@ function attachRoom(next: Room) {
     const trackChanged = world?.trackId !== snapshot.world.trackId;
     if (trackChanged) resetPrediction();
     world = snapshot.world;
+    for (const object of world.objects) {
+      if (object.kind === 'projectile') {
+        const prev = previousObjectAngles.get(object.id);
+        if (prev !== undefined && Math.abs(Math.atan2(Math.sin(object.angle - prev), Math.cos(object.angle - prev))) > 0.15) {
+          audio.bounce();
+        }
+        previousObjectAngles.set(object.id, object.angle);
+      }
+    }
+    const currentObjectIds = new Set(world.objects.map(o => o.id));
+    for (const id of previousObjectAngles.keys()) if (!currentObjectIds.has(id)) previousObjectAngles.delete(id);
     fixedStep = 1 / Math.max(10, Math.min(60, snapshot.simHz || 30));
     const offset = now - snapshot.serverTime;
     serverClockOffset = snapshots.length ? Math.min(serverClockOffset, offset) : offset;

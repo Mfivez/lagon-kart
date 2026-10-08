@@ -66,6 +66,7 @@ export const FINISH_GRACE_SECONDS = 25;
 export const MAX_WORLD_OBJECTS = 32;
 export const STAR_SECONDS = 5.5;
 export const SHIELD_SECONDS = 8;
+export const PROJECTILE_TTL = 5;
 // The checkpoint corridor must match the shoulder that movement really allows.
 // A smaller gate silently loses an otherwise legal lap at an outside corner.
 
@@ -570,7 +571,7 @@ function useItem(world: World, kart: Kart): void {
         kind: kart.item, x: kart.x + Math.sin(kart.angle) * distance,
         z: kart.z + Math.cos(kart.angle) * distance, angle: kart.angle, owner: kart.id,
         progress: kart.routeProgress ?? kart.progress, elevation: kart.elevation,
-        ttl: kart.item === 'projectile' ? 4 : kart.item === 'seeker' ? 9 : 18,
+        ttl: kart.item === 'projectile' ? PROJECTILE_TTL : kart.item === 'seeker' ? 9 : 18,
         ...(target ? { targetId: target.id } : {}) });
     }
   }
@@ -682,20 +683,107 @@ function objectPose(object: { x: number; z: number; progress?: number; elevation
 function stepObjects(world: World, racers: Kart[], dt: number): void {
   for (const object of world.objects) {
     object.ttl -= dt;
-    const before = { x: object.x, z: object.z, progress: object.progress, elevation: object.elevation };
-    const roadBefore = nearestDriveableTrack(object.x, object.z, world.trackId, world.eventStage, world.eventLevel, object);
-    const loopBefore = !roadBefore.branchId ? trackLoopAt(roadBefore.progress, world.trackId) : undefined;
-    const move = (speed: number) => {
-      const pose = loopBefore ? trackLoopPose(roadBefore.progress, world.trackId) : undefined;
-      const delta = object.angle - roadBefore.angle;
-      const along = Math.cos(delta) * speed * (pose?.speedScale ?? 1), across = Math.sin(delta) * speed;
-      object.x += (Math.sin(roadBefore.angle) * along + Math.cos(roadBefore.angle) * across) * dt;
-      object.z += (Math.cos(roadBefore.angle) * along - Math.sin(roadBefore.angle) * across) * dt;
+    type Position = Pick<WorldObject, 'x' | 'z' | 'progress' | 'elevation'>;
+    const before: Position = { x: object.x, z: object.z, progress: object.progress, elevation: object.elevation };
+    const pathSegments: Array<{ from: Position; to: Position }> = [];
+    // Each part of a ricochet retains its own surface hint at stacked crossings.
+    const surfacePosition = (x: number, z: number, hint: Position): Position => {
+      const road = nearestDriveableTrack(x, z, world.trackId, world.eventStage, world.eventLevel, hint);
+      return { x, z, progress: road.progress, elevation: trackElevation(road.progress, world.trackId) };
     };
+    const stepMove = (start: Position, angle: number, dist: number): Position => {
+      const road = nearestDriveableTrack(start.x, start.z, world.trackId, world.eventStage, world.eventLevel, start);
+      const pose = !road.branchId ? trackLoopPose(road.progress, world.trackId) : undefined;
+      const delta = angle - road.angle;
+      const along = Math.cos(delta) * dist * (pose?.speedScale ?? 1), across = Math.sin(delta) * dist;
+      return surfacePosition(
+        start.x + (Math.sin(road.angle) * along + Math.cos(road.angle) * across),
+        start.z + (Math.cos(road.angle) * along - Math.sin(road.angle) * across), start);
+    };
+
     if (object.kind === 'projectile') {
-      move(62);
-      const road = nearestDriveableTrack(object.x, object.z, world.trackId, world.eventStage, world.eventLevel, object);
-      if (road.distance > road.width / 2 + 5) object.ttl = 0;
+      let current = surfacePosition(object.x, object.z, before);
+      let remainingDistance = 62 * dt;
+      for (let bounce = 0; bounce < 2 && remainingDistance > 1e-4; bounce++) {
+        const segFrom = current;
+        const stepDist = remainingDistance;
+        const cand = stepMove(current, object.angle, stepDist);
+        const candX = cand.x, candZ = cand.z;
+        const road = nearestDriveableTrack(candX, candZ, world.trackId, world.eventStage, world.eventLevel, cand);
+        const boundary = road.width / 2 + trackBoundaryShoulder(road.progress, world.trackId, road.branchId);
+
+        const blockerCheck = constrainTrackEvent(candX, candZ, current.x, current.z, 62, world.trackId, world.eventStage, world.eventLevel,
+          { previous: current.elevation!, current: cand.elevation! });
+        if (blockerCheck.blocked) {
+          const blocker = getTrackEvent(world.trackId, world.eventStage, world.eventLevel).blockers[0];
+          if (blocker) {
+            const sine = Math.sin(blocker.angle), cosine = Math.cos(blocker.angle);
+            const dx = blockerCheck.x - blocker.x, dz = blockerCheck.z - blocker.z;
+            const along = dx * sine + dz * cosine;
+            const across = dx * cosine - dz * sine;
+            let nx: number, nz: number;
+            if (Math.abs(along) / (blocker.halfLength + .95) >= Math.abs(across) / (blocker.halfWidth + .95)) {
+              const sign = along >= 0 ? 1 : -1;
+              nx = sign * sine; nz = sign * cosine;
+            } else {
+              const sign = across >= 0 ? 1 : -1;
+              nx = sign * cosine; nz = -sign * sine;
+            }
+            const vx = Math.sin(object.angle), vz = Math.cos(object.angle);
+            const dot = vx * nx + vz * nz;
+            if (dot < 0) {
+              const rx = vx - 2 * dot * nx, rz = vz - 2 * dot * nz;
+              const rLen = Math.hypot(rx, rz);
+              if (rLen > 1e-6) object.angle = Math.atan2(rx / rLen, rz / rLen);
+            }
+          }
+          current = surfacePosition(blockerCheck.x, blockerCheck.z, current);
+          pathSegments.push({ from: segFrom, to: current });
+          const traveled = Math.hypot(current.x - segFrom.x, current.z - segFrom.z);
+          remainingDistance = Math.max(0, remainingDistance - traveled);
+          continue;
+        }
+
+        if (road.distance > boundary) {
+          if (road.distance > boundary + 10) {
+            object.ttl = 0;
+            current = cand;
+            pathSegments.push({ from: segFrom, to: current });
+            break;
+          }
+          const dx = candX - road.x;
+          const dz = candZ - road.z;
+          const dist = road.distance || Math.hypot(dx, dz);
+          const nx = dx / dist;
+          const nz = dz / dist;
+          const vx = Math.sin(object.angle);
+          const vz = Math.cos(object.angle);
+          const dot = vx * nx + vz * nz;
+
+          if (dot > 0) {
+            const rx = vx - 2 * dot * nx;
+            const rz = vz - 2 * dot * nz;
+            const rLen = Math.hypot(rx, rz);
+            if (rLen > 1e-6) {
+              object.angle = Math.atan2(rx / rLen, rz / rLen);
+            }
+            remainingDistance = Math.max(0, Math.min(road.distance - boundary, remainingDistance));
+          } else {
+            remainingDistance = 0;
+          }
+
+          const safeDist = boundary - 0.15;
+          const contactX = road.x + nx * safeDist;
+          const contactZ = road.z + nz * safeDist;
+          current = surfacePosition(contactX, contactZ, current);
+          pathSegments.push({ from: segFrom, to: current });
+        } else {
+          current = cand;
+          pathSegments.push({ from: segFrom, to: current });
+          remainingDistance = 0;
+        }
+      }
+      Object.assign(object, current);
     } else if (object.kind === 'seeker' || object.kind === 'leaderBolt') {
       const owner = world.players.find(kart => kart.id === object.owner);
       let target = racers.find(kart => kart.id === object.targetId && activeOpponent(kart, object.owner, world));
@@ -710,23 +798,27 @@ function stepObjects(world: World, racers: Kart[], dt: number): void {
       const turn = Math.atan2(Math.sin(desired - object.angle), Math.cos(desired - object.angle));
       object.angle += clamp(turn, -7 * dt, 7 * dt);
       const speed = object.kind === 'leaderBolt' ? 82 : 64;
-      move(speed);
+      const nextPos = stepMove(before, object.angle, speed * dt);
+      Object.assign(object, nextPos);
+      pathSegments.push({ from: before, to: nextPos });
+    } else {
+      const after = surfacePosition(object.x, object.z, before);
+      Object.assign(object, after);
+      pathSegments.push({ from: before, to: after });
     }
     if (object.ttl <= 0) continue;
-    const roadAfter = nearestDriveableTrack(object.x, object.z, world.trackId, world.eventStage, world.eventLevel, object);
-    object.progress = roadAfter.progress;
-    object.elevation = trackElevation(roadAfter.progress, world.trackId);
-    const from = objectPose(before, world), to = objectPose(object, world);
-    const dx = to.x - from.x, dy = to.y - from.y, dz = to.z - from.z;
-    const distanceSquared = dx * dx + dy * dy + dz * dz;
+    if (pathSegments.length === 0) pathSegments.push({ from: before, to: object });
     const victim = racers.find(kart => {
       if (!activeOpponent(kart, object.owner, world) || (object.kind === 'leaderBolt' && kart.id !== object.targetId)) return false;
-      // Swept intersection prevents fast projectiles from tunnelling through a
-      // kart during a capped 100 ms tick. Protected karts still absorb the shot.
       const pose = kartLoopPose(kart);
-      const x = pose.x + pose.up.x * .7, y = pose.y + pose.up.y * .7, z = pose.z + pose.up.z * .7;
-      const t = distanceSquared ? clamp(((x - from.x) * dx + (y - from.y) * dy + (z - from.z) * dz) / distanceSquared, 0, 1) : 0;
-      return Math.hypot(x - from.x - t * dx, y - from.y - t * dy, z - from.z - t * dz) < 2.5;
+      const kx = pose.x + pose.up.x * .7, ky = pose.y + pose.up.y * .7, kz = pose.z + pose.up.z * .7;
+      return pathSegments.some(seg => {
+        const from = objectPose(seg.from, world), to = objectPose(seg.to, world);
+        const dx = to.x - from.x, dy = to.y - from.y, dz = to.z - from.z;
+        const distanceSquared = dx * dx + dy * dy + dz * dz;
+        const t = distanceSquared > 1e-7 ? clamp(((kx - from.x) * dx + (ky - from.y) * dy + (kz - from.z) * dz) / distanceSquared, 0, 1) : 0;
+        return Math.hypot(kx - from.x - t * dx, ky - from.y - t * dy, kz - from.z - t * dz) < 2.5;
+      });
     });
     if (victim) {
       hitKart(victim, world, object.owner);

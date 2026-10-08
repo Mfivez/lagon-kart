@@ -1,3 +1,4 @@
+import { homeControl } from './menu-navigation.js';
 import assert from 'node:assert/strict';
 import {mkdir,mkdtemp,readdir,rm,writeFile} from 'node:fs/promises';
 import {join,resolve} from 'node:path';
@@ -65,7 +66,7 @@ try{
   const html=await fetch(origin).then(response=>response.text());evidence.assets=[...html.matchAll(/(?:src|href)="([^\"]*assets[^\"]+)"/g)].map(match=>match[1]);
   browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--use-angle=swiftshader','--enable-unsafe-swiftshader','--disable-background-timer-throttling','--disable-renderer-backgrounding']});
   const desktop=await browser.newContext({viewport:{width:1280,height:900},deviceScaleFactor:1});await desktop.addInitScript(origin=>{if(location.origin===origin)localStorage.setItem('lagon-volume','0');},origin);
-  const page=await desktop.newPage();await open(page);await page.locator('#name-input').fill('Éditeur privé');await page.locator('#track-editor-button').click();await field(page,'#editor-name','Mon brouillon confidentiel');
+  const page=await desktop.newPage();await open(page);await (await homeControl(page, '#name-input')).fill('Éditeur privé');await (await homeControl(page, '#track-editor-button')).click();await field(page,'#editor-name','Mon brouillon confidentiel');
   await section(page,'#editor-relief-options');await page.locator('#editor-add-bridge').click();await page.locator('#editor-add-loop').click();await field(page,feature('elevations','start'),'30');await field(page,feature('elevations','duration'),'8');
   await section(page,'#editor-event-options');await page.locator('#editor-add-event').click();await field(page,feature('events','start'),'72');await field(page,feature('events','duration'),'4');
   await section(page,'#editor-interaction-options');await page.locator('#editor-add-switch-boost').click();await field(page,feature('interactions','trigger'),'82');await field(page,feature('interactions','start'),'88');await field(page,feature('interactions','duration'),'3');
@@ -86,7 +87,7 @@ try{
   const retained=await localDraft(page);assert.equal(retained.name,'Mon brouillon confidentiel');
   const second=await tryPrivate(page,'#editor-try');await back(page,second.initial.trackId);assert.notEqual(first.initial.trackId,second.initial.trackId);
   assert.deepEqual(await records(),[]);assert.deepEqual(await readdir(join(directory,'tracks')),[]);evidence.privateTrials=[first,second];
-  await page.locator('#editor-close').click();await page.reload({waitUntil:'domcontentloaded'});await page.locator('#track-editor-button').click();assert.deepEqual(await localDraft(page),retained);
+  await page.locator('#editor-close').click();await page.reload({waitUntil:'domcontentloaded'});await (await homeControl(page, '#track-editor-button')).click();assert.deepEqual(await localDraft(page),retained);
   mark('Deux essais privés module/circuit entier : conduite réelle, sources éphémères libérées, aucun circuit ni fichier publié ; brouillon retrouvé après rechargement.');
   await page.locator('#editor-save').click();await until(async()=>/Circuit publié/.test(await page.locator('#editor-status').innerText()),'Publication explicite');
   const published=(await records())[0]!;assert.equal(published.revision,1);assert.deepEqual(published.draft,retained);assert.equal((await readdir(join(directory,'tracks'))).length,1);
@@ -96,7 +97,7 @@ try{
   mark('Publication volontaire version1, puis modification et nouvel essai : la version publique et la progression restent intactes.');
 
   const storageState=await desktop.storageState();await desktop.close();const mobile=await browser.newContext({viewport:{width:320,height:568},isMobile:true,hasTouch:true,deviceScaleFactor:1,storageState});
-  const phone=await mobile.newPage();await open(phone);await phone.locator('#track-editor-button').click();
+  const phone=await mobile.newPage();await open(phone);await (await homeControl(phone, '#track-editor-button')).click();
   const touchMove=await drag(phone,{group:'zones',index:0},true);evidence.touchMove=touchMove;
   await phone.locator(marker({group:'zones',index:0})).locator('rect').first().tap();
   await phone.locator('[data-zone="0"][data-field="start"]').waitFor({state:'visible'});

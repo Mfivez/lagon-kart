@@ -1,0 +1,10 @@
+{
+  "command": "node --import tsx --test tests/presence-api.test.ts tests/presence.test.ts tests/track-catalog.test.ts",
+  "passed": true,
+  "tests": 17,
+  "failed": 0,
+  "skipped": 0,
+  "durationMs": 8499.346566,
+  "scope": "Targeted catalogue and presence tests; no full physics suite rerun for the home UI changes.",
+  "environment": "Local Node with loopback HTTP allowed; first sandboxed presence API attempt could not complete; same command passed with local sockets allowed."
+}

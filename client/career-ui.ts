@@ -9,6 +9,7 @@ export class CareerUI {
   private profile?: PlayerProfile;
   private pending?: Promise<PlayerProfile>;
   private restorePending?: Promise<PlayerProfile | undefined>;
+  private refreshSequence = 0;
   private restored = false;
   private readonly dialog = document.createElement('dialog');
   private timer?: ReturnType<typeof setTimeout>;
@@ -42,8 +43,8 @@ export class CareerUI {
   get rankedState(): RankedViewState { return { profile: this.profile, loading: !this.restored && this.queueState !== 'error' || !!this.restorePending || !!this.pending, state: this.queueState, status: this.status }; }
   subscribe(listener: (state: RankedViewState) => void) { this.listeners.add(listener); listener(this.rankedState); return () => this.listeners.delete(listener); }
   private notify() { for (const listener of this.listeners) listener(this.rankedState); }
-  private async request<T>(path: string, method = 'GET', body?: unknown): Promise<T> {
-    const response = await fetch(path, { method, signal: AbortSignal.timeout(20000), headers: { ...(this.token ? { Authorization: `Bearer ${this.token}` } : {}), ...(body ? { 'Content-Type': 'application/json' } : {}) }, body: body ? JSON.stringify(body) : undefined });
+  private async request<T>(path: string, method = 'GET', body?: unknown, timeoutMs = 20000): Promise<T> {
+    const response = await fetch(path, { method, signal: AbortSignal.timeout(timeoutMs), headers: { ...(this.token ? { Authorization: `Bearer ${this.token}` } : {}), ...(body ? { 'Content-Type': 'application/json' } : {}) }, body: body ? JSON.stringify(body) : undefined });
     const result = await response.json();
     if (!response.ok) throw Object.assign(new Error(result.error ?? 'Service indisponible.'), { status: response.status });
     return result as T;
@@ -97,14 +98,39 @@ export class CareerUI {
     if (this.token) await this.request('/api/account/logout', 'POST');
     this.token = ''; this.profile = undefined; this.restored = true; this.possiblyQueued = false; localStorage.removeItem('lagon-player-token'); this.notify();
   }
-  async refresh() {
+  async refresh(options: { minimumRaces?: number } = {}) {
     const token = this.token;
-    if (token) { const result = await this.request<{ profile: PlayerProfile }>('/api/me'); if (this.token !== token) return; this.profile = result.profile; this.actions.profile(this.profile); this.notify(); }
+    if (!token) return;
+    // A finished snapshot can precede the durable race result. Keep this small
+    // retry window alive when the pilot leaves that room before its save signal.
+    // Normal profile refreshes still issue one request only.
+    const delays = options.minimumRaces === undefined ? [0] : [0, 250, 500, 1000, 2000, 4000];
+    const deadline = Date.now() + (options.minimumRaces === undefined ? 20000 : 8000);
+    for (const delay of delays) {
+      if (delay) await new Promise(resolve => setTimeout(resolve, delay));
+      if (this.token !== token || Date.now() >= deadline) return;
+      if (delay && this.profile && this.profile.stats.races >= options.minimumRaces!) return;
+      const sequence = ++this.refreshSequence;
+      let result: { profile: PlayerProfile };
+      try { result = await this.request<{ profile: PlayerProfile }>('/api/me', 'GET', undefined, Math.max(1, deadline - Date.now())); }
+      catch (error) {
+        if (options.minimumRaces === undefined || delay === delays.at(-1) || Date.now() >= deadline) throw error;
+        continue;
+      }
+      if (this.token !== token) return;
+      // A slow response started before the save notification must not undo the
+      // more recent server profile already displayed by another refresh.
+      if (sequence === this.refreshSequence) {
+        this.profile = result.profile; this.actions.profile(this.profile); this.notify();
+      }
+      if (options.minimumRaces === undefined || result.profile.stats.races >= options.minimumRaces) return;
+    }
   }
-  async open(name: string, rename = false) {
+  async open(name: string, rename = false, canShow: () => boolean = () => true) {
     try {
       await this.ensure(name, rename);
       const [board, recordings] = await Promise.all([this.request<{ entries: LeaderboardEntry[] }>('/api/leaderboard'), this.request<{ replays: ReplaySummary[] }>('/api/replays')]);
+      if (!canShow()) return;
       this.leaderboard = board.entries; this.replays = recordings.replays; this.render(); this.dialog.showModal();
     } catch (error) { this.actions.error(error instanceof Error ? error.message : String(error)); }
   }

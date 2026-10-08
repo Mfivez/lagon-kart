@@ -1,3 +1,4 @@
+import { homeControl } from './menu-navigation.js';
 /** Private real-browser presence checks: no public profiles, MMR or room mutations. */
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
@@ -49,9 +50,9 @@ try {
   assert.ok(alice); assert.equal(alice.name, 'Pilote');
   let nicknameWrites = 0;
   alicePage.on('request', request => { if (new URL(request.url()).pathname === '/api/me' && request.method() === 'PATCH') nicknameWrites++; });
-  await alicePage.locator('#name-input').fill('Alice Atelier');
+  await (await homeControl(alicePage, '#name-input')).fill('Alice Atelier');
   await alicePage.waitForTimeout(200); assert.equal(nicknameWrites, 0);
-  await alicePage.locator('#name-input').press('Tab');
+  await (await homeControl(alicePage, '#name-input')).press('Tab');
   await until(async () => (await snapshot()).players.find(player => player.id === alice.id)?.name === 'Alice Atelier', 'guest nickname saved on change without joining a course');
   await until(async () => (await bobPage.locator(`[data-player-id="${alice.id}"] strong`).textContent())?.includes('Alice Atelier') === true, 'other profile sees nickname change at home');
   checks.push('A fresh guest starts as Pilote; changing the nickname at home updates another browser before any race');
@@ -66,13 +67,13 @@ try {
     }
     await route.continue();
   });
-  await alicePage.locator('#name-input').fill('Alice Sauvegarde');
-  await alicePage.locator('#name-input').press('Tab'); await renameRequest;
-  await alicePage.locator('#name-input').fill('Alice Atelier');
+  await (await homeControl(alicePage, '#name-input')).fill('Alice Sauvegarde');
+  await (await homeControl(alicePage, '#name-input')).press('Tab'); await renameRequest;
+  await (await homeControl(alicePage, '#name-input')).fill('Alice Atelier');
   const savedResponse = alicePage.waitForResponse(response => new URL(response.url()).pathname === '/api/me' && response.request().method() === 'PATCH');
   releaseRename(); await (await savedResponse).finished(); await alicePage.waitForTimeout(150);
   assert.equal(await alicePage.locator('#name-input').inputValue(), 'Alice Atelier');
-  await alicePage.locator('#name-input').press('Tab');
+  await (await homeControl(alicePage, '#name-input')).press('Tab');
   await until(async () => (await snapshot()).players.find(player => player.id === alice.id)?.name === 'Alice Atelier', 'latest typed nickname saved after delayed previous response');
   await alicePage.unroute('**/api/me');
   checks.push('Typing sends no PATCH per keystroke; a delayed save cannot overwrite newer nickname text');
@@ -87,12 +88,12 @@ try {
   await until(async () => (await snapshot()).connected === 2, 'closing one duplicate keeps the profile online');
   checks.push('Three tabs still count two profiles; closing one Bob tab leaves the other connected');
 
-  await bobPage.locator('#career-button').click();
+  await (await homeControl(bobPage, '#career-button')).click();
   await bobPage.locator('#ranked-join').click();
   await until(async () => (await snapshot()).searchingRanked === 1, 'real authenticated queue contains Bob');
   await until(async () => await alicePage.locator('#online-ranked-count').textContent() === '1 en recherche classée', 'mobile observer receives ranked search');
   assert.equal(await alicePage.locator(`[data-player-id="${bob.profile.id}"]`).getAttribute('data-status'), 'ranked-search');
-  await alicePage.locator('#online-players').evaluate(panel => panel.scrollIntoView({ block: 'center' }));
+  await (await homeControl(alicePage, '#online-players')).scrollIntoViewIfNeeded();
   const bounds = await alicePage.locator('#online-players').boundingBox(); assert.ok(bounds && bounds.x >= 0 && bounds.x + bounds.width <= 320.5);
   await alicePage.screenshot({ path: join(output, 'mobile-320-presence.png') });
   checks.push('Real UI ranked search is visible from a different mobile profile; 320 px panel stays within viewport');
@@ -101,11 +102,11 @@ try {
   await until(async () => (await snapshot()).searchingRanked === 0, 'real queue cancellation');
   await bobPage.locator('#career-close').click();
   await until(async () => await readCount(bobPage) === '2 connectés' && await bobPage.locator('#online-ranked-count').textContent() === '0 en recherche classée', 'desktop presence refresh after cancellation');
-  await bobPage.locator('#online-players').scrollIntoViewIfNeeded();
+  await (await homeControl(bobPage, '#online-players')).scrollIntoViewIfNeeded();
   await bobPage.screenshot({ path: join(output, 'desktop-presence.png') });
   checks.push('Cancelling from the career dialog clears the authoritative search count');
 
-  await bobPage.locator('#practice-button').click();
+  await (await homeControl(bobPage, '#practice-button')).click();
   await until(async () => (await snapshot()).players.find(player => player.id === bob.profile.id)?.status === 'practice', 'real practice room classified');
   await until(async () => await alicePage.locator(`[data-player-id="${bob.profile.id}"]`).getAttribute('data-status') === 'practice', 'mobile observer sees human in practice');
   assert.equal((await snapshot()).connected, 2);

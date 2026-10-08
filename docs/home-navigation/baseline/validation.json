@@ -1,0 +1,819 @@
+{
+  "scope": "Lecture seule du déploiement local. Les requêtes de mutation sont bloquées dans Chromium ; aucun profil ni circuit créé.",
+  "origin": "http://127.0.0.1:3000",
+  "date": "2026-10-07T20:52:48.329Z",
+  "viewports": [
+    {
+      "width": 1827,
+      "height": 860,
+      "file": "1827x860.png",
+      "body": {
+        "width": 1827,
+        "height": 0
+      },
+      "elements": [
+        {
+          "id": "home-ranked",
+          "x": 91.34375,
+          "y": 224.03125,
+          "width": 390,
+          "height": 115.390625,
+          "visible": true,
+          "scrollHeight": 113,
+          "clientHeight": 113
+        },
+        {
+          "id": "create-button",
+          "x": 91.34375,
+          "y": 349.421875,
+          "width": 191,
+          "height": 46,
+          "visible": true,
+          "scrollHeight": 46,
+          "clientHeight": 46
+        },
+        {
+          "id": "practice-button",
+          "x": 290.34375,
+          "y": 349.421875,
+          "width": 191,
+          "height": 46,
+          "visible": true,
+          "scrollHeight": 44,
+          "clientHeight": 44
+        },
+        {
+          "id": "join-button",
+          "x": 278.734375,
+          "y": 404.421875,
+          "width": 202.609375,
+          "height": 44,
+          "visible": true,
+          "scrollHeight": 42,
+          "clientHeight": 42
+        },
+        {
+          "id": "choose-track-button",
+          "x": 91.34375,
+          "y": 457.421875,
+          "width": 191,
+          "height": 44,
+          "visible": true,
+          "scrollHeight": 42,
+          "clientHeight": 42
+        },
+        {
+          "id": "track-name",
+          "x": 1442.859375,
+          "y": 640.5625,
+          "width": 273.796875,
+          "height": 28,
+          "visible": true,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        {
+          "id": "track-description",
+          "x": 1442.859375,
+          "y": 675.5625,
+          "width": 273.796875,
+          "height": 27.875,
+          "visible": true,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        {
+          "id": "track-tags",
+          "x": 1442.859375,
+          "y": 715.4375,
+          "width": 273.796875,
+          "height": 8,
+          "visible": true,
+          "scrollHeight": 8,
+          "clientHeight": 8
+        },
+        {
+          "id": "home-profile-options",
+          "x": 91.34375,
+          "y": 510.421875,
+          "width": 390,
+          "height": 46,
+          "visible": true,
+          "scrollHeight": 44,
+          "clientHeight": 44
+        },
+        {
+          "id": "career-button",
+          "x": 91.34375,
+          "y": 567.421875,
+          "width": 390,
+          "height": 44,
+          "visible": true,
+          "scrollHeight": 42,
+          "clientHeight": 42
+        },
+        {
+          "id": "online-panel",
+          "missing": true
+        },
+        {
+          "id": "home-circuit-picker",
+          "x": 1325.65625,
+          "y": 92,
+          "width": 410,
+          "height": 450,
+          "visible": true,
+          "scrollHeight": 448,
+          "clientHeight": 448
+        },
+        {
+          "id": "menu",
+          "x": 0,
+          "y": 84,
+          "width": 1827,
+          "height": 696,
+          "visible": true,
+          "scrollHeight": 721,
+          "clientHeight": 696
+        }
+      ]
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "file": "1366x768.png",
+      "body": {
+        "width": 1366,
+        "height": 0
+      },
+      "elements": [
+        {
+          "id": "home-ranked",
+          "x": 68.296875,
+          "y": 224.03125,
+          "width": 390,
+          "height": 115.390625,
+          "visible": true,
+          "scrollHeight": 113,
+          "clientHeight": 113
+        },
+        {
+          "id": "create-button",
+          "x": 68.296875,
+          "y": 349.421875,
+          "width": 191,
+          "height": 46,
+          "visible": true,
+          "scrollHeight": 46,
+          "clientHeight": 46
+        },
+        {
+          "id": "practice-button",
+          "x": 267.296875,
+          "y": 349.421875,
+          "width": 191,
+          "height": 46,
+          "visible": true,
+          "scrollHeight": 44,
+          "clientHeight": 44
+        },
+        {
+          "id": "join-button",
+          "x": 255.6875,
+          "y": 404.421875,
+          "width": 202.609375,
+          "height": 44,
+          "visible": true,
+          "scrollHeight": 42,
+          "clientHeight": 42
+        },
+        {
+          "id": "choose-track-button",
+          "x": 68.296875,
+          "y": 457.421875,
+          "width": 191,
+          "height": 44,
+          "visible": true,
+          "scrollHeight": 42,
+          "clientHeight": 42
+        },
+        {
+          "id": "track-name",
+          "x": 1004.90625,
+          "y": 640.5625,
+          "width": 273.796875,
+          "height": 28,
+          "visible": true,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        {
+          "id": "track-description",
+          "x": 1004.90625,
+          "y": 675.5625,
+          "width": 273.796875,
+          "height": 27.875,
+          "visible": false,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        {
+          "id": "track-tags",
+          "x": 1004.90625,
+          "y": 715.4375,
+          "width": 273.796875,
+          "height": 8,
+          "visible": false,
+          "scrollHeight": 8,
+          "clientHeight": 8
+        },
+        {
+          "id": "home-profile-options",
+          "x": 68.296875,
+          "y": 510.421875,
+          "width": 390,
+          "height": 46,
+          "visible": true,
+          "scrollHeight": 44,
+          "clientHeight": 44
+        },
+        {
+          "id": "career-button",
+          "x": 68.296875,
+          "y": 567.421875,
+          "width": 390,
+          "height": 44,
+          "visible": true,
+          "scrollHeight": 42,
+          "clientHeight": 42
+        },
+        {
+          "id": "online-panel",
+          "missing": true
+        },
+        {
+          "id": "home-circuit-picker",
+          "x": 887.703125,
+          "y": 92,
+          "width": 410,
+          "height": 450,
+          "visible": true,
+          "scrollHeight": 448,
+          "clientHeight": 448
+        },
+        {
+          "id": "menu",
+          "x": 0,
+          "y": 84,
+          "width": 1366,
+          "height": 604,
+          "visible": true,
+          "scrollHeight": 721,
+          "clientHeight": 604
+        }
+      ]
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "file": "1024x768.png",
+      "body": {
+        "width": 1024,
+        "height": 0
+      },
+      "elements": [
+        {
+          "id": "home-ranked",
+          "x": 51.1875,
+          "y": 224.03125,
+          "width": 390,
+          "height": 115.390625,
+          "visible": true,
+          "scrollHeight": 113,
+          "clientHeight": 113
+        },
+        {
+          "id": "create-button",
+          "x": 51.1875,
+          "y": 349.421875,
+          "width": 191,
+          "height": 46,
+          "visible": true,
+          "scrollHeight": 46,
+          "clientHeight": 46
+        },
+        {
+          "id": "practice-button",
+          "x": 250.1875,
+          "y": 349.421875,
+          "width": 191,
+          "height": 46,
+          "visible": true,
+          "scrollHeight": 44,
+          "clientHeight": 44
+        },
+        {
+          "id": "join-button",
+          "x": 238.578125,
+          "y": 404.421875,
+          "width": 202.609375,
+          "height": 44,
+          "visible": true,
+          "scrollHeight": 42,
+          "clientHeight": 42
+        },
+        {
+          "id": "choose-track-button",
+          "x": 51.1875,
+          "y": 457.421875,
+          "width": 191,
+          "height": 44,
+          "visible": true,
+          "scrollHeight": 42,
+          "clientHeight": 42
+        },
+        {
+          "id": "track-name",
+          "x": 657.484375,
+          "y": 640.5625,
+          "width": 235,
+          "height": 28,
+          "visible": true,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        {
+          "id": "track-description",
+          "x": 657.484375,
+          "y": 675.5625,
+          "width": 235,
+          "height": 27.875,
+          "visible": false,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        {
+          "id": "track-tags",
+          "x": 657.484375,
+          "y": 715.4375,
+          "width": 235,
+          "height": 8,
+          "visible": false,
+          "scrollHeight": 8,
+          "clientHeight": 8
+        },
+        {
+          "id": "home-profile-options",
+          "x": 51.1875,
+          "y": 510.421875,
+          "width": 390,
+          "height": 46,
+          "visible": true,
+          "scrollHeight": 44,
+          "clientHeight": 44
+        },
+        {
+          "id": "career-button",
+          "x": 51.1875,
+          "y": 567.421875,
+          "width": 390,
+          "height": 44,
+          "visible": true,
+          "scrollHeight": 42,
+          "clientHeight": 42
+        },
+        {
+          "id": "online-panel",
+          "missing": true
+        },
+        {
+          "id": "home-circuit-picker",
+          "x": 562.8125,
+          "y": 92,
+          "width": 410,
+          "height": 450,
+          "visible": true,
+          "scrollHeight": 448,
+          "clientHeight": 448
+        },
+        {
+          "id": "menu",
+          "x": 0,
+          "y": 84,
+          "width": 1024,
+          "height": 604,
+          "visible": true,
+          "scrollHeight": 721,
+          "clientHeight": 604
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "file": "320x568.png",
+      "body": {
+        "width": 320,
+        "height": 0
+      },
+      "elements": [
+        {
+          "id": "home-ranked",
+          "x": 12,
+          "y": 180.890625,
+          "width": 296,
+          "height": 129.78125,
+          "visible": true,
+          "scrollHeight": 128,
+          "clientHeight": 128
+        },
+        {
+          "id": "create-button",
+          "x": 12,
+          "y": 318.671875,
+          "width": 144,
+          "height": 44,
+          "visible": true,
+          "scrollHeight": 44,
+          "clientHeight": 44
+        },
+        {
+          "id": "practice-button",
+          "x": 164,
+          "y": 318.671875,
+          "width": 144,
+          "height": 44,
+          "visible": true,
+          "scrollHeight": 42,
+          "clientHeight": 42
+        },
+        {
+          "id": "join-button",
+          "x": 156.15625,
+          "y": 370.671875,
+          "width": 151.84375,
+          "height": 44,
+          "visible": true,
+          "scrollHeight": 42,
+          "clientHeight": 42
+        },
+        {
+          "id": "choose-track-button",
+          "x": 12,
+          "y": 422.671875,
+          "width": 144,
+          "height": 44,
+          "visible": true,
+          "scrollHeight": 42,
+          "clientHeight": 42
+        },
+        {
+          "id": "track-name",
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "scrollHeight": 0,
+          "clientHeight": 0
+        },
+        {
+          "id": "track-description",
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "scrollHeight": 0,
+          "clientHeight": 0
+        },
+        {
+          "id": "track-tags",
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "scrollHeight": 0,
+          "clientHeight": 0
+        },
+        {
+          "id": "home-profile-options",
+          "x": 12,
+          "y": 475.671875,
+          "width": 296,
+          "height": 46,
+          "visible": false,
+          "scrollHeight": 44,
+          "clientHeight": 44
+        },
+        {
+          "id": "career-button",
+          "x": 12,
+          "y": 532.671875,
+          "width": 296,
+          "height": 44,
+          "visible": false,
+          "scrollHeight": 42,
+          "clientHeight": 42
+        },
+        {
+          "id": "online-panel",
+          "missing": true
+        },
+        {
+          "id": "home-circuit-picker",
+          "x": 12,
+          "y": 762.96875,
+          "width": 296,
+          "height": 430,
+          "visible": false,
+          "scrollHeight": 428,
+          "clientHeight": 428
+        },
+        {
+          "id": "menu",
+          "x": 0,
+          "y": 64,
+          "width": 320,
+          "height": 432,
+          "visible": true,
+          "scrollHeight": 1145,
+          "clientHeight": 432
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "file": "390x844.png",
+      "body": {
+        "width": 390,
+        "height": 0
+      },
+      "elements": [
+        {
+          "id": "home-ranked",
+          "x": 12,
+          "y": 180.890625,
+          "width": 366,
+          "height": 115.390625,
+          "visible": true,
+          "scrollHeight": 113,
+          "clientHeight": 113
+        },
+        {
+          "id": "create-button",
+          "x": 12,
+          "y": 304.28125,
+          "width": 179,
+          "height": 44,
+          "visible": true,
+          "scrollHeight": 44,
+          "clientHeight": 44
+        },
+        {
+          "id": "practice-button",
+          "x": 199,
+          "y": 304.28125,
+          "width": 179,
+          "height": 44,
+          "visible": true,
+          "scrollHeight": 42,
+          "clientHeight": 42
+        },
+        {
+          "id": "join-button",
+          "x": 188.359375,
+          "y": 356.28125,
+          "width": 189.640625,
+          "height": 44,
+          "visible": true,
+          "scrollHeight": 42,
+          "clientHeight": 42
+        },
+        {
+          "id": "choose-track-button",
+          "x": 12,
+          "y": 408.28125,
+          "width": 179,
+          "height": 44,
+          "visible": true,
+          "scrollHeight": 42,
+          "clientHeight": 42
+        },
+        {
+          "id": "track-name",
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "scrollHeight": 0,
+          "clientHeight": 0
+        },
+        {
+          "id": "track-description",
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "scrollHeight": 0,
+          "clientHeight": 0
+        },
+        {
+          "id": "track-tags",
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "scrollHeight": 0,
+          "clientHeight": 0
+        },
+        {
+          "id": "home-profile-options",
+          "x": 12,
+          "y": 461.28125,
+          "width": 366,
+          "height": 46,
+          "visible": true,
+          "scrollHeight": 44,
+          "clientHeight": 44
+        },
+        {
+          "id": "career-button",
+          "x": 12,
+          "y": 518.28125,
+          "width": 366,
+          "height": 44,
+          "visible": true,
+          "scrollHeight": 42,
+          "clientHeight": 42
+        },
+        {
+          "id": "online-panel",
+          "missing": true
+        },
+        {
+          "id": "home-circuit-picker",
+          "x": 12,
+          "y": 753.875,
+          "width": 366,
+          "height": 430,
+          "visible": false,
+          "scrollHeight": 428,
+          "clientHeight": 428
+        },
+        {
+          "id": "menu",
+          "x": 0,
+          "y": 64,
+          "width": 390,
+          "height": 708,
+          "visible": true,
+          "scrollHeight": 1136,
+          "clientHeight": 708
+        }
+      ]
+    },
+    {
+      "width": 568,
+      "height": 320,
+      "file": "568x320.png",
+      "body": {
+        "width": 568,
+        "height": 0
+      },
+      "elements": [
+        {
+          "id": "home-ranked",
+          "x": 69,
+          "y": 158.25,
+          "width": 430,
+          "height": 115.390625,
+          "visible": false,
+          "scrollHeight": 113,
+          "clientHeight": 113
+        },
+        {
+          "id": "create-button",
+          "x": 69,
+          "y": 281.640625,
+          "width": 211,
+          "height": 44,
+          "visible": false,
+          "scrollHeight": 44,
+          "clientHeight": 44
+        },
+        {
+          "id": "practice-button",
+          "x": 288,
+          "y": 281.640625,
+          "width": 211,
+          "height": 44,
+          "visible": false,
+          "scrollHeight": 42,
+          "clientHeight": 42
+        },
+        {
+          "id": "join-button",
+          "x": 274.796875,
+          "y": 333.640625,
+          "width": 224.203125,
+          "height": 44,
+          "visible": false,
+          "scrollHeight": 42,
+          "clientHeight": 42
+        },
+        {
+          "id": "choose-track-button",
+          "x": 69,
+          "y": 385.640625,
+          "width": 211,
+          "height": 44,
+          "visible": false,
+          "scrollHeight": 42,
+          "clientHeight": 42
+        },
+        {
+          "id": "track-name",
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "scrollHeight": 0,
+          "clientHeight": 0
+        },
+        {
+          "id": "track-description",
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "scrollHeight": 0,
+          "clientHeight": 0
+        },
+        {
+          "id": "track-tags",
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "visible": false,
+          "scrollHeight": 0,
+          "clientHeight": 0
+        },
+        {
+          "id": "home-profile-options",
+          "x": 69,
+          "y": 438.640625,
+          "width": 430,
+          "height": 46,
+          "visible": false,
+          "scrollHeight": 44,
+          "clientHeight": 44
+        },
+        {
+          "id": "career-button",
+          "x": 69,
+          "y": 495.640625,
+          "width": 430,
+          "height": 44,
+          "visible": false,
+          "scrollHeight": 42,
+          "clientHeight": 42
+        },
+        {
+          "id": "online-panel",
+          "missing": true
+        },
+        {
+          "id": "home-circuit-picker",
+          "x": 69,
+          "y": 731.234375,
+          "width": 430,
+          "height": 430,
+          "visible": false,
+          "scrollHeight": 428,
+          "clientHeight": 428
+        },
+        {
+          "id": "menu",
+          "x": 0,
+          "y": 55,
+          "width": 568,
+          "height": 200,
+          "visible": true,
+          "scrollHeight": 1122,
+          "clientHeight": 200
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "visibilityMethod": "Bounds compared with viewport and menu clipping. Ignore the zero-height body, whose fixed-position descendants remain visible."
+}

@@ -1,3 +1,4 @@
+import { homeControl } from './menu-navigation.js';
 /** Public smoke with existing test identities. Never enters ranked, publishes a
  * circuit, injects game state, or closes anybody else's room. */
 import assert from 'node:assert/strict';
@@ -41,14 +42,14 @@ try {
   evidence.grade = { server: before[1]!.rank, displayed: await guest.locator('[data-ranked-grade]').innerText(), mmr: before[1]!.mmr };
   for (const id of ['home-ranked', 'create-button', 'practice-button', 'join-button']) { const box = await guest.locator(`#${id}`).boundingBox(); assert.ok(box && box.y >= 0 && box.y + box.height <= 568); }
   await capture(guest, 'public-home-mobile-320.png');
-  await host.locator('#graphics-quality').selectOption('smooth'); assert.equal(await host.locator('#graphics-quality').inputValue(), 'smooth');
+  await (await homeControl(host, '#graphics-quality')).selectOption('smooth'); assert.equal(await host.locator('#graphics-quality').inputValue(), 'smooth');
   await until(async () => (await state(host)).quality === 'light', 'Smooth quality applied to actual renderer');
-  await host.locator('#create-button').click(); await until(async () => (await state(host)).world?.phase === 'lobby', 'Normal public test room');
+  await (await homeControl(host, '#create-button')).click(); await until(async () => (await state(host)).world?.phase === 'lobby', 'Normal public test room');
   const roomId = (await host.locator('#room-code').innerText()).trim(); evidence.roomId = roomId;
   await host.locator('#invite-qr').click(); const image = await host.locator('.invitation-dialog canvas').evaluate(node => { const canvas = node as HTMLCanvasElement; return { width: canvas.width, height: canvas.height, pixels: Array.from(canvas.getContext('2d')!.getImageData(0, 0, canvas.width, canvas.height).data) }; });
   const decoded = jsQR(new Uint8ClampedArray(image.pixels), image.width, image.height)?.data; assert.equal(decoded, `${origin}/room/${roomId}`); evidence.qrDecoded = decoded;
   await capture(host, 'public-qr-desktop.png'); await host.locator('.invitation-dialog [data-close]').click();
-  await guest.goto(decoded!, { waitUntil: 'domcontentloaded' }); if (!(await state(guest)).world) await guest.locator('#join-button').tap();
+  await guest.goto(decoded!, { waitUntil: 'domcontentloaded' }); if (!(await state(guest)).world) await (await homeControl(guest, '#join-button')).tap();
   await until(async () => (await state(guest)).world?.players.length === 2, 'Second profile joined the decoded room');
   const readyBefore = await guest.locator('#ready-button').boundingBox(); assert.ok(readyBefore && readyBefore.y >= 0 && readyBefore.y + readyBefore.height <= 568);
   await guest.locator('.lobby-scroll').evaluate(node => { node.scrollTop = node.scrollHeight; });
@@ -63,7 +64,7 @@ try {
   const moved = (await state(host)).world!.players; assert.ok(initial.every(start => { const kart = moved.find(value => value.id === start.id)!; return Math.hypot(kart.x - start.x, kart.z - start.z) > 2; }), 'Both profiles must move via ordinary controls');
   evidence.movement = moved.map(kart => ({ name: kart.name, progress: kart.progress, speed: kart.speed })); evidence.quality = (await state(host)).quality;
   await capture(guest, 'public-driving-mobile-320.png'); await leave(guest); await leave(host); record('Deux pilotes conduisent réellement via HTTPS/WSS ; qualité Fluide choisie ; retour à l’accueil sans arrivée imposée.');
-  await host.locator('#track-editor-button').click(); await host.locator('#editor-name').fill('Brouillon smoke privé'); await host.locator('#editor-name').press('Tab'); await host.locator('#editor-try').click();
+  await (await homeControl(host, '#track-editor-button')).click(); await host.locator('#editor-name').fill('Brouillon smoke privé'); await host.locator('#editor-name').press('Tab'); await host.locator('#editor-try').click();
   await until(async () => { const world = (await state(host)).world; return world?.phase === 'racing' && world.trackId.startsWith('custom-private-'); }, 'Unpublished public draft trial');
   evidence.previewTrackId = (await state(host)).world!.trackId;
   await host.keyboard.down('ArrowUp');

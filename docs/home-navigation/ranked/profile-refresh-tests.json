@@ -1,0 +1,34 @@
+{
+  "scope": "Synchronisation de la progression et du MMR après une sauvegarde asynchrone",
+  "commands": [
+    {
+      "command": "node --import tsx --test tests/career-ui.test.ts",
+      "passed": 9,
+      "failed": 0,
+      "durationMs": 2133.582163,
+      "checks": [
+        "Une ancienne réponse profil ne remplace pas une réponse plus récente après sauvegarde.",
+        "Le rafraîchissement du retour accueil ne supprime pas les reprises en attente du résultat.",
+        "Le changement de compte arrête les reprises de l'ancienne identité.",
+        "File classée unique, annulation serveur et synchronisation du compte restent validées."
+      ]
+    },
+    {
+      "command": "node --import tsx --test tests/career-server.test.ts",
+      "passed": 7,
+      "failed": 0,
+      "durationMs": 19026.535015,
+      "checks": [
+        "Une sauvegarde classée est volontairement retenue sur un serveur isolé.",
+        "Le résultat finished arrive avant la sauvegarde, sans signal profile-updated prématuré.",
+        "Après libération de la sauvegarde, le signal arrive et GET /api/me contient 820 MMR.",
+        "Identité, matchmaking, progression du championnat et replays restent validés."
+      ]
+    }
+  ],
+  "fixtures": [
+    "DOM minimal et réponses HTTP contrôlées pour les tests client.",
+    "Serveur réel et profils temporaires ; seule l'arrivée et la latence de sauvegarde sont contrôlées dans le test serveur.",
+    "Aucune donnée publique ni profil de joueur existant n'est modifié."
+  ]
+}

@@ -1,6 +1,44 @@
 # Lagon Kart — suivi de la démo
 
-État au **7 octobre 2026**. `[x]` = réalisé avec preuve ; `[ ]` = travail ou validation restant à terminer. [Démo intégrée et rapports](docs/DEMO.md).
+État au **8 octobre 2026**. `[x]` = réalisé avec preuve ; `[ ]` = travail ou validation restant à terminer. [Démo intégrée et rapports](docs/DEMO.md).
+
+## Suppression et modération des circuits
+
+- [x] Suppression des créations depuis la bibliothèque de l’éditeur, avec nom/auteur et confirmation explicite ; annulation, verrouillage pendant la requête et erreurs lisibles.
+- [x] Auteur autorisé sur ses circuits ; compte de connexion Admin autorisé sur ceux de tous les pilotes. Les pseudos et propriétés envoyés par le navigateur n’accordent aucun droit.
+- [x] Retrait persistant du catalogue et des nouvelles courses, quota libéré ; sources historiques, courses/tournois déjà lancés et replays conservés. Les brouillons locaux restent disponibles.
+- [x] **485 tests de règles**, **8 groupes navigateur**, PC/mobile 320 px, 5 captures ; conflits, sessions expirées, changement de compte et réponses réseau tardives vérifiés. [Preuves et limites](docs/track-deletion/README.md).
+- [x] Docker déployé, compte Admin réel vérifié et **50 fichiers de données inchangés**. Tunnel expiré relancé : [nouveau lien](https://dec-automatically-shell-makers.trycloudflare.com), deux clients WSS synchronisés sans création de données.
+
+## Loopings : direction et sorties de piste
+
+- [x] Direction assistée sur le ruban, cap stabilisé au relâchement et caméra suivant la route ; chevrons visibles sur mobile.
+- [x] Détachement prématuré corrigé : carrosserie retenue avant les rails, turbo et collisions entre karts compris. Les vrais sauts au-dessus des murs bas restent possibles.
+- [x] Loopings joints ou superposés raccordés à la compilation ; sources et boutons d’essai individuels conservés. Vérification en lecture seule des circuits sauvegardés.
+- [x] **473 tests**, **6 traversées réseau**, **2 parcours clavier/tactile**, **15 captures** ; build et Docker déployé, données conservées. [Preuves et limites](docs/loop-driving/README.md).
+- [x] Course publique HTTPS/WSS complète : deux pilotes, trois tours et six loopings, sans détachement ; deux contrôles Chromium du client déployé passent également. [Rapport](docs/loop-driving/public-validation.json).
+- [ ] Essai de confort sur téléphone physique et Safari iOS.
+
+## Navigation de l’accueil et choix des circuits
+
+- [x] Quatre vues Jouer / Pilote / En ligne / Options, navigation permanente, circuit choisi et actions de jeu regroupés. Réglages uniques déplacés entre accueil et salon sans perdre leurs événements.
+- [x] Catalogue dédié avec tracés, thèmes, tours et particularités réelles ; recherche sans accents, filtres, pagination, aperçu puis choix explicite, annulation et retour du focus.
+- [x] **13 groupes de contrôles navigateur** réussis sur six tailles de 320 × 568 à 1827 × 860, paysage inclus : écran Jouer sans défilement, 44 circuits dont 32 créations privées aux noms longs, erreur/actualisation, chargement lent, clavier/tactile, création et sortie de salons. **15 captures** comparables avant/après. [Rapport](docs/home-navigation/README.md).
+- [x] Zone visible adaptée avec visualViewport, navigation au clavier, vues inactives inertes et secours à 320 × 260 ; les seuls contenus longs défilent dans une zone dédiée.
+- [x] **33 tests ciblés catalogue, présence et carrière** réussis. Synchronisation MMR après sauvegarde, réponses anciennes écartées et départ immédiat conservant la mise à jour ; **6 parcours classés/QR/comptes** à deux profils réussis, arrivée privée raccourcie déclarée.
+- [x] Build complet et Docker déployés à zéro salon ; **49 fichiers de sauvegarde strictement inchangés**, tunnel conservé et bundles HTTPS identiques au local. [Déploiement](docs/home-navigation/deployment.json).
+- [x] **Deux contrôles navigateur HTTPS** passent sur PC et mobile 320 px : grade/MMR réel, accueil sans scroll et catalogue fonctionnel, sans mutation des données publiques ni erreur JS. [Preuve](docs/home-navigation/public/validation.json).
+- [ ] Téléphone physique, Safari iOS, clavier système et performances GPU réelles.
+
+## Croisements à étages
+
+- [x] Croisements automatiques : passage ultérieur sur un pont, tunnel dégagé dessous, niveaux supplémentaires et reliefs manuels conservés. Calcul partagé entre serveur, client et rechargement des sources.
+- [x] Éditeur : modèle « Huit superposé », repères dessus/dessous et niveaux, aperçu pendant le glissement, Annuler/Rétablir et brouillon conservés. **4 contrôles Chromium** réussis sur ordinateur et mobile 320 × 568 ; captures inspectées, aucun circuit publié pendant ce scénario.
+- [x] **8 tests de géométrie, 7 tests de physique et 3 tests de construction du rendu** réussis, dont trois étages, plafonds, interactions et checkpoints. Deux pilotes terminent trois tours en simulation, puis **2/2 clients SDK terminent un vrai tour Colyseus privé** en passant sous et sur le pont ; source et étages relus depuis le disque. [Fonctionnement, preuves et limites](docs/multilevel-tracks/README.md).
+- [x] **Trois captures 3D inspectées** : approche, tunnel et route supérieure à 0 / 0 / 5,7 m, caméra sous le plafond et deux arrivées après freinages ordinaires pendant les captures. Deux tentatives de capture infructueuses conservées et expliquées. [Rapport visuel](docs/multilevel-tracks/visual/validation.json).
+- [x] **443/443 tests** réussis dans Docker isolé, aucun ignoré ni annulé, en 203,814 s ; puis huit tests géométriques relancés après ajout d’une assertion. Build TypeScript/Vite/serveur et image Docker réussis. [Suite et intégrité des sources](docs/multilevel-tracks/unit-validation.json).
+- [x] Docker déployé à zéro salon, **49 fichiers de sauvegarde inchangés**, tunnel conservé et assets vérifiés ; aperçu privé solo parcouru par WSS à 0 puis 5,7 m, sans profil ni publication. [Déploiement](docs/multilevel-tracks/deployment.json) · [Contrôle public](docs/multilevel-tracks/public-smoke.json).
+- [ ] Téléphone physique, Safari iOS et deux machines physiques ; trois étages dans un parcours navigateur.
 
 ## Accueil classé et ergonomie
 

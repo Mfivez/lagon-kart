@@ -1,0 +1,320 @@
+{
+  "passed": true,
+  "baseline": true,
+  "cases": [
+    {
+      "trackId": "sky",
+      "direction": 1,
+      "turbo": false,
+      "entered": true,
+      "exited": false,
+      "lostAdhesion": true,
+      "maximumDistance": 16.999000000000017,
+      "halfWidth": 12,
+      "maximumElevation": 5.800483504288627,
+      "boosted": false,
+      "simulationSeconds": 12.033333333333301,
+      "snapshots": [
+        306,
+        305
+      ],
+      "observerPositionError": 0.9622222222222261,
+      "final": {
+        "x": 12.975850958495354,
+        "z": -177.3860708118908,
+        "progress": 12.772940132044589,
+        "elevation": 0,
+        "loopId": "",
+        "speed": 28.866666666666678
+      }
+    }
+  ],
+  "captures": [
+    {
+      "file": "sky-entry-1280x800.png",
+      "trackId": "sky",
+      "fraction": 0.25188758212051016,
+      "elevation": 16.189756003336168,
+      "renderedError": 0.054999999999990126,
+      "view": {
+        "camera": {
+          "position": [
+            45.48714445361167,
+            16.15054686971669,
+            -190.4374841837561
+          ],
+          "target": [
+            50.34114466111175,
+            16.886099974562953,
+            -195.00887797465163
+          ],
+          "fov": 59.99999522949533,
+          "near": 1
+        },
+        "tracked": {
+          "id": "y8sfVGmvD",
+          "position": [
+            50.41156298038371,
+            16.208088432954433,
+            -195.66337541465828
+          ],
+          "up": [
+            -0.07450788336136904,
+            0.7174773852283445,
+            0.6925855737761987
+          ],
+          "projected": [
+            9.797966399735347e-8,
+            0.012749599167548866,
+            0.7026526371898733
+          ]
+        },
+        "calls": 45,
+        "triangles": 62988,
+        "compact": true,
+        "qualityMode": "smooth",
+        "quality": "light",
+        "pixelRatio": 0.8,
+        "shadows": false,
+        "sceneryDetails": {
+          "optional": 8,
+          "visible": 3
+        },
+        "renderedFrames": 83,
+        "renderState": "race",
+        "menuFpsLimit": 15
+      }
+    },
+    {
+      "file": "sky-apex-1280x800.png",
+      "trackId": "sky",
+      "fraction": 0.5057216855263506,
+      "elevation": 31.9896616574575,
+      "renderedError": 0.05500000000000103,
+      "view": {
+        "camera": {
+          "position": [
+            61.41446897321352,
+            28.134304048172456,
+            -188.62415425700777
+          ],
+          "target": [
+            58.82042299597493,
+            31.002459154561684,
+            -183.14285820190477
+          ],
+          "fov": 60,
+          "near": 1
+        },
+        "tracked": {
+          "id": "y8sfVGmvD",
+          "position": [
+            58.74722021248404,
+            31.944563350361395,
+            -183.15323506782636
+          ],
+          "up": [
+            0.0774568892023265,
+            -0.9969350282671695,
+            0.010999078553978985
+          ],
+          "projected": [
+            2.261976057041654e-7,
+            0.012750327789404067,
+            0.7026529564709469
+          ]
+        },
+        "calls": 60,
+        "triangles": 63796,
+        "compact": true,
+        "qualityMode": "smooth",
+        "quality": "light",
+        "pixelRatio": 0.8,
+        "shadows": false,
+        "sceneryDetails": {
+          "optional": 8,
+          "visible": 3
+        },
+        "renderedFrames": 128,
+        "renderState": "race",
+        "menuFpsLimit": 15
+      }
+    },
+    {
+      "file": "sky-apex-390x844.png",
+      "trackId": "sky",
+      "fraction": 0.5057216855263506,
+      "elevation": 31.9896616574575,
+      "renderedError": 0.05500000000000103,
+      "view": {
+        "camera": {
+          "position": [
+            61.649998451131964,
+            27.646067663699654,
+            -189.07815470661538
+          ],
+          "target": [
+            58.82041697278024,
+            31.00245974864892,
+            -183.14284093859285
+          ],
+          "fov": 67.63342731608728,
+          "near": 1
+        },
+        "tracked": {
+          "id": "y8sfVGmvD",
+          "position": [
+            58.74722021248404,
+            31.944563350361395,
+            -183.15323506782636
+          ],
+          "up": [
+            0.0774568892023265,
+            -0.9969350282671695,
+            0.010999078553978985
+          ],
+          "projected": [
+            -1.2481889362146143e-14,
+            0.009827208861821663,
+            0.7300474217578369
+          ]
+        },
+        "calls": 58,
+        "triangles": 63692,
+        "compact": true,
+        "qualityMode": "smooth",
+        "quality": "light",
+        "pixelRatio": 0.8,
+        "shadows": false,
+        "sceneryDetails": {
+          "optional": 8,
+          "visible": 3
+        },
+        "renderedFrames": 162,
+        "renderState": "race",
+        "menuFpsLimit": 15
+      }
+    },
+    {
+      "file": "sky-apex-667x375.png",
+      "trackId": "sky",
+      "fraction": 0.5057216855263506,
+      "elevation": 31.9896616574575,
+      "renderedError": 0.05500000000000103,
+      "view": {
+        "camera": {
+          "position": [
+            61.41446719936781,
+            28.134306285115862,
+            -188.6241371599957
+          ],
+          "target": [
+            58.82041697278024,
+            31.00245974864892,
+            -183.14284093859285
+          ],
+          "fov": 60.173070117086006,
+          "near": 1
+        },
+        "tracked": {
+          "id": "y8sfVGmvD",
+          "position": [
+            58.74722021248404,
+            31.944563350361395,
+            -183.15323506782636
+          ],
+          "up": [
+            0.0774568892023265,
+            -0.9969350282671695,
+            0.010999078553978985
+          ],
+          "projected": [
+            -1.2895608540744108e-15,
+            0.01270409890623376,
+            0.7026522573529773
+          ]
+        },
+        "calls": 60,
+        "triangles": 63796,
+        "compact": true,
+        "qualityMode": "smooth",
+        "quality": "light",
+        "pixelRatio": 0.8,
+        "shadows": false,
+        "sceneryDetails": {
+          "optional": 8,
+          "visible": 3
+        },
+        "renderedFrames": 196,
+        "renderState": "race",
+        "menuFpsLimit": 15
+      }
+    },
+    {
+      "file": "sky-exit-1280x800.png",
+      "trackId": "sky",
+      "fraction": 0.7500188029464684,
+      "elevation": 15.99810972165269,
+      "renderedError": 0.08999999999993423,
+      "view": {
+        "camera": {
+          "position": [
+            63.79014678861274,
+            21.87890970246675,
+            -172.1506505020365
+          ],
+          "target": [
+            68.21716632476043,
+            16.84549236786883,
+            -172.4079478614389
+          ],
+          "fov": 66.7886183184709,
+          "near": 1
+        },
+        "tracked": {
+          "id": "y8sfVGmvD",
+          "position": [
+            68.12545533048113,
+            16.190421755499525,
+            -171.78298666155393
+          ],
+          "up": [
+            0.10084300103745514,
+            0.7198192428193168,
+            -0.6867976025065793
+          ],
+          "projected": [
+            2.0069298169049395e-7,
+            0.018319212704093188,
+            0.7019518783408666
+          ]
+        },
+        "calls": 53,
+        "triangles": 63050,
+        "compact": true,
+        "qualityMode": "smooth",
+        "quality": "light",
+        "pixelRatio": 0.8,
+        "shadows": false,
+        "sceneryDetails": {
+          "optional": 8,
+          "visible": 3
+        },
+        "renderedFrames": 246,
+        "renderState": "race",
+        "menuFpsLimit": 15
+      }
+    }
+  ],
+  "fixtures": [
+    "Serveur et données éphémères, aucun compte ni circuit de production modifié. Circuit atelier ovale créé par API normale avec un looping.",
+    "Chaque essai réseau utilise deux SDK Colyseus dans une course ordinaire. Seul le kart pilote est posé au sol, arrêté, 3 m avant le looping ; ensuite commandes input normales. Un turbo attribué avant chaque essai gauche puis consommé par input.use. Pas de téléportation, reset ou suspension durant ces parcours.",
+    "Captures : navigateur spectateur suivant le premier SDK piloté avec autopilot normal. Simulation privée suspendue aux fractions réellement atteintes 0,25/0,50/0,75 pour stabiliser les captures, puis reprise jusqu’à la sortie. Aucun temps de course complet revendiqué."
+  ],
+  "errors": [],
+  "limitations": [
+    "Chromium SwiftShader, pas de téléphone physique ni Safari iOS.",
+    "Deux clients réseau locaux, pas deux machines physiques.",
+    "Fixtures de départ privées : ces parcours ciblés ne constituent pas des courses complètes."
+  ]
+}

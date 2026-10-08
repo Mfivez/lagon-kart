@@ -8,6 +8,8 @@ import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
 import { Client, type Room } from 'colyseus.js';
+import { matchMaker } from '@colyseus/core';
+import type { RaceRoom } from '../server/RaceRoom.js';
 import { CUSTOM_TRACK_TEMPLATES, compileCustomTrack, customTrackRuntimeId, registerCustomTrack, type StoredCustomTrack } from '../shared/custom-tracks.js';
 import { getTrack, getTrackLapCount, TRACK_LAYOUT_REVISION } from '../shared/track.js';
 import { neutralInput, type World } from '../shared/game.js';
@@ -168,6 +170,66 @@ test('custom track versions travel through live rooms and remain usable by saved
     assert.equal(reopened.getProfile(author.profile.id)!.stats.bestTimes[firstId], 60);
     assert.deepEqual(await reopened.getReplay(replay.id), replay);
     assert.equal((await reopened.bestGhost(firstId))!.trackId, firstId);
+  });
+
+  await t.test('deletion blocks cached room selections while active races, pre-started tournaments and their late joiners keep history', async () => {
+    const waiting = observe(await sdk.create('race', { name: 'Salon avant suppression', practice: true, trackId: firstId })); peers.push(waiting);
+    const tournament = observe(await sdk.create('race', { name: 'Tournoi avant suppression', practice: true, trackId: 'lagon' })); peers.push(tournament);
+    await until(() => waiting.latest && tournament.latest, 'deletion fixtures connected');
+    tournament.room.send('configure', { mode: 'tournament', selection: 'manual', raceCount: 2, schedule: ['lagon', firstId] });
+    await until(() => tournament.latest?.world.tournament.mode === 'tournament', 'future custom round scheduled');
+    tournament.room.send('ready', { ready: true });
+    await until(() => tournament.latest?.world.players.every(player => player.ready), 'tournament pilot ready');
+    tournament.room.send('start');
+    await until(() => tournament.latest?.world.phase === 'racing', 'tournament actually started before deletion');
+    const deletion = await request('/api/tracks/' + first.id, 'DELETE', { revision: 2 }, author.token);
+    assert.equal(deletion.status, 200);
+    assert.equal(host.latest!.world.phase, 'racing'); assert.equal(host.latest!.world.trackId, firstId);
+    assert.deepEqual((await request('/api/tracks/' + firstId)).data.track, first);
+    assert.equal(JSON.stringify(getTrack(firstId)), originalGeometry);
+    await assert.rejects(sdk.create('race', { trackId: firstId }), /supprimé|inconnu/i);
+    await assert.rejects(sdk.create('race', { trackId: secondId }), /supprimé|inconnu/i);
+    waiting.room.send('ready', { ready: true });
+    await until(() => waiting.latest?.world.players.every(player => player.ready), 'deleted-track lobby ready');
+    waiting.room.send('start');
+    await until(() => waiting.notices.some(message => message.includes('supprimé')), 'deleted track cannot start a new race');
+    assert.equal(waiting.latest!.world.phase, 'lobby');
+    waiting.room.send('configure', { mode: 'single', selection: 'manual', trackId: firstId });
+    await until(() => waiting.notices.some(message => message.includes('indisponible')), 'cached selection rejected');
+    waiting.room.send('configure', { mode: 'single', selection: 'manual', trackId: 'neon' });
+    await until(() => waiting.latest?.world.trackId === 'neon', 'lobby can select an available circuit');
+
+    const late = observe(await browserWithoutCatalogue.joinById(host.room.roomId, { name: 'Spectateur après suppression' })); peers.push(late);
+    await until(() => late.latest?.tracks?.length, 'late spectator receives retired geometry');
+    assert.deepEqual(late.latest!.tracks, [first]);
+    const kart = host.latest!.world.players.find(player => player.id === host.room.sessionId)!;
+    const position = { x: kart.x, z: kart.z };
+    for (let seq = 10; seq < 15; seq++) {
+      host.room.send('input', { ...neutralInput(seq, kart.epoch), throttle: 1 }); await pause(70);
+    }
+    const moved = host.latest!.world.players.find(player => player.id === host.room.sessionId)!;
+    assert.ok(Math.hypot(moved.x - position.x, moved.z - position.z) > .2, 'active race keeps accepting real inputs after deletion');
+
+    // Declared end-of-round fixture: this tests lifecycle/persistence, not a driven lap.
+    const live = matchMaker.getLocalRoomById(tournament.room.roomId) as RaceRoom;
+    live.world.phase = 'finished'; live.world.raceTime = 30;
+    for (const player of live.world.players) { player.finished = true; player.finishTime = 30; player.lap = getTrackLapCount(live.world.trackId); }
+    await until(() => tournament.latest?.world.phase === 'finished', 'first tournament result published');
+    tournament.room.send('nextRace');
+    await until(() => tournament.latest?.world.phase === 'lobby' && tournament.latest.world.trackId === firstId, 'retired circuit remains in already-started tournament');
+    tournament.room.send('ready', { ready: true });
+    await until(() => tournament.latest?.world.players.every(player => player.ready), 'historical second round ready');
+    tournament.room.send('start');
+    await until(() => tournament.latest?.world.phase === 'racing', 'historical scheduled round starts');
+    live.world.phase = 'finished'; live.world.raceTime = 31;
+    for (const player of live.world.players) { player.finished = true; player.finishTime = 31; player.lap = getTrackLapCount(live.world.trackId); }
+    await until(() => tournament.latest?.world.phase === 'finished' && tournament.latest.world.tournament.completed, 'historical tournament completes');
+    tournament.room.send('rematch');
+    await until(() => tournament.notices.some(message => message.includes('revanche a été supprimé')), 'new tournament cannot reuse deleted schedule');
+    assert.equal(tournament.latest!.world.phase, 'finished');
+    const reopened = await PlayerStore.open(join(directory, 'players'));
+    assert.equal((await reopened.getReplay('custom-replay-fixture'))!.trackId, firstId);
+    assert.equal(reopened.getProfile(author.profile.id)!.stats.bestTimes[firstId], 60);
   });
 
   await t.test('a missing historical circuit after a fresh process start never makes saved profiles unreadable', async () => {

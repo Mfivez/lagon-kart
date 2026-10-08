@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "origin": "https://dec-automatically-shell-makers.trycloudflare.com",
+  "startedAt": "2026-10-08T07:29:44.186Z",
+  "finishedAt": "2026-10-08T07:29:51.433Z",
+  "scope": "Two anonymous SDK connections over WSS. Lobby synchronization only; no start, profile, circuit change or replay.",
+  "peers": [
+    {
+      "snapshots": 71,
+      "players": 2,
+      "connectionClosed": true
+    },
+    {
+      "snapshots": 7,
+      "players": 1,
+      "connectionClosed": true
+    }
+  ],
+  "errors": [],
+  "health": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  }
+}

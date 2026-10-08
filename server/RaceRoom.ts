@@ -79,7 +79,7 @@ export class RaceRoom extends Room {
       trackId=this.previewTrack.id;
       registerCustomTrackPreview(this.previewTrack);
       selection??={group:'track',index:0};
-    }else if(!isTrackId(trackId)||isCustomTrackRuntimeId(trackId)&&!this.customStore.get(trackId))throw new ServerError(4216,'Ce circuit est inconnu.');
+    }else if(!isTrackId(trackId)||isCustomTrackRuntimeId(trackId)&&!this.customStore.isAvailable(trackId))throw new ServerError(4216,'Ce circuit est inconnu ou supprimé.');
     const workshop=selection===undefined?undefined:getTrackWorkshopStart(trackId,selection);
     if(selection!==undefined&&(!workshop||options.practice!==true||options.rankedPlayers?.length)){
       if(this.previewTrack){releaseCustomTrackPreview(this.previewTrack.id);this.previewTrack=undefined;}
@@ -327,6 +327,10 @@ export class RaceRoom extends Room {
     if (!host) return;
     if (host.id !== this.world.hostId) return this.notice(client, 'Seul le créateur du salon peut lancer la course.');
     if (this.world.phase !== 'lobby') return this.notice(client, 'Une manche est déjà en cours.');
+    if (!this.previewTrack && this.world.tournament.rounds.length === 0 &&
+      [this.world.trackId, ...this.world.tournament.schedule, ...(this.world.party?.choices ?? [])]
+        .some(id => isCustomTrackRuntimeId(id) && !this.customStore.isAvailable(id)))
+      return this.notice(client, 'Un circuit du programme a été supprimé. Choisissez un autre circuit avant le départ.');
     if (this.rankedPlayers.length && !this.rankedPlayers.every(id => this.world.players.some(player => player.playerId === id && player.connected && !player.spectator)))
       return this.notice(client, 'Attendez tous les pilotes réservés par le matchmaking.');
     const participants = this.world.players.filter(player => player.connected && !player.spectator);
@@ -389,7 +393,7 @@ export class RaceRoom extends Room {
       }
       const configured = applyConfiguration(this.world.tournament, data, this.world.trackId, () => randomInt(0x1000000) / 0x1000000);
       if (this.world.party && configured.tournament.mode !== 'tournament') throw new Error('Désactivez Soirée avant de choisir une course simple.');
-      if ([...configured.tournament.schedule, ...configured.tournament.trackPool].some(id => isCustomTrackRuntimeId(id) && !this.customStore.get(id))) throw new Error('Un circuit du programme est indisponible. Actualisez la bibliothèque.');
+      if ([...configured.tournament.schedule, ...configured.tournament.trackPool].some(id => isCustomTrackRuntimeId(id) && !this.customStore.isAvailable(id))) throw new Error('Un circuit du programme est indisponible. Actualisez la bibliothèque.');
       this.championshipId = '';
       this.resetLobby(configured.trackId, configured.tournament);
       this.sendSnapshot();
@@ -420,7 +424,7 @@ export class RaceRoom extends Room {
       if (data.crown && this.world.teamMode) throw new Error('Désactivez les équipes avant de choisir Couronne.');
       let choices: string[] = [];
       if (data.party) {
-        if (!Array.isArray(data.choices) || data.choices.length !== 3 || new Set(data.choices).size !== 3 || data.choices.some(id => typeof id !== 'string' || !isTrackId(id) || isCustomTrackRuntimeId(id) && !this.customStore.get(id))) throw new Error('Choisissez trois circuits différents et disponibles.');
+        if (!Array.isArray(data.choices) || data.choices.length !== 3 || new Set(data.choices).size !== 3 || data.choices.some(id => typeof id !== 'string' || !isTrackId(id) || isCustomTrackRuntimeId(id) && !this.customStore.isAvailable(id))) throw new Error('Choisissez trois circuits différents et disponibles.');
         choices = data.choices as string[];
       }
       const tournament = data.party && this.world.tournament.mode === 'single' ? applyConfiguration(this.world.tournament,
@@ -441,7 +445,8 @@ export class RaceRoom extends Room {
     for (const kart of this.world.players) {
       kart.x = point.x; kart.z = point.z; kart.angle = point.angle;
       kart.elevation = trackElevation(source.progress, track.id); kart.verticalVelocity = 0; kart.airborne = false; kart.loopId = '';
-      kart.speed = 0; kart.progress = source.progress; kart.nextCheckpoint = track.checkpoints.findIndex(checkpoint => checkpoint.progress > source.progress);
+      kart.speed = 0; kart.progress = source.progress; kart.routeProgress = source.progress; kart.respawnProgress = source.progress;
+      kart.nextCheckpoint = track.checkpoints.findIndex(checkpoint => checkpoint.progress > source.progress);
       if (kart.nextCheckpoint < 0) kart.nextCheckpoint = 0;
       kart.respawnX = point.x; kart.respawnZ = point.z; kart.respawnAngle = point.angle;
       kart.eventStage = this.world.eventStage; kart.eventLevel = this.world.eventLevel;
@@ -475,11 +480,15 @@ export class RaceRoom extends Room {
     const world = structuredClone(this.world), cupId = this.championshipId;
     const samples = world.players.filter(kart => !kart.spectator && !kart.cpu).map(kart => ({ ...kart, playerId: kart.playerId || kart.id }));
     const replay = this.recorder?.finish(world.raceTime, samples, world.highlights);
+    let profilesUpdated = false;
     void (async () => {
       const humans = world.players.filter(kart => kart.playerId && !kart.spectator);
       const store = await playerStore();
-      if (humans.length && !world.crown) await store.recordRace({ id: replay?.id ?? `${this.roomId}-${world.round}`, trackId: world.trackId, ranked: this.rankedPlayers.length > 0,
-        finishedAt: Date.now(), entries: humans.map(kart => ({ playerId: kart.playerId, rank: kart.rank, finished: kart.finished, finishTime: kart.finished ? kart.finishTime : 0 })) });
+      if (humans.length && !world.crown) {
+        await store.recordRace({ id: replay?.id ?? `${this.roomId}-${world.round}`, trackId: world.trackId, ranked: this.rankedPlayers.length > 0,
+          finishedAt: Date.now(), entries: humans.map(kart => ({ playerId: kart.playerId, rank: kart.rank, finished: kart.finished, finishTime: kart.finished ? kart.finishTime : 0 })) });
+        profilesUpdated = true;
+      }
       if (replay?.drivers.length) {
         await store.saveReplay(replay);
         if (this.world.round === world.round) this.world.replayId = replay.id;
@@ -495,7 +504,14 @@ export class RaceRoom extends Room {
       }
       for (const kart of this.world.players) if (kart.playerId) kart.careerLevel = store.getProfile(kart.playerId)?.careerLevel ?? kart.careerLevel;
       this.sendSnapshot();
-    })().catch(error => { console.error('Race persistence failed:', error instanceof Error ? error.message : error); this.broadcast('notice', { message: 'La sauvegarde de cette course a échoué. Votre profil précédent est conservé.' }); });
+    })().catch(error => { console.error('Race persistence failed:', error instanceof Error ? error.message : error); this.broadcast('notice', { message: profilesUpdated
+      ? 'Votre progression est sauvegardée, mais l’enregistrement complet de cette course a échoué.'
+      : 'La sauvegarde de cette course a échoué. Votre profil précédent est conservé.' }); })
+      .finally(() => {
+        // Phase "finished" is sent before asynchronous persistence. Notify even
+        // if replay saving failed after the profile itself was already saved.
+        if (profilesUpdated) this.broadcast('profile-updated', { round: world.round });
+      });
     if (world.tournament.completed || world.tournament.mode === 'single') for (const id of this.rankedPlayers) activeRankedPlayers.delete(id);
   }
 
@@ -525,6 +541,8 @@ export class RaceRoom extends Room {
       return this.notice(client, 'Le tournoi continue : choisissez la course suivante.');
     }
     const tournament = restartTournament(this.world.tournament, this.world.trackId, () => randomInt(0x1000000) / 0x1000000);
+    if ([...tournament.schedule, ...(this.world.party?.choices ?? [])].some(id => isCustomTrackRuntimeId(id) && !this.customStore.isAvailable(id)))
+      return this.notice(client, 'Un circuit de la revanche a été supprimé. Créez un nouveau salon avec des circuits disponibles.');
     this.resetLobby(tournament.schedule[0]!, tournament);
     this.sendSnapshot();
   }

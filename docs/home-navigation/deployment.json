@@ -1,0 +1,53 @@
+{
+  "startedAt": "2026-10-07T21:19:07.814Z",
+  "origin": "https://yoga-unlikely-div-converted.trycloudflare.com",
+  "healthBefore": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "tunnelBefore": "1dc0cee3485156687d71717db0a07c90be5b7b3ecb64476a0ff6861eac62205c",
+  "appBefore": "75146a6e0591abdda57f7fd9bba3dbeb851b06e8867f3537b0af3fec0c065e1e",
+  "dataBefore": {
+    "files": 49,
+    "digest": "bb5ca81edc862affa6df6f7ec458d8ca2009bf21b644f40a75ddc6d910050a57"
+  },
+  "healthAfter": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "appAfter": "eda81ef270c0ebec08300cfc9dfa4a1b597dc7b3dd4b5317633ce53ba518788e",
+  "tunnelAfter": "1dc0cee3485156687d71717db0a07c90be5b7b3ecb64476a0ff6861eac62205c",
+  "dataAfter": {
+    "files": 49,
+    "digest": "bb5ca81edc862affa6df6f7ec458d8ca2009bf21b644f40a75ddc6d910050a57"
+  },
+  "runningImage": "sha256:259892dd5297e98910deb30295b97c5b4bcdf6555449831ee6890385363bbfb1",
+  "publicHealth": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "assets": [
+    {
+      "path": "/assets/index-Ahb8Ic8L.js",
+      "sha256": "f2b0b693bfeb5c8206874718e3df3311a1d7e705dc2d0826e9c7386a4477bfbb"
+    },
+    {
+      "path": "/assets/index-6X77iw5y.css",
+      "sha256": "1dfc3e0eccd95a0485e32dfa27996ba64364c99f56f963b3dd69737e6c2ed9f5"
+    }
+  ],
+  "passed": true,
+  "finishedAt": "2026-10-07T21:19:14.058Z"
+}

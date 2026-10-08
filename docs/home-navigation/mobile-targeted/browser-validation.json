@@ -1,0 +1,340 @@
+{
+  "origin": "http://127.0.0.1:40981",
+  "startedAt": "2026-10-07T21:06:24.025Z",
+  "checks": [
+    "Touch picker: 32 long-name creations, pagination, accent-insensitive search, source filters, empty state, explicit confirm/cancel, focus return and failed refresh/retry preserving selection.",
+    "320x568: core actions, rank/MMR, chosen circuit, presence and navigation visible without scrolling; secondary views reachable with no horizontal overflow.",
+    "390x844: core actions, rank/MMR, chosen circuit, presence and navigation visible without scrolling; secondary views reachable with no horizontal overflow."
+  ],
+  "errors": [],
+  "captures": [
+    "home-320x568.png",
+    "picker-320x568.png",
+    "picker-mobile-long-name.png",
+    "home-390x844.png",
+    "picker-390x844.png",
+    "failure.png"
+  ],
+  "scope": "Chromium desktop and touch emulation, built client and real private server; temporary profiles and 32 authored tracks created through HTTP APIs.",
+  "limitations": [
+    "No physical phone or Safari iOS tested.",
+    "These checks cover home navigation and normal room creation, not a complete race."
+  ],
+  "assets": [
+    "/assets/index-bKh-G9dw.js",
+    "/assets/index-cmIs3avI.css"
+  ],
+  "catalogueFixture": {
+    "authored": 32,
+    "nameLengths": [
+      48
+    ],
+    "themes": 10
+  },
+  "layouts": [
+    {
+      "width": 320,
+      "height": 568,
+      "touch": true,
+      "selected": "lagon",
+      "boxes": {
+        "#name-input": {
+          "x": 55.09375,
+          "y": 117,
+          "width": 124.5,
+          "height": 44
+        },
+        "#home-ranked-action": {
+          "x": 30,
+          "y": 397.671875,
+          "width": 260,
+          "height": 44
+        },
+        "[data-ranked-grade]": {
+          "x": 30,
+          "y": 369.484375,
+          "width": 59.0625,
+          "height": 21.1875
+        },
+        "[data-ranked-mmr]": {
+          "x": 97.0625,
+          "y": 372.28125,
+          "width": 67.546875,
+          "height": 15.59375
+        },
+        "#create-button": {
+          "x": 19,
+          "y": 258.484375,
+          "width": 137,
+          "height": 44
+        },
+        "#practice-button": {
+          "x": 164,
+          "y": 258.484375,
+          "width": 137,
+          "height": 44
+        },
+        "#code-input": {
+          "x": 19,
+          "y": 308.484375,
+          "width": 137,
+          "height": 44
+        },
+        "#join-button": {
+          "x": 164,
+          "y": 308.484375,
+          "width": 137,
+          "height": 44
+        },
+        "#choose-track-button": {
+          "x": 196.296875,
+          "y": 187.734375,
+          "width": 93.703125,
+          "height": 44
+        },
+        "#track-name": {
+          "x": 30,
+          "y": 191,
+          "width": 158.296875,
+          "height": 36.796875
+        },
+        "#track-tags": {
+          "x": 30,
+          "y": 231.796875,
+          "width": 158.296875,
+          "height": 11.6875
+        },
+        ".home-presence-summary": {
+          "x": 200.890625,
+          "y": 65,
+          "width": 100.109375,
+          "height": 44
+        },
+        "#home-tab-play": {
+          "x": 19,
+          "y": 505,
+          "width": 67.5,
+          "height": 44
+        },
+        "#home-tab-pilot": {
+          "x": 90.5,
+          "y": 505,
+          "width": 67.5,
+          "height": 44
+        },
+        "#home-tab-online": {
+          "x": 162,
+          "y": 505,
+          "width": 67.5,
+          "height": 44
+        },
+        "#home-tab-options": {
+          "x": 233.5,
+          "y": 505,
+          "width": 67.5,
+          "height": 44
+        }
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "touch": true,
+      "selected": "custom-4b12b817-529e-4a86-9ed6-68dbe11ac5aa-v1",
+      "boxes": {
+        "#name-input": {
+          "x": 57.09375,
+          "y": 121,
+          "width": 190.5,
+          "height": 44
+        },
+        "#home-ranked-action": {
+          "x": 32,
+          "y": 413.65625,
+          "width": 326,
+          "height": 44
+        },
+        "[data-ranked-grade]": {
+          "x": 32,
+          "y": 385.46875,
+          "width": 59.0625,
+          "height": 21.1875
+        },
+        "[data-ranked-mmr]": {
+          "x": 99.0625,
+          "y": 388.265625,
+          "width": 67.546875,
+          "height": 15.59375
+        },
+        "#create-button": {
+          "x": 21,
+          "y": 270.46875,
+          "width": 170,
+          "height": 44
+        },
+        "#practice-button": {
+          "x": 199,
+          "y": 270.46875,
+          "width": 170,
+          "height": 44
+        },
+        "#code-input": {
+          "x": 21,
+          "y": 322.46875,
+          "width": 170,
+          "height": 44
+        },
+        "#join-button": {
+          "x": 199,
+          "y": 322.46875,
+          "width": 170,
+          "height": 44
+        },
+        "#choose-track-button": {
+          "x": 263.296875,
+          "y": 195.734375,
+          "width": 93.703125,
+          "height": 44
+        },
+        "#track-name": {
+          "x": 33,
+          "y": 199,
+          "width": 222.296875,
+          "height": 36.78125
+        },
+        "#track-tags": {
+          "x": 33,
+          "y": 239.78125,
+          "width": 222.296875,
+          "height": 11.6875
+        },
+        ".home-presence-summary": {
+          "x": 268.890625,
+          "y": 67,
+          "width": 100.109375,
+          "height": 44
+        },
+        "#home-tab-play": {
+          "x": 21,
+          "y": 779,
+          "width": 84,
+          "height": 44
+        },
+        "#home-tab-pilot": {
+          "x": 109,
+          "y": 779,
+          "width": 84,
+          "height": 44
+        },
+        "#home-tab-online": {
+          "x": 197,
+          "y": 779,
+          "width": 84,
+          "height": 44
+        },
+        "#home-tab-options": {
+          "x": 285,
+          "y": 779,
+          "width": 84,
+          "height": 44
+        }
+      }
+    }
+  ],
+  "viewportMode": "mobile",
+  "passed": false,
+  "error": "AssertionError [ERR_ASSERTION]: #code-input must fit without scrolling: {\"x\":240,\"y\":267,\"width\":113.328125,\"height\":44}",
+  "failureLayout": [
+    {
+      "id": "home-panel",
+      "box": {
+        "x": 8,
+        "y": 40,
+        "width": 552,
+        "height": 274
+      },
+      "scrollHeight": 272,
+      "clientHeight": 272
+    },
+    {
+      "id": "home-hub-body",
+      "box": {
+        "x": 18,
+        "y": 96,
+        "width": 434,
+        "height": 212
+      },
+      "scrollHeight": 218,
+      "clientHeight": 212
+    },
+    {
+      "id": "home-view-play",
+      "box": {
+        "x": 21,
+        "y": 99,
+        "width": 428,
+        "height": 212
+      },
+      "scrollHeight": 212,
+      "clientHeight": 212
+    },
+    {
+      "id": "home-ranked",
+      "box": {
+        "x": 240,
+        "y": 149,
+        "width": 209,
+        "height": 112
+      },
+      "scrollHeight": 110,
+      "clientHeight": 110
+    },
+    {
+      "id": "track-picker",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "scrollHeight": 0,
+      "clientHeight": 0
+    },
+    {
+      "id": "track-picker-cards",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "scrollHeight": 0,
+      "clientHeight": 0
+    },
+    {
+      "id": "track-picker-detail",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "scrollHeight": 0,
+      "clientHeight": 0
+    },
+    {
+      "id": "track-picker-confirm",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "scrollHeight": 0,
+      "clientHeight": 0
+    }
+  ],
+  "finishedAt": "2026-10-07T21:06:45.986Z",
+  "browserClosed": true,
+  "temporaryDataRemoved": true
+}

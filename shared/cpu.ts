@@ -24,7 +24,7 @@ export function getCpuInput(kart: CpuKart, seq: number, world: CpuWorld = {}, di
   const stage = world.eventStage ?? kart.eventStage ?? 0, level = world.eventLevel ?? kart.eventLevel ?? 0;
   const driving = autopilot({ ...kart, eventStage: stage, eventLevel: level }, seq);
   const track = getTrack(kart.trackId), stats = getKartStats(kart.build);
-  const near = nearestDriveableTrack(kart.x, kart.z, track.id, stage, level);
+  const near = nearestDriveableTrack(kart.x, kart.z, track.id, stage, level, { progress: kart.routeProgress ?? kart.progress, elevation: kart.elevation });
   const ahead = drivingRoute(kart, near, stage, level).point(near.progress + 24);
   const curvature = Math.abs(angleDifference(ahead.angle, near.angle)) / 24;
   const onBranch = near.branchId !== '';

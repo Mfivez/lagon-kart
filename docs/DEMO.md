@@ -1,8 +1,10 @@
 # Démo intégrée — éditeur, comptes, petits écrans et circuits
 
-État documenté le **7 octobre 2026**. Le projet conserve Three.js, Colyseus,
+État documenté le **8 octobre 2026**. Le projet conserve Three.js, Colyseus,
 Docker et les ressources servies depuis la même origine. Budget ajouté :
 **0 €**, sans asset payant, abonnement, API IA payante ni dépendance npm nouvelle.
+
+Dernier ajout : dans **Créer un circuit → Vos circuits et ceux de la classe**, chacun peut supprimer ses créations et le compte **Admin** peut modérer tous les circuits. Les suppressions survivent au redémarrage ; courses engagées et replays sont conservés. [Validation et captures](track-deletion/README.md).
 
 ## Démarrer et partager la version compilée
 
@@ -19,7 +21,7 @@ courante depuis les logs du tunnel, l'ouvrir, puis créer et partager le salon.
 Le tunnel doit rester actif. Pour une instance déjà nommée ou un autre port,
 conserver ses options `-p` et `HOST_PORT` lors des commandes suivantes.
 
-Lien de cette session : [ouvrir Lagon Kart](https://miles-blades-tulsa-citizens.trycloudflare.com).
+Lien de cette session : [ouvrir Lagon Kart](https://dec-automatically-shell-makers.trycloudflare.com).
 Le tunnel précédent avait expiré ; ce lien le remplace et change à sa recréation.
 Les douze tracés remaniés, les commandes tactiles et les deux loopings sont
 conservés. Les preuves ci-dessous du lot mobile concernent son build précédent

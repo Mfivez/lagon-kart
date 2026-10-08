@@ -1,3 +1,4 @@
+import { homeControl, readOfficialTrackCatalog, selectHomeTrack } from './menu-navigation.js';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -86,7 +87,7 @@ async function leave(page: Page) {
   }
 }
 async function openCareer(page: Page) {
-  await page.locator('#career-button').click(); await page.locator('#career-dialog').waitFor({ state: 'visible' });
+  await (await homeControl(page, '#career-button')).click(); await page.locator('#career-dialog').waitFor({ state: 'visible' });
 }
 try {
   for (let index = 0; index < 2; index++) {
@@ -99,13 +100,11 @@ try {
     await page.goto(origin, { waitUntil: 'domcontentloaded', timeout: 60000 }); await ready(page);
   }
   const [host, guest] = pages as [Page, Page];
-  assert.equal(await host.locator('#track-cards [data-track]').count(), TRACKS.length);
   assert.equal(await host.locator('#swatches [data-color]').count(), 8);
-  evidence.trackIds = await host.locator('#track-cards [data-track]').evaluateAll(nodes => nodes.map(node => (node as HTMLElement).dataset.track));
+  evidence.trackIds = await readOfficialTrackCatalog(host);
   assert.deepEqual(evidence.trackIds, TRACKS.map(track => track.id));
   for (const trackId of [...TRACKS.slice(4).map(track => track.id), 'lagon']) {
-    await host.locator(`#track-cards [data-track="${trackId}"]`).click();
-    assert.equal(await host.locator(`#track-cards [data-track="${trackId}"]`).getAttribute('aria-pressed'), 'true');
+    await selectHomeTrack(host, trackId, TRACKS.find(track => track.id === trackId)!.name);
   }
   await capture(host, `home-${TRACKS.length}-tracks`);
   record(`Accueil : ${TRACKS.length} circuits sélectionnables, toutes les nouvelles pistes parcourues dans le sélecteur, et huit couleurs`);
@@ -114,9 +113,9 @@ try {
     { name: 'Démo Obama', model: 'retro', character: 'obama', colorIndex: 2 }];
   for (const [index, page] of pages.entries()) {
     const choice = choices[index]!;
-    await page.locator('#name-input').fill(choice.name);
-    await page.locator('#swatches [data-color]').nth(choice.colorIndex).click();
-    await page.locator('#garage-button').click(); await page.locator('#garage-dialog').waitFor({ state: 'visible' });
+    await (await homeControl(page, '#name-input')).fill(choice.name);
+    await (await homeControl(page, '#swatches [data-color]')).nth(choice.colorIndex).click();
+    await (await homeControl(page, '#garage-button')).click(); await page.locator('#garage-dialog').waitFor({ state: 'visible' });
     assert.equal(await page.locator('#kart-model-select option').count(), 3);
     assert.equal(await page.locator('#character-select option').count(), CHARACTERS.length);
     assert.equal(await page.locator('#garage-dialog [data-slot]').count(), 6);
@@ -131,10 +130,10 @@ try {
   evidence.identities = await Promise.all(pages.map(page => profile(page).then(value => ({ id: value.id, name: value.name, careerLevel: value.careerLevel }))));
   record(`Garage : trois modèles, ${CHARACTERS.length} personnages, six catégories et douze pièces verrouillées au niveau zéro ; aperçus 3D et identités distinctes`);
 
-  await host.locator('#create-button').click(); await phase(host, 'lobby');
+  await (await homeControl(host, '#create-button')).click(); await phase(host, 'lobby');
   const invitation = await host.locator('#share-url').inputValue();
   const roomId = new URL(invitation).pathname.split('/').pop()!;
-  await guest.locator('#code-input').fill(roomId); await guest.locator('#join-button').click(); await phase(guest, 'lobby');
+  await (await homeControl(guest, '#code-input')).fill(roomId); await (await homeControl(guest, '#join-button')).click(); await phase(guest, 'lobby');
   await until(async () => (await state(host)).world?.players.length === 2, 'deux humains');
   for (const page of pages) {
     await until(async () => {
@@ -253,7 +252,7 @@ try {
   assert.equal(await host.locator('#career-dialog [data-cup]:not(:disabled)').count(), 3);
   assert.match(await host.locator('#career-dialog [data-cup="discovery"]').innerText(), /✓/);
   await host.locator('#career-close').click();
-  await host.locator('#garage-button').click(); await host.locator('#garage-dialog').waitFor({ state: 'visible' });
+  await (await homeControl(host, '#garage-button')).click(); await host.locator('#garage-dialog').waitFor({ state: 'visible' });
   assert.equal(await host.locator('#garage-dialog [data-slot] option:disabled').count(), 8);
   await host.locator('#garage-dialog [data-slot="tires"]').selectOption('allterrain');
   assert.equal(await host.locator('#garage-dialog [data-slot="tires"]').inputValue(), 'allterrain');
@@ -293,7 +292,7 @@ try {
   await host.reload({ waitUntil: 'domcontentloaded', timeout: 60000 }); await ready(host);
   const finalProfile = await profile(host);
   assert.equal(finalProfile.id, careerPlayer.id); assert.equal(finalProfile.careerLevel, 3); assert.equal(finalProfile.completedChampionships.length, 6);
-  await host.locator('#garage-button').click(); await host.locator('#garage-dialog').waitFor({ state: 'visible' });
+  await (await homeControl(host, '#garage-button')).click(); await host.locator('#garage-dialog').waitFor({ state: 'visible' });
   assert.equal(await host.locator('#garage-dialog [data-slot] option:disabled').count(), 0);
   assert.equal(await host.locator('#garage-dialog [data-slot="tires"]').inputValue(), 'allterrain');
   evidence.finalProfile = finalProfile;

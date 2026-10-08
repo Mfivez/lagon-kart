@@ -1,0 +1,2772 @@
+TAP version 13
+# Subtest: accounts HTTP, saved progression and multiplayer identities
+    # Subtest: registration attaches the existing guest ID and earned progress without trusting forged fields
+    ok 1 - registration attaches the existing guest ID and earned progress without trusting forged fields
+      ---
+      duration_ms: 516.2272
+      type: 'test'
+      ...
+    # Subtest: fresh login restores the same pilot; duplicate, wrong-password and stale-session failures are explicit
+    ok 2 - fresh login restores the same pilot; duplicate, wrong-password and stale-session failures are explicit
+      ---
+      duration_ms: 1181.508695
+      type: 'test'
+      ...
+    # Subtest: logout revokes only its session and removes that pilot from the matchmaking queue
+    ok 3 - logout revokes only its session and removes that pilot from the matchmaking queue
+      ---
+      duration_ms: 265.802144
+      type: 'test'
+      ...
+# colyseus.js - onError => (4220) Profil invalide. Rechargez la page.
+# Room connection was closed unexpectedly (4002):
+# colyseus.js - onError => (4002)
+    # Subtest: room admission uses recovered identity and rejects the revoked token
+    ok 4 - room admission uses recovered identity and rejects the revoked token
+      ---
+      duration_ms: 125.854562
+      type: 'test'
+      ...
+    # Subtest: account endpoints reject foreign origins, bad methods and malformed bodies
+    ok 5 - account endpoints reject foreign origins, bad methods and malformed bodies
+      ---
+      duration_ms: 250.032484
+      type: 'test'
+      ...
+    # Subtest: repeated guesses are limited per login while the rest of the class can connect
+    ok 6 - repeated guesses are limited per login while the rest of the class can connect
+      ---
+      duration_ms: 328.17289
+      type: 'test'
+      ...
+    1..6
+ok 1 - accounts HTTP, saved progression and multiplayer identities
+  ---
+  duration_ms: 3198.144706
+  type: 'test'
+  ...
+# Subtest: username accounts persist salted password hashes and recover on a fresh store without exposing secrets
+ok 2 - username accounts persist salted password hashes and recover on a fresh store without exposing secrets
+  ---
+  duration_ms: 716.051969
+  type: 'test'
+  ...
+# Subtest: linking a legacy anonymous token preserves identity, ranked results, career and replays after restart
+ok 3 - linking a legacy anonymous token preserves identity, ranked results, career and replays after restart
+  ---
+  duration_ms: 484.396201
+  type: 'test'
+  ...
+# Subtest: concurrent normalized and case-insensitive registrations have a single winner
+ok 4 - concurrent normalized and case-insensitive registrations have a single winner
+  ---
+  duration_ms: 794.908644
+  type: 'test'
+  ...
+# Subtest: wrong passwords and unknown accounts fail without creating profiles or granting a session
+ok 5 - wrong passwords and unknown accounts fail without creating profiles or granting a session
+  ---
+  duration_ms: 547.878729
+  type: 'test'
+  ...
+# Subtest: independent sessions survive restart and logout revokes only the selected token, including the last session
+ok 6 - independent sessions survive restart and logout revokes only the selected token, including the last session
+  ---
+  duration_ms: 707.169243
+  type: 'test'
+  ...
+# Subtest: session retention evicts the oldest tokens while allowing sixteen simultaneous logins
+ok 7 - session retention evicts the oldest tokens while allowing sixteen simultaneous logins
+  ---
+  duration_ms: 1319.627801
+  type: 'test'
+  ...
+# Subtest: invalid inputs, expired linking tokens and already registered profiles never silently create or rebind accounts
+ok 8 - invalid inputs, expired linking tokens and already registered profiles never silently create or rebind accounts
+  ---
+  duration_ms: 1114.481514
+  type: 'test'
+  ...
+# Subtest: an existing guest can register at capacity but a new account cannot exceed the player cap
+ok 9 - an existing guest can register at capacity but a new account cannot exceed the player cap
+  ---
+  duration_ms: 447.600821
+  type: 'test'
+  ...
+# Subtest: malformed persisted credentials, duplicate usernames and invalid session records fail without erasing saves
+ok 10 - malformed persisted credentials, duplicate usernames and invalid session records fail without erasing saves
+  ---
+  duration_ms: 691.771465
+  type: 'test'
+  ...
+# Subtest: failed account commits leave the in-memory guest identity and progression untouched
+ok 11 - failed account commits leave the in-memory guest identity and progression untouched
+  ---
+  duration_ms: 414.37671
+  type: 'test'
+  ...
+# Subtest: a closure before the next gate requests ordinary recovery without changing the driver
+ok 12 - a closure before the next gate requests ordinary recovery without changing the driver
+  ---
+  duration_ms: 237.208125
+  type: 'test'
+  ...
+# Subtest: closure recovery does not reset a moving kart or one genuinely clearing the debris in flight
+ok 13 - closure recovery does not reset a moving kart or one genuinely clearing the debris in flight
+  ---
+  duration_ms: 14.359875
+  type: 'test'
+  ...
+# Subtest: a late closure can be recovered through ordinary inputs and the next gate is physically reached
+ok 14 - a late closure can be recovered through ordinary inputs and the next gate is physically reached
+  ---
+  duration_ms: 140.262679
+  type: 'test'
+  ...
+# Subtest: career API and authoritative room integration
+    # Subtest: HTTP identities reject forged progression and protect authentication secrets
+    ok 1 - HTTP identities reject forged progression and protect authentication secrets
+      ---
+      duration_ms: 307.897018
+      type: 'test'
+      ...
+# colyseus.js - onError => (4221) Ce profil est déjà dans ce salon.
+# Room connection was closed unexpectedly (4002):
+# colyseus.js - onError => (4002)
+# colyseus.js - onError => (4220) Profil invalide. Rechargez la page.
+# Room connection was closed unexpectedly (4002):
+# colyseus.js - onError => (4002)
+    # Subtest: rooms bind identity to the token, normalise model/build choices, and reject duplicate identities
+    ok 2 - rooms bind identity to the token, normalise model/build choices, and reject duplicate identities
+      ---
+      duration_ms: 233.583304
+      type: 'test'
+      ...
+# colyseus.js - onError => (4222) Ce salon est réservé aux joueurs du matchmaking.
+# Room connection was closed unexpectedly (4002):
+# colyseus.js - onError => (4002)
+# colyseus.js - onError => (4220) Un profil est nécessaire en course classée.
+# Room connection was closed unexpectedly (4002):
+# colyseus.js - onError => (4002)
+    # Subtest: client-created rooms cannot forge ranked authority; all matched profiles must join before starting
+    ok 3 - client-created rooms cannot forge ranked authority; all matched profiles must join before starting
+      ---
+      duration_ms: 4027.65698
+      type: 'test'
+      ...
+    # Subtest: queue cancellation invalidates a matched seat, and cancellation before matching removes the queue entry
+    ok 4 - queue cancellation invalidates a matched seat, and cancellation before matching removes the queue entry
+      ---
+      duration_ms: 3087.877936
+      type: 'test'
+      ...
+    # Subtest: championship locks, server-awarded garage tiers, stats and human replays survive persistence
+    ok 5 - championship locks, server-awarded garage tiers, stats and human replays survive persistence
+      ---
+      duration_ms: 920.754405
+      type: 'test'
+      ...
+    # Subtest: teams fill eight seats, preserve a human host and stay separate from the career championship
+    ok 6 - teams fill eight seats, preserve a human host and stay separate from the career championship
+      ---
+      duration_ms: 297.443895
+      type: 'test'
+      ...
+    1..6
+ok 15 - career API and authoritative room integration
+  ---
+  duration_ms: 9056.714594
+  type: 'test'
+  ...
+# Subtest: career queue has one owner, survives menu close, cancels a late POST and synchronizes identity
+    # Subtest: closing the career menu does not cancel or create a second queue
+    ok 1 - closing the career menu does not cancel or create a second queue
+      ---
+      duration_ms: 8.695876
+      type: 'test'
+      ...
+    # Subtest: cancel waits for an in-flight POST so it cannot revive the queue afterwards
+    ok 2 - cancel waits for an in-flight POST so it cannot revive the queue afterwards
+      ---
+      duration_ms: 6.093696
+      type: 'test'
+      ...
+    # Subtest: a poll failure displays a recoverable error and cleans up the queue
+    ok 3 - a poll failure displays a recoverable error and cleans up the queue
+      ---
+      duration_ms: 5.726922
+      type: 'test'
+      ...
+    # Subtest: a lost POST reply and failed first DELETE still cancel the real entry before another room
+    ok 4 - a lost POST reply and failed first DELETE still cancel the real entry before another room
+      ---
+      duration_ms: 1.761764
+      type: 'test'
+      ...
+    # Subtest: room guard prevents queueing; identity switch cancels and publishes the new server grade/MMR
+    ok 5 - room guard prevents queueing; identity switch cancels and publishes the new server grade/MMR
+      ---
+      duration_ms: 3.046409
+      type: 'test'
+      ...
+    1..5
+ok 16 - career queue has one owner, survives menu close, cancels a late POST and synchronizes identity
+  ---
+  duration_ms: 128.89326
+  type: 'test'
+  ...
+# Subtest: character selection admits fourteen distinct local cartoon identities and safely defaults invalid inputs
+ok 17 - character selection admits fourteen distinct local cartoon identities and safely defaults invalid inputs
+  ---
+  duration_ms: 5.844315
+  type: 'test'
+  ...
+# Subtest: lagon: CPUs already on the main road survive event changes at levels 1, 2 and 3
+ok 18 - lagon: CPUs already on the main road survive event changes at levels 1, 2 and 3
+  ---
+  duration_ms: 912.071667
+  type: 'test'
+  ...
+# Subtest: canyon: CPUs already on the main road survive event changes at levels 1, 2 and 3
+ok 19 - canyon: CPUs already on the main road survive event changes at levels 1, 2 and 3
+  ---
+  duration_ms: 1016.335053
+  type: 'test'
+  ...
+# Subtest: glacier: CPUs already on the main road survive event changes at levels 1, 2 and 3
+ok 20 - glacier: CPUs already on the main road survive event changes at levels 1, 2 and 3
+  ---
+  duration_ms: 744.888867
+  type: 'test'
+  ...
+# Subtest: neon: CPUs already on the main road survive event changes at levels 1, 2 and 3
+ok 21 - neon: CPUs already on the main road survive event changes at levels 1, 2 and 3
+  ---
+  duration_ms: 818.93524
+  type: 'test'
+  ...
+# Subtest: mangrove: CPUs already on the main road survive event changes at levels 1, 2 and 3
+ok 22 - mangrove: CPUs already on the main road survive event changes at levels 1, 2 and 3
+  ---
+  duration_ms: 941.957585
+  type: 'test'
+  ...
+# Subtest: dunes: CPUs already on the main road survive event changes at levels 1, 2 and 3
+ok 23 - dunes: CPUs already on the main road survive event changes at levels 1, 2 and 3
+  ---
+  duration_ms: 633.226757
+  type: 'test'
+  ...
+# Subtest: volcan: CPUs already on the main road survive event changes at levels 1, 2 and 3
+ok 24 - volcan: CPUs already on the main road survive event changes at levels 1, 2 and 3
+  ---
+  duration_ms: 1208.462223
+  type: 'test'
+  ...
+# Subtest: forest: CPUs already on the main road survive event changes at levels 1, 2 and 3
+ok 25 - forest: CPUs already on the main road survive event changes at levels 1, 2 and 3
+  ---
+  duration_ms: 1697.902919
+  type: 'test'
+  ...
+# Subtest: harbor: CPUs already on the main road survive event changes at levels 1, 2 and 3
+ok 26 - harbor: CPUs already on the main road survive event changes at levels 1, 2 and 3
+  ---
+  duration_ms: 1170.372048
+  type: 'test'
+  ...
+# Subtest: sky: CPUs already on the main road survive event changes at levels 1, 2 and 3
+ok 27 - sky: CPUs already on the main road survive event changes at levels 1, 2 and 3
+  ---
+  duration_ms: 1343.646951
+  type: 'test'
+  ...
+# Subtest: foundry: CPUs already on the main road survive event changes at levels 1, 2 and 3
+ok 28 - foundry: CPUs already on the main road survive event changes at levels 1, 2 and 3
+  ---
+  duration_ms: 1079.243077
+  type: 'test'
+  ...
+# Subtest: castle: CPUs already on the main road survive event changes at levels 1, 2 and 3
+ok 29 - castle: CPUs already on the main road survive event changes at levels 1, 2 and 3
+  ---
+  duration_ms: 1297.473187
+  type: 'test'
+  ...
+# Subtest: mangrove: a late closure does not strand CPU drivers in either outside lane
+ok 30 - mangrove: a late closure does not strand CPU drivers in either outside lane
+  ---
+  duration_ms: 79.076223
+  type: 'test'
+  ...
+# Subtest: castle: a late closure does not strand CPU drivers in either outside lane
+ok 31 - castle: a late closure does not strand CPU drivers in either outside lane
+  ---
+  duration_ms: 249.661192
+  type: 'test'
+  ...
+# Subtest: foundry: a late closure does not strand CPU drivers in either outside lane
+ok 32 - foundry: a late closure does not strand CPU drivers in either outside lane
+  ---
+  duration_ms: 211.274655
+  type: 'test'
+  ...
+# Subtest: lagon: a CPU already on an open branch follows it to actual checkpoints
+ok 33 - lagon: a CPU already on an open branch follows it to actual checkpoints
+  ---
+  duration_ms: 421.612088
+  type: 'test'
+  ...
+# Subtest: canyon: a CPU already on an open branch follows it to actual checkpoints
+ok 34 - canyon: a CPU already on an open branch follows it to actual checkpoints
+  ---
+  duration_ms: 444.491311
+  type: 'test'
+  ...
+# Subtest: glacier: a CPU already on an open branch follows it to actual checkpoints
+ok 35 - glacier: a CPU already on an open branch follows it to actual checkpoints
+  ---
+  duration_ms: 474.269902
+  type: 'test'
+  ...
+# Subtest: neon: a CPU already on an open branch follows it to actual checkpoints
+ok 36 - neon: a CPU already on an open branch follows it to actual checkpoints
+  ---
+  duration_ms: 330.099541
+  type: 'test'
+  ...
+# Subtest: mangrove: a CPU already on an open branch follows it to actual checkpoints
+ok 37 - mangrove: a CPU already on an open branch follows it to actual checkpoints
+  ---
+  duration_ms: 321.380424
+  type: 'test'
+  ...
+# Subtest: dunes: a CPU already on an open branch follows it to actual checkpoints
+ok 38 - dunes: a CPU already on an open branch follows it to actual checkpoints
+  ---
+  duration_ms: 483.022634
+  type: 'test'
+  ...
+# Subtest: volcan: a CPU already on an open branch follows it to actual checkpoints
+ok 39 - volcan: a CPU already on an open branch follows it to actual checkpoints
+  ---
+  duration_ms: 614.100499
+  type: 'test'
+  ...
+# Subtest: forest: a CPU already on an open branch follows it to actual checkpoints
+ok 40 - forest: a CPU already on an open branch follows it to actual checkpoints
+  ---
+  duration_ms: 559.451691
+  type: 'test'
+  ...
+# Subtest: harbor: a CPU already on an open branch follows it to actual checkpoints
+ok 41 - harbor: a CPU already on an open branch follows it to actual checkpoints
+  ---
+  duration_ms: 508.157864
+  type: 'test'
+  ...
+# Subtest: sky: a CPU already on an open branch follows it to actual checkpoints
+ok 42 - sky: a CPU already on an open branch follows it to actual checkpoints
+  ---
+  duration_ms: 583.991662
+  type: 'test'
+  ...
+# Subtest: foundry: a CPU already on an open branch follows it to actual checkpoints
+ok 43 - foundry: a CPU already on an open branch follows it to actual checkpoints
+  ---
+  duration_ms: 619.003492
+  type: 'test'
+  ...
+# Subtest: castle: a CPU already on an open branch follows it to actual checkpoints
+ok 44 - castle: a CPU already on an open branch follows it to actual checkpoints
+  ---
+  duration_ms: 735.605225
+  type: 'test'
+  ...
+# Subtest: a CPU pressing a real rail requests only a valid grounded recovery
+ok 45 - a CPU pressing a real rail requests only a valid grounded recovery
+  ---
+  duration_ms: 9.493912
+  type: 'test'
+  ...
+# Subtest: open junctions let CPUs enter detours through ordinary controls without recovery
+ok 46 - open junctions let CPUs enter detours through ordinary controls without recovery
+  ---
+  duration_ms: 500.849617
+  type: 'test'
+  ...
+# Subtest: two floors keep their own motion and deterministic prediction through the crossing
+ok 47 - two floors keep their own motion and deterministic prediction through the crossing
+  ---
+  duration_ms: 198.531123
+  type: 'test'
+  ...
+# Subtest: three floors keep their own motion and deterministic prediction through the crossing
+ok 48 - three floors keep their own motion and deterministic prediction through the crossing
+  ---
+  duration_ms: 539.819725
+  type: 'test'
+  ...
+# Subtest: karts, traps and mystery boxes cannot interact through an overpass
+ok 49 - karts, traps and mystery boxes cannot interact through an overpass
+  ---
+  duration_ms: 71.341248
+  type: 'test'
+  ...
+# Subtest: an upper checkpoint ignores the lower road and its reset preserves the upper floor
+ok 50 - an upper checkpoint ignores the lower road and its reset preserves the upper floor
+  ---
+  duration_ms: 23.323707
+  type: 'test'
+  ...
+# Subtest: stationary and moving jumps below two or three floors hit a ceiling and land on their own road
+ok 51 - stationary and moving jumps below two or three floors hit a ceiling and land on their own road
+  ---
+  duration_ms: 339.906971
+  type: 'test'
+  ...
+# Subtest: a swept projectile and slipstream remain on their own floor
+ok 52 - a swept projectile and slipstream remain on their own floor
+  ---
+  duration_ms: 11.835015
+  type: 'test'
+  ...
+# Subtest: a normal two-player figure-eight race completes all ordered laps with ordinary inputs
+ok 53 - a normal two-player figure-eight race completes all ordered laps with ordinary inputs
+  ---
+  duration_ms: 8827.257282
+  type: 'test'
+  ...
+# 2/2 completed three laps in 114.10 simulated seconds
+# Subtest: the overpass has a solid ceiling and leaves the full lower road open
+ok 54 - the overpass has a solid ceiling and leaves the full lower road open
+  ---
+  duration_ms: 112.254832
+  type: 'test'
+  ...
+# Subtest: supports respect every floor and the chase camera anticipates the tunnel roof
+ok 55 - supports respect every floor and the chase camera anticipates the tunnel roof
+  ---
+  duration_ms: 0.558323
+  type: 'test'
+  ...
+# Subtest: an authored jump that already raises the upper road still has a visible tunnel ceiling
+ok 56 - an authored jump that already raises the upper road still has a visible tunnel ceiling
+  ---
+  duration_ms: 13.880063
+  type: 'test'
+  ...
+# Subtest: crown: only a real effective object impact transfers, and protection prevents instant retaliation
+ok 57 - crown: only a real effective object impact transfers, and protection prevents instant retaliation
+  ---
+  duration_ms: 142.35625
+  type: 'test'
+  ...
+# Subtest: crown: shields, stars and hit grace consume no ownership; a later unprotected hit does
+ok 58 - crown: shields, stars and hit grace consume no ownership; a later unprotected hit does
+  ---
+  duration_ms: 86.114971
+  type: 'test'
+  ...
+# Subtest: crown: a normal bump never steals but an effective star contact does
+ok 59 - crown: a normal bump never steals but an effective star contact does
+  ---
+  duration_ms: 27.867535
+  type: 'test'
+  ...
+# Subtest: crown: valid forward travel scores, waiting, reverse, replayed metres and reset do not
+ok 60 - crown: valid forward travel scores, waiting, reverse, replayed metres and reset do not
+  ---
+  duration_ms: 65.519042
+  type: 'test'
+  ...
+# Subtest: crown: ordinary CPU driving may exceed the normal lap count but the match ends at 90 seconds
+ok 61 - crown: ordinary CPU driving may exceed the normal lap count but the match ends at 90 seconds
+  ---
+  duration_ms: 666.134724
+  type: 'test'
+  ...
+# Subtest: crown: standings prioritize scores and a disconnected holder is replaced without an attack reward
+ok 62 - crown: standings prioritize scores and a disconnected holder is replaced without an attack reward
+  ---
+  duration_ms: 1.431055
+  type: 'test'
+  ...
+# Subtest: crown: a disconnected top scorer cannot take the final winner rank from the active finisher
+ok 63 - crown: a disconnected top scorer cannot take the final winner rank from the active finisher
+  ---
+  duration_ms: 670.262666
+  type: 'test'
+  ...
+# Subtest: custom modules compile into real bridge, jump and loop geometry without mutating the draft
+ok 64 - custom modules compile into real bridge, jump and loop geometry without mutating the draft
+  ---
+  duration_ms: 37.240431
+  type: 'test'
+  ...
+# Subtest: new authored options reject malformed values while preserving optional historical draft fields
+ok 65 - new authored options reject malformed values while preserving optional historical draft fields
+  ---
+  duration_ms: 3.075882
+  type: 'test'
+  ...
+# Subtest: scheduled effects activate only on their leader lap, including laps beyond three, and change real driving
+ok 66 - scheduled effects activate only on their leader lap, including laps beyond three, and change real driving
+  ---
+  duration_ms: 27.247011
+  type: 'test'
+  ...
+# Subtest: all modules and lap rules survive publication, immutable versions and reopening data
+ok 67 - all modules and lap rules survive publication, immutable versions and reopening data
+  ---
+  duration_ms: 120.423759
+  type: 'test'
+  ...
+# Subtest: eight CPUs complete six laps through a bridge, a jump, a loop and lap-specific events
+ok 68 - eight CPUs complete six laps through a bridge, a jump, a loop and lap-specific events
+  ---
+  duration_ms: 7096.677903
+  type: 'test'
+  ...
+# {"raceTime":156.46666666666036,"phase":"finished","laps":[6,6,6,6,6,6,6,6],"loopSeen":true,"jumpSeen":true}
+# Subtest: twenty-lap replay recording and results exceed old six-minute limits while staying bounded and persistent
+ok 69 - twenty-lap replay recording and results exceed old six-minute limits while staying bounded and persistent
+  ---
+  duration_ms: 173.416457
+  type: 'test'
+  ...
+# Subtest: private previews never become selectable circuits and release their definition
+ok 70 - private previews never become selectable circuits and release their definition
+  ---
+  duration_ms: 32.586819
+  type: 'test'
+  ...
+# Subtest: direct module placement preserves complete intervals, independent trigger and finite lane bounds
+ok 71 - direct module placement preserves complete intervals, independent trigger and finite lane bounds
+  ---
+  duration_ms: 4.142156
+  type: 'test'
+  ...
+# Subtest: pointer projection stays finite with close anchors, crossings and coincident local points
+ok 72 - pointer projection stays finite with close anchors, crossings and coincident local points
+  ---
+  duration_ms: 8.112359
+  type: 'test'
+  ...
+# Subtest: private draft rooms hydrate only their owner, never persist and cannot leak into another room
+ok 73 - private draft rooms hydrate only their owner, never persist and cannot leak into another room
+  ---
+  duration_ms: 1295.218253
+  type: 'test'
+  ...
+# Subtest: custom track versions travel through live rooms and remain usable by saved profiles
+    # Subtest: a host and direct-link guest receive their exact circuit without first fetching the catalogue
+    ok 1 - a host and direct-link guest receive their exact circuit without first fetching the catalogue
+      ---
+      duration_ms: 115.559967
+      type: 'test'
+      ...
+    # Subtest: definitions repeat until acknowledged and then stay out of periodic snapshots
+    ok 2 - definitions repeat until acknowledged and then stay out of periodic snapshots
+      ---
+      duration_ms: 284.273263
+      type: 'test'
+      ...
+    # Subtest: publishing a new revision during a real countdown/race leaves the original room untouched
+    ok 3 - publishing a new revision during a real countdown/race leaves the original room untouched
+      ---
+      duration_ms: 3635.677313
+      type: 'test'
+      ...
+    # Subtest: late joiners receive the historical version while new rooms and mixed tournaments use the new revision
+    ok 4 - late joiners receive the historical version while new rooms and mixed tournaments use the new revision
+      ---
+      duration_ms: 151.552802
+      type: 'test'
+      ...
+    # Subtest: registered fixtures outside this server data folder cannot be selected by rooms or tournaments
+    ok 5 - registered fixtures outside this server data folder cannot be selected by rooms or tournaments
+      ---
+      duration_ms: 58.295229
+      type: 'test'
+      ...
+    # Subtest: a declared synthetic result/replay can be saved and reopened against the exact custom version
+    ok 6 - a declared synthetic result/replay can be saved and reopened against the exact custom version
+      ---
+      duration_ms: 148.518854
+      type: 'test'
+      ...
+    # Subtest: a missing historical circuit after a fresh process start never makes saved profiles unreadable
+    ok 7 - a missing historical circuit after a fresh process start never makes saved profiles unreadable
+      ---
+      duration_ms: 1161.470715
+      type: 'test'
+      ...
+    # Subtest: advanced modules, six-lap rules and scheduled weather hydrate identically over Colyseus
+    ok 8 - advanced modules, six-lap rules and scheduled weather hydrate identically over Colyseus
+      ---
+      duration_ms: 3200.056848
+      type: 'test'
+      ...
+    1..8
+ok 74 - custom track versions travel through live rooms and remain usable by saved profiles
+  ---
+  duration_ms: 9374.890663
+  type: 'test'
+  ...
+# Subtest: custom circuits survive reopening with all immutable revisions and isolated public values
+ok 75 - custom circuits survive reopening with all immutable revisions and isolated public values
+  ---
+  duration_ms: 103.657774
+  type: 'test'
+  ...
+# Subtest: only owners edit; optimistic revisions serialize simultaneous saves without lost updates
+ok 76 - only owners edit; optimistic revisions serialize simultaneous saves without lost updates
+  ---
+  duration_ms: 60.244503
+  type: 'test'
+  ...
+# Subtest: invalid geometry never creates files and failed persistence never publishes a circuit
+ok 77 - invalid geometry never creates files and failed persistence never publishes a circuit
+  ---
+  duration_ms: 10.443934
+  type: 'test'
+  ...
+# Circuit personnalisé ignoré : custom-3b2f7034-55e8-47a5-8290-f75c66eb2719-v2.json est illisible ; sauvegarde conservée.
+# Subtest: a corrupt revision preserves bytes and does not prevent other circuits from loading
+ok 78 - a corrupt revision preserves bytes and does not prevent other circuits from loading
+  ---
+  duration_ms: 74.105975
+  type: 'test'
+  ...
+# Subtest: existing files cannot be replaced by a competing store and capacity limits retain old versions
+ok 79 - existing files cannot be replaced by a competing store and capacity limits retain old versions
+  ---
+  duration_ms: 62.496933
+  type: 'test'
+  ...
+# Subtest: same-origin custom track API publishes usable revisions and preserves player data
+    # Subtest: guests publish and any player reads the latest catalogue and exact historical version
+    ok 1 - guests publish and any player reads the latest catalogue and exact historical version
+      ---
+      duration_ms: 96.096744
+      type: 'test'
+      ...
+    # Subtest: owner updates are versioned; duplicate and concurrent tabs cannot overwrite another revision
+    ok 2 - owner updates are versioned; duplicate and concurrent tabs cannot overwrite another revision
+      ---
+      duration_ms: 223.527009
+      type: 'test'
+      ...
+    # Subtest: invalid auth, origins, methods, names, routes and oversized bodies are rejected without changing data
+    ok 3 - invalid auth, origins, methods, names, routes and oversized bodies are rejected without changing data
+      ---
+      duration_ms: 96.570065
+      type: 'test'
+      ...
+    # Subtest: linking a guest to an account retains ownership for later sign-in sessions
+    ok 4 - linking a guest to an account retains ownership for later sign-in sessions
+      ---
+      duration_ms: 538.394543
+      type: 'test'
+      ...
+    # Subtest: tight and coincident points can be saved and reloaded without changing their authored shape
+    ok 5 - tight and coincident points can be saved and reloaded without changing their authored shape
+      ---
+      duration_ms: 144.301976
+      type: 'test'
+      ...
+    1..5
+ok 80 - same-origin custom track API publishes usable revisions and preserves player data
+  ---
+  duration_ms: 1876.387635
+  type: 'test'
+  ...
+# Subtest: templates compile deterministically into smooth complete routes with a safe eight-player grid
+ok 81 - templates compile deterministically into smooth complete routes with a safe eight-player grid
+  ---
+  duration_ms: 155.001625
+  type: 'test'
+  ...
+# Subtest: untrusted drafts reject broken structures but impose no driving-style restriction
+ok 82 - untrusted drafts reject broken structures but impose no driving-style restriction
+  ---
+  duration_ms: 1.622777
+  type: 'test'
+  ...
+# Subtest: creative layouts with tight, coincident or crossing points compile and simulate without NaN
+ok 83 - creative layouts with tight, coincident or crossing points compile and simulate without NaN
+  ---
+  duration_ms: 24378.811569
+  type: 'test'
+  ...
+# Subtest: previously published geometry remains byte-for-byte compatible
+ok 84 - previously published geometry remains byte-for-byte compatible
+  ---
+  duration_ms: 3.641018
+  type: 'test'
+  ...
+# Subtest: editing previews cannot overwrite an existing race or immutable published revision
+ok 85 - editing previews cannot overwrite an existing race or immutable published revision
+  ---
+  duration_ms: 10.699478
+  type: 'test'
+  ...
+# Subtest: published custom routes can join mixed tournaments and never receive unsafe generated closures
+ok 86 - published custom routes can join mixed tournaments and never receive unsafe generated closures
+  ---
+  duration_ms: 1.723116
+  type: 'test'
+  ...
+# Subtest: custom oval: eight CPU drivers finish three laps with normal items, collisions and checkpoints
+ok 87 - custom oval: eight CPU drivers finish three laps with normal items, collisions and checkpoints
+  ---
+  duration_ms: 1911.451934
+  type: 'test'
+  ...
+# Mon grand ovale: 8/8 finish in 75.60 simulated seconds
+# Subtest: custom kidney: eight CPU drivers finish three laps with normal items, collisions and checkpoints
+ok 88 - custom kidney: eight CPU drivers finish three laps with normal items, collisions and checkpoints
+  ---
+  duration_ms: 2985.161511
+  type: 'test'
+  ...
+# Mes courbes des bois: 8/8 finish in 84.83 simulated seconds
+# Subtest: custom ice: eight CPU drivers finish three laps with normal items, collisions and checkpoints
+ok 89 - custom ice: eight CPU drivers finish three laps with normal items, collisions and checkpoints
+  ---
+  duration_ms: 2047.437112
+  type: 'test'
+  ...
+# Mon grand ovale: 8/8 finish in 73.93 simulated seconds
+# Subtest: custom reverse: eight CPU drivers finish three laps with normal items, collisions and checkpoints
+ok 90 - custom reverse: eight CPU drivers finish three laps with normal items, collisions and checkpoints
+  ---
+  duration_ms: 3862.519746
+  type: 'test'
+  ...
+# Mes courbes des bois: 8/8 finish in 91.10 simulated seconds
+# Subtest: volcan: bridge follows the road; launch, flight and landing are deterministic
+ok 91 - volcan: bridge follows the road; launch, flight and landing are deterministic
+  ---
+  duration_ms: 111.338868
+  type: 'test'
+  ...
+# Subtest: forest: bridge follows the road; launch, flight and landing are deterministic
+ok 92 - forest: bridge follows the road; launch, flight and landing are deterministic
+  ---
+  duration_ms: 14.28417
+  type: 'test'
+  ...
+# Subtest: harbor: bridge follows the road; launch, flight and landing are deterministic
+ok 93 - harbor: bridge follows the road; launch, flight and landing are deterministic
+  ---
+  duration_ms: 19.504805
+  type: 'test'
+  ...
+# Subtest: sky: bridge follows the road; launch, flight and landing are deterministic
+ok 94 - sky: bridge follows the road; launch, flight and landing are deterministic
+  ---
+  duration_ms: 20.001476
+  type: 'test'
+  ...
+# Subtest: foundry: bridge follows the road; launch, flight and landing are deterministic
+ok 95 - foundry: bridge follows the road; launch, flight and landing are deterministic
+  ---
+  duration_ms: 25.925376
+  type: 'test'
+  ...
+# Subtest: castle: bridge follows the road; launch, flight and landing are deterministic
+ok 96 - castle: bridge follows the road; launch, flight and landing are deterministic
+  ---
+  duration_ms: 11.520882
+  type: 'test'
+  ...
+# Subtest: flat tracks never introduce altitude or flight
+ok 97 - flat tracks never introduce altitude or flight
+  ---
+  duration_ms: 24.908996
+  type: 'test'
+  ...
+# Subtest: level zero preserves the original circuit and every original surface at every lap
+ok 98 - level zero preserves the original circuit and every original surface at every lap
+  ---
+  duration_ms: 269.849192
+  type: 'test'
+  ...
+# Subtest: progressive levels introduce routes before common road closures and the final shortcut
+ok 99 - progressive levels introduce routes before common road closures and the final shortcut
+  ---
+  duration_ms: 2782.15004
+  type: 'test'
+  ...
+# Subtest: branch joins preserve the full width of the original driveable road
+ok 100 - branch joins preserve the full width of the original driveable road
+  ---
+  duration_ms: 420.911099
+  type: 'test'
+  ...
+# Subtest: lagon: broad tangent branches keep ordered gates and the shortcut beats the normal road length
+ok 101 - lagon: broad tangent branches keep ordered gates and the shortcut beats the normal road length
+  ---
+  duration_ms: 44.16681
+  type: 'test'
+  ...
+# Subtest: canyon: broad tangent branches keep ordered gates and the shortcut beats the normal road length
+ok 102 - canyon: broad tangent branches keep ordered gates and the shortcut beats the normal road length
+  ---
+  duration_ms: 58.237627
+  type: 'test'
+  ...
+# Subtest: glacier: broad tangent branches keep ordered gates and the shortcut beats the normal road length
+ok 103 - glacier: broad tangent branches keep ordered gates and the shortcut beats the normal road length
+  ---
+  duration_ms: 31.814986
+  type: 'test'
+  ...
+# Subtest: neon: broad tangent branches keep ordered gates and the shortcut beats the normal road length
+ok 104 - neon: broad tangent branches keep ordered gates and the shortcut beats the normal road length
+  ---
+  duration_ms: 39.806307
+  type: 'test'
+  ...
+# Subtest: mangrove: broad tangent branches keep ordered gates and the shortcut beats the normal road length
+ok 105 - mangrove: broad tangent branches keep ordered gates and the shortcut beats the normal road length
+  ---
+  duration_ms: 52.446216
+  type: 'test'
+  ...
+# Subtest: dunes: broad tangent branches keep ordered gates and the shortcut beats the normal road length
+ok 106 - dunes: broad tangent branches keep ordered gates and the shortcut beats the normal road length
+  ---
+  duration_ms: 49.023393
+  type: 'test'
+  ...
+# Subtest: volcan: broad tangent branches keep ordered gates and the shortcut beats the normal road length
+ok 107 - volcan: broad tangent branches keep ordered gates and the shortcut beats the normal road length
+  ---
+  duration_ms: 76.435782
+  type: 'test'
+  ...
+# Subtest: forest: broad tangent branches keep ordered gates and the shortcut beats the normal road length
+ok 108 - forest: broad tangent branches keep ordered gates and the shortcut beats the normal road length
+  ---
+  duration_ms: 46.953572
+  type: 'test'
+  ...
+# Subtest: harbor: broad tangent branches keep ordered gates and the shortcut beats the normal road length
+ok 109 - harbor: broad tangent branches keep ordered gates and the shortcut beats the normal road length
+  ---
+  duration_ms: 47.402925
+  type: 'test'
+  ...
+# Subtest: sky: broad tangent branches keep ordered gates and the shortcut beats the normal road length
+ok 110 - sky: broad tangent branches keep ordered gates and the shortcut beats the normal road length
+  ---
+  duration_ms: 38.317236
+  type: 'test'
+  ...
+# Subtest: foundry: broad tangent branches keep ordered gates and the shortcut beats the normal road length
+ok 111 - foundry: broad tangent branches keep ordered gates and the shortcut beats the normal road length
+  ---
+  duration_ms: 28.596123
+  type: 'test'
+  ...
+# Subtest: castle: broad tangent branches keep ordered gates and the shortcut beats the normal road length
+ok 112 - castle: broad tangent branches keep ordered gates and the shortcut beats the normal road length
+  ---
+  duration_ms: 36.581976
+  type: 'test'
+  ...
+# Subtest: swept barriers stop fast crossings in both directions and safely release a kart caught by a phase change
+ok 113 - swept barriers stop fast crossings in both directions and safely release a kart caught by a phase change
+  ---
+  duration_ms: 2.844459
+  type: 'test'
+  ...
+# Subtest: CPU route guidance passes around closures and weather changes actual road surfaces
+ok 114 - CPU route guidance passes around closures and weather changes actual road surfaces
+  ---
+  duration_ms: 76.641257
+  type: 'test'
+  ...
+# Subtest: lagon: eight ordinary drivers finish with common phases, closures and actual detour visits without resetting
+ok 115 - lagon: eight ordinary drivers finish with common phases, closures and actual detour visits without resetting
+  ---
+  duration_ms: 7815.261969
+  type: 'test'
+  ...
+# lagon: 8/8 finished with events in 63.53 simulation seconds
+# Subtest: canyon: eight ordinary drivers finish with common phases, closures and actual detour visits without resetting
+ok 116 - canyon: eight ordinary drivers finish with common phases, closures and actual detour visits without resetting
+  ---
+  duration_ms: 5787.837844
+  type: 'test'
+  ...
+# canyon: 8/8 finished with events in 63.00 simulation seconds
+# Subtest: glacier: eight ordinary drivers finish with common phases, closures and actual detour visits without resetting
+ok 117 - glacier: eight ordinary drivers finish with common phases, closures and actual detour visits without resetting
+  ---
+  duration_ms: 5288.65975
+  type: 'test'
+  ...
+# glacier: 8/8 finished with events in 67.50 simulation seconds
+# Subtest: neon: eight ordinary drivers finish with common phases, closures and actual detour visits without resetting
+ok 118 - neon: eight ordinary drivers finish with common phases, closures and actual detour visits without resetting
+  ---
+  duration_ms: 4461.446266
+  type: 'test'
+  ...
+# neon: 8/8 finished with events in 66.13 simulation seconds
+# Subtest: mangrove: eight ordinary drivers finish with common phases, closures and actual detour visits without resetting
+ok 119 - mangrove: eight ordinary drivers finish with common phases, closures and actual detour visits without resetting
+  ---
+  duration_ms: 5696.978106
+  type: 'test'
+  ...
+# mangrove: 8/8 finished with events in 66.13 simulation seconds
+# Subtest: dunes: eight ordinary drivers finish with common phases, closures and actual detour visits without resetting
+ok 120 - dunes: eight ordinary drivers finish with common phases, closures and actual detour visits without resetting
+  ---
+  duration_ms: 10095.396602
+  type: 'test'
+  ...
+# dunes: 8/8 finished with events in 66.43 simulation seconds
+# Subtest: volcan: eight ordinary drivers finish with common phases, closures and actual detour visits without resetting
+ok 121 - volcan: eight ordinary drivers finish with common phases, closures and actual detour visits without resetting
+  ---
+  duration_ms: 14093.186604
+  type: 'test'
+  ...
+# volcan: 8/8 finished with events in 101.97 simulation seconds
+# Subtest: forest: eight ordinary drivers finish with common phases, closures and actual detour visits without resetting
+ok 122 - forest: eight ordinary drivers finish with common phases, closures and actual detour visits without resetting
+  ---
+  duration_ms: 14109.702842
+  type: 'test'
+  ...
+# forest: 8/8 finished with events in 111.23 simulation seconds
+# Subtest: harbor: eight ordinary drivers finish with common phases, closures and actual detour visits without resetting
+ok 123 - harbor: eight ordinary drivers finish with common phases, closures and actual detour visits without resetting
+  ---
+  duration_ms: 14326.824861
+  type: 'test'
+  ...
+# harbor: 8/8 finished with events in 120.33 simulation seconds
+# Subtest: sky: eight ordinary drivers finish with common phases, closures and actual detour visits without resetting
+ok 124 - sky: eight ordinary drivers finish with common phases, closures and actual detour visits without resetting
+  ---
+  duration_ms: 14502.464568
+  type: 'test'
+  ...
+# sky: 8/8 finished with events in 123.63 simulation seconds
+# Subtest: foundry: eight ordinary drivers finish with common phases, closures and actual detour visits without resetting
+ok 125 - foundry: eight ordinary drivers finish with common phases, closures and actual detour visits without resetting
+  ---
+  duration_ms: 14602.804682
+  type: 'test'
+  ...
+# foundry: 8/8 finished with events in 120.13 simulation seconds
+# Subtest: castle: eight ordinary drivers finish with common phases, closures and actual detour visits without resetting
+ok 126 - castle: eight ordinary drivers finish with common phases, closures and actual detour visits without resetting
+  ---
+  duration_ms: 15370.009458
+  type: 'test'
+  ...
+# castle: 8/8 finished with events in 113.80 simulation seconds
+# Subtest: a collision from behind cannot push a waiting kart inside the event barricade
+ok 127 - a collision from behind cannot push a waiting kart inside the event barricade
+  ---
+  duration_ms: 1.916243
+  type: 'test'
+  ...
+# Subtest: reset returns to a validated gate without sweeping the teleport through an event barrier
+ok 128 - reset returns to a validated gate without sweeping the teleport through an event barrier
+  ---
+  duration_ms: 1.161651
+  type: 'test'
+  ...
+# Subtest: every branch supports normal cruising with limited gradual steering, without drift or reset
+ok 129 - every branch supports normal cruising with limited gradual steering, without drift or reset
+  ---
+  duration_ms: 7080.305055
+  type: 'test'
+  ...
+# Subtest: shortcuts save real sector time against the normal road with the same accessible driver and no added turbo
+ok 130 - shortcuts save real sector time against the normal road with the same accessible driver and no added turbo
+  ---
+  duration_ms: 5492.497011
+  type: 'test'
+  ...
+# lagon/balanced: normal 9.73 s, shortcut 8.63 s
+# lagon/heavy: normal 9.77 s, shortcut 8.67 s
+# canyon/balanced: normal 11.70 s, shortcut 8.90 s
+# canyon/heavy: normal 11.20 s, shortcut 8.93 s
+# glacier/balanced: normal 10.60 s, shortcut 9.00 s
+# glacier/heavy: normal 10.67 s, shortcut 9.03 s
+# neon/balanced: normal 10.67 s, shortcut 9.00 s
+# neon/heavy: normal 10.70 s, shortcut 9.03 s
+# mangrove/balanced: normal 11.77 s, shortcut 8.60 s
+# mangrove/heavy: normal 11.70 s, shortcut 8.63 s
+# dunes/balanced: normal 8.80 s, shortcut 7.63 s
+# dunes/heavy: normal 8.93 s, shortcut 7.70 s
+# volcan/balanced: normal 17.63 s, shortcut 12.83 s
+# volcan/heavy: normal 17.70 s, shortcut 12.90 s
+# forest/balanced: normal 15.43 s, shortcut 11.77 s
+# forest/heavy: normal 15.53 s, shortcut 11.80 s
+# harbor/balanced: normal 19.47 s, shortcut 13.33 s
+# harbor/heavy: normal 19.57 s, shortcut 13.37 s
+# sky/balanced: normal 19.60 s, shortcut 13.73 s
+# sky/heavy: normal 19.70 s, shortcut 13.77 s
+# foundry/balanced: normal 17.87 s, shortcut 12.03 s
+# foundry/heavy: normal 17.97 s, shortcut 12.10 s
+# castle/balanced: normal 15.23 s, shortcut 11.77 s
+# castle/heavy: normal 15.30 s, shortcut 11.83 s
+# Subtest: locked, unknown and wrong-slot parts fall back without trusting injected statistics
+ok 131 - locked, unknown and wrong-slot parts fall back without trusting injected statistics
+  ---
+  duration_ms: 7.93431
+  type: 'test'
+  ...
+# Subtest: sprint accelerates faster but the velocity engine achieves a higher sustained road speed
+ok 132 - sprint accelerates faster but the velocity engine achieves a higher sustained road speed
+  ---
+  duration_ms: 83.355982
+  type: 'test'
+  ...
+# Subtest: all-terrain tires retain more speed both offroad and in a real mud zone
+ok 133 - all-terrain tires retain more speed both offroad and in a real mud zone
+  ---
+  duration_ms: 11.851816
+  type: 'test'
+  ...
+# Subtest: snow tires recover sideways sliding and residual rotation faster on actual ice
+ok 134 - snow tires recover sideways sliding and residual rotation faster on actual ice
+  ---
+  duration_ms: 3.386363
+  type: 'test'
+  ...
+# Subtest: downforce improves steering response and reduces drift sliding at equal initial speed
+ok 135 - downforce improves steering response and reduces drift sliding at equal initial speed
+  ---
+  duration_ms: 3.797629
+  type: 'test'
+  ...
+# Subtest: endurance turbo extends a released mini-turbo and a burst turbo shortens it
+ok 136 - endurance turbo extends a released mini-turbo and a burst turbo shortens it
+  ---
+  duration_ms: 10.103487
+  type: 'test'
+  ...
+# Subtest: light construction launches faster and heavy ballast resists more displacement in actual collisions
+ok 137 - light construction launches faster and heavy ballast resists more displacement in actual collisions
+  ---
+  duration_ms: 13.687265
+  type: 'test'
+  ...
+# Subtest: every model and character combination produces identical physics with the same build and input stream
+ok 138 - every model and character combination produces identical physics with the same build and input stream
+  ---
+  duration_ms: 543.131264
+  type: 'test'
+  ...
+# Subtest: a new race preserves build, visual choices, team and career identity while resetting motion
+ok 139 - a new race preserves build, visual choices, team and career identity while resetting motion
+  ---
+  duration_ms: 1.627425
+  type: 'test'
+  ...
+# Subtest: graphics: explicit modes select a real shadow/resolution tier without disabling Auto adaptation
+ok 140 - graphics: explicit modes select a real shadow/resolution tier without disabling Auto adaptation
+  ---
+  duration_ms: 3.307609
+  type: 'test'
+  ...
+# Subtest: graphics: capped menus, interruption and invalid FPS never masquerade as a slow racing device
+ok 141 - graphics: capped menus, interruption and invalid FPS never masquerade as a slow racing device
+  ---
+  duration_ms: 0.66768
+  type: 'test'
+  ...
+# Subtest: render pacing: menus draw at most15FPS while every racing callback remains available
+ok 142 - render pacing: menus draw at most15FPS while every racing callback remains available
+  ---
+  duration_ms: 1.141578
+  type: 'test'
+  ...
+# Subtest: render pacing: hidden documents and opaque dialogs draw nothing and resume immediately
+ok 143 - render pacing: hidden documents and opaque dialogs draw nothing and resume immediately
+  ---
+  duration_ms: 0.562303
+  type: 'test'
+  ...
+# Subtest: graphics: forest loses optional clutter but keeps named landmarks and every road structure
+ok 144 - graphics: forest loses optional clutter but keeps named landmarks and every road structure
+  ---
+  duration_ms: 648.602529
+  type: 'test'
+  ...
+# Subtest: graphics: sky loses optional clutter but keeps named landmarks and every road structure
+ok 145 - graphics: sky loses optional clutter but keeps named landmarks and every road structure
+  ---
+  duration_ms: 297.978651
+  type: 'test'
+  ...
+# Subtest: graphics: harbor loses optional clutter but keeps named landmarks and every road structure
+ok 146 - graphics: harbor loses optional clutter but keeps named landmarks and every road structure
+  ---
+  duration_ms: 282.278965
+  type: 'test'
+  ...
+# Subtest: invitation QR decodes to the real same-origin room URL, including a long HTTPS tunnel
+ok 147 - invitation QR decodes to the real same-origin room URL, including a long HTTPS tunnel
+  ---
+  duration_ms: 279.751192
+  type: 'test'
+  ...
+# Subtest: room invitation only uses an HTTP origin and a valid room code
+ok 148 - room invitation only uses an HTTP origin and a valid room code
+  ---
+  duration_ms: 0.766987
+  type: 'test'
+  ...
+# Subtest: triple turbo needs three separate presses, retains inventory and never stacks unlimited duration
+ok 149 - triple turbo needs three separate presses, retains inventory and never stacks unlimited duration
+  ---
+  duration_ms: 41.727493
+  type: 'test'
+  ...
+# Subtest: red seeks the next validated opponent; blue seeks the leader across laps and ignores stale ranks
+ok 150 - red seeks the next validated opponent; blue seeks the leader across laps and ignores stale ranks
+  ---
+  duration_ms: 19.95992
+  type: 'test'
+  ...
+# Subtest: leader comet retargets a new leader; red expires on target disconnect and blue skips finished racers
+ok 151 - leader comet retargets a new leader; red expires on target disconnect and blue skips finished racers
+  ---
+  duration_ms: 15.189852
+  type: 'test'
+  ...
+# Subtest: guided objects follow a winding circuit and eventually hit; blue passes through non-target racers
+ok 152 - guided objects follow a winding circuit and eventually hit; blue passes through non-target racers
+  ---
+  duration_ms: 269.131027
+  type: 'test'
+  ...
+# Subtest: a stored homing item becomes a short turbo when no eligible opponent remains
+ok 153 - a stored homing item becomes a short turbo when no eligible opponent remains
+  ---
+  duration_ms: 1.954305
+  type: 'test'
+  ...
+# Subtest: star clears stun and protects from every object while shield absorbs exactly one separated impact
+ok 154 - star clears stun and protects from every object while shield absorbs exactly one separated impact
+  ---
+  duration_ms: 55.154672
+  type: 'test'
+  ...
+# Subtest: star collision protects its own trajectory and knocks opponents, respecting shields and grace
+ok 155 - star collision protects its own trajectory and knocks opponents, respecting shields and grace
+  ---
+  duration_ms: 6.510622
+  type: 'test'
+  ...
+# Subtest: prediction decrements protection deterministically and protection really expires
+ok 156 - prediction decrements protection deterministically and protection really expires
+  ---
+  duration_ms: 3.173796
+  type: 'test'
+  ...
+# Subtest: fast projectiles hit across the entire 100 ms segment without tunnelling
+ok 157 - fast projectiles hit across the entire 100 ms segment without tunnelling
+  ---
+  duration_ms: 2.003135
+  type: 'test'
+  ...
+# Subtest: mystery boxes are deterministic, never overwrite held charges, and exclude disconnected racers
+ok 158 - mystery boxes are deterministic, never overwrite held charges, and exclude disconnected racers
+  ---
+  duration_ms: 34.959674
+  type: 'test'
+  ...
+# Subtest: weighted draws offer all eight tools to trailing racers while leaders never get homing weapons
+ok 159 - weighted draws offer all eight tools to trailing racers while leaders never get homing weapons
+  ---
+  duration_ms: 254.501193
+  type: 'test'
+  ...
+# Subtest: object state is bounded, expires, and all new inventory/effects reset for the next race
+ok 160 - object state is bounded, expires, and all new inventory/effects reset for the next race
+  ---
+  duration_ms: 33.596323
+  type: 'test'
+  ...
+# Subtest: clients cannot forge items, charges, protections, targets or objects through the input contract
+ok 161 - clients cannot forge items, charges, protections, targets or objects through the input contract
+  ---
+  duration_ms: 0.66992
+  type: 'test'
+  ...
+# Subtest: vendored kart is a bounded self-contained GLB with valid positions, normals and triangle indices
+ok 162 - vendored kart is a bounded self-contained GLB with valid positions, normals and triangle indices
+  ---
+  duration_ms: 34.237259
+  type: 'test'
+  ...
+# Subtest: four real wheels have centered local axle geometry and independent steering pivots
+ok 163 - four real wheels have centered local axle geometry and independent steering pivots
+  ---
+  duration_ms: 2.012859
+  type: 'test'
+  ...
+# Subtest: source, processed asset and preserved attribution evidence match their recorded fingerprints
+ok 164 - source, processed asset and preserved attribution evidence match their recorded fingerprints
+  ---
+  duration_ms: 61.648444
+  type: 'test'
+  ...
+# Subtest: cosmetic catalogue accepts only bundled model IDs and never an arbitrary URL
+ok 165 - cosmetic catalogue accepts only bundled model IDs and never an arbitrary URL
+  ---
+  duration_ms: 1.137888
+  type: 'test'
+  ...
+# Subtest: sprint: original triangles, four isolated axle pivots and preserved CC BY evidence
+ok 166 - sprint: original triangles, four isolated axle pivots and preserved CC BY evidence
+  ---
+  duration_ms: 54.825638
+  type: 'test'
+  ...
+# Subtest: retro: original triangles, four isolated axle pivots and preserved CC BY evidence
+ok 167 - retro: original triangles, four isolated axle pivots and preserved CC BY evidence
+  ---
+  duration_ms: 16.303423
+  type: 'test'
+  ...
+# Subtest: lagon: a legal shoulder trajectory counts three full laps without missing a gate
+ok 168 - lagon: a legal shoulder trajectory counts three full laps without missing a gate
+  ---
+  duration_ms: 73.651309
+  type: 'test'
+  ...
+# Subtest: canyon: a legal shoulder trajectory counts three full laps without missing a gate
+ok 169 - canyon: a legal shoulder trajectory counts three full laps without missing a gate
+  ---
+  duration_ms: 16.098073
+  type: 'test'
+  ...
+# Subtest: glacier: a legal shoulder trajectory counts three full laps without missing a gate
+ok 170 - glacier: a legal shoulder trajectory counts three full laps without missing a gate
+  ---
+  duration_ms: 4.398974
+  type: 'test'
+  ...
+# Subtest: neon: a legal shoulder trajectory counts three full laps without missing a gate
+ok 171 - neon: a legal shoulder trajectory counts three full laps without missing a gate
+  ---
+  duration_ms: 7.495994
+  type: 'test'
+  ...
+# Subtest: mangrove: a legal shoulder trajectory counts three full laps without missing a gate
+ok 172 - mangrove: a legal shoulder trajectory counts three full laps without missing a gate
+  ---
+  duration_ms: 9.584197
+  type: 'test'
+  ...
+# Subtest: dunes: a legal shoulder trajectory counts three full laps without missing a gate
+ok 173 - dunes: a legal shoulder trajectory counts three full laps without missing a gate
+  ---
+  duration_ms: 5.642612
+  type: 'test'
+  ...
+# Subtest: volcan: a legal shoulder trajectory counts three full laps without missing a gate
+ok 174 - volcan: a legal shoulder trajectory counts three full laps without missing a gate
+  ---
+  duration_ms: 17.022739
+  type: 'test'
+  ...
+# Subtest: forest: a legal shoulder trajectory counts three full laps without missing a gate
+ok 175 - forest: a legal shoulder trajectory counts three full laps without missing a gate
+  ---
+  duration_ms: 5.364872
+  type: 'test'
+  ...
+# Subtest: harbor: a legal shoulder trajectory counts three full laps without missing a gate
+ok 176 - harbor: a legal shoulder trajectory counts three full laps without missing a gate
+  ---
+  duration_ms: 9.369275
+  type: 'test'
+  ...
+# Subtest: sky: a legal shoulder trajectory counts three full laps without missing a gate
+ok 177 - sky: a legal shoulder trajectory counts three full laps without missing a gate
+  ---
+  duration_ms: 8.428984
+  type: 'test'
+  ...
+# Subtest: foundry: a legal shoulder trajectory counts three full laps without missing a gate
+ok 178 - foundry: a legal shoulder trajectory counts three full laps without missing a gate
+  ---
+  duration_ms: 20.374025
+  type: 'test'
+  ...
+# Subtest: castle: a legal shoulder trajectory counts three full laps without missing a gate
+ok 179 - castle: a legal shoulder trajectory counts three full laps without missing a gate
+  ---
+  duration_ms: 12.603392
+  type: 'test'
+  ...
+# Subtest: starting exactly on an uncredited checkpoint plane then moving forward credits it once
+ok 180 - starting exactly on an uncredited checkpoint plane then moving forward credits it once
+  ---
+  duration_ms: 1.381455
+  type: 'test'
+  ...
+# Subtest: stationary, reverse, out-of-order and far outside crossings never manufacture a checkpoint or lap
+ok 181 - stationary, reverse, out-of-order and far outside crossings never manufacture a checkpoint or lap
+  ---
+  duration_ms: 0.960822
+  type: 'test'
+  ...
+# Subtest: reset returns to the last validated checkpoint without treating its teleport as a crossing
+ok 182 - reset returns to the last validated checkpoint without treating its teleport as a crossing
+  ---
+  duration_ms: 2.269327
+  type: 'test'
+  ...
+# Subtest: 100 ms movement sweeps through the expected gate and finish-line jitter cannot replay a lap
+ok 183 - 100 ms movement sweeps through the expected gate and finish-line jitter cannot replay a lap
+  ---
+  duration_ms: 22.339316
+  type: 'test'
+  ...
+# Subtest: lagon: every real branch credits its own ordered gates for three laps
+ok 184 - lagon: every real branch credits its own ordered gates for three laps
+  ---
+  duration_ms: 408.085843
+  type: 'test'
+  ...
+# Subtest: canyon: every real branch credits its own ordered gates for three laps
+ok 185 - canyon: every real branch credits its own ordered gates for three laps
+  ---
+  duration_ms: 444.079195
+  type: 'test'
+  ...
+# Subtest: glacier: every real branch credits its own ordered gates for three laps
+ok 186 - glacier: every real branch credits its own ordered gates for three laps
+  ---
+  duration_ms: 333.798413
+  type: 'test'
+  ...
+# Subtest: neon: every real branch credits its own ordered gates for three laps
+ok 187 - neon: every real branch credits its own ordered gates for three laps
+  ---
+  duration_ms: 282.069292
+  type: 'test'
+  ...
+# Subtest: mangrove: every real branch credits its own ordered gates for three laps
+ok 188 - mangrove: every real branch credits its own ordered gates for three laps
+  ---
+  duration_ms: 152.325166
+  type: 'test'
+  ...
+# Subtest: dunes: every real branch credits its own ordered gates for three laps
+ok 189 - dunes: every real branch credits its own ordered gates for three laps
+  ---
+  duration_ms: 83.105851
+  type: 'test'
+  ...
+# Subtest: volcan: every real branch credits its own ordered gates for three laps
+ok 190 - volcan: every real branch credits its own ordered gates for three laps
+  ---
+  duration_ms: 289.641858
+  type: 'test'
+  ...
+# Subtest: forest: every real branch credits its own ordered gates for three laps
+ok 191 - forest: every real branch credits its own ordered gates for three laps
+  ---
+  duration_ms: 244.339767
+  type: 'test'
+  ...
+# Subtest: harbor: every real branch credits its own ordered gates for three laps
+ok 192 - harbor: every real branch credits its own ordered gates for three laps
+  ---
+  duration_ms: 146.202134
+  type: 'test'
+  ...
+# Subtest: sky: every real branch credits its own ordered gates for three laps
+ok 193 - sky: every real branch credits its own ordered gates for three laps
+  ---
+  duration_ms: 228.71429
+  type: 'test'
+  ...
+# Subtest: foundry: every real branch credits its own ordered gates for three laps
+ok 194 - foundry: every real branch credits its own ordered gates for three laps
+  ---
+  duration_ms: 177.647253
+  type: 'test'
+  ...
+# Subtest: castle: every real branch credits its own ordered gates for three laps
+ok 195 - castle: every real branch credits its own ordered gates for three laps
+  ---
+  duration_ms: 298.178434
+  type: 'test'
+  ...
+# Subtest: branch respawn stays on the actual validated route and skipping an intermediate branch gate is rejected
+ok 196 - branch respawn stays on the actual validated route and skipping an intermediate branch gate is rejected
+  ---
+  duration_ms: 10.80503
+  type: 'test'
+  ...
+# Subtest: a kart crossing a checkpoint in flight still validates that checkpoint
+ok 197 - a kart crossing a checkpoint in flight still validates that checkpoint
+  ---
+  duration_ms: 2.020004
+  type: 'test'
+  ...
+# Subtest: reset lands on the actual elevated branch and clears flight without altering checkpoint credit
+ok 198 - reset lands on the actual elevated branch and clears flight without altering checkpoint credit
+  ---
+  duration_ms: 3.838646
+  type: 'test'
+  ...
+# Subtest: a newly closed road resets to the same validated gate on its open detour without granting progress
+ok 199 - a newly closed road resets to the same validated gate on its open detour without granting progress
+  ---
+  duration_ms: 33.642556
+  type: 'test'
+  ...
+# Subtest: active closures preserve respawns outside their sector and an already chosen open shortcut
+ok 200 - active closures preserve respawns outside their sector and an already chosen open shortcut
+  ---
+  duration_ms: 2.397136
+  type: 'test'
+  ...
+# Subtest: sky: magnetic loop is a continuous 3D road with an inverted top and separated branches
+ok 201 - sky: magnetic loop is a continuous 3D road with an inverted top and separated branches
+  ---
+  duration_ms: 446.834171
+  type: 'test'
+  ...
+# Subtest: sky: ordinary inputs drive the full loop identically on server and predicted kart
+ok 202 - sky: ordinary inputs drive the full loop identically on server and predicted kart
+  ---
+  duration_ms: 229.835119
+  type: 'test'
+  ...
+# Subtest: sky: braking, restarting, reversing and reset all work on a magnetic loop
+ok 203 - sky: braking, restarting, reversing and reset all work on a magnetic loop
+  ---
+  duration_ms: 45.285254
+  type: 'test'
+  ...
+# Subtest: sky: objects on the magnetic road respect altitude and leave the kart beneath it untouched
+ok 204 - sky: objects on the magnetic road respect altitude and leave the kart beneath it untouched
+  ---
+  duration_ms: 61.130096
+  type: 'test'
+  ...
+# Subtest: foundry: magnetic loop is a continuous 3D road with an inverted top and separated branches
+ok 205 - foundry: magnetic loop is a continuous 3D road with an inverted top and separated branches
+  ---
+  duration_ms: 372.631227
+  type: 'test'
+  ...
+# Subtest: foundry: ordinary inputs drive the full loop identically on server and predicted kart
+ok 206 - foundry: ordinary inputs drive the full loop identically on server and predicted kart
+  ---
+  duration_ms: 75.795171
+  type: 'test'
+  ...
+# Subtest: foundry: braking, restarting, reversing and reset all work on a magnetic loop
+ok 207 - foundry: braking, restarting, reversing and reset all work on a magnetic loop
+  ---
+  duration_ms: 65.903549
+  type: 'test'
+  ...
+# Subtest: foundry: objects on the magnetic road respect altitude and leave the kart beneath it untouched
+ok 208 - foundry: objects on the magnetic road respect altitude and leave the kart beneath it untouched
+  ---
+  duration_ms: 3.848072
+  type: 'test'
+  ...
+# Subtest: touch: auto starts at GO, manual pedal still supports a timed launch
+ok 209 - touch: auto starts at GO, manual pedal still supports a timed launch
+  ---
+  duration_ms: 2.564717
+  type: 'test'
+  ...
+# Subtest: touch: a manual joystick accelerates up, brakes down and supports a timed launch
+ok 210 - touch: a manual joystick accelerates up, brakes down and supports a timed launch
+  ---
+  duration_ms: 1.479305
+  type: 'test'
+  ...
+# Subtest: touch: diagonal steering and throttle remain independent with a second finger on drift
+ok 211 - touch: diagonal steering and throttle remain independent with a second finger on drift
+  ---
+  duration_ms: 0.458162
+  type: 'test'
+  ...
+# Subtest: touch: joystick braking overrides AUTO and a held pedal without changing the preference
+ok 212 - touch: joystick braking overrides AUTO and a held pedal without changing the preference
+  ---
+  duration_ms: 0.302843
+  type: 'test'
+  ...
+# Subtest: touch: vertical dead zone avoids accidental throttle and braking during horizontal gestures
+ok 213 - touch: vertical dead zone avoids accidental throttle and braking during horizontal gestures
+  ---
+  duration_ms: 0.212972
+  type: 'test'
+  ...
+# Subtest: touch: independent fingers preserve steering while drifting and braking
+ok 214 - touch: independent fingers preserve steering while drifting and braking
+  ---
+  duration_ms: 0.18401
+  type: 'test'
+  ...
+# Subtest: touch: two fingers on a button do not release it prematurely or duplicate item edges
+ok 215 - touch: two fingers on a button do not release it prematurely or duplicate item edges
+  ---
+  duration_ms: 0.72754
+  type: 'test'
+  ...
+# Subtest: touch: steering remains bounded and a second pointer cannot hijack the thumb
+ok 216 - touch: steering remains bounded and a second pointer cannot hijack the thumb
+  ---
+  duration_ms: 0.467424
+  type: 'test'
+  ...
+# Subtest: touch: non-finite joystick values cannot poison input or stick the throttle
+ok 217 - touch: non-finite joystick values cannot poison input or stick the throttle
+  ---
+  duration_ms: 0.717041
+  type: 'test'
+  ...
+# Subtest: touch: cancel, focus loss or rotation clears edges and suspends auto until intentional input
+ok 218 - touch: cancel, focus loss or rotation clears edges and suspends auto until intentional input
+  ---
+  duration_ms: 0.919724
+  type: 'test'
+  ...
+# Subtest: touch: spectators, finished races and countdown taps cannot send racing actions
+ok 219 - touch: spectators, finished races and countdown taps cannot send racing actions
+  ---
+  duration_ms: 0.250046
+  type: 'test'
+  ...
+# Subtest: party vote has one editable ballot, strict deadline and rotating ties
+ok 220 - party vote has one editable ballot, strict deadline and rotating ties
+  ---
+  duration_ms: 2.997533
+  type: 'test'
+  ...
+# Subtest: highlights report observed events once and never invent a parked action
+ok 221 - highlights report observed events once and never invent a parked action
+  ---
+  duration_ms: 8.415389
+  type: 'test'
+  ...
+# Subtest: CPU actions are not advertised as replay moments and humans behind a CPU are not leaders
+ok 222 - CPU actions are not advertised as replay moments and humans behind a CPU are not leaders
+  ---
+  duration_ms: 12.037465
+  type: 'test'
+  ...
+# Subtest: live party rooms, crown persistence isolation and workshop sessions
+    # Subtest: host only and atomic mode validation preserve a six-round programme
+    ok 1 - host only and atomic mode validation preserve a six-round programme
+      ---
+      duration_ms: 113.188223
+      type: 'test'
+      ...
+    # Subtest: natural countdown, declared clock fixture, real votes and same-room ready transition
+    ok 2 - natural countdown, declared clock fixture, real votes and same-room ready transition
+      ---
+      duration_ms: 3382.733921
+      type: 'test'
+      ...
+    # Subtest: crown replay survives reload without XP, races, records, ghosts or MMR
+    ok 3 - crown replay survives reload without XP, races, records, ghosts or MMR
+      ---
+      duration_ms: 8.238878
+      type: 'test'
+      ...
+    # Subtest: workshop validates a solo module, places its approach, restarts and never rewards results
+    ok 4 - workshop validates a solo module, places its approach, restarts and never rewards results
+      ---
+      duration_ms: 315.584684
+      type: 'test'
+      ...
+    # Subtest: two ordinary peers share immutable interaction source and a real trigger crossing
+    ok 5 - two ordinary peers share immutable interaction source and a real trigger crossing
+      ---
+      duration_ms: 3212.69442
+      type: 'test'
+      ...
+    1..5
+ok 223 - live party rooms, crown persistence isolation and workshop sessions
+  ---
+  duration_ms: 7681.704831
+  type: 'test'
+  ...
+# Subtest: presence API tracks home, real rooms and ranked without leaking private identity data
+    # Subtest: authenticated heartbeats count unique profiles and ignore forged public names/statuses
+    ok 1 - authenticated heartbeats count unique profiles and ignore forged public names/statuses
+      ---
+      duration_ms: 79.778972
+      type: 'test'
+      ...
+    # Subtest: the public panel reads actual queue searches, cancellations and reservations
+    ok 2 - the public panel reads actual queue searches, cancellations and reservations
+      ---
+      duration_ms: 28.827235
+      type: 'test'
+      ...
+    # Subtest: connected human rooms count without browser heartbeats, bots are excluded and game overrides home
+    ok 3 - connected human rooms count without browser heartbeats, bots are excluded and game overrides home
+      ---
+      duration_ms: 258.5716
+      type: 'test'
+      ...
+    # Subtest: a tab changing identity removes its old home profile without touching another device
+    ok 4 - a tab changing identity removes its old home profile without touching another device
+      ---
+      duration_ms: 30.240687
+      type: 'test'
+      ...
+    # Subtest: invalid auth, methods, origins and client IDs cannot add users to the list
+    ok 5 - invalid auth, methods, origins and client IDs cannot add users to the list
+      ---
+      duration_ms: 23.536649
+      type: 'test'
+      ...
+    1..5
+ok 224 - presence API tracks home, real rooms and ranked without leaking private identity data
+  ---
+  duration_ms: 804.590585
+  type: 'test'
+  ...
+# Subtest: presence: multiple tabs and devices count one profile, closing one keeps the others online
+ok 225 - presence: multiple tabs and devices count one profile, closing one keeps the others online
+  ---
+  duration_ms: 15.475497
+  type: 'test'
+  ...
+# Subtest: presence: lost tabs expire without observers extending their leases
+ok 226 - presence: lost tabs expire without observers extending their leases
+  ---
+  duration_ms: 0.313245
+  type: 'test'
+  ...
+# Subtest: presence: signing in rebinds only this tab and removes its previous guest immediately
+ok 227 - presence: signing in rebinds only this tab and removes its previous guest immediately
+  ---
+  duration_ms: 0.370212
+  type: 'test'
+  ...
+# Subtest: presence: server rooms and queue override home, include socket-only players and preserve deduplication
+ok 228 - presence: server rooms and queue override home, include socket-only players and preserve deduplication
+  ---
+  duration_ms: 0.487952
+  type: 'test'
+  ...
+# Subtest: presence: capacity remains bounded and expired sessions free slots
+ok 229 - presence: capacity remains bounded and expired sessions free slots
+  ---
+  duration_ms: 0.609273
+  type: 'test'
+  ...
+# Subtest: presence: observing ranked searches never refreshes the authoritative queue heartbeat
+ok 230 - presence: observing ranked searches never refreshes the authoritative queue heartbeat
+  ---
+  duration_ms: 0.744984
+  type: 'test'
+  ...
+# Subtest: presence: ranked activity distinguishes searching, matching and assigned matches
+ok 231 - presence: ranked activity distinguishes searching, matching and assigned matches
+  ---
+  duration_ms: 1.164363
+  type: 'test'
+  ...
+# Subtest: six championships introduce all twelve tracks, gate garage tiers, and ranks/seasons have stable boundaries
+ok 232 - six championships introduce all twelve tracks, gate garage tiers, and ranks/seasons have stable boundaries
+  ---
+  duration_ms: 2.661031
+  type: 'test'
+  ...
+# Subtest: identity tokens are opaque, hashed on disk, absent from every public projection, and survive restart
+ok 233 - identity tokens are opaque, hashed on disk, absent from every public projection, and survive restart
+  ---
+  duration_ms: 51.852903
+  type: 'test'
+  ...
+# Subtest: concurrent career writes are serialised, rewards are idempotent, and locked or incomplete cups do not unlock parts
+ok 234 - concurrent career writes are serialised, rewards are idempotent, and locked or incomplete cups do not unlock parts
+  ---
+  duration_ms: 151.475071
+  type: 'test'
+  ...
+# Subtest: ranked results update pairwise MMR once, include DNF losses, exclude invalid identities, and publish no secrets
+ok 235 - ranked results update pairwise MMR once, include DNF losses, exclude invalid identities, and publish no secrets
+  ---
+  duration_ms: 64.496114
+  type: 'test'
+  ...
+# Subtest: new seasons softly reset MMR, preserve lifetime career, and archive previous leaderboards
+ok 236 - new seasons softly reset MMR, preserve lifetime career, and archive previous leaderboards
+  ---
+  duration_ms: 89.249971
+  type: 'test'
+  ...
+# Subtest: Elo rewards an upset more than an expected win, ties DNF racers, and bounds ratings
+ok 237 - Elo rewards an upset more than an expected win, ties DNF racers, and bounds ratings
+  ---
+  duration_ms: 1.459385
+  type: 'test'
+  ...
+# Subtest: matchmaking forms bounded groups by MMR, expands with wait, never duplicates a player, and handles reservation failure
+ok 238 - matchmaking forms bounded groups by MMR, expands with wait, never duplicates a player, and handles reservation failure
+  ---
+  duration_ms: 3.257945
+  type: 'test'
+  ...
+# Subtest: matchmaking caps eight racers per group, enforces capacity, and removes stale queue entries
+ok 239 - matchmaking caps eight racers per group, enforces capacity, and removes stale queue entries
+  ---
+  duration_ms: 1.053922
+  type: 'test'
+  ...
+# Subtest: cancelling one matched reservation releases the other players into a fresh match
+ok 240 - cancelling one matched reservation releases the other players into a fresh match
+  ---
+  duration_ms: 0.684072
+  type: 'test'
+  ...
+# Subtest: recorder captures bounded quantised trajectories and effect flags without identity secrets or spectator frames
+ok 241 - recorder captures bounded quantised trajectories and effect flags without identity secrets or spectator frames
+  ---
+  duration_ms: 40.067317
+  type: 'test'
+  ...
+# Subtest: replays survive restart, fastest open/ranked ghosts survive retention, and invalid/path traversal payloads are rejected
+ok 242 - replays survive restart, fastest open/ranked ghosts survive retention, and invalid/path traversal payloads are rejected
+  ---
+  duration_ms: 441.365388
+  type: 'test'
+  ...
+# Subtest: old circuit recordings remain readable but never compete with current ghosts after a restart
+ok 243 - old circuit recordings remain readable but never compete with current ghosts after a restart
+  ---
+  duration_ms: 63.983899
+  type: 'test'
+  ...
+# Subtest: corrupt storage fails without erasing the file and failed atomic writes roll back in-memory mutations
+ok 244 - corrupt storage fails without erasing the file and failed atomic writes roll back in-memory mutations
+  ---
+  duration_ms: 18.314933
+  type: 'test'
+  ...
+# Subtest: replay retention stays strictly bounded when twelve tracks have separate open and ranked records
+ok 245 - replay retention stays strictly bounded when twelve tracks have separate open and ranked records
+  ---
+  duration_ms: 465.249251
+  type: 'test'
+  ...
+# Subtest: rails: real shallow contact keeps momentum while a frontal contact remains penalising
+ok 246 - rails: real shallow contact keeps momentum while a frontal contact remains penalising
+  ---
+  duration_ms: 25.837467
+  type: 'test'
+  ...
+# Subtest: rails: holding against the rail is slower than driving the same section cleanly
+ok 247 - rails: holding against the rail is slower than driving the same section cleanly
+  ---
+  duration_ms: 57.963669
+  type: 'test'
+  ...
+# Subtest: rails: a real shoulder brush announces once without granting a combo or boost
+ok 248 - rails: a real shoulder brush announces once without granting a combo or boost
+  ---
+  duration_ms: 15.729025
+  type: 'test'
+  ...
+# Subtest: prediction clones keep nested feedback, pickups and interactions independent of snapshots
+ok 249 - prediction clones keep nested feedback, pickups and interactions independent of snapshots
+  ---
+  duration_ms: 1.503912
+  type: 'test'
+  ...
+# Subtest: combos: a real ramp jump followed by an aligned landing earns a small two-action chain
+ok 250 - combos: a real ramp jump followed by an aligned landing earns a small two-action chain
+  ---
+  duration_ms: 104.924944
+  type: 'test'
+  ...
+# Subtest: combos: clean loop traversal is credited, reverse entry and parking are not
+ok 251 - combos: clean loop traversal is credited, reverse entry and parking are not
+  ---
+  duration_ms: 60.815958
+  type: 'test'
+  ...
+# Subtest: combos: a real charged drift is one action; repeating it cannot stack the chain
+ok 252 - combos: a real charged drift is one action; repeating it cannot stack the chain
+  ---
+  duration_ms: 52.619396
+  type: 'test'
+  ...
+# Subtest: combos: six real jump/landing chains on one authored lap never exceed the extra turbo budget
+ok 253 - combos: six real jump/landing chains on one authored lap never exceed the extra turbo budget
+  ---
+  duration_ms: 422.550915
+  type: 'test'
+  ...
+# Subtest: combos and relay feedback cannot be supplied by a client and reset at a new race
+ok 254 - combos and relay feedback cannot be supplied by a client and reset at a new race
+  ---
+  duration_ms: 1.701565
+  type: 'test'
+  ...
+# Subtest: recovery: equal ranks with different real gaps yield different recovery odds, capped to one draw per lap
+ok 255 - recovery: equal ranks with different real gaps yield different recovery odds, capped to one draw per lap
+  ---
+  duration_ms: 91.752931
+  type: 'test'
+  ...
+# Subtest: recovery: waiting, reversing, resets and the initial grid cannot manufacture extra assistance
+ok 256 - recovery: waiting, reversing, resets and the initial grid cannot manufacture extra assistance
+  ---
+  duration_ms: 280.272679
+  type: 'test'
+  ...
+# Subtest: relays: a real allied draft and pass reward both pilots without an extra button
+ok 257 - relays: a real allied draft and pass reward both pilots without an extra button
+  ---
+  duration_ms: 9.46131
+  type: 'test'
+  ...
+# Subtest: relays: one pair per lap, cooldown, enemy, height and disconnected guards prevent farming
+ok 258 - relays: one pair per lap, cooldown, enemy, height and disconnected guards prevent farming
+  ---
+  duration_ms: 1.216573
+  type: 'test'
+  ...
+# Subtest: lagon: composed scenery preserves every route and stays within a mobile geometry budget
+ok 259 - lagon: composed scenery preserves every route and stays within a mobile geometry budget
+  ---
+  duration_ms: 827.695611
+  type: 'test'
+  ...
+# Subtest: canyon: composed scenery preserves every route and stays within a mobile geometry budget
+ok 260 - canyon: composed scenery preserves every route and stays within a mobile geometry budget
+  ---
+  duration_ms: 526.47292
+  type: 'test'
+  ...
+# Subtest: glacier: composed scenery preserves every route and stays within a mobile geometry budget
+ok 261 - glacier: composed scenery preserves every route and stays within a mobile geometry budget
+  ---
+  duration_ms: 508.582958
+  type: 'test'
+  ...
+# Subtest: neon: composed scenery preserves every route and stays within a mobile geometry budget
+ok 262 - neon: composed scenery preserves every route and stays within a mobile geometry budget
+  ---
+  duration_ms: 490.76956
+  type: 'test'
+  ...
+# Subtest: mangrove: composed scenery preserves every route and stays within a mobile geometry budget
+ok 263 - mangrove: composed scenery preserves every route and stays within a mobile geometry budget
+  ---
+  duration_ms: 575.481343
+  type: 'test'
+  ...
+# Subtest: dunes: composed scenery preserves every route and stays within a mobile geometry budget
+ok 264 - dunes: composed scenery preserves every route and stays within a mobile geometry budget
+  ---
+  duration_ms: 391.166637
+  type: 'test'
+  ...
+# Subtest: volcan: composed scenery preserves every route and stays within a mobile geometry budget
+ok 265 - volcan: composed scenery preserves every route and stays within a mobile geometry budget
+  ---
+  duration_ms: 596.91395
+  type: 'test'
+  ...
+# Subtest: forest: composed scenery preserves every route and stays within a mobile geometry budget
+ok 266 - forest: composed scenery preserves every route and stays within a mobile geometry budget
+  ---
+  duration_ms: 600.055604
+  type: 'test'
+  ...
+# Subtest: harbor: composed scenery preserves every route and stays within a mobile geometry budget
+ok 267 - harbor: composed scenery preserves every route and stays within a mobile geometry budget
+  ---
+  duration_ms: 729.297918
+  type: 'test'
+  ...
+# Subtest: sky: composed scenery preserves every route and stays within a mobile geometry budget
+ok 268 - sky: composed scenery preserves every route and stays within a mobile geometry budget
+  ---
+  duration_ms: 649.205873
+  type: 'test'
+  ...
+# Subtest: foundry: composed scenery preserves every route and stays within a mobile geometry budget
+ok 269 - foundry: composed scenery preserves every route and stays within a mobile geometry budget
+  ---
+  duration_ms: 561.566587
+  type: 'test'
+  ...
+# Subtest: castle: composed scenery preserves every route and stays within a mobile geometry budget
+ok 270 - castle: composed scenery preserves every route and stays within a mobile geometry budget
+  ---
+  duration_ms: 788.33746
+  type: 'test'
+  ...
+# Subtest: Kenney CC0 tree is a tiny self-contained, unmodified local asset with its source and license
+ok 271 - Kenney CC0 tree is a tiny self-contained, unmodified local asset with its source and license
+  ---
+  duration_ms: 5.49442
+  type: 'test'
+  ...
+# Subtest: live HTTP and Colyseus room boundaries
+    # Subtest: HTTP serves local assets and direct links, bounds matchmaking and never advertises a private endpoint
+    ok 1 - HTTP serves local assets and direct links, bounds matchmaking and never advertises a private endpoint
+      ---
+      duration_ms: 323.009274
+      type: 'test'
+      ...
+    # Subtest: only a ready host starts; mid-race arrivals remain spectators
+    ok 2 - only a ready host starts; mid-race arrivals remain spectators
+      ---
+      duration_ms: 443.604076
+      type: 'test'
+      ...
+    # Subtest: invalid state, stale epochs and duplicate commands are rejected; timeout neutralizes held throttle
+    ok 3 - invalid state, stale epochs and duplicate commands are rejected; timeout neutralizes held throttle
+      ---
+      duration_ms: 966.760892
+      type: 'test'
+      ...
+    # Subtest: reconnection keeps identity, rotates token and invalidates all commands from the old connection
+    ok 4 - reconnection keeps identity, rotates token and invalidates all commands from the old connection
+      ---
+      duration_ms: 364.354604
+      type: 'test'
+      ...
+    # Subtest: a quick item tap survives input coalescing while command bursts cannot accelerate server time
+    ok 5 - a quick item tap survives input coalescing while command bursts cannot accelerate server time
+      ---
+      duration_ms: 193.954438
+      type: 'test'
+      ...
+    # Subtest: reserved seats count toward eight, expiry retains DNF, host transfers and rematch frees abandoned slots
+    ok 6 - reserved seats count toward eight, expiry retains DNF, host transfers and rematch frees abandoned slots
+      ---
+      duration_ms: 1642.187668
+      type: 'test'
+      ...
+    # Subtest: circuit and tournament configuration is host-only, atomic, and isolated between rooms
+    ok 7 - circuit and tournament configuration is host-only, atomic, and isolated between rooms
+      ---
+      duration_ms: 484.652271
+      type: 'test'
+      ...
+# Race persistence failed: Arrivée de replay invalide.
+    # Subtest: a series scores each round once, admits late entrants next round, and retains totals through reconnection
+    ok 8 - a series scores each round once, admits late entrants next round, and retains totals through reconnection
+      ---
+      duration_ms: 1201.451184
+      type: 'test'
+      ...
+    # Subtest: random schedules are drawn by the server and stay fixed while the series runs
+    ok 9 - random schedules are drawn by the server and stay fixed while the series runs
+      ---
+      duration_ms: 504.968614
+      type: 'test'
+      ...
+# Max payload size exceeded
+# RangeError: Max payload size exceeded
+#     at Receiver.haveLength (/app/node_modules/ws/lib/receiver.js:442:28)
+#     at Receiver.getPayloadLength16 (/app/node_modules/ws/lib/receiver.js:393:10)
+#     at Receiver.startLoop (/app/node_modules/ws/lib/receiver.js:181:16)
+#     at Receiver._write (/app/node_modules/ws/lib/receiver.js:117:10)
+#     at writeOrBuffer (node:internal/streams/writable:572:12)
+#     at _write (node:internal/streams/writable:501:10)
+#     at Writable.write (node:internal/streams/writable:510:10)
+#     at Socket.socketOnData (/app/node_modules/ws/lib/websocket.js:1388:35)
+#     at Socket.emit (node:events:519:28)
+#     at addChunk (node:internal/streams/readable:561:12)
+    # Subtest: oversized WebSocket messages and sustained command bursts close the connection
+    ok 10 - oversized WebSocket messages and sustained command bursts close the connection
+      ---
+      duration_ms: 217.066109
+      type: 'test'
+      ...
+    1..10
+ok 272 - live HTTP and Colyseus room boundaries
+  ---
+  duration_ms: 6579.661045
+  type: 'test'
+  ...
+# Subtest: strict input validation rejects forged state, malformed values and unknown fields
+ok 273 - strict input validation rejects forged state, malformed values and unknown fields
+  ---
+  duration_ms: 7.375772
+  type: 'test'
+  ...
+# Subtest: three second countdown prevents movement and cleanly starts the race
+ok 274 - three second countdown prevents movement and cleanly starts the race
+  ---
+  duration_ms: 5.105127
+  type: 'test'
+  ...
+# Subtest: only all ordered checkpoints in the forward direction award laps and a shared result
+ok 275 - only all ordered checkpoints in the forward direction award laps and a shared result
+  ---
+  duration_ms: 159.952845
+  type: 'test'
+  ...
+# Subtest: reset returns to a validated checkpoint without awarding progression
+ok 276 - reset returns to a validated checkpoint without awarding progression
+  ---
+  duration_ms: 2.547107
+  type: 'test'
+  ...
+# Subtest: deterministic client movement and server movement agree without external effects
+ok 277 - deterministic client movement and server movement agree without external effects
+  ---
+  duration_ms: 102.993613
+  type: 'test'
+  ...
+# Subtest: drift release awards mini turbo; offroad slows and a grounded crossing meets the rail
+ok 278 - drift release awards mini turbo; offroad slows and a grounded crossing meets the rail
+  ---
+  duration_ms: 14.273494
+  type: 'test'
+  ...
+# Subtest: server assigns pickups and a held item button cannot consume newly collected items
+ok 279 - server assigns pickups and a held item button cannot consume newly collected items
+  ---
+  duration_ms: 22.272165
+  type: 'test'
+  ...
+# Subtest: trap and projectile hit opponents, never their owner, then disappear
+ok 280 - trap and projectile hit opponents, never their owner, then disappear
+  ---
+  duration_ms: 43.699917
+  type: 'test'
+  ...
+# Subtest: items expire, collisions separate karts, and disconnected inputs are neutralized
+ok 281 - items expire, collisions separate karts, and disconnected inputs are neutralized
+  ---
+  duration_ms: 2.246933
+  type: 'test'
+  ...
+# Subtest: inactive racers cannot block results and rematch clears all prior race state
+ok 282 - inactive racers cannot block results and rematch clears all prior race state
+  ---
+  duration_ms: 327.246422
+  type: 'test'
+  ...
+# Subtest: spectators never move, receive items or enter the standings
+ok 283 - spectators never move, receive items or enter the standings
+  ---
+  duration_ms: 1.272507
+  type: 'test'
+  ...
+# Subtest: eight ordinary input drivers finish three full laps including objects and kart collisions
+ok 284 - eight ordinary input drivers finish three full laps including objects and kart collisions
+  ---
+  duration_ms: 3998.480212
+  type: 'test'
+  ...
+# Subtest: abandoned karts remain classified without blocking a finished race
+ok 285 - abandoned karts remain classified without blocking a finished race
+  ---
+  duration_ms: 1.711522
+  type: 'test'
+  ...
+# Subtest: red and blue guided items skip allies ahead, including the overall allied leader
+ok 286 - red and blue guided items skip allies ahead, including the overall allied leader
+  ---
+  duration_ms: 84.933474
+  type: 'test'
+  ...
+# Subtest: a guided item becomes a turbo when only teammates and inactive opponents remain
+ok 287 - a guided item becomes a turbo when only teammates and inactive opponents remain
+  ---
+  duration_ms: 7.637666
+  type: 'test'
+  ...
+# Subtest: trap: allies do not absorb or suffer friendly objects but enemies still take the hit
+ok 288 - trap: allies do not absorb or suffer friendly objects but enemies still take the hit
+  ---
+  duration_ms: 22.884464
+  type: 'test'
+  ...
+# Subtest: projectile: allies do not absorb or suffer friendly objects but enemies still take the hit
+ok 289 - projectile: allies do not absorb or suffer friendly objects but enemies still take the hit
+  ---
+  duration_ms: 19.759048
+  type: 'test'
+  ...
+# Subtest: seeker: allies do not absorb or suffer friendly objects but enemies still take the hit
+ok 290 - seeker: allies do not absorb or suffer friendly objects but enemies still take the hit
+  ---
+  duration_ms: 3.59047
+  type: 'test'
+  ...
+# Subtest: leaderBolt: allies do not absorb or suffer friendly objects but enemies still take the hit
+ok 291 - leaderBolt: allies do not absorb or suffer friendly objects but enemies still take the hit
+  ---
+  duration_ms: 1.95533
+  type: 'test'
+  ...
+# Subtest: a disconnected owner retains team protection for an already launched projectile
+ok 292 - a disconnected owner retains team protection for an already launched projectile
+  ---
+  duration_ms: 1.048416
+  type: 'test'
+  ...
+# Subtest: a star passes through teammates without consuming their shield but stuns an unprotected enemy
+ok 293 - a star passes through teammates without consuming their shield but stuns an unprotected enemy
+  ---
+  duration_ms: 4.049394
+  type: 'test'
+  ...
+# Subtest: ordinary free-for-all races keep object and star impacts even for identical stored team numbers
+ok 294 - ordinary free-for-all races keep object and star impacts even for identical stored team numbers
+  ---
+  duration_ms: 4.453704
+  type: 'test'
+  ...
+# Subtest: collective scores update exactly once per round and retain a departed teammates earned points
+ok 295 - collective scores update exactly once per round and retain a departed teammates earned points
+  ---
+  duration_ms: 32.218458
+  type: 'test'
+  ...
+# Subtest: automatic teams balance human and CPU seats four against four without changing existing assignments
+ok 296 - automatic teams balance human and CPU seats four against four without changing existing assignments
+  ---
+  duration_ms: 14.106618
+  type: 'test'
+  ...
+# Subtest: team points accumulate all four drivers over rounds, retain departures, ignore spectators and resolve ties consistently
+ok 297 - team points accumulate all four drivers over rounds, retain departures, ignore spectators and resolve ties consistently
+  ---
+  duration_ms: 5.982254
+  type: 'test'
+  ...
+# Subtest: CPU decisions are deterministic ordinary inputs and cannot mutate physics, inventory or progress
+ok 298 - CPU decisions are deterministic ordinary inputs and cannot mutate physics, inventory or progress
+  ---
+  duration_ms: 20.452409
+  type: 'test'
+  ...
+# Subtest: CPU object timing targets enemies, preserves triple charges during active boost, and responds to a nearby threat
+ok 299 - CPU object timing targets enemies, preserves triple charges during active boost, and responds to a nearby threat
+  ---
+  duration_ms: 30.307832
+  type: 'test'
+  ...
+# Subtest: lagon: eight CPUs finish with ordinary inputs through all dynamic stages
+ok 300 - lagon: eight CPUs finish with ordinary inputs through all dynamic stages
+  ---
+  duration_ms: 11070.957985
+  type: 'test'
+  ...
+# Subtest: canyon: eight CPUs finish with ordinary inputs through all dynamic stages
+ok 301 - canyon: eight CPUs finish with ordinary inputs through all dynamic stages
+  ---
+  duration_ms: 10516.02429
+  type: 'test'
+  ...
+# Subtest: glacier: eight CPUs finish with ordinary inputs through all dynamic stages
+ok 302 - glacier: eight CPUs finish with ordinary inputs through all dynamic stages
+  ---
+  duration_ms: 9002.077952
+  type: 'test'
+  ...
+# Subtest: neon: eight CPUs finish with ordinary inputs through all dynamic stages
+ok 303 - neon: eight CPUs finish with ordinary inputs through all dynamic stages
+  ---
+  duration_ms: 8337.828908
+  type: 'test'
+  ...
+# Subtest: mangrove: eight CPUs finish with ordinary inputs through all dynamic stages
+ok 304 - mangrove: eight CPUs finish with ordinary inputs through all dynamic stages
+  ---
+  duration_ms: 8195.284411
+  type: 'test'
+  ...
+# Subtest: dunes: eight CPUs finish with ordinary inputs through all dynamic stages
+ok 305 - dunes: eight CPUs finish with ordinary inputs through all dynamic stages
+  ---
+  duration_ms: 7642.443297
+  type: 'test'
+  ...
+# Subtest: volcan: eight CPUs finish with ordinary inputs through all dynamic stages
+ok 306 - volcan: eight CPUs finish with ordinary inputs through all dynamic stages
+  ---
+  duration_ms: 13705.211718
+  type: 'test'
+  ...
+# Subtest: forest: eight CPUs finish with ordinary inputs through all dynamic stages
+ok 307 - forest: eight CPUs finish with ordinary inputs through all dynamic stages
+  ---
+  duration_ms: 17208.347235
+  type: 'test'
+  ...
+# Subtest: harbor: eight CPUs finish with ordinary inputs through all dynamic stages
+ok 308 - harbor: eight CPUs finish with ordinary inputs through all dynamic stages
+  ---
+  duration_ms: 15891.590062
+  type: 'test'
+  ...
+# Subtest: sky: eight CPUs finish with ordinary inputs through all dynamic stages
+ok 309 - sky: eight CPUs finish with ordinary inputs through all dynamic stages
+  ---
+  duration_ms: 13658.782837
+  type: 'test'
+  ...
+# Subtest: foundry: eight CPUs finish with ordinary inputs through all dynamic stages
+ok 310 - foundry: eight CPUs finish with ordinary inputs through all dynamic stages
+  ---
+  duration_ms: 14335.479016
+  type: 'test'
+  ...
+# Subtest: castle: eight CPUs finish with ordinary inputs through all dynamic stages
+ok 311 - castle: eight CPUs finish with ordinary inputs through all dynamic stages
+  ---
+  duration_ms: 11802.501004
+  type: 'test'
+  ...
+# Race persistence failed: Arrivée de replay invalide.
+# Race persistence failed: Arrivée de replay invalide.
+# Race persistence failed: Arrivée de replay invalide.
+# Race persistence failed: Arrivée de replay invalide.
+# Subtest: live tournaments continue beyond two rounds and stop at their selected count
+    # Subtest: four manually selected circuits reach the fourth podium
+    ok 1 - four manually selected circuits reach the fourth podium
+      ---
+      duration_ms: 1931.900772
+      type: 'test'
+      ...
+# Race persistence failed: Arrivée de replay invalide.
+# Race persistence failed: Arrivée de replay invalide.
+# Race persistence failed: Arrivée de replay invalide.
+# Race persistence failed: Arrivée de replay invalide.
+# Race persistence failed: Arrivée de replay invalide.
+# Race persistence failed: Arrivée de replay invalide.
+# Race persistence failed: Arrivée de replay invalide.
+# Race persistence failed: Arrivée de replay invalide.
+    # Subtest: eight random races from two circuits still run eight rounds after a rematch
+    ok 2 - eight random races from two circuits still run eight rounds after a rematch
+      ---
+      duration_ms: 1767.097535
+      type: 'test'
+      ...
+    1..2
+ok 312 - live tournaments continue beyond two rounds and stop at their selected count
+  ---
+  duration_ms: 4412.306423
+  type: 'test'
+  ...
+# Subtest: configuration is validated atomically, preserves manual order and permits repeated circuits
+ok 313 - configuration is validated atomically, preserves manual order and permits repeated circuits
+  ---
+  duration_ms: 5.985479
+  type: 'test'
+  ...
+# Subtest: random series exhausts each pool before repeating and never changes a drawn schedule
+ok 314 - random series exhausts each pool before repeating and never changes a drawn schedule
+  ---
+  duration_ms: 2.568825
+  type: 'test'
+  ...
+# Subtest: every finish position earns its points once; DNF and spectators earn zero
+ok 315 - every finish position earns its points once; DNF and spectators earn zero
+  ---
+  duration_ms: 2.659862
+  type: 'test'
+  ...
+# Subtest: league ties use wins, completed races, cumulative finish time and finally stable identity
+ok 316 - league ties use wins, completed races, cumulative finish time and finally stable identity
+  ---
+  duration_ms: 33.197123
+  type: 'test'
+  ...
+# Subtest: leaving cannot erase scored points, late entrants start at zero and rematch clears all totals
+ok 317 - leaving cannot erase scored points, late entrants start at zero and rematch clears all totals
+  ---
+  duration_ms: 0.98258
+  type: 'test'
+  ...
+# Subtest: random selection accepts every available circuit while limiting the tournament to eight races
+ok 318 - random selection accepts every available circuit while limiting the tournament to eight races
+  ---
+  duration_ms: 0.53244
+  type: 'test'
+  ...
+# Subtest: figure eight derives a real bridge with full road-width clearance and smooth, closed approaches
+ok 319 - figure eight derives a real bridge with full road-width clearance and smooth, closed approaches
+  ---
+  duration_ms: 78.041186
+  type: 'test'
+  ...
+# Subtest: three intersecting routes stack cumulatively, retaining clearance above an already elevated floor
+ok 320 - three intersecting routes stack cumulatively, retaining clearance above an already elevated floor
+  ---
+  duration_ms: 34.09344
+  type: 'test'
+  ...
+# Subtest: authored bridges, jump ramps and loops compose with the automatic floors
+ok 321 - authored bridges, jump ramps and loops compose with the automatic floors
+  ---
+  duration_ms: 70.183557
+  type: 'test'
+  ...
+# Subtest: width and crossing angle determine the tunnel span
+ok 322 - width and crossing angle determine the tunnel span
+  ---
+  duration_ms: 45.054786
+  type: 'test'
+  ...
+# Subtest: layer hints choose the right floor even when the other route is closer in plan view
+ok 323 - layer hints choose the right floor even when the other route is closer in plan view
+  ---
+  duration_ms: 62.388753
+  type: 'test'
+  ...
+# Subtest: saved sources and JSON imports reproduce the same floors without mutating the draft
+ok 324 - saved sources and JSON imports reproduce the same floors without mutating the draft
+  ---
+  duration_ms: 47.135939
+  type: 'test'
+  ...
+# Subtest: 128 points and coincident creative anchors stay finite and do not manufacture bridges on an oval
+ok 325 - 128 points and coincident creative anchors stay finite and do not manufacture bridges on an oval
+  ---
+  duration_ms: 400.978161
+  type: 'test'
+  ...
+# Subtest: a fourth-lap surface follows a loop and disappears next lap without rebuilding every frame
+ok 326 - a fourth-lap surface follows a loop and disappears next lap without rebuilding every frame
+  ---
+  duration_ms: 383.837716
+  type: 'test'
+  ...
+# Subtest: surface overlays stay finite on authored bridges and jump ramps
+ok 327 - surface overlays stay finite on authored bridges and jump ramps
+  ---
+  duration_ms: 6.158213
+  type: 'test'
+  ...
+# Subtest: a very long authored loop keeps a bounded overlay mesh
+ok 328 - a very long authored loop keeps a bounded overlay mesh
+  ---
+  duration_ms: 699.415682
+  type: 'test'
+  ...
+# Subtest: interaction source validates, persists and compiles permanent ramp with no historical default keys
+ok 329 - interaction source validates, persists and compiles permanent ramp with no historical default keys
+  ---
+  duration_ms: 94.962348
+  type: 'test'
+  ...
+# Subtest: swept switch announces, affects every player, expires and cannot be extended by camping
+ok 330 - swept switch announces, affects every player, expires and cannot be extended by camping
+  ---
+  duration_ms: 29.394057
+  type: 'test'
+  ...
+# Subtest: switch ignores reverse, airborne, wrong height, disconnected drivers and reset-sized teleports
+ok 331 - switch ignores reverse, airborne, wrong height, disconnected drivers and reset-sized teleports
+  ---
+  duration_ms: 27.163091
+  type: 'test'
+  ...
+# Subtest: active ramp changes real launch impulse while route geometry and expired landing stay fixed
+ok 332 - active ramp changes real launch impulse while route geometry and expired landing stay fixed
+  ---
+  duration_ms: 22.945546
+  type: 'test'
+  ...
+# Subtest: workshop selection derives approach and event phase and rejects fabricated indexes
+ok 333 - workshop selection derives approach and event phase and rejects fabricated indexes
+  ---
+  duration_ms: 5.342527
+  type: 'test'
+  ...
+# Subtest: ordinary CPU inputs finish a full race through interactive turbo and jump without invalid values
+ok 334 - ordinary CPU inputs finish a full race through interactive turbo and jump without invalid values
+  ---
+  duration_ms: 2877.958443
+  type: 'test'
+  ...
+# Subtest: twelve circuits expose bounded zones, closed nonintersecting routes and consistent arc coordinates
+ok 335 - twelve circuits expose bounded zones, closed nonintersecting routes and consistent arc coordinates
+  ---
+  duration_ms: 309.694873
+  type: 'test'
+  ...
+# Subtest: new circuits leave space between separate bends and a dry route beside each mud patch
+ok 336 - new circuits leave space between separate bends and a dry route beside each mud patch
+  ---
+  duration_ms: 136.902127
+  type: 'test'
+  ...
+# Subtest: lagon: eight ordinary input drivers finish three laps with items, zones and collisions
+ok 337 - lagon: eight ordinary input drivers finish three laps with items, zones and collisions
+  ---
+  duration_ms: 3617.882209
+  type: 'test'
+  ...
+# lagon: 8/8 finished in 55.10 simulation seconds
+# Subtest: lagon: checkpoints use this circuit and reject skipped gates or reverse crossings
+ok 338 - lagon: checkpoints use this circuit and reject skipped gates or reverse crossings
+  ---
+  duration_ms: 10.089915
+  type: 'test'
+  ...
+# Subtest: lagon: prediction matches server movement on surfaces and drift still releases a mini-turbo
+ok 339 - lagon: prediction matches server movement on surfaces and drift still releases a mini-turbo
+  ---
+  duration_ms: 87.910261
+  type: 'test'
+  ...
+# Subtest: canyon: eight ordinary input drivers finish three laps with items, zones and collisions
+ok 340 - canyon: eight ordinary input drivers finish three laps with items, zones and collisions
+  ---
+  duration_ms: 2904.709374
+  type: 'test'
+  ...
+# canyon: 8/8 finished in 58.50 simulation seconds
+# Subtest: canyon: checkpoints use this circuit and reject skipped gates or reverse crossings
+ok 341 - canyon: checkpoints use this circuit and reject skipped gates or reverse crossings
+  ---
+  duration_ms: 3.821465
+  type: 'test'
+  ...
+# Subtest: canyon: prediction matches server movement on surfaces and drift still releases a mini-turbo
+ok 342 - canyon: prediction matches server movement on surfaces and drift still releases a mini-turbo
+  ---
+  duration_ms: 33.038792
+  type: 'test'
+  ...
+# Subtest: glacier: eight ordinary input drivers finish three laps with items, zones and collisions
+ok 343 - glacier: eight ordinary input drivers finish three laps with items, zones and collisions
+  ---
+  duration_ms: 2868.838446
+  type: 'test'
+  ...
+# glacier: 8/8 finished in 65.93 simulation seconds
+# Subtest: glacier: checkpoints use this circuit and reject skipped gates or reverse crossings
+ok 344 - glacier: checkpoints use this circuit and reject skipped gates or reverse crossings
+  ---
+  duration_ms: 13.59305
+  type: 'test'
+  ...
+# Subtest: glacier: prediction matches server movement on surfaces and drift still releases a mini-turbo
+ok 345 - glacier: prediction matches server movement on surfaces and drift still releases a mini-turbo
+  ---
+  duration_ms: 52.888955
+  type: 'test'
+  ...
+# Subtest: neon: eight ordinary input drivers finish three laps with items, zones and collisions
+ok 346 - neon: eight ordinary input drivers finish three laps with items, zones and collisions
+  ---
+  duration_ms: 3240.873341
+  type: 'test'
+  ...
+# neon: 8/8 finished in 63.77 simulation seconds
+# Subtest: neon: checkpoints use this circuit and reject skipped gates or reverse crossings
+ok 347 - neon: checkpoints use this circuit and reject skipped gates or reverse crossings
+  ---
+  duration_ms: 18.374685
+  type: 'test'
+  ...
+# Subtest: neon: prediction matches server movement on surfaces and drift still releases a mini-turbo
+ok 348 - neon: prediction matches server movement on surfaces and drift still releases a mini-turbo
+  ---
+  duration_ms: 55.44421
+  type: 'test'
+  ...
+# Subtest: mangrove: eight ordinary input drivers finish three laps with items, zones and collisions
+ok 349 - mangrove: eight ordinary input drivers finish three laps with items, zones and collisions
+  ---
+  duration_ms: 4064.669066
+  type: 'test'
+  ...
+# mangrove: 8/8 finished in 63.03 simulation seconds
+# Subtest: mangrove: checkpoints use this circuit and reject skipped gates or reverse crossings
+ok 350 - mangrove: checkpoints use this circuit and reject skipped gates or reverse crossings
+  ---
+  duration_ms: 5.863358
+  type: 'test'
+  ...
+# Subtest: mangrove: prediction matches server movement on surfaces and drift still releases a mini-turbo
+ok 351 - mangrove: prediction matches server movement on surfaces and drift still releases a mini-turbo
+  ---
+  duration_ms: 41.404768
+  type: 'test'
+  ...
+# Subtest: dunes: eight ordinary input drivers finish three laps with items, zones and collisions
+ok 352 - dunes: eight ordinary input drivers finish three laps with items, zones and collisions
+  ---
+  duration_ms: 2467.980298
+  type: 'test'
+  ...
+# dunes: 8/8 finished in 62.50 simulation seconds
+# Subtest: dunes: checkpoints use this circuit and reject skipped gates or reverse crossings
+ok 353 - dunes: checkpoints use this circuit and reject skipped gates or reverse crossings
+  ---
+  duration_ms: 7.494085
+  type: 'test'
+  ...
+# Subtest: dunes: prediction matches server movement on surfaces and drift still releases a mini-turbo
+ok 354 - dunes: prediction matches server movement on surfaces and drift still releases a mini-turbo
+  ---
+  duration_ms: 34.001469
+  type: 'test'
+  ...
+# Subtest: volcan: eight ordinary input drivers finish three laps with items, zones and collisions
+ok 355 - volcan: eight ordinary input drivers finish three laps with items, zones and collisions
+  ---
+  duration_ms: 4832.748095
+  type: 'test'
+  ...
+# volcan: 8/8 finished in 97.53 simulation seconds
+# Subtest: volcan: checkpoints use this circuit and reject skipped gates or reverse crossings
+ok 356 - volcan: checkpoints use this circuit and reject skipped gates or reverse crossings
+  ---
+  duration_ms: 12.498854
+  type: 'test'
+  ...
+# Subtest: volcan: prediction matches server movement on surfaces and drift still releases a mini-turbo
+ok 357 - volcan: prediction matches server movement on surfaces and drift still releases a mini-turbo
+  ---
+  duration_ms: 62.688339
+  type: 'test'
+  ...
+# Subtest: forest: eight ordinary input drivers finish three laps with items, zones and collisions
+ok 358 - forest: eight ordinary input drivers finish three laps with items, zones and collisions
+  ---
+  duration_ms: 5758.084825
+  type: 'test'
+  ...
+# forest: 8/8 finished in 107.60 simulation seconds
+# Subtest: forest: checkpoints use this circuit and reject skipped gates or reverse crossings
+ok 359 - forest: checkpoints use this circuit and reject skipped gates or reverse crossings
+  ---
+  duration_ms: 8.511856
+  type: 'test'
+  ...
+# Subtest: forest: prediction matches server movement on surfaces and drift still releases a mini-turbo
+ok 360 - forest: prediction matches server movement on surfaces and drift still releases a mini-turbo
+  ---
+  duration_ms: 44.660943
+  type: 'test'
+  ...
+# Subtest: harbor: eight ordinary input drivers finish three laps with items, zones and collisions
+ok 361 - harbor: eight ordinary input drivers finish three laps with items, zones and collisions
+  ---
+  duration_ms: 4718.874584
+  type: 'test'
+  ...
+# harbor: 8/8 finished in 106.00 simulation seconds
+# Subtest: harbor: checkpoints use this circuit and reject skipped gates or reverse crossings
+ok 362 - harbor: checkpoints use this circuit and reject skipped gates or reverse crossings
+  ---
+  duration_ms: 8.757335
+  type: 'test'
+  ...
+# Subtest: harbor: prediction matches server movement on surfaces and drift still releases a mini-turbo
+ok 363 - harbor: prediction matches server movement on surfaces and drift still releases a mini-turbo
+  ---
+  duration_ms: 43.96687
+  type: 'test'
+  ...
+# Subtest: sky: eight ordinary input drivers finish three laps with items, zones and collisions
+ok 364 - sky: eight ordinary input drivers finish three laps with items, zones and collisions
+  ---
+  duration_ms: 6114.468019
+  type: 'test'
+  ...
+# sky: 8/8 finished in 116.00 simulation seconds
+# Subtest: sky: checkpoints use this circuit and reject skipped gates or reverse crossings
+ok 365 - sky: checkpoints use this circuit and reject skipped gates or reverse crossings
+  ---
+  duration_ms: 7.836547
+  type: 'test'
+  ...
+# Subtest: sky: prediction matches server movement on surfaces and drift still releases a mini-turbo
+ok 366 - sky: prediction matches server movement on surfaces and drift still releases a mini-turbo
+  ---
+  duration_ms: 65.47533
+  type: 'test'
+  ...
+# Subtest: foundry: eight ordinary input drivers finish three laps with items, zones and collisions
+ok 367 - foundry: eight ordinary input drivers finish three laps with items, zones and collisions
+  ---
+  duration_ms: 6053.418084
+  type: 'test'
+  ...
+# foundry: 8/8 finished in 106.97 simulation seconds
+# Subtest: foundry: checkpoints use this circuit and reject skipped gates or reverse crossings
+ok 368 - foundry: checkpoints use this circuit and reject skipped gates or reverse crossings
+  ---
+  duration_ms: 7.386935
+  type: 'test'
+  ...
+# Subtest: foundry: prediction matches server movement on surfaces and drift still releases a mini-turbo
+ok 369 - foundry: prediction matches server movement on surfaces and drift still releases a mini-turbo
+  ---
+  duration_ms: 50.26737
+  type: 'test'
+  ...
+# Subtest: castle: eight ordinary input drivers finish three laps with items, zones and collisions
+ok 370 - castle: eight ordinary input drivers finish three laps with items, zones and collisions
+  ---
+  duration_ms: 5100.058701
+  type: 'test'
+  ...
+# castle: 8/8 finished in 99.13 simulation seconds
+# Subtest: castle: checkpoints use this circuit and reject skipped gates or reverse crossings
+ok 371 - castle: checkpoints use this circuit and reject skipped gates or reverse crossings
+  ---
+  duration_ms: 11.094091
+  type: 'test'
+  ...
+# Subtest: castle: prediction matches server movement on surfaces and drift still releases a mini-turbo
+ok 372 - castle: prediction matches server movement on surfaces and drift still releases a mini-turbo
+  ---
+  duration_ms: 39.671158
+  type: 'test'
+  ...
+# Subtest: boost pads require forward entry and cannot recharge while parked, re-entering or resetting within the same lap
+ok 373 - boost pads require forward entry and cannot recharge while parked, re-entering or resetting within the same lap
+  ---
+  duration_ms: 12.149102
+  type: 'test'
+  ...
+# Subtest: mud slows a kart while ice preserves momentum and reduces grip
+ok 374 - mud slows a kart while ice preserves momentum and reduces grip
+  ---
+  duration_ms: 1.391157
+  type: 'test'
+  ...
+# Subtest: launch boost rewards a fresh press in the final second, never holding throttle from countdown start
+ok 375 - launch boost rewards a fresh press in the final second, never holding throttle from countdown start
+  ---
+  duration_ms: 3.106137
+  type: 'test'
+  ...
+# Subtest: draft requires a connected moving opponent ahead and rewards one second with a cooldown
+ok 376 - draft requires a connected moving opponent ahead and rewards one second with a cooldown
+  ---
+  duration_ms: 20.156083
+  type: 'test'
+  ...
+# Subtest: starting a new circuit resets positions, pickups, surfaces and boosts but retains tournament identity
+ok 377 - starting a new circuit resets positions, pickups, surfaces and boosts but retains tournament identity
+  ---
+  duration_ms: 0.860814
+  type: 'test'
+  ...
+# Subtest: six additional themes contain gentle bridges, genuine ramp profiles and clear landing corridors
+ok 378 - six additional themes contain gentle bridges, genuine ramp profiles and clear landing corridors
+  ---
+  duration_ms: 22.849573
+  type: 'test'
+  ...
+# Subtest: classic races keep their rails closed, and a shortcut opens its passage only in its actual phase
+ok 379 - classic races keep their rails closed, and a shortcut opens its passage only in its actual phase
+  ---
+  duration_ms: 305.514328
+  type: 'test'
+  ...
+# Subtest: road rail blocks ground and low jumps but allows sufficient clearance
+ok 380 - road rail blocks ground and low jumps but allows sufficient clearance
+  ---
+  duration_ms: 233.084089
+  type: 'test'
+  ...
+# Subtest: bridge rail blocks ground and low jumps but allows sufficient clearance
+ok 381 - bridge rail blocks ground and low jumps but allows sufficient clearance
+  ---
+  duration_ms: 278.635052
+  type: 'test'
+  ...
+# Subtest: rail collision checks height at the crossing, including a fast downward segment
+ok 382 - rail collision checks height at the crossing, including a fast downward segment
+  ---
+  duration_ms: 1.521094
+  type: 'test'
+  ...
+# Subtest: ground contact blocks the outward component while retaining tangential sliding along the rail
+ok 383 - ground contact blocks the outward component while retaining tangential sliding along the rail
+  ---
+  duration_ms: 1.547496
+  type: 'test'
+  ...
+# Subtest: clearing a rail allows an exterior landing without teleportation; low return is blocked and jumping back succeeds
+ok 384 - clearing a rail allows an exterior landing without teleportation; low return is blocked and jumping back succeeds
+  ---
+  duration_ms: 32.240985
+  type: 'test'
+  ...
+# Subtest: leaving a bridge above its rail falls to exterior terrain rather than hovering on invisible deck
+ok 385 - leaving a bridge above its rail falls to exterior terrain rather than hovering on invisible deck
+  ---
+  duration_ms: 32.172007
+  type: 'test'
+  ...
+# Subtest: a real ramp launches a grounded kart over its side rail and lands it outside without injected flight state
+ok 386 - a real ramp launches a grounded kart over its side rail and lands it outside without injected flight state
+  ---
+  duration_ms: 14.010604
+  type: 'test'
+  ...
+# Subtest: a ground-level kart entering below a raised bridge stays below the deck
+ok 387 - a ground-level kart entering below a raised bridge stays below the deck
+  ---
+  duration_ms: 5.176342
+  type: 'test'
+  ...
+# Subtest: lagon: debris has finite height, swept vertical contact and safe phase changes
+ok 388 - lagon: debris has finite height, swept vertical contact and safe phase changes
+  ---
+  duration_ms: 2.686472
+  type: 'test'
+  ...
+# Subtest: neon: debris has finite height, swept vertical contact and safe phase changes
+ok 389 - neon: debris has finite height, swept vertical contact and safe phase changes
+  ---
+  duration_ms: 0.703296
+  type: 'test'
+  ...
+# Subtest: sky: debris has finite height, swept vertical contact and safe phase changes
+ok 390 - sky: debris has finite height, swept vertical contact and safe phase changes
+  ---
+  duration_ms: 0.433443
+  type: 'test'
+  ...
+# Subtest: airborne shortcuts still require all ordered checkpoint gates and reset restores a valid road position
+ok 391 - airborne shortcuts still require all ordered checkpoint gates and reset restores a valid road position
+  ---
+  duration_ms: 11.392369
+  type: 'test'
+  ...
+1..391
+# tests 443
+# suites 0
+# pass 443
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 203814.367152

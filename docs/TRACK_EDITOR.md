@@ -8,7 +8,7 @@ abonnement, service externe ou dépendance supplémentaire : **0 €**.
 
 1. À l’accueil, choisir **Créer un circuit**. Le profil invité suffit ; un compte
    permet de retrouver la propriété des créations depuis un autre navigateur.
-2. Partir du **Grand ovale** ou des **Courbes des bois**, puis faire glisser les
+2. Partir du **Grand ovale**, des **Courbes des bois** ou du **Huit superposé**, puis faire glisser les
    points blancs. **Ajouter un point** insère un virage ; **Annuler/Rétablir**
    aide à expérimenter. **Tout voir** recadre le plan.
 3. Choisir un point puis **Départ ici** pour déplacer la ligne. Le plan indique
@@ -26,6 +26,16 @@ abonnement, service externe ou dépendance supplémentaire : **0 €**.
    et créer un salon. Les autres joueurs utilisent son lien habituel. Dans le
    salon, l’hôte peut aussi mélanger créations et circuits officiels en tournoi.
    **Actualiser les circuits** charge les dernières publications des collègues.
+7. Dans **Vos circuits et ceux de la classe**, **Supprimer** retire une création
+   après confirmation de son nom et de son auteur. Le créateur peut supprimer
+   ses circuits ; le compte de connexion **Admin** peut supprimer ceux de tous
+   les pilotes. Un simple pseudo « Admin » ne donne pas ce droit.
+
+Le circuit retiré disparaît des choix pour les nouvelles courses. Un salon qui
+n'a pas encore démarré doit choisir un autre circuit ; une course ou un tournoi
+déjà commencé conserve son programme. Les replays restent lisibles. Si le dessin
+supprimé est ouvert dans l'éditeur, il reste un brouillon privé ; une nouvelle
+publication crée un autre circuit. [Droits, captures et vérifications](track-deletion/README.md).
 
 Le brouillon reste local à ce navigateur et à ce profil, même après rechargement.
 Seule **Publier pour la classe** rend un circuit visible aux autres. Fermer
@@ -50,6 +60,25 @@ de la création d’un autre joueur. Deux onglets qui modifient la même version
 ne s’écrasent pas : le second reçoit un message invitant à recharger.
 
 ## Tours, ponts, tremplins et loopings
+
+Quand deux portions se croisent, un **pont automatique** surélève celle parcourue
+le plus tard dans le tour. Le passage inférieur devient un tunnel, avec 5 m de
+hauteur libre sous le tablier. Plusieurs routes au même endroit créent plusieurs
+étages. Les rampes, les hauteurs et les collisions sont calculées sur le même
+tracé pour tous les joueurs. Les karts, les objets et les portes de tour restent
+sur leur étage ; un saut sous le pont rencontre son plafond.
+
+Le plan montre le pont en doré et le dessous en pointillés. Les repères **P1,
+P2…** indiquent le niveau et les pourcentages du tour correspondants. Déplacer
+les points recalcule les passages ; **Départ ici** change aussi leur ordre.
+Les étages sont reconstruits à partir du tracé sauvegardé, y compris après
+importation et rechargement. Aucun module de pont manuel n'est nécessaire.
+
+Le modèle **Huit superposé** permet d'essayer immédiatement le dessus et le
+dessous. Sur un dessin extrêmement serré, les approches sont comprimées : le
+tracé reste accepté, mais la pente peut devenir forte. L'essai privé permet
+d'ajuster l'espace entre les passages. Les détails décoratifs des croisements
+très nombreux sont plafonnés ; les routes et leurs étages restent calculés.
 
 Le nombre de tours se règle de **1 à 20** et suit le circuit en entraînement,
 salon et tournoi. L’accueil et le compteur en course affichent cette valeur.
@@ -99,6 +128,7 @@ data/
   players/                         comptes, progression et replays
   tracks/custom-…-v1.json          première version d’un circuit
   tracks/custom-…-v2.json          version suivante du même circuit
+  tracks/custom-….deleted.json    retrait persistant du catalogue
 ```
 
 Une modification ajoute un fichier sans écraser les précédents. Le serveur
@@ -107,6 +137,12 @@ Le salon fixe sa version au moment du choix du circuit. Une publication pendant
 une course ne déplace donc ni sa route, ni ses checkpoints, ni les autres joueurs.
 Les définitions sont transmises aux clients qui rejoignent ou se reconnectent,
 puis ne sont plus répétées une fois reçues.
+
+La suppression écrit un marqueur durable dans le même volume. Elle libère une
+place dans la bibliothèque et dans le quota du créateur. Les versions historiques
+sont gardées pour les courses engagées et les replays ; un redémarrage ne remet
+pas le circuit dans le catalogue. Un onglet ouvert sur une ancienne version ne
+peut ni écraser une publication plus récente ni réactiver un circuit supprimé.
 
 Le dossier hôte survit à la recréation des conteneurs et à `docker compose down -v`.
 `npm run data:backup` archive déjà tout `data/`, circuits compris. Ne pas supprimer

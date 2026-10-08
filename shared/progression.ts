@@ -47,6 +47,8 @@ export interface PlayerProfile {
   id: string; name: string; createdAt: number; xp: number; careerLevel: CareerLevel;
   /** Present when this profile can be recovered with a username and password. */
   username?: string;
+  /** Server-derived permission attached to the authenticated Admin account. */
+  canModerateTracks?: boolean;
   completedChampionships: string[]; stats: PlayerStats;
   season: string; mmr: number; rank: RankedTier; ranked: SeasonStats;
 }

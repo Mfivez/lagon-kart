@@ -37,7 +37,8 @@ export class OnlinePlayersPanel {
   private readonly message = document.getElementById('online-player-message')!;
   private readonly host = document.getElementById('online-players')!;
 
-  constructor(private readonly getIdentity: () => Promise<Identity>) {
+  constructor(private readonly getIdentity: () => Promise<Identity>,
+    private readonly onSummary?: (snapshot: PresenceSnapshot | null) => void) {
     window.addEventListener('pagehide', () => this.leave());
     window.addEventListener('pageshow', () => { this.stopped = false; this.refresh(); });
     document.addEventListener('visibilitychange', () => { if (!document.hidden) this.refresh(); });
@@ -71,6 +72,7 @@ export class OnlinePlayersPanel {
         this.host.classList.add('is-unavailable'); this.count.textContent = '—';
         this.ranked.textContent = 'Connexion à la liste interrompue'; this.list.replaceChildren();
         this.message.textContent = 'Nouvel essai automatique dans quelques secondes.';
+        this.onSummary?.(null);
       }
     } finally {
       clearTimeout(timeout); this.pending = false; this.request = undefined;
@@ -80,6 +82,7 @@ export class OnlinePlayersPanel {
   }
 
   private render(snapshot: PresenceSnapshot) {
+    this.onSummary?.(snapshot);
     this.host.classList.remove('is-unavailable');
     this.count.textContent = `${snapshot.connected} connecté${snapshot.connected === 1 ? '' : 's'}`;
     this.ranked.textContent = `${snapshot.searchingRanked} en recherche classée`;

@@ -1,0 +1,71 @@
+{
+  "origin": "https://yoga-unlikely-div-converted.trycloudflare.com",
+  "startedAt": "2026-10-07T20:15:47.045Z",
+  "fixtures": [],
+  "inputMethod": "Browser driver uses real CDP touch joystick/item/drift controls. SDK opponent sends ordinary bounded inputs. No server access or state injection.",
+  "healthBefore": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "assets": [
+    "/assets/index-DNUBohE_.js",
+    "/assets/index-CpYYGxpj.css"
+  ],
+  "roomId": "GCWLPM",
+  "mode": {
+    "practice": false,
+    "ranked": false,
+    "workshop": null,
+    "trackId": "lagon",
+    "players": 2,
+    "eventLevel": 3
+  },
+  "browserBoost": {
+    "serverBoost": 0.8166666666666667,
+    "serverSpeed": 35.94323615380761,
+    "predictedBoost": 0.6833333333333333,
+    "predictedSpeed": 45.009902820474274,
+    "speedText": "162",
+    "label": "TURBO !"
+  },
+  "padEvents": [
+    {
+      "zone": "lagon-boost-0",
+      "lap": 0,
+      "duration": 1.05,
+      "time": 23.86666666666701,
+      "beforeSpeed": 17.80990282047428,
+      "activationBoost": 1.05,
+      "peakSpeed": 46,
+      "normalLimit": 32
+    }
+  ],
+  "itemEvents": [],
+  "driftEvents": [],
+  "sampleCount": 576,
+  "raceTime": 28.633333333333916,
+  "itemScope": "No turbo item was naturally collected and activated in this bounded pad check; no browser item claim.",
+  "healthAfter": {
+    "status": "ok",
+    "rooms": 2,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "passed": true,
+  "checks": [
+    "Course normale Île des Alizés, deux pilotes, practice=false et aucun atelier ; départ réel.",
+    "Bande turbo : activation serveur et vitesse mesurée supérieure à la limite normale."
+  ],
+  "errors": [],
+  "finishedAt": "2026-10-07T20:16:28.355Z",
+  "remaining": [
+    "Un seul circuit vérifié dans ce parcours navigateur.",
+    "Pas de téléphone physique ni de mesure de fluidité GPU."
+  ]
+}

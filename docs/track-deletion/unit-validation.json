@@ -1,0 +1,15 @@
+{
+  "tests": 485.0,
+  "suites": 0.0,
+  "pass": 485.0,
+  "fail": 0.0,
+  "cancelled": 0.0,
+  "skipped": 0.0,
+  "todo": 0.0,
+  "duration_ms": 92007.484382,
+  "passed": true,
+  "command": "docker run --rm lagon-kart-moderation-validation npm test",
+  "scope": "Full suite in isolated container, no player data mounted. Before subsequent editor-only library button unlock; final browser run validates that correction.",
+  "node": "22.21.1",
+  "clientAsset": "/assets/index-NY5qbMq1.js"
+}

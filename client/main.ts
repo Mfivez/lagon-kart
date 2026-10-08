@@ -1,7 +1,7 @@
 import { Client, type Room } from 'colyseus.js';
 import { COLORS, neutralInput, stepKart, cloneKartForPrediction, type Input, type Kart, type World } from '../shared/game';
 import { getAvailableTracks, getTrack, getTrackLapCount, isTrackId, isPreviewTrackId, trackPoint } from '../shared/track';
-import { configurationMarkup, TournamentControls, trackCards, trackFeatures, standingsTable, teamsTable } from './tournament-ui';
+import { configurationMarkup, TournamentControls, trackOutline, trackFeatures, standingsTable, teamsTable } from './tournament-ui';
 import { GameRenderer } from './renderer';
 import { GameAudio } from './audio';
 import { GarageUI } from './garage-ui';
@@ -25,8 +25,10 @@ import './home-lobby-ux.css';
 import { GraphicsSettings, graphicsSettingsMarkup } from './graphics-settings';
 import { HomeRanked, homeRankedMarkup } from './home-ranked';
 import { RoomInvitation, invitationMarkup } from './room-invitation';
+import { HomeMenu, homeMenuMarkup } from './home-menu';
+import { TrackPicker } from './track-picker';
 import { TrackEditor } from './track-editor';
-import { listCustomTracks, saveCustomTrack, ensureCustomTrack } from './custom-track-library';
+import { listCustomTracks, saveCustomTrack, deleteCustomTrack, ensureCustomTrack } from './custom-track-library';
 import { customTrackRuntimeId, registerCustomTrack, registerCustomTrackPreview, releaseCustomTrackPreview, type CustomTrackPreview, type CustomTrackDraft, type StoredCustomTrack, type TrackWorkshopSelection } from '../shared/custom-tracks';
 
 const escape = (value: string) => value.replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]!);
@@ -58,20 +60,7 @@ el('app').innerHTML = `
   ${workshopMarkup}
   ${partyMarkup}
   <main class="menu" id="menu">
-    <section class="home-panel" id="home-panel">
-      <div class="home-heading"><div class="eyebrow">LE PROCHAIN DÉPART, C’EST LE VÔTRE.</div><h1>À vous <span>la piste.</span></h1></div>
-      <div class="quick-pilot"><div class="name-field"><span aria-hidden="true">◉</span><input id="name-input" maxlength="18" autocomplete="nickname" placeholder="Votre pseudo" value="${escape(chosenName)}" aria-label="Pseudo" /></div><button id="garage-button" class="secondary" title="Choisir mon pilote, mon kart et ses pièces">Mon kart ⚙</button></div>
-      ${homeRankedMarkup}
-      <div class="home-primary-actions" aria-label="Jouer avec des amis ou en solo"><button class="primary create-button" id="create-button">Créer un salon <span>↗</span></button><button class="secondary practice-button" id="practice-button">Entraînement <span aria-hidden="true">⚑</span></button></div>
-      <div class="join-row"><input id="code-input" aria-label="Code du salon" maxlength="24" placeholder="CODE DU SALON" value="${escape(invitedCode)}" autocomplete="off" /><button id="join-button" class="secondary">Rejoindre <span>→</span></button></div>
-      <div class="home-more-actions"><button id="choose-track-button" class="quiet">Changer de circuit</button><button id="track-editor-button" class="quiet">Créer un circuit</button></div>
-      <details id="home-profile-options" class="home-options"><summary>Mon compte et ma couleur</summary><div class="profile-card"><div class="color-row"><span>Couleur du kart</span><div class="swatches" id="swatches">${COLORS.map((color, i) => `<button class="swatch ${color === chosenColor ? 'selected' : ''}" style="--swatch:${color}" data-color="${color}" aria-label="Couleur ${i + 1}" aria-pressed="${color === chosenColor}"></button>`).join('')}</div></div><div id="account-card" class="account-card" aria-label="Sauvegarde du pilote"></div></div></details>
-      <button id="career-button" class="secondary wide">Championnats, classement et replays <span>♜</span></button>
-      <label class="ghost-option"><input id="ghost-toggle" type="checkbox"> Fantôme du meilleur temps en entraînement</label>
-      ${onlinePlayersMarkup}
-    </section>
-    <aside class="island-card" id="island-card"><span class="island-number" id="track-number">01</span><div><span class="eyebrow">VOTRE PROCHAINE ESCALE</span><h2 id="track-name">Île des Alizés</h2><p id="track-description"></p><div class="track-tags" id="track-tags"></div></div></aside>
-    <aside class="home-circuit-picker" id="home-circuit-picker"><div class="eyebrow" id="track-catalog-count">${getAvailableTracks().length} CIRCUITS. VOTRE TERRAIN DE JEU.</div><div class="track-card-grid" id="track-cards">${trackCards(chosenTrack)}</div><p>Une course ou un tournoi de 2 à 8 manches.<br>Composez votre programme dans le salon.</p><div class="editor-entry"><button id="track-refresh-button" class="quiet">Actualiser les circuits</button></div></aside>
+    ${homeMenuMarkup({ name: chosenName, invitedCode, color: chosenColor, colors: COLORS, rankedMarkup: homeRankedMarkup, onlineMarkup: onlinePlayersMarkup })}
     <section class="lobby-panel hidden" id="lobby-panel"><div class="lobby-scroll"><div class="eyebrow">LE DÉPART APPROCHE</div><h2>Sur la grille.</h2><p class="muted" id="lobby-description">Partagez le lien, rassemblez votre équipe.</p><div class="room-share"><div><span>CODE DU SALON</span><strong id="room-code">—</strong></div><button class="secondary" id="copy-button">Copier le lien ↗</button></div><input class="share-url" id="share-url" aria-label="Lien d’invitation du salon" readonly />${invitationMarkup}<div class="players-heading"><span>PILOTES</span><span id="player-count">0 / 8</span></div><div id="player-list" class="player-list"></div><button id="lobby-garage-button" class="secondary wide">Mon kart et ses pièces ⚙</button>${configurationMarkup}<div id="lobby-party-options"></div></div><div class="lobby-ready-bar" aria-label="Préparation du départ"><p id="ready-status" role="status" aria-live="polite"></p><div class="lobby-ready-actions"><button class="secondary wide" id="ready-button">Je suis prêt</button><button class="primary wide" id="start-button">Lancer la course <span>→</span></button></div><p class="lobby-hint muted" id="lobby-hint"></p></div></section>
     <section class="results-panel hidden" id="results-panel"><div class="eyebrow">LE DRAPEAU EST TOMBÉ</div><div class="result-icon">⚑</div><h2 id="results-title">Bien joué,<br>les pilotes.</h2><p class="muted" id="results-subtitle">Même soleil, une nouvelle chance ?</p><div id="results-list" class="results-list"></div><div id="cup-standings" class="cup-standings hidden"></div><button class="primary wide hidden" id="next-race-button">Prochaine course <span>→</span></button><button class="primary wide" id="rematch-button">On remet ça <span>↻</span></button><p class="muted" id="results-hint"></p></section>
   </main>
@@ -89,6 +78,7 @@ try { renderer = new GameRenderer(el<HTMLCanvasElement>('game')); }
 catch (error) { el('menu').innerHTML = '<section class="lobby-panel"><h2>La piste attend<br>votre navigateur.</h2><p>Le rendu 3D n’a pas démarré. Activez l’accélération graphique, puis actualisez cette page avec un navigateur récent.</p></section>'; throw error; }
 
 const graphicsSettings = new GraphicsSettings(mode => renderer.setQualityMode(mode));
+const homeMenu = new HomeMenu(el('home-panel'));
 const client = new Client(window.location.origin.replace(/^http/, 'ws'));
 let room: Room | null = null;
 let world: World | null = null;
@@ -112,6 +102,7 @@ let uiTime = 0;
 let lastLobbySignature = '';
 let lastResultSignature = '';
 let previousPhase = '';
+let raceProfileBaseline: number | undefined;
 let correction = { x: 0, z: 0 };
 let fixedStep = 1 / 30;
 let accumulator = 0;
@@ -130,7 +121,7 @@ renderer.setPreviewKart(chosenColor, garage.value.modelId, garage.value.characte
 const career: CareerUI = new CareerUI({
   canQueue: () => !busy && !room && !reconnecting && !trackEditor.isOpen,
   prepareRanked: ensureCareer,
-  profile: saved => { garage.setLevel(saved.careerLevel); accounts?.update(saved); if (saved.username && !nameEdited) setSavedName(saved.name); }, error: toast, replay: replay => { void ensureCustomTrack(replay.trackId).then(() => showReplay(replay)).catch(error => toast(errorMessage(error))); },
+  profile: saved => { garage.setLevel(saved.careerLevel); accounts?.update(saved); trackEditor.identityChanged(); if (saved.username && !nameEdited) setSavedName(saved.name); }, error: toast, replay: replay => { void ensureCustomTrack(replay.trackId).then(() => showReplay(replay)).catch(error => toast(errorMessage(error))); },
   championship: async id => {
     if (busy || room) return;
     audio.activate(); setBusy(true);
@@ -151,6 +142,7 @@ accounts = new AccountUI(career, el('account-card'), {
     // A different account must never resume the previous pilot's room seat.
     ++connectionGeneration; sessionStorage.removeItem('lagon-session'); resetPrediction(); renderer.setGhost(null);
     nameEdited = false; setSavedName(saved?.name ?? ''); garage.setLevel(saved?.careerLevel ?? 0);
+    trackEditor.identityChanged();
     onlinePlayers.refresh();
     toast(saved ? `Compte ${saved.username} connecté. Votre progression est sauvegardée.` : 'Vous êtes déconnecté. Votre progression reste sauvegardée sur votre compte.');
   },
@@ -161,7 +153,7 @@ const onlinePlayers = new OnlinePlayersPanel(async () => {
   const saved = career.currentProfile ?? await career.restore()
     ?? await career.ensure(el<HTMLInputElement>('name-input').value.trim() || 'Pilote');
   return { token: career.authToken, playerId: saved.id };
-});
+}, snapshot => homeMenu.setPresence(snapshot));
 const tournamentControls = new TournamentControls((type, payload) => room?.send(type, payload));
 const raceFeedback = new RaceFeedback();
 const partyUi = new PartyUi({
@@ -172,22 +164,44 @@ const partyUi = new PartyUi({
 });
 const trackEditor: TrackEditor = new TrackEditor({
   getPlayerId: () => career.currentProfile?.id ?? '',
+  canModerateTracks: () => career.currentProfile?.canModerateTracks === true,
   list: async () => { const tracks = await listCustomTracks(); refreshTrackCards(); return tracks; },
   save: async (draft, previous) => { await ensureCareer(); return saveCustomTrack(draft, career.authToken, previous); },
-  onSaved: record => { previewTrack(customTrackRuntimeId(record)); refreshTrackCards(); },
+  remove: record => deleteCustomTrack(record.id, record.revision, career.authToken),
+  onDeleted: () => refreshTrackCards(),
+  onSaved: record => { chooseTrack(customTrackRuntimeId(record)); refreshTrackCards(); },
   onTry: async (draft, selection) => {
     if (!await connect('practice', selection, draft)) throw new Error('Connexion à l’entraînement impossible. Réessayez.');
     editorPractice = true; el('leave-button').textContent = 'Retour à l’éditeur';
   },
 });
+// A catalogue response can arrive after the player has made a new choice.
+// Only restore the saved custom track while that initial choice is untouched.
+let trackChoiceRevision = 0;
+function chooseTrack(id: string) { ++trackChoiceRevision; previewTrack(id); }
+const trackPicker = new TrackPicker({
+  getSelected: () => chosenTrack,
+  onSelect: id => { if (!busy && !room) chooseTrack(id); },
+  onRefresh: async () => { await listCustomTracks(); refreshTrackCards(); },
+  onCreate: () => { void openTrackEditor(); },
+});
 function refreshTrackCards() {
-  el('track-cards').innerHTML = trackCards(chosenTrack);
-  el('track-catalog-count').textContent = `${getAvailableTracks().length} CIRCUITS. VOTRE TERRAIN DE JEU.`;
+  if (!room && chosenTrack.startsWith('custom-') && !getAvailableTracks().some(track => track.id === chosenTrack)) {
+    // Preserve a newer published revision when one exists; a deleted circuit
+    // returns to an official track instead of leaving an unusable home choice.
+    const logical = chosenTrack.replace(/-v\d+$/, '');
+    const replacement = getAvailableTracks().find(track => track.id.replace(/-v\d+$/, '') === logical);
+    chooseTrack(replacement?.id ?? 'lagon');
+  }
+  trackPicker.refresh();
 }
+trackPicker.setLoading(true);
 const catalogReady = listCustomTracks().then(() => {
-  if (!room && isTrackId(savedTrackChoice)) previewTrack(savedTrackChoice);
+  if (!room && trackChoiceRevision === 0 && getAvailableTracks().some(track => track.id === savedTrackChoice)) previewTrack(savedTrackChoice);
   refreshTrackCards();
-}).catch(() => { toast('Les créations des joueurs sont momentanément indisponibles. Vous pouvez actualiser les circuits.'); });
+}).catch(() => {
+  trackPicker.setError('Créations indisponibles pour le moment. Les circuits officiels restent accessibles. Réessayez avec Actualiser.');
+}).finally(() => trackPicker.setLoading(false));
 
 
 function setSavedName(name: string) {
@@ -206,21 +220,24 @@ async function ensureCareer(): Promise<PlayerProfile> {
   return saved;
 }
 
-function previewTrack(id: string) {
+function previewTrack(id: string, persist = true) {
   const track = getTrack(id);
   chosenTrack = track.id;
-  localStorage.setItem('lagon-track', chosenTrack);
+  if (persist) localStorage.setItem('lagon-track', chosenTrack);
   renderer.setPreviewTrack(chosenTrack);
-  el('track-cards').innerHTML = trackCards(chosenTrack);
+  trackPicker.refresh();
   el('track-name').textContent = track.name;
+  el('track-name').title = track.name;
+  el('home-track-outline').innerHTML = trackOutline(track);
+  el('home-track-outline').style.color = track.palette.accent;
   el('track-number').textContent = track.id.startsWith('custom-') ? '✎' : String(getAvailableTracks().findIndex(option => option.id === track.id) + 1).padStart(2, '0');
   el('track-description').textContent = track.description;
   const laps = getTrackLapCount(track.id);
   el('track-tags').innerHTML = `<span>${escape(track.difficulty.toUpperCase())}</span><span>⚑ ${laps} TOUR${laps > 1 ? 'S' : ''}</span>`;
-  el('home-circuit-picker').dataset.theme = track.theme;
+  el('island-card').dataset.theme = track.theme;
   document.body.dataset.theme = track.theme;
 }
-previewTrack(chosenTrack);
+previewTrack(chosenTrack, false);
 
 function toast(message: string) {
   el('toast').textContent = message; el('toast').classList.remove('hidden');
@@ -231,7 +248,7 @@ function connection(text: string, state: 'online' | 'offline' | 'pending') {
 }
 function setBusy(value: boolean) {
   busy = value;
-  for (const id of ['create-button', 'join-button', 'practice-button', 'track-editor-button', 'track-refresh-button']) el<HTMLButtonElement>(id).disabled = value;
+  for (const id of ['create-button', 'join-button', 'practice-button', 'track-editor-button', 'choose-track-button']) el<HTMLButtonElement>(id).disabled = value;
 }
 function profile() {
   chosenName = el<HTMLInputElement>('name-input').value.trim().slice(0, 18) || 'Pilote';
@@ -254,6 +271,7 @@ function errorMessage(error: unknown) {
 
 function attachRoom(next: Room) {
   room = next; connected = true; reconnecting = false; leaving = false; resetPrediction();
+  raceProfileBaseline = undefined;
   saveSession(); history.replaceState(null, '', `/room/${encodeURIComponent(next.roomId)}`);
   connection('En ligne', 'online'); el('reconnect').classList.add('hidden');
   el('leave-button').classList.remove('hidden');
@@ -298,6 +316,9 @@ function attachRoom(next: Room) {
     updateUI(now, true);
   });
   next.onMessage('notice', (notice: { message: string }) => toast(notice.message));
+  next.onMessage('profile-updated', () => {
+    if (room === next) void career.refresh().catch(() => {});
+  });
   next.onError((_code, message) => toast(message || 'Le serveur a signalé une erreur.'));
   next.onLeave((code) => {
     if (room !== next || leaving) return;
@@ -313,7 +334,9 @@ async function connect(mode: 'create' | 'join' | 'practice', workshop?: TrackWor
   audio.activate(); setBusy(true); connection('Connexion…', 'pending');
   try {
     await career.cancelQueue();
-    await catalogReady;
+    // Official circuits can start while the community catalogue loads. A saved
+    // custom choice needs its definition before we can create the room.
+    if (savedTrackChoice.startsWith('custom-') && trackChoiceRevision === 0) await catalogReady;
     await ensureCareer();
     const options = { ...profile(), token: career.authToken }; autoPractice = mode === 'practice';
     const code = el<HTMLInputElement>('code-input').value.trim().replace(/^.*\/room\//, '').replace(/[/?#].*$/, '').toUpperCase();
@@ -357,41 +380,36 @@ function returnHome() {
   editorPractice = false; el('leave-button').textContent = 'Quitter le salon';
   connection('Prêt à rouler', 'offline'); el('reconnect').classList.add('hidden'); el('leave-button').classList.add('hidden');
   history.replaceState(null, '', '/'); updateUI(performance.now(), true);
+  void career.refresh().catch(() => {});
+  void listCustomTracks().then(() => refreshTrackCards()).catch(() => {});
 }
 
 el('name-input').addEventListener('input', () => { nameEdited = true; });
 el('name-input').addEventListener('change', () => {
   void ensureCareer().then(() => onlinePlayers.refresh()).catch(error => toast(errorMessage(error)));
 });
-el('garage-button').addEventListener('click', () => { if (!busy) void ensureCareer().then(() => garage.open()).catch(error => toast(error.message)); });
-el('career-button').addEventListener('click', () => { if (!busy) void ensureCareer().then(saved => career.open(saved.name)).catch(error => toast(error.message)); });
+el('garage-button').addEventListener('click', () => {
+  if (!busy && !room) void ensureCareer().then(() => {
+    if (!busy && !room && homeMenu.currentView === 'play' && !document.querySelector('dialog[open]')) garage.open();
+  }).catch(error => toast(error.message));
+});
+el('career-button').addEventListener('click', () => {
+  const canShow = () => !busy && !room && homeMenu.currentView === 'options' && !document.querySelector('dialog[open]');
+  if (canShow()) void ensureCareer().then(saved => career.open(saved.name, false, canShow)).catch(error => toast(error.message));
+});
 el('lobby-garage-button').addEventListener('click', () => { if (connected && world?.phase === 'lobby') garage.open(); });
 el('create-button').addEventListener('click', () => void connect('create'));
 el('join-button').addEventListener('click', () => void connect('join'));
 el('practice-button').addEventListener('click', () => void connect('practice'));
-el('track-editor-button').addEventListener('click', async () => {
+async function openTrackEditor() {
   if (busy || room) return;
   setBusy(true);
   try { await career.cancelQueue(); await ensureCareer(); trackEditor.open(); }
   catch (error) { toast(errorMessage(error)); }
   finally { setBusy(false); }
-});
-el('choose-track-button').addEventListener('click', () => {
-  el('home-circuit-picker').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
-  el<HTMLButtonElement>('track-cards').querySelector<HTMLButtonElement>('[data-track].selected')?.focus({ preventScroll: true });
-});
-el('track-refresh-button').addEventListener('click', async () => {
-  if (busy || room) return;
-  setBusy(true);
-  try { await listCustomTracks(); refreshTrackCards(); toast('La liste des circuits est à jour.'); }
-  catch (error) { toast(errorMessage(error)); }
-  finally { setBusy(false); }
-});
-
-el('track-cards').addEventListener('click', event => {
-  const button = event.target instanceof Element ? event.target.closest<HTMLButtonElement>('[data-track]') : null;
-  if (button && !busy) previewTrack(button.dataset.track!);
-});
+}
+el('track-editor-button').addEventListener('click', () => void openTrackEditor());
+el('choose-track-button').addEventListener('click', () => { if (!busy && !room) trackPicker.open(); });
 el('code-input').addEventListener('keydown', event => { if (event.key === 'Enter') void connect('join'); });
 el('swatches').addEventListener('click', event => {
   const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-color]');
@@ -474,8 +492,8 @@ function updateUI(now: number, force = false) {
   roomInvitation.update(room?.roomId ?? null);
   const phase = world?.phase ?? 'home';
   const racing = phase === 'racing' || phase === 'countdown';
-  show('menu', !racing); show('home-panel', phase === 'home'); show('island-card', phase === 'home');
-  show('home-circuit-picker', phase === 'home');
+  show('menu', !racing); show('home-panel', phase === 'home');
+  homeMenu.setVisible(phase === 'home');
   show('lobby-panel', phase === 'lobby'); show('results-panel', phase === 'finished'); show('race-hud', racing);
   show('screen-wash', !racing);
   document.body.classList.toggle('in-race', racing);
@@ -583,7 +601,14 @@ function updateUI(now: number, force = false) {
     el('event-banner').textContent = interaction?.title ?? event.title;
     el('event-banner').title = interaction?.description ?? event.description;
   }
-  if (phase !== previousPhase && phase === 'finished') void career.refresh().catch(() => {});
+  if (phase !== previousPhase && phase === 'racing') raceProfileBaseline = career.currentProfile?.stats.races;
+  if (phase !== previousPhase && phase === 'finished') {
+    const receivesProgression = !!me?.playerId && !me.spectator && !world?.crown && !world?.workshop;
+    const minimumRaces = receivesProgression ? (raceProfileBaseline ?? career.currentProfile?.stats.races ?? 0) + 1 : undefined;
+    // Persistence finishes after the first results snapshot. A bounded refresh
+    // also survives leaving the room before its profile-updated notification.
+    void career.refresh({ minimumRaces }).catch(() => {});
+  }
   if (phase !== previousPhase) {
     if (!(previousPhase === 'countdown' && phase === 'racing')) clearControls();
     if (!racing) { el('menu').scrollTop = 0; if (phase === 'lobby') document.querySelector('.lobby-scroll')!.scrollTop = 0; }

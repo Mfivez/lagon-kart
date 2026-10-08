@@ -1,0 +1,50 @@
+TAP version 13
+# Subtest: figure eight derives a real bridge with full road-width clearance and smooth, closed approaches
+ok 1 - figure eight derives a real bridge with full road-width clearance and smooth, closed approaches
+  ---
+  duration_ms: 31.365927
+  ...
+# Subtest: three intersecting routes stack cumulatively, retaining clearance above an already elevated floor
+ok 2 - three intersecting routes stack cumulatively, retaining clearance above an already elevated floor
+  ---
+  duration_ms: 12.403191
+  ...
+# Subtest: authored bridges, jump ramps and loops compose with the automatic floors
+ok 3 - authored bridges, jump ramps and loops compose with the automatic floors
+  ---
+  duration_ms: 23.610677
+  ...
+# Subtest: a high authored ramp keeps bridge boundaries when no additional crossing height is needed
+ok 4 - a high authored ramp keeps bridge boundaries when no additional crossing height is needed
+  ---
+  duration_ms: 8.105007
+  ...
+# Subtest: width and crossing angle determine the tunnel span
+ok 5 - width and crossing angle determine the tunnel span
+  ---
+  duration_ms: 6.465887
+  ...
+# Subtest: layer hints choose the right floor even when the other route is closer in plan view
+ok 6 - layer hints choose the right floor even when the other route is closer in plan view
+  ---
+  duration_ms: 13.357051
+  ...
+# Subtest: saved sources and JSON imports reproduce the same floors without mutating the draft
+ok 7 - saved sources and JSON imports reproduce the same floors without mutating the draft
+  ---
+  duration_ms: 14.30192
+  ...
+# Subtest: 128 points and coincident creative anchors stay finite and do not manufacture bridges on an oval
+ok 8 - 128 points and coincident creative anchors stay finite and do not manufacture bridges on an oval
+  ---
+  duration_ms: 205.859094
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 344.210544

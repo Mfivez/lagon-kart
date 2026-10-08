@@ -1,16 +1,17 @@
-import { COLORS, TOTAL_LAPS, BASE_RACE_SECONDS, getTrackLapCount, getTrackRaceTimeLimit, getTrack, nearestTrack, spawnPoint, trackPoint, trackSurface, trackElevation, trackJumpAt, type Surface } from './track.js';
+import { COLORS, TOTAL_LAPS, BASE_RACE_SECONDS, getTrackLapCount, getTrackRaceTimeLimit, getTrack, nearestTrack, spawnPoint, trackPoint, trackSurface, trackElevation, baseTrackElevation, trackJumpAt, type Surface } from './track.js';
 import { createTournament, type TournamentState } from './tournament.js';
 import { DEFAULT_KART_MODEL, normalizeKartModelId, type KartModelId } from './kart-catalog.js';
 import { DEFAULT_CHARACTER, normalizeCharacterId, type CharacterId } from './characters.js';
 import { DEFAULT_BUILD, normalizeBuild, getKartStats, type KartBuild } from './garage.js';
 import { nearestDriveableTrack, dynamicSurface, constrainTrackEvent, trackEventPickups, eventRoutePoint, eventCheckpointGates, getTrackEvent, trackBoundaryGap } from './track-events.js';
 import { TRACK_SHOULDER, KART_COLLISION_HEIGHT, trackBoundaryHeight, trackBoundaryShoulder, driveableGroundHeight } from './obstacle-heights.js';
-import { kartLoopPose, trackLoopAt, trackLoopPose, type LoopVector } from './track-loop.js';
+import { kartLoopPose, kartLoopRoadPosition, loopLateralLimit, trackLoopAt, trackLoopPose, type LoopVector } from './track-loop.js';
 import { freshRaceFun, railResponse, captureFunMovement, updateRaceFun, recoveryItemWeights, noteItemDraw,
   armTeamRelay, resolveTeamRelays, resetWorldFun, resetRaceFun, interruptRaceFun, type RaceFunFeedback } from './race-fun.js';
 import { startCrown, beforeCrownStep, stepCrown, crownProtected, onCrownAttack, type CrownState } from './crown.js';
 import type { PartyState, RaceHighlight } from './party.js';
 import type { TrackWorkshopSelection } from './custom-tracks.js';
+import { automaticTrackElevation } from './track-crossings.js';
 import { resetTrackInteractions, triggerTrackInteractions, applyInteractionSurface, interactionLaunchSpeed,
   type TrackInteractionState } from './track-interactions.js';
 export { CHECKPOINTS, COLORS, ROAD_WIDTH, TOTAL_LAPS, TRACK, TRACK_LENGTH, TRACKS, TRACK_IDS,
@@ -33,6 +34,8 @@ export interface Kart {
   launchFault: boolean; draftCharge: number; draftCooldown: number;
   driftCharge: number; boost: number; stun: number; lap: number; nextCheckpoint: number;
   progress: number; finished: boolean; finishTime: number; rank: number; item: Item;
+  /** Surface coordinate for prediction and stacked crossings, independent of validated race progress. */
+  routeProgress?: number; respawnProgress?: number;
   itemCharges: number; invincible: number; shield: number; hitGrace: number;
   ready: boolean; connected: boolean; spectator: boolean; abandoned: boolean; lastSeq: number; epoch: number;
   driftDirection: number; lateralVelocity: number; respawnX: number; respawnZ: number;
@@ -43,8 +46,9 @@ export interface Kart {
 export interface WorldObject {
   id: string; kind: 'trap' | 'projectile' | 'seeker' | 'leaderBolt';
   x: number; z: number; angle: number; owner: string; ttl: number; targetId?: string;
+  progress?: number; elevation?: number;
 }
-export interface Pickup { id: string; x: number; z: number; cooldown: number }
+export interface Pickup { id: string; x: number; z: number; cooldown: number; progress?: number; elevation?: number }
 export interface World {
   phase: 'lobby' | 'countdown' | 'racing' | 'finished'; players: Kart[];
   objects: WorldObject[]; pickups: Pickup[]; hostId: string; practice: boolean;
@@ -87,12 +91,13 @@ export function validateInput(data: unknown): Input | null {
 export function createKart(id: string, name: string, color: string, index: number, trackId = 'lagon', modelId: string = DEFAULT_KART_MODEL, build: KartBuild = DEFAULT_BUILD, characterId: string = DEFAULT_CHARACTER): Kart {
   trackId = getTrack(trackId).id;
   const spawn = spawnPoint(index, trackId);
+  const spawnProgress = -6 - Math.floor(index / 2) * 5;
   return { id, name, color: COLORS.includes(color) ? color : COLORS[index % COLORS.length]!,
     modelId: normalizeKartModelId(modelId), characterId: normalizeCharacterId(characterId), build: normalizeBuild(build, 3), playerId: '', careerLevel: 0,
     eventStage: 0, eventLevel: 0, team: index % 2 as 0 | 1, cpu: false,
-    ...spawn, elevation: trackElevation(nearestTrack(spawn.x, spawn.z, trackId).progress, trackId), verticalVelocity: 0, airborne: false, loopId: '',
+    ...spawn, elevation: trackElevation(spawnProgress, trackId), verticalVelocity: 0, airborne: false, loopId: '',
     speed: 0, driftCharge: 0, boost: 0, stun: 0, lap: 0, nextCheckpoint: 1,
-    progress: -6 - Math.floor(index / 2) * 5, finished: false, finishTime: 0, rank: index + 1,
+    progress: spawnProgress, routeProgress: spawnProgress, respawnProgress: spawnProgress, finished: false, finishTime: 0, rank: index + 1,
     item: '', itemCharges: 0, invincible: 0, shield: 0, hitGrace: 0,
     ready: false, connected: true, spectator: false, abandoned: false, lastSeq: -1, epoch: 0,
     driftDirection: 0, lateralVelocity: 0, respawnX: spawn.x, respawnZ: spawn.z,
@@ -118,9 +123,10 @@ export function createWorld(practice = false, trackId = 'lagon'): World {
 
 function makePickups(trackId: string): Pickup[] {
   return [0.12, 0.36, 0.62, 0.84].flatMap((fraction, row) => {
-    const point = trackPoint(fraction * getTrack(trackId).length, trackId);
+    const progress = fraction * getTrack(trackId).length, point = trackPoint(progress, trackId);
     return [-3.6, 0, 3.6].map((offset, column) => ({ id: `pickup-${row}-${column}`,
-      x: point.x + Math.cos(point.angle) * offset, z: point.z - Math.sin(point.angle) * offset, cooldown: 0 }));
+      x: point.x + Math.cos(point.angle) * offset, z: point.z - Math.sin(point.angle) * offset,
+      progress, elevation: trackElevation(progress, trackId), cooldown: 0 }));
   });
 }
 
@@ -152,7 +158,8 @@ export function resetKart(kart: Kart): void {
     const gates = eventCheckpointGates(track.id, previousCheckpoint, kart.eventStage, kart.eventLevel);
     const detour = event.branches.find(branch => branch.kind === 'detour' && branch.open);
     const replacement = detour && gates.find(gate => gate.branchId === detour.id);
-    const respawn = nearestDriveableTrack(kart.respawnX, kart.respawnZ, track.id, kart.eventStage, kart.eventLevel);
+    const respawn = nearestDriveableTrack(kart.respawnX, kart.respawnZ, track.id, kart.eventStage, kart.eventLevel,
+      { progress: kart.respawnProgress });
     const alreadyOnBranch = Boolean(respawn.branchId) || gates.some(gate => gate.branchId &&
       Math.hypot(kart.respawnX - gate.x - Math.sin(gate.angle) * 2, kart.respawnZ - gate.z - Math.cos(gate.angle) * 2) < 3);
     if (replacement && detour && !alreadyOnBranch && respawn.progress > detour.start && respawn.progress < detour.end) {
@@ -162,12 +169,15 @@ export function resetKart(kart: Kart): void {
       kart.respawnX = replacement.x + Math.sin(replacement.angle) * 2;
       kart.respawnZ = replacement.z + Math.cos(replacement.angle) * 2;
       kart.respawnAngle = replacement.angle;
+      kart.respawnProgress = replacement.progress + 2;
     }
   }
   kart.x = kart.respawnX;
   kart.z = kart.respawnZ;
   kart.angle = kart.respawnAngle;
-  const ground = nearestDriveableTrack(kart.x, kart.z, kart.trackId, kart.eventStage, kart.eventLevel);
+  const ground = nearestDriveableTrack(kart.x, kart.z, kart.trackId, kart.eventStage, kart.eventLevel,
+    { progress: kart.respawnProgress });
+  kart.routeProgress = ground.progress;
   kart.elevation = trackElevation(ground.progress, kart.trackId);
   kart.verticalVelocity = 0;
   kart.airborne = false;
@@ -182,8 +192,19 @@ export function resetKart(kart: Kart): void {
   kart.turnVelocity = 0;
   kart.draftCharge = 0;
   interruptRaceFun(kart);
-  kart.surface = dynamicSurface(kart.x, kart.z, kart.trackId, kart.eventStage, kart.eventLevel).surface;
+  kart.surface = dynamicSurface(kart.x, kart.z, kart.trackId, kart.eventStage, kart.eventLevel, ground).surface;
   // Keep padLaps and its cooldown: a reset never renews the same pad's reward.
+}
+
+function driveableKartPosition(kart: Kart): ReturnType<typeof nearestDriveableTrack> {
+  const loopRoad = kartLoopRoadPosition(kart);
+  return loopRoad ? { ...loopRoad, width: getTrack(kart.trackId).width, branchId: '',
+    surface: trackSurface(kart.x, kart.z, kart.trackId, loopRoad).surface }
+    : nearestDriveableTrack(kart.x, kart.z, kart.trackId, kart.eventStage, kart.eventLevel, routeHint(kart));
+}
+
+function routeHint(kart: Kart): { progress?: number; elevation: number } {
+  return { progress: kart.routeProgress ?? kart.progress, elevation: kart.elevation };
 }
 
 // Only deterministic movement belongs here, so clients can replay acknowledged
@@ -204,11 +225,11 @@ export function stepKart(kart: Kart, input: Input, dt: number): void {
   kart.shield = Math.max(0, kart.shield - dt);
   kart.hitGrace = Math.max(0, kart.hitGrace - dt);
   const track = getTrack(kart.trackId);
-  const position = nearestDriveableTrack(kart.x, kart.z, track.id, kart.eventStage, kart.eventLevel);
-  const possibleLoop = !position.branchId && !kart.airborne && position.distance <= position.width / 2 + TRACK_SHOULDER
+  const position = driveableKartPosition(kart);
+  const possibleLoop = !position.branchId && !kart.airborne
     ? trackLoopAt(position.progress, track.id) : undefined;
   const currentLoop = possibleLoop && (kart.loopId === possibleLoop.id ||
-    (trackElevation(position.progress, track.id) < .75 && Math.abs(kart.elevation - trackElevation(position.progress, track.id)) < .75))
+    (position.distance <= position.width / 2 + TRACK_SHOULDER && baseTrackElevation(position.progress, track) < .75 && Math.abs(kart.elevation - trackElevation(position.progress, track.id)) < .75))
     ? possibleLoop : undefined;
   kart.loopId = currentLoop?.id ?? '';
   const loopPose = currentLoop ? trackLoopPose(position.progress, track.id) : undefined;
@@ -259,9 +280,20 @@ export function stepKart(kart: Kart, input: Input, dt: number): void {
   const grip = track.grip * stats.grip * (ice ? 0.38 : mud ? 0.85 : 1);
   const turn = steer * stats.handling * steerPower * (drifting ? 1.35 : 1) * Math.sign(kart.speed);
   kart.turnVelocity += (turn - kart.turnVelocity) * Math.min(1, dt * 11 * grip);
-  kart.angle += kart.turnVelocity * dt;
+  if (loopPose) {
+    // Steer within the ribbon's local frame: holding a direction changes lane
+    // without spinning across the road when the camera rolls upside down.
+    // Letting go gently aligns the kart with the road; throttle still controls
+    // all forward/reverse motion, including a complete stop on the ceiling.
+    const yaw = Math.atan2(Math.sin(kart.angle - position.angle), Math.cos(kart.angle - position.angle));
+    const target = steer * .52 * steerPower;
+    const alignmentRate = Math.abs(steer) < .05 ? 10 : 7;
+    const assisted = yaw + (target - yaw) * (1 - Math.exp(-alignmentRate * dt));
+    kart.turnVelocity = dt > 0 ? (assisted - yaw) / dt : 0;
+    kart.angle = position.angle + assisted;
+  } else kart.angle += kart.turnVelocity * dt;
   kart.angle = Math.atan2(Math.sin(kart.angle), Math.cos(kart.angle));
-  const sideways = (drifting ? -steer * Math.min(kart.speed * 0.24, 7) : ice ? -steer * Math.min(kart.speed * 0.1, 4) : 0) / stats.stability;
+  const sideways = loopPose ? 0 : (drifting ? -steer * Math.min(kart.speed * 0.24, 7) : ice ? -steer * Math.min(kart.speed * 0.1, 4) : 0) / stats.stability;
   kart.lateralVelocity += (sideways - kart.lateralVelocity) * Math.min(1, dt * 5 * grip);
   if (loopPose) {
     // Preserve steering and sideways motion while converting forward velocity
@@ -269,24 +301,30 @@ export function stepKart(kart: Kart, input: Input, dt: number): void {
     const difference = kart.angle - position.angle;
     const along = (Math.cos(difference) * kart.speed - Math.sin(difference) * kart.lateralVelocity) * loopPose.speedScale;
     const across = Math.sin(difference) * kart.speed + Math.cos(difference) * kart.lateralVelocity;
-    kart.x += (Math.sin(position.angle) * along + Math.cos(position.angle) * across) * dt;
-    kart.z += (Math.cos(position.angle) * along - Math.sin(position.angle) * across) * dt;
+    const progress = position.progress + along * dt, point = trackPoint(progress, track.id);
+    const lateral = (kart.x - position.x) * Math.cos(position.angle) - (kart.z - position.z) * Math.sin(position.angle) + across * dt;
+    kart.x = point.x + Math.cos(point.angle) * lateral;
+    kart.z = point.z - Math.sin(point.angle) * lateral;
+    kart.angle = Math.atan2(Math.sin(point.angle + difference), Math.cos(point.angle + difference));
+    kart.routeProgress = progress;
+    constrainLoopRail(kart, dt);
   } else {
     kart.x += (Math.sin(kart.angle) * kart.speed + Math.cos(kart.angle) * kart.lateralVelocity) * dt;
     kart.z += (Math.cos(kart.angle) * kart.speed - Math.sin(kart.angle) * kart.lateralVelocity) * dt;
   }
-  const next = nearestDriveableTrack(kart.x, kart.z, track.id, kart.eventStage, kart.eventLevel);
+  const next = driveableKartPosition(kart);
+  kart.routeProgress = next.progress;
   const possibleNextLoop = !next.branchId && !kart.airborne && next.distance <= next.width / 2 + TRACK_SHOULDER
     ? trackLoopAt(next.progress, track.id) : undefined;
   const nextLoop = possibleNextLoop && (currentLoop?.id === possibleNextLoop.id ||
-    (trackElevation(next.progress, track.id) < .75 && Math.abs(kart.elevation - trackElevation(next.progress, track.id)) < .75))
+    (baseTrackElevation(next.progress, track) < .75 && Math.abs(kart.elevation - trackElevation(next.progress, track.id)) < .75))
     ? possibleNextLoop : undefined;
   if (nextLoop) {
     kart.loopId = nextLoop.id;
     kart.elevation = trackElevation(next.progress, track.id);
     kart.verticalVelocity = 0;
   } else kart.loopId = '';
-  const ground = driveableGroundHeight(next, track.id, kart.elevation);
+  const ground = nextLoop ? trackElevation(next.progress, track.id) : driveableGroundHeight(next, track.id, kart.elevation);
   const ramp = trackJumpAt(position.progress, track.id);
   const forward = (next.progress - position.progress + track.length) % track.length;
   // Launch only when physically crossing the lip in the forward direction.
@@ -296,7 +334,7 @@ export function stepKart(kart: Kart, input: Input, dt: number): void {
     kart.airborne = false;
   } else if (!kart.airborne && ramp && next.progress > ramp.end && forward < 15 &&
       kart.speed > 8 && position.distance <= position.width / 2 + TRACK_SHOULDER) {
-    kart.airborne = true; kart.elevation = ramp.height;
+    kart.airborne = true; kart.elevation = ramp.height + automaticTrackElevation(ramp.end, track);
     kart.verticalVelocity = interactionLaunchSpeed(ramp.id, track.id, kart.interactions, kart.interactionTime ?? 0) ?? ramp.launchSpeed ?? 6;
   } else if (!kart.airborne && kart.elevation > ground + .5) {
     kart.airborne = true; kart.verticalVelocity = 0;
@@ -306,18 +344,64 @@ export function stepKart(kart: Kart, input: Input, dt: number): void {
     kart.verticalVelocity -= 20 * dt;
     if (kart.elevation <= ground) { kart.elevation = ground; kart.verticalVelocity = 0; kart.airborne = false; }
   } else { kart.elevation = ground; kart.verticalVelocity = 0; }
+  constrainCrossingCeiling(kart, previousElevation);
   constrainToTrack(kart, { x: previousX, z: previousZ, elevation: previousElevation }, dt);
   const constrained = constrainTrackEvent(kart.x, kart.z, previousX, previousZ, kart.speed, kart.trackId, kart.eventStage, kart.eventLevel,
     { previous: previousElevation, current: kart.elevation });
   kart.x = constrained.x; kart.z = constrained.z; kart.speed = constrained.speed;
-  const correctedGround = driveableGroundHeight(nearestDriveableTrack(kart.x, kart.z, track.id, kart.eventStage, kart.eventLevel), track.id, kart.elevation);
+  const correctedRoad = driveableKartPosition(kart);
+  kart.routeProgress = correctedRoad.progress;
+  const correctedGround = kart.loopId ? trackElevation(correctedRoad.progress, track.id) : driveableGroundHeight(correctedRoad, track.id, kart.elevation);
   if (kart.elevation <= correctedGround) { kart.elevation = correctedGround; kart.verticalVelocity = 0; kart.airborne = false; }
 }
 
+/** A jump under an automatic overpass meets the underside of its real deck. */
+function constrainCrossingCeiling(kart: Kart, previousElevation: number): void {
+  const track = getTrack(kart.trackId);
+  if (!kart.airborne || !track.crossings?.length) return;
+  for (const crossing of track.crossings) {
+    const radius = Math.max(crossing.upperProgress - crossing.upperStart, crossing.upperEnd - crossing.upperProgress) + track.width / 2 + TRACK_SHOULDER;
+    if ((kart.x - crossing.x) ** 2 + (kart.z - crossing.z) ** 2 > radius * radius) continue;
+    const road = nearestTrack(kart.x, kart.z, track.id,
+      { progress: crossing.upperProgress, elevation: trackElevation(crossing.upperProgress, track.id) });
+    const delta = ((road.progress - crossing.upperProgress + track.length / 2) % track.length + track.length) % track.length - track.length / 2;
+    if (delta < crossing.upperStart - crossing.upperProgress || delta > crossing.upperEnd - crossing.upperProgress ||
+        road.distance > track.width / 2 + trackBoundaryShoulder(road.progress, track.id)) continue;
+    const ceiling = trackElevation(road.progress, track.id) - crossing.deckThickness;
+    if (previousElevation < ceiling && kart.elevation < ceiling + crossing.deckThickness && kart.elevation + KART_COLLISION_HEIGHT > ceiling) {
+      kart.elevation = ceiling - KART_COLLISION_HEIGHT;
+      kart.verticalVelocity = Math.min(0, kart.verticalVelocity);
+    }
+  }
+}
+
+/** Loop rails are measured along the magnetic surface, never against world Y.
+ * This runs before adhesion is updated and after kart-to-kart pushes. */
+function constrainLoopRail(kart: Kart, dt: number): boolean {
+  const road = kartLoopRoadPosition(kart);
+  if (!road) return false;
+  const lateral = (kart.x - road.x) * Math.cos(road.angle) - (kart.z - road.z) * Math.sin(road.angle);
+  const limit = loopLateralLimit(kart.trackId);
+  if (Math.abs(lateral) > limit) {
+    const side = Math.sign(lateral), across = side * limit;
+    kart.x = road.x + Math.cos(road.angle) * across;
+    kart.z = road.z - Math.sin(road.angle) * across;
+    const yaw = Math.atan2(Math.sin(kart.angle - road.angle), Math.cos(kart.angle - road.angle));
+    // Slide along the rail instead of repeatedly rotating into it and stopping.
+    kart.angle = road.angle + yaw * Math.exp(-12 * dt);
+    kart.turnVelocity *= .35; kart.lateralVelocity = 0;
+    kart.speed *= Math.exp(-.3 * dt);
+    kart.fun = { ...(kart.fun ?? freshRaceFun()), wallSeconds: Math.min(2, (kart.fun?.wallSeconds ?? 0) + dt * 1.6) };
+    if (kart.fun.wallSeconds > .22) { kart.boost = 0; kart.driftCharge = 0; }
+  }
+  return true;
+}
+
 function constrainToTrack(kart: Kart, before: { x: number; z: number; elevation: number }, dt = 1 / 30): void {
+  if (constrainLoopRail(kart, dt)) return;
   const at = (fraction: number) => {
     const x = before.x + (kart.x - before.x) * fraction, z = before.z + (kart.z - before.z) * fraction;
-    const near = nearestDriveableTrack(x, z, kart.trackId, kart.eventStage, kart.eventLevel);
+    const near = nearestDriveableTrack(x, z, kart.trackId, kart.eventStage, kart.eventLevel, routeHint(kart));
     const distance = near.distance - near.width / 2 - trackBoundaryShoulder(near.progress, kart.trackId, near.branchId);
     return { x, z, near, distance };
   };
@@ -361,7 +445,7 @@ function random(world: World): number {
   return world.seed / 0x100000000;
 }
 
-function advanceCheckpoint(kart: Kart, before: { x: number; z: number }, world: World): void {
+function advanceCheckpoint(kart: Kart, before: { x: number; z: number; elevation: number }, world: World): void {
   const track = getTrack(world.trackId);
   const checkpoints = track.checkpoints;
   const epsilon = 1e-7;
@@ -385,6 +469,16 @@ function advanceCheckpoint(kart: Kart, before: { x: number; z: number }, world: 
       const crossZ = before.z + (kart.z - before.z) * fraction;
       const across = (crossX - gate.x) * dz - (crossZ - gate.z) * dx;
       if (Math.abs(across) > gate.width / 2 + TRACK_SHOULDER + epsilon) continue;
+      if (track.crossings?.length) {
+        const elevation = before.elevation + (kart.elevation - before.elevation) * fraction;
+        const road = nearestDriveableTrack(crossX, crossZ, track.id, kart.eventStage, kart.eventLevel,
+          { progress: kart.routeProgress ?? kart.progress, elevation });
+        const delta = Math.abs(road.progress - gate.progress);
+        // Gates are attached to their road, not an infinite vertical plane.
+        // Continuity still permits an ordinary jump over this same gate.
+        if (Math.min(delta, track.length - delta) > gate.width / 2 + 10) continue;
+        if (!kart.airborne && Math.abs(elevation - trackElevation(gate.progress, track.id)) > KART_COLLISION_HEIGHT) continue;
+      }
       if (!crossing || fraction < crossing.fraction) crossing = { gate, fraction };
     }
     if (!crossing) break;
@@ -393,6 +487,7 @@ function advanceCheckpoint(kart: Kart, before: { x: number; z: number }, world: 
     kart.respawnX = gate.x + Math.sin(gate.angle) * 2;
     kart.respawnZ = gate.z + Math.cos(gate.angle) * 2;
     kart.respawnAngle = gate.angle;
+    kart.respawnProgress = gate.progress + 2;
     if (kart.nextCheckpoint === 0) {
       kart.lap++;
       if (!kart.crownMode && kart.lap >= getTrackLapCount(track.id)) {
@@ -406,7 +501,7 @@ function advanceCheckpoint(kart: Kart, before: { x: number; z: number }, world: 
     kart.nextCheckpoint = (kart.nextCheckpoint + 1) % checkpoints.length;
   }
   if (!kart.finished) {
-    const near = nearestDriveableTrack(kart.x, kart.z, track.id, kart.eventStage, kart.eventLevel);
+    const near = nearestDriveableTrack(kart.x, kart.z, track.id, kart.eventStage, kart.eventLevel, routeHint(kart));
     // Bound ranking to the checkpoint interval already validated. Driving back
     // over the finish, skipping a gate or resetting cannot manufacture a lap.
     const last = kart.nextCheckpoint === 0 ? checkpoints.length - 1 : kart.nextCheckpoint - 1;
@@ -474,6 +569,7 @@ function useItem(world: World, kart: Kart): void {
       world.objects.push({ id: `${world.round}-${kart.id}-${Math.floor(world.time * 1000)}-${world.seed}`,
         kind: kart.item, x: kart.x + Math.sin(kart.angle) * distance,
         z: kart.z + Math.cos(kart.angle) * distance, angle: kart.angle, owner: kart.id,
+        progress: kart.routeProgress ?? kart.progress, elevation: kart.elevation,
         ttl: kart.item === 'projectile' ? 4 : kart.item === 'seeker' ? 9 : 18,
         ...(target ? { targetId: target.id } : {}) });
     }
@@ -520,7 +616,7 @@ function collideKarts(players: Kart[], world: World): void {
       }
       constrainToTrack(a, beforeA); constrainToTrack(b, beforeB);
       for (const kart of [a, b]) if (kart.loopId)
-        kart.elevation = trackElevation(nearestTrack(kart.x, kart.z, kart.trackId).progress, kart.trackId);
+        kart.elevation = trackElevation(driveableKartPosition(kart).progress, kart.trackId);
       continue;
     }
     const dx = b.x - a.x;
@@ -562,27 +658,32 @@ function collideKarts(players: Kart[], world: World): void {
 function dot3(a: LoopVector, b: LoopVector): number { return a.x * b.x + a.y * b.y + a.z * b.z; }
 function moveAlongSurface(kart: Kart, normal: LoopVector, amount: number): void {
   if (!kart.loopId) { kart.x += normal.x * amount; kart.z += normal.z * amount; return; }
-  const near = nearestTrack(kart.x, kart.z, kart.trackId), pose = trackLoopPose(near.progress, kart.trackId);
+  const near = driveableKartPosition(kart), pose = trackLoopPose(near.progress, kart.trackId);
   const along = dot3(normal, pose.tangent) * amount * pose.speedScale, across = dot3(normal, pose.right) * amount;
-  kart.x += Math.sin(near.angle) * along + Math.cos(near.angle) * across;
-  kart.z += Math.cos(near.angle) * along - Math.sin(near.angle) * across;
+  const progress = near.progress + along, point = trackPoint(progress, kart.trackId);
+  const lateral = (kart.x - near.x) * Math.cos(near.angle) - (kart.z - near.z) * Math.sin(near.angle) + across;
+  kart.x = point.x + Math.cos(point.angle) * lateral;
+  kart.z = point.z - Math.sin(point.angle) * lateral;
+  kart.angle += point.angle - near.angle;
+  kart.routeProgress = progress;
 }
 
-function objectPose(x: number, z: number, world: World): LoopVector {
-  const near = nearestDriveableTrack(x, z, world.trackId, world.eventStage, world.eventLevel);
+function objectPose(object: { x: number; z: number; progress?: number; elevation?: number }, world: World): LoopVector {
+  const { x, z } = object;
+  const near = nearestDriveableTrack(x, z, world.trackId, world.eventStage, world.eventLevel, object);
   if (!near.branchId && trackLoopAt(near.progress, world.trackId)) {
     const across = (x - near.x) * Math.cos(near.angle) - (z - near.z) * Math.sin(near.angle);
     const pose = trackLoopPose(near.progress, world.trackId, across);
     return { x: pose.x + pose.up.x * .7, y: pose.y + pose.up.y * .7, z: pose.z + pose.up.z * .7 };
   }
-  return { x, y: trackElevation(near.progress, world.trackId) + .7, z };
+  return { x, y: (object.elevation ?? trackElevation(near.progress, world.trackId)) + .7, z };
 }
 
 function stepObjects(world: World, racers: Kart[], dt: number): void {
   for (const object of world.objects) {
     object.ttl -= dt;
-    const before = { x: object.x, z: object.z };
-    const roadBefore = nearestDriveableTrack(object.x, object.z, world.trackId, world.eventStage, world.eventLevel);
+    const before = { x: object.x, z: object.z, progress: object.progress, elevation: object.elevation };
+    const roadBefore = nearestDriveableTrack(object.x, object.z, world.trackId, world.eventStage, world.eventLevel, object);
     const loopBefore = !roadBefore.branchId ? trackLoopAt(roadBefore.progress, world.trackId) : undefined;
     const move = (speed: number) => {
       const pose = loopBefore ? trackLoopPose(roadBefore.progress, world.trackId) : undefined;
@@ -593,7 +694,7 @@ function stepObjects(world: World, racers: Kart[], dt: number): void {
     };
     if (object.kind === 'projectile') {
       move(62);
-      const road = nearestDriveableTrack(object.x, object.z, world.trackId, world.eventStage, world.eventLevel);
+      const road = nearestDriveableTrack(object.x, object.z, world.trackId, world.eventStage, world.eventLevel, object);
       if (road.distance > road.width / 2 + 5) object.ttl = 0;
     } else if (object.kind === 'seeker' || object.kind === 'leaderBolt') {
       const owner = world.players.find(kart => kart.id === object.owner);
@@ -601,8 +702,9 @@ function stepObjects(world: World, racers: Kart[], dt: number): void {
       if (object.kind === 'leaderBolt' && owner) target = itemTarget(world, owner, true);
       if (!target) { object.ttl = 0; continue; }
       object.targetId = target.id;
-      const near = nearestDriveableTrack(object.x, object.z, world.trackId, world.eventStage, world.eventLevel);
-      const close = Math.hypot(target.x - object.x, target.z - object.z) < 22;
+      const near = nearestDriveableTrack(object.x, object.z, world.trackId, world.eventStage, world.eventLevel, object);
+      const close = Math.hypot(target.x - object.x, target.z - object.z) < 22 &&
+        Math.abs(target.elevation - (object.elevation ?? trackElevation(near.progress, world.trackId))) < 2.5;
       const waypoint = close ? target : eventRoutePoint(near.progress + 11, world.trackId, world.eventStage, world.eventLevel);
       const desired = Math.atan2(waypoint.x - object.x, waypoint.z - object.z);
       const turn = Math.atan2(Math.sin(desired - object.angle), Math.cos(desired - object.angle));
@@ -611,7 +713,10 @@ function stepObjects(world: World, racers: Kart[], dt: number): void {
       move(speed);
     }
     if (object.ttl <= 0) continue;
-    const from = objectPose(before.x, before.z, world), to = objectPose(object.x, object.z, world);
+    const roadAfter = nearestDriveableTrack(object.x, object.z, world.trackId, world.eventStage, world.eventLevel, object);
+    object.progress = roadAfter.progress;
+    object.elevation = trackElevation(roadAfter.progress, world.trackId);
+    const from = objectPose(before, world), to = objectPose(object, world);
     const dx = to.x - from.x, dy = to.y - from.y, dz = to.z - from.z;
     const distanceSquared = dx * dx + dy * dy + dz * dz;
     const victim = racers.find(kart => {
@@ -659,10 +764,10 @@ function chargeDraft(world: World, racers: Kart[], dt: number): void {
   for (const kart of racers) {
     kart.draftCooldown = Math.max(0, kart.draftCooldown - dt);
     const eligible = kart.connected && kart.speed > 12 && kart.stun === 0 && kart.draftCooldown === 0 &&
-      nearestTrack(kart.x, kart.z, kart.trackId).distance <= getTrack(kart.trackId).width / 2;
+      nearestTrack(kart.x, kart.z, kart.trackId, routeHint(kart)).distance <= getTrack(kart.trackId).width / 2;
     const leader = eligible ? racers.find(leader => {
       if (leader === kart || !leader.connected || leader.speed < 12 || leader.stun > 0 || leader.trackId !== kart.trackId ||
-          Math.cos(leader.angle - kart.angle) < .9) return false;
+          Math.cos(leader.angle - kart.angle) < .9 || Math.abs(leader.elevation - kart.elevation) > KART_COLLISION_HEIGHT) return false;
       const dx = leader.x - kart.x;
       const dz = leader.z - kart.z;
       const forward = dx * Math.sin(kart.angle) + dz * Math.cos(kart.angle);
@@ -705,20 +810,20 @@ export function stepWorld(world: World, inputs: Map<string, Input>, dt: number):
   const racers = world.players.filter(kart => !kart.spectator && !kart.finished && !kart.abandoned);
   chargeDraft(world, racers, dt);
   if (world.crown) beforeCrownStep(world);
-  const previousPositions = new Map<string, { x: number; z: number }>();
+  const previousPositions = new Map<string, { x: number; z: number; elevation: number }>();
   const funPositions = new Map<string, ReturnType<typeof captureFunMovement>>();
   const resets = new Set<string>();
   for (const kart of racers) {
     const input = kart.connected ? inputs.get(kart.id) ?? neutralInput() : neutralInput();
     kart.interactions = world.interactions; kart.interactionTime = world.time - dt;
     funPositions.set(kart.id, captureFunMovement(kart));
-    previousPositions.set(kart.id, { x: kart.x, z: kart.z });
+    previousPositions.set(kart.id, { x: kart.x, z: kart.z, elevation: kart.elevation });
     // A reset teleports to a validated checkpoint and must never cross a gate.
     const resetTriggered = input.reset && !kart.resetLatch && kart.resetCooldown <= dt;
     stepKart(kart, input, dt);
     if (resetTriggered) resets.add(kart.id);
     else triggerTrackInteractions(world, kart, previousPositions.get(kart.id)!.x, previousPositions.get(kart.id)!.z);
-    if (resetTriggered) previousPositions.set(kart.id, { x: kart.x, z: kart.z });
+    if (resetTriggered) previousPositions.set(kart.id, { x: kart.x, z: kart.z, elevation: kart.elevation });
     if (input.use && !kart.itemLatch) useItem(world, kart);
     kart.itemLatch = input.use;
   }
@@ -731,7 +836,8 @@ export function stepWorld(world: World, inputs: Map<string, Input>, dt: number):
   for (const pickup of world.pickups) {
     pickup.cooldown = Math.max(0, pickup.cooldown - dt);
     if (pickup.cooldown > 0) continue;
-    const kart = racers.find(player => player.connected && !player.finished && !player.item && Math.hypot(player.x - pickup.x, player.z - pickup.z) < 2.8);
+    const kart = racers.find(player => player.connected && !player.finished && !player.item && Math.hypot(player.x - pickup.x, player.z - pickup.z) < 2.8 &&
+      Math.abs(player.elevation - (pickup.elevation ?? trackElevation(pickup.progress ?? nearestTrack(pickup.x, pickup.z, world.trackId).progress, world.trackId))) < 2.8);
     if (kart) { awardItem(world, kart); pickup.cooldown = 7; }
   }
   const ordered = standings(world);

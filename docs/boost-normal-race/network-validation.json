@@ -1,0 +1,209 @@
+{
+  "startedAt": "2026-10-07T20:16:14.804Z",
+  "finishedAt": "2026-10-07T20:16:34.084Z",
+  "origin": "https://yoga-unlikely-div-converted.trycloudflare.com",
+  "roomId": "FRWN7N",
+  "result": "passed",
+  "failure": "",
+  "stoppedBecause": "sufficient naturally collected pad and item acceleration evidence",
+  "kind": "public-Colyseus-network",
+  "method": {
+    "circuit": "lagon",
+    "practice": false,
+    "ranked": false,
+    "humanSdkClients": 2,
+    "authentication": "anonymous; no account or token created",
+    "controls": "Ordinary bounded autopilot inputs at 30 Hz after the real countdown, including use commands for naturally collected inventory.",
+    "stateInjection": false,
+    "observer": "Authoritative snapshots received by the first SDK client."
+  },
+  "measurements": {
+    "maximumSpeedMetresPerSecond": 46,
+    "maximumBoostSeconds": 5.5,
+    "naturallyObservedItems": [
+      "trap",
+      "star",
+      "turbo"
+    ],
+    "activations": [
+      {
+        "source": "pad",
+        "id": "lagon-boost-0",
+        "driver": "uOLqG6RQL",
+        "lap": 0,
+        "raceTime": 3.3333333333333313,
+        "before": {
+          "speed": 43.13077834437055,
+          "boost": 0,
+          "surface": "road",
+          "stun": 0,
+          "item": "",
+          "itemCharges": 0
+        },
+        "firstObserved": {
+          "speed": 46,
+          "boost": 1.05,
+          "surface": "boost",
+          "stun": 0,
+          "item": "",
+          "itemCharges": 0
+        },
+        "maximumBoostedSpeed": 46,
+        "observedThroughRaceTime": 5.833333333333322
+      },
+      {
+        "source": "pad",
+        "id": "lagon-boost-0",
+        "driver": "Pb1-PGvjU",
+        "lap": 0,
+        "raceTime": 3.3666666666666645,
+        "before": {
+          "speed": 45.98223702404759,
+          "boost": 0.5666666666666662,
+          "surface": "road",
+          "stun": 0,
+          "item": "",
+          "itemCharges": 0
+        },
+        "firstObserved": {
+          "speed": 45.98774953685803,
+          "boost": 1.05,
+          "surface": "boost",
+          "stun": 0,
+          "item": "",
+          "itemCharges": 0
+        },
+        "maximumBoostedSpeed": 46,
+        "observedThroughRaceTime": 5.833333333333322
+      },
+      {
+        "source": "item",
+        "id": "turbo",
+        "driver": "Pb1-PGvjU",
+        "lap": 0,
+        "raceTime": 7.966666666666648,
+        "before": {
+          "speed": 32,
+          "boost": 0,
+          "surface": "road",
+          "stun": 0,
+          "item": "turbo",
+          "itemCharges": 1
+        },
+        "firstObserved": {
+          "speed": 32,
+          "boost": 2.2,
+          "surface": "road",
+          "stun": 0,
+          "item": "",
+          "itemCharges": 0
+        },
+        "maximumBoostedSpeed": 46,
+        "observedThroughRaceTime": 10.46666666666664
+      },
+      {
+        "source": "item",
+        "id": "turbo",
+        "driver": "Pb1-PGvjU",
+        "lap": 0,
+        "raceTime": 9.466666666666644,
+        "before": {
+          "speed": 46,
+          "boost": 0.7333333333333313,
+          "surface": "road",
+          "stun": 0,
+          "item": "turbo",
+          "itemCharges": 1
+        },
+        "firstObserved": {
+          "speed": 46,
+          "boost": 2.2,
+          "surface": "road",
+          "stun": 0,
+          "item": "",
+          "itemCharges": 0
+        },
+        "maximumBoostedSpeed": 46,
+        "observedThroughRaceTime": 11.933333333333302
+      },
+      {
+        "source": "pad",
+        "id": "lagon-boost-2",
+        "driver": "Pb1-PGvjU",
+        "lap": 0,
+        "raceTime": 12.799999999999965,
+        "before": {
+          "speed": 32,
+          "boost": 0,
+          "surface": "road",
+          "stun": 0,
+          "item": "",
+          "itemCharges": 0
+        },
+        "firstObserved": {
+          "speed": 34.266666666666666,
+          "boost": 1.05,
+          "surface": "boost",
+          "stun": 0,
+          "item": "",
+          "itemCharges": 0
+        },
+        "maximumBoostedSpeed": 43.33333333333333,
+        "observedThroughRaceTime": 12.933333333333298
+      }
+    ],
+    "finalPhase": "racing",
+    "finalRaceSeconds": 12.933333333333298,
+    "players": [
+      {
+        "id": "uOLqG6RQL",
+        "lap": 0,
+        "finished": false,
+        "progress": 379.97665143079195
+      },
+      {
+        "id": "Pb1-PGvjU",
+        "lap": 0,
+        "finished": false,
+        "progress": 433.9654984180435
+      }
+    ],
+    "clients": [
+      {
+        "snapshots": 347,
+        "commands": 382,
+        "connectionClosed": true
+      },
+      {
+        "snapshots": 337,
+        "commands": 382,
+        "connectionClosed": true
+      }
+    ]
+  },
+  "initialHealth": {
+    "status": "ok",
+    "rooms": 1,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "finalHealth": {
+    "status": "ok",
+    "rooms": 1,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "notices": [],
+  "errors": [],
+  "limits": [
+    "SDK clients, not browser input or rendering validation.",
+    "Random draws may not produce both turbo and tripleTurbo; only observed activations are claimed.",
+    "The before sample is the preceding received snapshot; maximum speed is sampled over the following 2.5 seconds while boost remains positive.",
+    "Pad, item and aspiration effects may overlap; event speed windows are observational, not isolated source benchmarks.",
+    "Other rooms are neither inspected nor modified; global health room counts can include concurrent users."
+  ]
+}

@@ -1,6 +1,46 @@
 # Validation de Lagon Kart
 
-Vérifications des 6 et 7 octobre 2026 dans WSL/Linux avec Docker Desktop 4.55.0, Docker Engine 29.1.3, Compose 2.40.3, Node 20.19.2 sur l'hôte et Node 22.21.1 dans l'image. Les résultats ci-dessous distinguent simulation, clients réseau automatisés et navigateur ; chaque lot conserve ses preuves et sa date.
+Vérifications du 6 au 8 octobre 2026 dans WSL/Linux avec Docker Desktop 4.55.0, Docker Engine 29.1.3, Compose 2.40.3, Node 20.19.2 sur l'hôte et Node 22.21.1 dans l'image. Les résultats ci-dessous distinguent simulation, clients réseau automatisés et navigateur ; chaque lot conserve ses preuves et sa date.
+
+## 8 octobre 2026 — suppression et modération des circuits
+
+Suppression depuis la bibliothèque de l’éditeur, par l’auteur ou le compte de connexion Admin. Droits calculés côté serveur, indépendants du pseudo affiché. Confirmation nom/auteur, brouillon conservé, catalogue réconcilié et suppression persistante ; les versions historiques restent utilisables par les replays et courses/tournois déjà engagés. [Fonctionnement et captures](docs/track-deletion/README.md).
+
+- **485/485 tests**, aucun test ignoré, **92,007 s**, dans un conteneur sans volume joueur. Permissions, persistance, conflits, pannes d’écriture et maintien des courses vérifiés. Cette suite précède uniquement le dernier correctif UI déverrouillant les boutons après publication/essai. [Rapport](docs/track-deletion/unit-validation.json).
+- **8 groupes navigateur** réussis sur le build final `index-D77iRu6s.js`, avec **5 captures**, zéro erreur JavaScript, clavier et tactile 320 px. L’échec initial de verrouillage est conservé dans un rapport séparé, puis le parcours complet a été rejoué. [Résultats](docs/track-deletion/browser-validation.json).
+- Déploiement sans salon actif ; **50 fichiers de données identiques avant/après**, propriété `canModerateTracks` du compte `admin` réel vérifiée. Aucun compte ou circuit réel supprimé pour les tests. [Déploiement](docs/track-deletion/deployment.json).
+- L’ancien tunnel temporaire était expiré (`Tunnel not found`, nom DNS absent) avant le déploiement. Seul le service tunnel a été relancé. [Nouveau lien de cette session](https://dec-automatically-shell-makers.trycloudflare.com). Health, catalogue et bundles HTTPS vérifiés ; deux clients anonymes synchronisés par WSS, sans départ de course ni replay. [Contrôle réseau](docs/track-deletion/public-network.json).
+
+Deux contrôles Chromium en lecture seule du nouveau tunnel passent à 1366 × 768 et 320 × 568, sans erreur JavaScript. [Rapport public](docs/track-deletion/public-browser/validation.json).
+
+Téléphone physique et Safari iOS restent à vérifier. Les suppressions fonctionnelles ont été testées sur des comptes et circuits temporaires isolés.
+
+## 7 octobre 2026 — conduite et collisions dans les loopings
+
+Direction stabilisée dans le repère du ruban, maintien de la carrosserie avant les rails, caméra alignée avec la route et chevrons de direction. Les modules de looping superposés ou jointifs forment une boucle continue sans modifier leurs sources ni leurs sélections d’essai. [Correctif, protocole et captures avant/après](docs/loop-driving/README.md).
+
+- **473/473 tests** réussis en **117,397 s**, sans test ignoré, dans un conteneur sans volume joueur. Collisions, sauts au-dessus des murs bas, étages, tours et 22 nouveaux cas de loopings compris. [Rapport](docs/loop-driving/unit-validation.json).
+- **6 parcours SDK et 2 parcours navigateur réels** réussis en course normale, sur deux circuits officiels et une création privée : braquage maintenu, turbo, clavier et joystick tactile. Zéro détachement, sommet et sortie atteints. **15 captures finales**, zéro erreur JS ou asset manquant. Les fixtures de départ et pauses de capture sont explicitement documentées ; ces essais ciblés ne sont pas présentés comme des courses complètes. [Rapport](docs/loop-driving/after/validation.json).
+- Build TypeScript/Vite/serveur et image Docker réussis. Déploiement sans salon actif ; **49 fichiers de données identiques avant/après**, tunnel conservé et bundles publics identiques. [Déploiement](docs/loop-driving/deployment.json).
+
+Deux contrôles Chromium en lecture seule du client déployé passent sur le tunnel à 1366 × 768 et 320 × 568, sans erreur JS. [Rapport public](docs/loop-driving/public-browser/validation.json).
+
+Course publique HTTPS/WSS complète : **2/2 pilotes anonymes, trois tours, 125,17 s simulées, six loopings**, aucun détachement, 2 493 snapshots concordants. Catalogue inchangé, aucun profil/MMR modifié ; seul le replay normal de la course de test est ajouté. Connexions fermées, zéro salon restant. [Rapport](docs/loop-driving/public-validation.json).
+
+Téléphones physiques, Safari iOS et performances GPU restent à vérifier ; les essais graphiques utilisent Chromium/SwiftShader et les clients tournent sur une seule machine.
+
+## 7 octobre 2026 — navigation de l’accueil et catalogue de circuits
+
+L’accueil utilise quatre vues Jouer, Pilote, En ligne et Options. Le circuit actif reste visible avec les actions et le classement. Le catalogue possède recherche, filtres, pagination et confirmation explicite. Les réglages sont déplacés entre accueil et salon sans duplication de contrôles. [Fonctionnement et captures avant/après](docs/home-navigation/README.md).
+
+- **13 groupes navigateur**, six tailles de 320 × 568 à 1827 × 860, dont 568 × 320 : écran Jouer sans scroll, 44 circuits dont 32 créations privées aux noms de 48 caractères, choix conservé, erreur réseau, chargement tardif, clavier/tactile et salons normaux. Une réduction à 320 × 260 vérifie le défilement de secours, sans simuler un véritable clavier système. [Rapport](docs/home-navigation/browser-validation.json).
+- **33 tests ciblés** passent : 17 catalogue/présence, 9 client carrière, 7 serveur carrière. Un test retient la sauvegarde après le premier état finished et vérifie que le signal de mise à jour n’arrive qu’après persistance. [Catalogue/présence](docs/home-navigation/unit-validation.json) · [Synchronisation MMR](docs/home-navigation/ranked/profile-refresh-tests.json).
+- **6 parcours classés/QR/comptes** passent à deux profils avec zéro erreur JS. L’arrivée seule est accélérée par une fixture sur serveur privé ; aucune progression publique modifiée. Le MMR affiché est identique à celui du serveur après résultat, départ du salon et reconnexion au compte. [Rapport](docs/home-navigation/ranked/browser-validation.json).
+- Build TypeScript/Vite/serveur et image Docker réussis. Déploiement à zéro salon ; **49 fichiers** comparés avant/après, empreintes identiques, tunnel conservé et assets HTTPS identiques aux assets locaux. [Déploiement](docs/home-navigation/deployment.json).
+
+Deux contrôles navigateur du tunnel passent à 1366 × 768 et 320 × 568, en lecture seule avec identité de test existante : grade/MMR, choix de circuit et navigation, sans erreur JavaScript. [Rapport public](docs/home-navigation/public/validation.json).
+
+La suite complète de physique n’a pas été rejouée pour cette refonte. Téléphone physique, Safari iOS, clavier système et performances GPU réelles restent à vérifier.
 
 ## 7 octobre 2026 — accueil classé et ergonomie
 

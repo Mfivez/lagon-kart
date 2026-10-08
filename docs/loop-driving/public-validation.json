@@ -1,0 +1,187 @@
+{
+  "passed": true,
+  "startedAt": "2026-10-07T21:43:13.125Z",
+  "finishedAt": "2026-10-07T21:45:23.725Z",
+  "origin": "https://yoga-unlikely-div-converted.trycloudflare.com",
+  "roomId": "5M6HGW",
+  "checks": [
+    "Deux clients anonymes reliés par HTTPS/WSS, course normale sky, départ après compte à rebours.",
+    "Six passages complets, braquage neutre puis droite et gauche ; adhérence et corps contenus entre les rails.",
+    "Trois tours terminés par les deux pilotes, snapshots autoritaires identiques aux mêmes ticks sur les deux clients.",
+    "Replay anonyme de cette vraie course enregistré automatiquement par le serveur ; identifiant conservé dans le rapport.",
+    "Catalogue public inchangé avant/après ; les deux connexions de test sont fermées."
+  ],
+  "errors": [],
+  "failure": "",
+  "method": {
+    "sdkClients": 2,
+    "trackId": "sky",
+    "practice": false,
+    "ranked": false,
+    "eventLevel": 0,
+    "controlsHz": 30,
+    "authentication": "anonymous; no profile or account created",
+    "stateInjection": false,
+    "resets": false,
+    "itemUse": false,
+    "steeringByLap": [
+      0,
+      0.35,
+      -0.35
+    ],
+    "outsideLoop": "ordinary autopilot commands with reset disabled",
+    "persistence": "No profile, MMR or circuit publication. The normal server race completion may save its anonymous replay."
+  },
+  "measurements": {
+    "sharedSnapshots": 2493,
+    "mismatchedSnapshots": 0,
+    "maximumLateral": 15.750000000000012,
+    "bodyLateralLimit": 15.75,
+    "maximumElevation": 31.999717868909794,
+    "detachedSnapshots": 0,
+    "airborneLoopSnapshots": 0,
+    "passages": [
+      {
+        "driver": "qYfEDtq37",
+        "lap": 0,
+        "steering": 0,
+        "enteredAt": 1.633333333333335,
+        "attachedSnapshots": 87,
+        "minimumFraction": 0.001095901500586427,
+        "maximumFraction": 0.9969768040476485,
+        "maximumLateral": 0.06247736811449742,
+        "maximumElevation": 31.999717868909794,
+        "inverted": true,
+        "exited": true,
+        "exitedAt": 5.9999999999999885
+      },
+      {
+        "driver": "e-XMkRYVg",
+        "lap": 0,
+        "steering": 0,
+        "enteredAt": 1.8333333333333357,
+        "attachedSnapshots": 86,
+        "minimumFraction": 0.011827189015146754,
+        "maximumFraction": 0.9888977918099761,
+        "maximumLateral": 0.0153233029907702,
+        "maximumElevation": 31.997015036290232,
+        "inverted": true,
+        "exited": true,
+        "exitedAt": 6.133333333333321
+      },
+      {
+        "driver": "qYfEDtq37",
+        "lap": 1,
+        "steering": 0.35,
+        "enteredAt": 38.83333333333369,
+        "attachedSnapshots": 164,
+        "minimumFraction": 0.005208428571451074,
+        "maximumFraction": 0.9936050358464472,
+        "maximumLateral": 15.750000000000012,
+        "maximumElevation": 31.99618390678902,
+        "inverted": true,
+        "exited": true,
+        "exitedAt": 47.09999999999989
+      },
+      {
+        "driver": "e-XMkRYVg",
+        "lap": 1,
+        "steering": 0.35,
+        "enteredAt": 38.900000000000354,
+        "attachedSnapshots": 167,
+        "minimumFraction": 0.0008018750302128756,
+        "maximumFraction": 0.9925235667645076,
+        "maximumLateral": 15.750000000000012,
+        "maximumElevation": 31.99965952901096,
+        "inverted": true,
+        "exited": true,
+        "exitedAt": 47.299999999999876
+      },
+      {
+        "driver": "qYfEDtq37",
+        "lap": 2,
+        "steering": -0.35,
+        "enteredAt": 82.26666666666456,
+        "attachedSnapshots": 162,
+        "minimumFraction": 0.01697188839298502,
+        "maximumFraction": 0.9913959269360509,
+        "maximumLateral": 15.750000000000012,
+        "maximumElevation": 31.998395789613866,
+        "inverted": true,
+        "exited": true,
+        "exitedAt": 90.43333333333076
+      },
+      {
+        "driver": "e-XMkRYVg",
+        "lap": 2,
+        "steering": -0.35,
+        "enteredAt": 82.2999999999979,
+        "attachedSnapshots": 167,
+        "minimumFraction": 0.000021712470371721802,
+        "maximumFraction": 0.9982880183552689,
+        "maximumLateral": 15.750000000000012,
+        "maximumElevation": 31.992612175828267,
+        "inverted": true,
+        "exited": true,
+        "exitedAt": 90.73333333333075
+      }
+    ],
+    "finalPhase": "finished",
+    "raceTime": 125.16666666666212,
+    "replayId": "f3cd1287-e52d-45b5-a4c2-c3e7797dac0a",
+    "players": [
+      {
+        "id": "e-XMkRYVg",
+        "lap": 3,
+        "finished": true,
+        "finishTime": 125.16666666666212,
+        "rank": 2
+      },
+      {
+        "id": "qYfEDtq37",
+        "lap": 3,
+        "finished": true,
+        "finishTime": 125.09999999999546,
+        "rank": 1
+      }
+    ],
+    "clients": [
+      {
+        "snapshots": 2571,
+        "inputs": 3751,
+        "connectionClosed": true
+      },
+      {
+        "snapshots": 2566,
+        "inputs": 3750,
+        "connectionClosed": true
+      }
+    ]
+  },
+  "catalogue": {
+    "unchanged": true,
+    "beforeHash": "8f094664699ae0bc479412c67295d8db6199fcf2ca38fdd1858ac7c166394049",
+    "afterHash": "8f094664699ae0bc479412c67295d8db6199fcf2ca38fdd1858ac7c166394049"
+  },
+  "healthBefore": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "healthAfter": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "notices": [],
+  "limits": [
+    "SDK network validation; no browser rendering or physical phone controls tested here.",
+    "Containment is checked at authoritative snapshot intervals; deterministic unit tests cover every simulation step."
+  ]
+}

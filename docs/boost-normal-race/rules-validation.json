@@ -1,0 +1,72 @@
+{
+  "executedAt": "2026-10-07T20:16:12.897Z",
+  "command": "node --import tsx scripts/boost-rules-check.ts",
+  "result": "passed",
+  "kind": "shared-simulation",
+  "method": {
+    "circuit": "neon",
+    "players": 2,
+    "laps": 3,
+    "stepSeconds": 0.03333333333333333,
+    "eventLevel": 3,
+    "modes": [
+      {
+        "name": "normal",
+        "practice": false,
+        "ranked": false
+      },
+      {
+        "name": "practice-flag",
+        "practice": true,
+        "ranked": false
+      },
+      {
+        "name": "ranked-flag",
+        "practice": false,
+        "ranked": true
+      }
+    ],
+    "controls": "Same bounded ordinary inputs in all worlds: throttle during the final 0.8 seconds of countdown, then the existing autopilot with item use enabled.",
+    "parity": "Deep equality of all public player fields after every simulation step.",
+    "stateChanges": "Initial world creation and normal startRace only; no position, inventory, boost, progress or result injection during the race."
+  },
+  "measurements": {
+    "phase": "finished",
+    "raceSimulationSeconds": 73.9333333333317,
+    "ticksIncludingCountdown": 2308,
+    "boostedPlayerTicks": 833,
+    "maxSpeedMetresPerSecond": 46,
+    "distinctTriggeredPads": [
+      "neon-boost-0",
+      "neon-boost-2"
+    ],
+    "naturallyObservedItems": [
+      "trap",
+      "projectile",
+      "turbo",
+      "shield",
+      "tripleTurbo",
+      "seeker"
+    ],
+    "finishedPlayers": 2,
+    "playerLaps": [
+      {
+        "id": "p0",
+        "laps": 3
+      },
+      {
+        "id": "p1",
+        "laps": 3
+      }
+    ],
+    "practiceAndRankedFlagParity": true
+  },
+  "limits": [
+    "Pure shared simulation, not a browser or Colyseus/network test.",
+    "The practice-flag world deliberately retains two drivers for identical state comparison; a real practice room admits only one human.",
+    "The ranked-flag world does not exercise matchmaking, ranked admission or MMR persistence.",
+    "Observed item names mean naturally held inventory, not an independently measured activation count for each item.",
+    "Boosted player ticks combine all active boost sources; this measurement does not distinguish their individual contributions.",
+    "The autopilot does not deliberately drift; this reproduction does not independently validate a human mini-turbo gesture."
+  ]
+}

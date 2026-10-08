@@ -3,6 +3,7 @@ import { buildSceneryWorld } from './scenery-world';
 import { BRIDGE_RAIL_THICKNESS, BRIDGE_RAIL_CENTER_Y, BRIDGE_SHOULDER } from '../shared/obstacle-heights';
 import { trackElevation, trackPoint, type TrackDefinition, type TrackElevation } from '../shared/track';
 import { trackBoundaryGap } from '../shared/track-events';
+import { crossingSupportClear } from './track-crossings';
 
 // Original scenery plus the optional Kenney CC0 tree; no external runtime requests.
 // Materials survive track changes; geometry belongs to this group and can be batched/disposed.
@@ -77,7 +78,8 @@ export function buildTrackExtras(track: TrackDefinition, eventStage = 0, eventLe
         beam(bridge, structural, foot, railA, BRIDGE_RAIL_THICKNESS);
         if (i % 2 === 0 && a.y > 1.3) {
           const post = roadPosition(aProgress, offset, -.45);
-          box(bridge, structural, post.x, (post.y - 1.4) / 2, post.z, 1.2, post.y + 1.4, 1.2);
+          if (crossingSupportClear(track, post.x, post.z, -1.4, post.y))
+            box(bridge, structural, post.x, (post.y - 1.4) / 2, post.z, 1.2, post.y + 1.4, 1.2);
           if (track.theme === 'harbor' || track.theme === 'foundry')
             beam(bridge, trim, roadPosition(aProgress, offset, .2), roadPosition(bProgress, offset, BRIDGE_RAIL_CENTER_Y), .18);
         }
@@ -98,6 +100,8 @@ export function buildTrackExtras(track: TrackDefinition, eventStage = 0, eventLe
       const progress = feature.start + (feature.end - feature.start) * (i + .5) / steps;
       const p = trackPoint(progress, track.id), y = trackElevation(progress, track.id);
       for (const side of [-1, 1]) {
+        const sx = p.x + Math.cos(p.angle) * side * (track.width / 2 + .9), sz = p.z - Math.sin(p.angle) * side * (track.width / 2 + .9);
+        if (!crossingSupportClear(track, sx, sz, 0, y - .7)) continue;
         const support = box(ramp, structural, p.x + Math.cos(p.angle) * side * (track.width / 2 + .9),
           y / 2, p.z - Math.sin(p.angle) * side * (track.width / 2 + .9), 1.1, Math.max(.05, y), 2.1);
         support.rotation.y = p.angle;

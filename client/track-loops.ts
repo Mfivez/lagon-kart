@@ -61,6 +61,25 @@ function surface(track: TrackDefinition, loop: TrackLoop, from: number, to: numb
   const geometry = new THREE.BufferGeometry(); geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
   geometry.setIndex(indices); geometry.computeVertexNormals(); return geometry;
 }
+/** Small road markings keep the direction readable when the inverted road
+ * fills a portrait screen. All chevrons share one draw call per looping. */
+function directionMarkers(track: TrackDefinition, loop: TrackLoop) {
+  const positions: number[] = [], indices: number[] = [];
+  for (let progress = loop.start + 1; progress < loop.end - 1;) {
+    const scale = trackLoopPose(progress, track.id).speedScale;
+    const length = Math.min(.9 * scale, (loop.end - progress) / 2);
+    const base = positions.length / 3;
+    for (const [lateral, along] of [[-.9, 0], [0, length], [.9, 0], [.9, -.25 * length], [0, .6 * length], [-.9, -.25 * length]]) {
+      const pose = trackLoopPose(progress + along, track.id, lateral);
+      positions.push(pose.x + pose.up.x * .12, pose.y + pose.up.y * .12, pose.z + pose.up.z * .12);
+    }
+    for (const index of [0, 1, 4, 0, 4, 5, 1, 2, 3, 1, 3, 4]) indices.push(base + index);
+    progress += Math.max(.5, Math.min(4, 7 * scale));
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setIndex(indices); geometry.computeVertexNormals(); return geometry;
+}
 let signMaterial: THREE.SpriteMaterial | undefined;
 function sign() {
   if (!signMaterial) {
@@ -81,6 +100,8 @@ export function buildLoopStructures(track: TrackDefinition): THREE.Group {
     const halfWidth = track.width / 2;
     const road = new THREE.Mesh(surface(track, loop, -halfWidth, halfWidth, .05, 1), material(track.palette.road));
     road.name = 'loop-road'; road.receiveShadow = true; road.castShadow = true; group.add(road);
+    const markers = new THREE.Mesh(directionMarkers(track, loop), material('#c8f6e9', true));
+    markers.name = 'loop-direction-markers'; group.add(markers);
     const underside = new THREE.Mesh(surface(track, loop, -halfWidth - 5, halfWidth + 5, -.9), material('#455b68'));
     underside.name = 'loop-deck-underside'; underside.receiveShadow = true; underside.castShadow = true; group.add(underside);
     for (const side of [-1, 1]) {

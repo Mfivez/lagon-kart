@@ -1,3 +1,4 @@
+import { automaticTrackElevation, type TrackCrossing } from './track-crossings.js';
 export const TRACK_LAYOUT_REVISION = 2;
 export interface TrackLoop { id: string; start: number; end: number; height: number; lateralSpread: number }
 export type TrackLapEventKind = 'clear' | 'rain' | 'snow' | 'ash' | 'storm' | 'boost' | 'ice' | 'mud';
@@ -37,6 +38,8 @@ export interface TrackDefinition {
   zones: TrackZone[];
   elevations: TrackElevation[];
   loops: TrackLoop[];
+  /** Derived layered intersections for user-created roads; absent on ordinary tracks. */
+  crossings?: TrackCrossing[];
   /** Omitted by historical tracks; three laps remain the default. */
   lapCount?: number;
   lapEvents?: TrackLapEvent[];
@@ -227,6 +230,13 @@ export const TRACKS: TrackDefinition[] = [
 ];
 const customTracks = new Map<string, TrackDefinition>();
 const latestCustomTracks = new Map<string, { revision: number; track: TrackDefinition }>();
+const retiredCustomTracks = new Set<string>();
+/** Retire a catalogue entry without discarding immutable race/replay geometry. */
+export function retireCustomTrackDefinition(logicalId: string): void {
+  if (!/^custom-[a-z0-9-]{1,64}$/.test(logicalId)) return;
+  retiredCustomTracks.add(logicalId);
+  latestCustomTracks.delete(logicalId);
+}
 // Ephemeral definitions are usable by their owning room, never by catalogue
 // selection, matchmaking or tournament validation through isTrackId().
 const previewTracks = new Map<string, TrackDefinition>();
@@ -248,7 +258,7 @@ export function registerTrackDefinition(track: TrackDefinition, logicalId: strin
   const result = existing ?? track;
   customTracks.set(track.id, result);
   const latest = latestCustomTracks.get(logicalId);
-  if (!latest || revision > latest.revision) latestCustomTracks.set(logicalId, { revision, track: result });
+  if (!retiredCustomTracks.has(logicalId) && (!latest || revision > latest.revision)) latestCustomTracks.set(logicalId, { revision, track: result });
   return result;
 }
 export function getAvailableTracks(): TrackDefinition[] {
@@ -258,10 +268,9 @@ export function isTrackId(id: unknown): id is TrackId {
   return typeof id === 'string' && ((TRACK_IDS as readonly string[]).includes(id) || customTracks.has(id));
 }
 export function getTrack(id = 'lagon'): TrackDefinition { return previewTracks.get(id) ?? customTracks.get(id) ?? TRACKS.find(track => track.id === id) ?? TRACKS[0]!; }
-export function trackElevation(progress: number, trackId = 'lagon'): number {
-  const track = getTrack(trackId);
-  const remainder = progress % track.length;
-  const wrapped = remainder < 0 ? remainder + track.length : remainder;
+/** Original relief, before derived crossing offsets. Kept independent of registration. */
+export function baseTrackElevation(progress: number, track: TrackDefinition): number {
+  const wrapped = ((progress % track.length) + track.length) % track.length;
   const loop = track.loops.find(loop => wrapped >= loop.start && wrapped <= loop.end);
   if (loop) return loop.height * Math.sin(Math.PI * (wrapped - loop.start) / (loop.end - loop.start)) ** 2;
   const feature = track.elevations.find(feature => wrapped >= feature.start && wrapped <= feature.end);
@@ -271,13 +280,18 @@ export function trackElevation(progress: number, trackId = 'lagon'): number {
   const t = Math.max(0, Math.min(1, (wrapped - feature.start) / ramp, (feature.end - wrapped) / ramp));
   return feature.height * t * t * (3 - 2 * t);
 }
+export function trackElevation(progress: number, trackId = 'lagon'): number {
+  const track = getTrack(trackId);
+  return baseTrackElevation(progress, track) + automaticTrackElevation(progress, track);
+}
 export function trackSlope(progress: number, trackId = 'lagon'): number {
   const track = getTrack(trackId);
-  const remainder = progress % track.length;
-  const wrapped = remainder < 0 ? remainder + track.length : remainder;
+  const wrapped = ((progress % track.length) + track.length) % track.length;
   const feature = track.elevations.find(feature => wrapped >= feature.start && wrapped <= feature.end);
-  if (!feature) return 0;
-  if (feature.kind === 'jump') return feature.height / (feature.end - feature.start);
+  if (!track.crossings?.length) {
+    if (!feature) return 0;
+    if (feature.kind === 'jump') return feature.height / (feature.end - feature.start);
+  }
   return (trackElevation(progress + .1, trackId) - trackElevation(progress - .1, trackId)) / .2;
 }
 /** Ramp geometry only; caller decides speed/direction and crossing of end. */
@@ -301,22 +315,45 @@ function pointOnTrack(progress: number, track: TrackDefinition): Vec2 & { angle:
 export function trackPoint(progress: number, trackId = 'lagon'): Vec2 & { angle: number } {
   return pointOnTrack(progress, getTrack(trackId));
 }
-export function nearestTrack(x: number, z: number, trackId = 'lagon'): Vec2 & { distance: number; progress: number; index: number; angle: number } {
+export interface TrackPositionHint { progress?: number; elevation?: number }
+export function nearestTrack(x: number, z: number, trackId = 'lagon', hint?: TrackPositionHint): Vec2 & { distance: number; progress: number; index: number; angle: number } {
   const track = getTrack(trackId);
   const { lengths, cumulative } = arcTables.get(track)!;
   let result = { x: 0, z: 0, distance: Infinity, progress: 0, index: 0, angle: 0 };
   let bestSquared = Infinity;
+  const layered = !!track.crossings?.length && !!hint;
+  const wrappedHint = hint?.progress === undefined ? undefined : ((hint.progress % track.length) + track.length) % track.length;
   for (let i = 0; i < track.points.length; i++) {
     const a = track.points[i]!;
     const b = track.points[(i + 1) % track.points.length]!;
     const dx = b.x - a.x;
     const dz = b.z - a.z;
-    const t = Math.max(0, Math.min(1, ((x - a.x) * dx + (z - a.z) * dz) / (dx * dx + dz * dz)));
+    const segmentSquared = dx * dx + dz * dz;
+    if (segmentSquared < 1e-14) continue;
+    const t = Math.max(0, Math.min(1, ((x - a.x) * dx + (z - a.z) * dz) / segmentSquared));
     const px = a.x + dx * t;
     const pz = a.z + dz * t;
     const squared = (x - px) ** 2 + (z - pz) ** 2;
-    if (squared < bestSquared) {
-      bestSquared = squared;
+    const progress = cumulative[i]! + lengths[i]! * t;
+    let score = squared;
+    if (layered) {
+      const height = baseTrackElevation(progress, track) + automaticTrackElevation(progress, track);
+      if (hint?.elevation !== undefined) {
+        // A metre of tolerance lets the kart advance up a continuous ramp
+        // without selecting the previous, lower sample at every physics step.
+        const difference = Math.max(0, Math.abs(height - hint.elevation) - 1);
+        // A different floor must not win merely because its centreline is closer,
+        // including the editor's widest roads.
+        score += difference * difference * Math.max(16, track.width * track.width * .2);
+      }
+      if (wrappedHint !== undefined) {
+        const difference = Math.abs(progress - wrappedHint);
+        const travelled = Math.min(difference, track.length - difference);
+        score += Math.min(travelled, 80) ** 2 * .04 * Math.max(1, track.width * track.width / 324);
+      }
+    }
+    if (score < bestSquared) {
+      bestSquared = score;
       result = { x: px, z: pz, distance: Math.sqrt(squared), progress: cumulative[i]! + lengths[i]! * t,
         index: i, angle: Math.atan2(dx, dz) };
     }

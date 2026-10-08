@@ -1,0 +1,119 @@
+{
+  "passed": true,
+  "startedAt": "2026-10-07T20:29:16.142Z",
+  "finishedAt": "2026-10-07T20:30:02.916Z",
+  "origin": "http://127.0.0.1:35555",
+  "roomId": "UHK4CD",
+  "checks": [
+    "Circuit publié par API privée, source enregistrée sur disque et étages identiques après ouverture d’un nouveau store.",
+    "Deux clients SDK anonymes dans une course normale à un tour, hors entraînement et hors atelier.",
+    "Les deux pilotes passent sous le pont puis dessus, terminent le tour et reçoivent le même classement."
+  ],
+  "errors": [],
+  "notices": [],
+  "persistence": {
+    "files": 1,
+    "revision": 1,
+    "runtimeId": "custom-7d92c5e8-70c1-4fff-9c24-6c696fb2d155-v1",
+    "draftRestored": true,
+    "crossingsRestored": true
+  },
+  "passages": [
+    {
+      "driver": "Étage réseau 1",
+      "floor": "lower",
+      "raceTime": 6.066666666666655,
+      "routeProgress": 190.50833287958844,
+      "progress": 190.50833287958844,
+      "lap": 0,
+      "elevation": 0,
+      "roadHeight": 0,
+      "x": 3.7891981172922913,
+      "z": -10.804615121893583
+    },
+    {
+      "driver": "Étage réseau 2",
+      "floor": "lower",
+      "raceTime": 7.966666666666648,
+      "routeProgress": 190.95583174982545,
+      "progress": 190.95583174982545,
+      "lap": 0,
+      "elevation": 0,
+      "roadHeight": 0,
+      "x": 4.032656748950455,
+      "z": -10.42913542682083
+    },
+    {
+      "driver": "Étage réseau 1",
+      "floor": "upper",
+      "raceTime": 22.533333333333612,
+      "routeProgress": 754.9845074194294,
+      "progress": 754.9845074194294,
+      "lap": 0,
+      "elevation": 5.7,
+      "roadHeight": 5.7,
+      "x": 8.357785348698913,
+      "z": -10.219429315937797
+    },
+    {
+      "driver": "Étage réseau 2",
+      "floor": "upper",
+      "raceTime": 24.66666666666705,
+      "routeProgress": 755.6384072457173,
+      "progress": 755.6384072457173,
+      "lap": 0,
+      "elevation": 5.7,
+      "roadHeight": 5.7,
+      "x": 8.055965067542504,
+      "z": -9.638844995359353
+    }
+  ],
+  "race": {
+    "phase": "finished",
+    "practice": false,
+    "ranked": false,
+    "trackId": "custom-7d92c5e8-70c1-4fff-9c24-6c696fb2d155-v1",
+    "raceTime": 37.73333333333375,
+    "players": [
+      {
+        "name": "Étage réseau 1",
+        "lap": 1,
+        "finished": true,
+        "rank": 1,
+        "finishTime": 33.03333333333402
+      },
+      {
+        "name": "Étage réseau 2",
+        "lap": 1,
+        "finished": true,
+        "rank": 2,
+        "finishTime": 37.73333333333375
+      }
+    ]
+  },
+  "peers": [
+    {
+      "snapshots": 820,
+      "inputs": 990,
+      "closed": true
+    },
+    {
+      "snapshots": 820,
+      "inputs": 1132,
+      "closed": true
+    }
+  ],
+  "healthAfter": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 32,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "scope": "Serveur Colyseus privé sur sources partagées, profil de publication jetable et deux SDK anonymes à 30Hz. Seulement API, commandes et snapshots ; aucune mutation de la simulation. Serveur et données temporaires supprimés.",
+  "remaining": [
+    "Le rechargement persistant ouvre un nouveau store sur les fichiers, sans redémarrer le processus serveur.",
+    "Ce scénario ne mesure pas le rendu navigateur ni la latence du tunnel public."
+  ]
+}

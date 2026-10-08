@@ -1,3 +1,4 @@
+import { homeControl } from './menu-navigation.js';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -56,8 +57,8 @@ try {
   const first = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
   const page = await first.newPage(); await ready(page);
   assert.match(await page.locator('#account-card').innerText(), /Pilote invité/);
-  await page.locator('#name-input').fill('Pilote des îles');
-  await page.locator('#career-button').click(); await page.locator('#career-dialog').waitFor({ state: 'visible' });
+  await (await homeControl(page, '#name-input')).fill('Pilote des îles');
+  await (await homeControl(page, '#career-button')).click(); await page.locator('#career-dialog').waitFor({ state: 'visible' });
   const guest = await profile(page); await page.locator('#career-close').click();
   const store = await playerStore();
   await store.recordRace({ id: 'account-browser-fixture', trackId: 'lagon', ranked: false, finishedAt: Date.now(), entries: [{ playerId: guest.id, rank: 1, finished: true, finishTime: 125 }] });
@@ -66,7 +67,7 @@ try {
   evidence.fixture = { label: 'Résultat fictif appliqué au store privé : 1 victoire + coupe discovery, aucune course complète conduite.', xp: fixture.xp, careerLevel: fixture.careerLevel, championships: fixture.completedChampionships };
   record('Jeu invité conservé : un profil anonyme peut recevoir une progression avant la création du compte.');
 
-  await page.locator('[data-account="register"]').click();
+  await (await homeControl(page, '[data-account="register"]')).click();
   await credentials(page, password, 'autre-mot-de-passe'); await submit(page);
   assert.match(await page.locator('#account-error').innerText(), /différents/);
   assert.equal((await profile(page)).username, undefined);
@@ -83,7 +84,7 @@ try {
   const second = await browser.newContext({ viewport: { width: 320, height: 568 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
   const mobile = await second.newPage(); await ready(mobile);
   assert.equal(await token(mobile), '');
-  await mobile.locator('[data-account="register"]').click(); await capture(mobile, 'register-mobile-320x568.png');
+  await (await homeControl(mobile, '[data-account="register"]')).click(); await capture(mobile, 'register-mobile-320x568.png');
   const dialogBox = await mobile.locator('#account-dialog').boundingBox(); assert.ok(dialogBox);
   assert.ok(dialogBox.x >= 0 && dialogBox.x + dialogBox.width <= 321 && dialogBox.height <= 568);
   const overflow = await mobile.locator('#account-dialog').evaluate(dialog => dialog.scrollWidth > dialog.clientWidth + 1); assert.equal(overflow, false);
@@ -109,18 +110,18 @@ try {
   await noPasswordStorage(mobile); await capture(mobile, 'recovered-mobile-320x568.png');
   record('Second navigateur indépendant : connexion récupère le même nom, les XP et les déblocages ; ancienne reconnexion supprimée.');
 
-  await mobile.locator('#career-button').click(); await mobile.locator('#career-dialog').waitFor({ state: 'visible' });
+  await (await homeControl(mobile, '#career-button')).click(); await mobile.locator('#career-dialog').waitFor({ state: 'visible' });
   assert.match(await mobile.locator('#career-dialog').innerText(), /195 XP/);
   assert.match(await mobile.locator('[data-cup="discovery"]').innerText(), /✓/);
   await capture(mobile, 'career-recovered-mobile.png'); await mobile.locator('#career-close').click();
   await mobile.evaluate(() => localStorage.setItem('lagon-name', 'Nom périmé'));
   await mobile.reload({ waitUntil: 'domcontentloaded' });
   await until(async () => await mobile.locator('#name-input').inputValue() === 'Pilote des îles', 'Nom récupéré après actualisation');
-  await mobile.locator('#career-button').click(); await mobile.locator('#career-dialog').waitFor({ state: 'visible' });
+  await (await homeControl(mobile, '#career-button')).click(); await mobile.locator('#career-dialog').waitFor({ state: 'visible' });
   assert.equal((await profile(mobile)).name, 'Pilote des îles'); await mobile.locator('#career-close').click();
   record('Actualisation : compte restauré automatiquement ; un ancien nom local ne remplace jamais le nom sauvegardé.');
 
-  await mobile.locator('#create-button').click(); await mobile.locator('#lobby-panel').waitFor({ state: 'visible' });
+  await (await homeControl(mobile, '#create-button')).click(); await mobile.locator('#lobby-panel').waitFor({ state: 'visible' });
   const joined = await mobile.evaluate(() => {
     const debug = (window as unknown as { __lagonDebug: { sessionId: string; world: World } }).__lagonDebug;
     return debug.world.players.find(player => player.id === debug.sessionId)!;
@@ -133,14 +134,14 @@ try {
   assert.equal(await token(mobile), mobileToken); assert.match(await mobile.locator('#toast').innerText(), /Quittez le salon/);
   await mobile.locator('#leave-button').click(); await mobile.locator('#home-panel').waitFor({ state: 'visible' });
   record('Salon Colyseus réel avec le compte récupéré ; garde de changement de compte active tant que le salon est ouvert.');
-  await mobile.locator('[data-account="logout"]').click();
+  await (await homeControl(mobile, '[data-account="logout"]')).click();
   await until(async () => await token(mobile) === '', 'Déconnexion locale');
   assert.equal(await mobile.evaluate(() => sessionStorage.getItem('lagon-session')), null);
   assert.match(await mobile.locator('#account-card').innerText(), /Pilote invité/);
   assert.equal((await fetch(`${origin}/api/me`, { headers: { Authorization: `Bearer ${mobileToken}` } })).status, 401);
   assert.equal((await fetch(`${origin}/api/me`, { headers: { Authorization: `Bearer ${firstToken}` } })).status, 200);
   record('Déconnexion : session courante révoquée, données du compte conservées, autre session valide et reconnexion locale effacée.');
-  await mobile.locator('[data-account="login"]').click(); await credentials(mobile); await submit(mobile);
+  await (await homeControl(mobile, '[data-account="login"]')).click(); await credentials(mobile); await submit(mobile);
   await mobile.locator('#account-dialog').waitFor({ state: 'hidden' }); assert.equal((await profile(mobile)).xp, 195);
   await noPasswordStorage(mobile);
   record('Nouvelle connexion après déconnexion : progression toujours récupérable.');

@@ -1,0 +1,25 @@
+{
+  "command": "docker run --rm lagon-kart-validation sh -c 'node --import tsx --test --test-concurrency=4 tests/*.test.ts'",
+  "runtime": "Node 22.21.1, isolated Docker build image",
+  "tests": 443,
+  "passed": 443,
+  "failed": 0,
+  "durationMs": 203814.367152,
+  "scope": "All tests/*.test.ts, including 7 geometry, 7 physics and 3 rendering tests for automatic overpasses. No mounted player data.",
+  "earlierAttempts": [
+    "Host sandbox run stopped after network test failures.",
+    "Host Node20 run with sockets stopped after 240 seconds; presence tests reported fetch failed. Final full suite rerun in isolated target Node22 Docker runtime passed."
+  ],
+  "sourceIntegrity": {
+    "matchedSourceFiles": 84,
+    "different": [],
+    "method": "SHA-256 of all client/shared/server TS and CSS sources compared with the tested Docker image."
+  },
+  "finalGeometryCheck": {
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "reason": "Additional test for manually raised upper decks with zero automatic offset, after the 443-test suite; no product changes.",
+    "log": "geometry-tests.tap"
+  }
+}

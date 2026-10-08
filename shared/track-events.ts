@@ -192,8 +192,9 @@ function branchSurface(route: TrackBranch, progress: number): Surface {
   return 'road';
 }
 
-export function nearestDriveableTrack(x: number, z: number, trackId: string, stage = 0, level = 0): DriveablePosition {
-  const track = getTrack(trackId), base = nearestTrack(x, z, track.id);
+export function nearestDriveableTrack(x: number, z: number, trackId: string, stage = 0, level = 0,
+  hint?: { progress?: number; elevation?: number }): DriveablePosition {
+  const track = getTrack(trackId), base = nearestTrack(x, z, track.id, hint);
   let result: DriveablePosition = { ...base, width: track.width, branchId: '', surface: trackSurface(x, z, track.id, base).surface };
   // Keep the main surface where ribbons join, unless the branch centre is closer.
   for (const route of getTrackEvent(track.id, stage, level).branches) {
@@ -263,11 +264,14 @@ export function eventCheckpointGates(trackId: string, checkpointIndex: number, s
   return gates;
 }
 
-export function trackEventPickups(trackId: string, stage = 0, level = 0): Array<Vec2 & { id: string; cooldown: number }> {
+export function trackEventPickups(trackId: string, stage = 0, level = 0): Array<Vec2 & { id: string; cooldown: number; progress: number; elevation: number }> {
   const route = getTrackEvent(trackId, stage, level).branches.find(candidate => candidate.kind === 'detour');
   if (!route) return [];
-  return [.36, .76].map((fraction, index) => ({ ...pointOnBranch(route, route.start + (route.end - route.start) * fraction),
-    id: route.id + '-pickup-' + index, cooldown: 0 }));
+  return [.36, .76].map((fraction, index) => {
+    const progress = route.start + (route.end - route.start) * fraction;
+    return { ...pointOnBranch(route, progress), progress, elevation: trackElevation(progress, trackId),
+      id: route.id + '-pickup-' + index, cooldown: 0 };
+  });
 }
 
 /** Swept finite box: fast motion is blocked only while its vertical span overlaps. */

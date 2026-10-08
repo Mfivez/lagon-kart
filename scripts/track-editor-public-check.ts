@@ -1,3 +1,4 @@
+import { homeControl, selectHomeTrack, refreshHomeTracks } from './menu-navigation.js';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
@@ -90,8 +91,8 @@ try {
     const host = await desktop.newPage(), guest = await secondContext.newPage(); pages.push(host, guest);
     await ready(host, 1);
     evidence.clientAssets = await host.locator('script[src],link[rel="stylesheet"]').evaluateAll(nodes => nodes.map(node => node.getAttribute('src') ?? node.getAttribute('href')));
-    await host.locator('#name-input').fill('Atelier circuits');
-    await host.locator('#track-editor-button').click(); await host.locator('#track-editor-dialog').waitFor({ state: 'visible' });
+    await (await homeControl(host, '#name-input')).fill('Atelier circuits');
+    await (await homeControl(host, '#track-editor-button')).click(); await host.locator('#track-editor-dialog').waitFor({ state: 'visible' });
     await writeFile(recoveryPath, JSON.stringify(await desktop.storageState()), { mode: 0o600 });
     let saved = (await get<{ tracks: StoredCustomTrack[] }>('/api/tracks')).tracks.find(track => track.draft.name === title);
     if (!saved) {
@@ -128,21 +129,20 @@ try {
     assert.deepEqual((await get<{ track: StoredCustomTrack }>(`/api/tracks/${runtimeId}`)).track, saved);
     await host.locator('#editor-canvas').scrollIntoViewIfNeeded(); await capture(host, 'editor-published.png');
     await host.locator('#editor-close').click(); await host.locator('#track-editor-dialog').waitFor({ state: 'hidden' });
-    await host.locator(`[data-track="${runtimeId}"]`).click();
+    await selectHomeTrack(host, runtimeId, title);
 
     await ready(guest, 2);
     assert.equal(await guest.evaluate(() => localStorage.getItem('lagon-player-token')), null, 'Le deuxième contexte commence sans identité partagée.');
-    await guest.locator('#name-input').fill('Pilote invité');
-    await guest.locator(`[data-track="${runtimeId}"]`).waitFor(); await guest.locator(`[data-track="${runtimeId}"]`).click();
-    assert.equal(await guest.locator(`[data-track="${runtimeId}"]`).getAttribute('aria-pressed'), 'true');
+    await (await homeControl(guest, '#name-input')).fill('Pilote invité');
+    await refreshHomeTracks(guest); await selectHomeTrack(guest, runtimeId, title);
     assert.equal(await guest.locator('#track-name').innerText(), title);
     await capture(guest, 'community-circuit.png');
     record('Un second navigateur vierge découvre le circuit publié dans la bibliothèque et le sélectionne depuis l’accueil.');
 
-    await host.locator('#create-button').click();
+    await (await homeControl(host, '#create-button')).click();
     await until(async () => (await state(host)).world?.phase === 'lobby', 'salon public créé');
     const roomId = new URL(await host.locator('#share-url').inputValue()).pathname.split('/').pop()!;
-    await guest.locator('#code-input').fill(roomId); await guest.locator('#join-button').click();
+    await (await homeControl(guest, '#code-input')).fill(roomId); await (await homeControl(guest, '#join-button')).click();
     await until(async () => (await Promise.all(pages.map(state))).every(view => view.world?.trackId === runtimeId && view.world.players.length === 2), 'deux clients sur le circuit publié');
     for (const page of pages) await page.locator('#ready-button').click();
     await until(async () => (await state(host)).world!.players.every(kart => kart.ready), 'deux joueurs prêts');

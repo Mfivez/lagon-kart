@@ -1,0 +1,70 @@
+{
+  "origin": "https://yoga-unlikely-div-converted.trycloudflare.com",
+  "startedAt": "2026-10-07T20:12:19.797Z",
+  "fixtures": [],
+  "inputMethod": "Browser driver uses real CDP touch joystick/item/drift controls. SDK opponent sends ordinary bounded inputs. No server access or state injection.",
+  "healthBefore": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "assets": [
+    "/assets/index-DNUBohE_.js",
+    "/assets/index-CpYYGxpj.css"
+  ],
+  "roomId": "AF29RZ",
+  "mode": {
+    "practice": false,
+    "ranked": false,
+    "workshop": null,
+    "trackId": "lagon",
+    "players": 2,
+    "eventLevel": 3
+  },
+  "browserBoost": {
+    "serverBoost": 0.9833333333333333,
+    "serverSpeed": 38.8,
+    "predictedBoost": 0.9166666666666666,
+    "predictedSpeed": 43.33333333333333,
+    "speedText": "156",
+    "label": "TURBO !"
+  },
+  "padEvents": [
+    {
+      "zone": "lagon-boost-2",
+      "lap": 0,
+      "time": 58.19999999999926,
+      "beforeSpeed": 32,
+      "activationBoost": 1.05,
+      "peakSpeed": 46,
+      "normalLimit": 32
+    }
+  ],
+  "itemEvents": [],
+  "driftEvents": [],
+  "sampleCount": 1612,
+  "raceTime": 80.83333333333131,
+  "failure": "AssertionError [ERR_ASSERTION]: Naturally collected turbo item must accelerate above normal limit",
+  "healthAfter": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "passed": false,
+  "checks": [
+    "Course normale Île des Alizés, deux pilotes, practice=false et aucun atelier ; départ réel.",
+    "Bande turbo : activation serveur et vitesse mesurée supérieure à la limite normale."
+  ],
+  "errors": [],
+  "finishedAt": "2026-10-07T20:13:53.597Z",
+  "remaining": [
+    "Un seul circuit vérifié dans ce parcours navigateur.",
+    "Pas de téléphone physique ni de mesure de fluidité GPU."
+  ]
+}

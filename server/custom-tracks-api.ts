@@ -51,7 +51,7 @@ export async function handleCustomTracksRequest(req: IncomingMessage, res: Serve
       }
       return;
     }
-    if (req.method !== (id ? 'PUT' : 'POST')) {
+    if (req.method !== (id ? 'PUT' : 'POST') && !(id && req.method === 'DELETE')) {
       req.resume(); send(405, { error: 'Méthode non autorisée.' }); return;
     }
     if (req.headers.origin) {
@@ -76,6 +76,9 @@ export async function handleCustomTracksRequest(req: IncomingMessage, res: Serve
       req.resume(); res.setHeader('Retry-After', '60'); send(429, { error: 'Trop de sauvegardes. Réessayez dans une minute.' }); return;
     }
     const body = await readDraft(req);
+    if (req.method === 'DELETE') {
+      send(200, await store.delete(author, id, body.revision)); return;
+    }
     const track = await store.save(author, body.draft, id, body.revision);
     send(id ? 200 : 201, { track });
   } catch (error) {

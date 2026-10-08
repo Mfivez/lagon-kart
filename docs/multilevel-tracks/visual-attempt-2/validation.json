@@ -1,0 +1,54 @@
+{
+  "origin": "http://127.0.0.1:43465",
+  "startedAt": "2026-10-07T20:41:55.914Z",
+  "scope": "Temporary private server. Two SDK drivers use normal inputs; Chromium joins through the UI as a spectator. No race state injection.",
+  "crossing": {
+    "id": "custom-d1478310-8977-4fbb-8aa7-2caaaffed013-v1-crossing-0",
+    "x": 6.423134977727951,
+    "z": -6.731416550181392,
+    "lowerProgress": 195.35891568484783,
+    "upperProgress": 758.9729266934856,
+    "lowerStart": 177.28713185752056,
+    "lowerEnd": 213.4306995121751,
+    "upperStart": 740.9011428661584,
+    "upperEnd": 777.0447105208129,
+    "lowerHeight": 0,
+    "height": 5.7,
+    "approach": 57,
+    "clearance": 5,
+    "deckThickness": 0.7,
+    "layer": 1
+  },
+  "passed": false,
+  "failure": "AssertionError [ERR_ASSERTION]: Camera stays beneath tunnel roof",
+  "captures": [
+    {
+      "name": "tunnel-approach.png",
+      "raceTime": 3.5333333333333306,
+      "progress": 1168.3573184760703,
+      "elevation": 0,
+      "ground": 0,
+      "camera": {
+        "position": [
+          -155.9204630378994,
+          6.300000000000002,
+          -81.18724524691302
+        ],
+        "target": [
+          -144.19544383748465,
+          1.0455383305799313,
+          -92.80955782644804
+        ],
+        "fov": 54.73229983479587,
+        "near": 1
+      },
+      "spectators": 1
+    }
+  ],
+  "errors": [],
+  "finishedAt": "2026-10-07T20:42:31.173Z",
+  "remaining": [
+    "No physical mobile device or Safari tested.",
+    "This browser scenario covers the figure-eight template; three floors are covered by geometry and physics tests."
+  ]
+}

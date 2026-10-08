@@ -1,3 +1,4 @@
+import { homeControl } from './menu-navigation.js';
 import assert from 'node:assert/strict';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
@@ -47,7 +48,7 @@ const feature = (group: string, index: number, name: string) => `[data-group="${
 try {
   const html = await fetch(origin).then(response => response.text()); evidence.clientAssets = [...html.matchAll(/(?:src|href)="([^"]*assets[^"]+)"/g)].map(match => match[1]);
   const desktop = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
-  const host = await desktop.newPage(); await open(host); await host.locator('#name-input').fill('Atelier reliefs'); await host.locator('#track-editor-button').click();
+  const host = await desktop.newPage(); await open(host); await (await homeControl(host, '#name-input')).fill('Atelier reliefs'); await (await homeControl(host, '#track-editor-button')).click();
   await field(host, '#editor-name', 'Les six tours du looping'); await save(host);
   const original = (await allTracks()).find(track => track.draft.name === 'Les six tours du looping'); assert.ok(original);
   assert.equal(original.draft.lapCount, undefined); assert.equal(original.draft.loops, undefined); assert.equal(original.draft.events, undefined);
@@ -75,7 +76,7 @@ try {
   await field(host, '#editor-laps', '6'); assert.equal(await host.locator('#editor-save').isEnabled(), true);
   record('Six tours, pont, tremplin, looping et événements aux tours1/4/5 ajoutés par UI ; suppression/annuler/rétablir et validation de tour hors course.');
   await host.locator('#editor-close').click(); await host.locator('#track-editor-dialog').waitFor({ state: 'hidden' });
-  await host.reload({ waitUntil: 'domcontentloaded' }); await host.locator('#track-editor-button').click();
+  await host.reload({ waitUntil: 'domcontentloaded' }); await (await homeControl(host, '#track-editor-button')).click();
   assert.equal(await host.locator('#editor-laps').inputValue(), '6');
   await section(host, '#editor-relief-options'); await section(host, '#editor-event-options');
   assert.equal(await host.locator('[data-feature-card^="elevations-"]').count(), 2); assert.equal(await host.locator('[data-feature-card^="loops-"]').count(), 1); assert.equal(await host.locator('[data-feature-card^="events-"]').count(), 3);
@@ -107,7 +108,7 @@ try {
   record('Atelier privé : brouillon enrichi chargé, essai libre, accélération normale et retour à l’éditeur ; publication et fichier v2 inchangés.');
 
   const mobile = await browser.newContext({ viewport: { width: 320, height: 568 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1 });
-  const guest = await mobile.newPage(); await open(guest); await guest.locator('#name-input').fill('Copie mobile'); await guest.locator('#track-editor-button').click();
+  const guest = await mobile.newPage(); await open(guest); await (await homeControl(guest, '#name-input')).fill('Copie mobile'); await (await homeControl(guest, '#track-editor-button')).click();
   await guest.locator(`[data-action="copy"][data-id="${saved.id}"]`).click();
   await section(guest, '#editor-relief-options'); await section(guest, '#editor-event-options');
   assert.equal(await guest.locator('#editor-laps').inputValue(), '6');
@@ -127,9 +128,9 @@ try {
   record('Mobile320 : duplication d’un autre joueur, tous les modules conservés, hauteur modifiée indépendamment et sauvegarde ; cibles≥44px sans débordement.');
 
   await host.locator('#editor-close').click(); await guest.locator('#editor-close').click();
-  await host.locator('#create-button').click(); await until(async () => (await state(host)).world?.phase === 'lobby', 'Salon partagé créé');
+  await (await homeControl(host, '#create-button')).click(); await until(async () => (await state(host)).world?.phase === 'lobby', 'Salon partagé créé');
   const roomCode = await host.locator('#room-code').innerText();
-  await guest.locator('#code-input').fill(roomCode); await guest.locator('#join-button').click();
+  await (await homeControl(guest, '#code-input')).fill(roomCode); await (await homeControl(guest, '#join-button')).click();
   await until(async () => !!(await state(guest)).world?.players.some(player => player.name === 'Atelier reliefs'), 'Second navigateur rejoint');
   const hostWorld = (await state(host)).world!, guestWorld = (await state(guest)).world!;
   assert.equal(hostWorld.trackId, `${saved.id}-v2`); assert.equal(guestWorld.trackId, hostWorld.trackId);

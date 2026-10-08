@@ -1,3 +1,4 @@
+import { homeControl, selectHomeTrack, refreshHomeTracks } from './menu-navigation.js';
 /** Public smoke: real UI only, one retained class circuit, no ranked matchmaking. */
 import assert from 'node:assert/strict';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
@@ -79,11 +80,11 @@ try{
   await checkpoint();
   await until(async()=>await host!.locator(`#online-player-list [data-player-id="${guestId}"]`).count()===1&&await guest!.locator(`#online-player-list [data-player-id="${ownerId}"]`).count()===1,'présence mutuelle des deux profils');
   for(const page of [host,guest])assert.ok(parseInt(await page.locator('#online-player-count').innerText())>=2);
-  await guest.locator('#online-players').scrollIntoViewIfNeeded();const panel=await guest.locator('#online-players').boundingBox();assert.ok(panel&&panel.x>=0&&panel.x+panel.width<=320.5);
+  await (await homeControl(guest, '#online-players')).scrollIntoViewIfNeeded();const panel=await guest.locator('#online-players').boundingBox();assert.ok(panel&&panel.x>=0&&panel.x+panel.width<=320.5);
   evidence.presence={ownerId,guestId,ownerCount:await host.locator('#online-player-count').innerText(),guestCount:await guest.locator('#online-player-count').innerText(),mobilePanel:panel};
   await capture(guest,'mobile-presence-320.png');mark('Deux profils publics se voient mutuellement ; compteur inclusif et panneau mobile320 sans débordement.');
 
-  await host.locator('#track-editor-button').click();
+  await (await homeControl(host, '#track-editor-button')).click();
   if(existing){await host.locator(`[data-action="open"][data-id="${existing.id}"]`).click();}
   else{
     await field(host,'#editor-name',title);await field(host,'#editor-laps','6');await host.locator('#editor-theme').selectOption('forest');
@@ -108,14 +109,10 @@ try{
   await host.locator('#editor-canvas').scrollIntoViewIfNeeded();await capture(host,'public-editor-modules.png');
   mark('Un seul exemple utile publié par UI : six tours, pont, tremplin, looping, pluie au tour2 et turbo au tour4 ; relecture API identique.');
   await host.locator('#editor-close').click();
-  if(!await guest.locator('#track-refresh-button').isVisible())await guest.locator('#choose-track-button').click();
-  await guest.locator('#track-refresh-button').click();
-  await guest.locator(`[data-track="${runtimeId}"]`).waitFor();await guest.locator(`[data-track="${runtimeId}"]`).tap();
-  assert.equal(await guest.locator(`[data-track="${runtimeId}"]`).getAttribute('aria-pressed'),'true');
-  if(!await host.locator(`[data-track="${runtimeId}"]`).isVisible())await host.locator('#choose-track-button').click();
-  await host.locator(`[data-track="${runtimeId}"]`).click();await host.locator('#create-button').click();await until(async()=>(await state(host!)).phase==='lobby','salon public de démonstration');
+  await refreshHomeTracks(guest);await selectHomeTrack(guest,runtimeId,title);
+  await selectHomeTrack(host,runtimeId,title);await (await homeControl(host, '#create-button')).click();await until(async()=>(await state(host!)).phase==='lobby','salon public de démonstration');
   const roomCode=await host.locator('#room-code').innerText();evidence.roomCode=roomCode;
-  await guest.locator('#code-input').fill(roomCode);await guest.locator('#join-button').tap();
+  await (await homeControl(guest, '#code-input')).fill(roomCode);await (await homeControl(guest, '#join-button')).tap();
   await until(async()=>{const a=await state(host!),b=await state(guest!);return a.players.length>=2&&b.players.length>=2&&a.trackId===runtimeId&&b.trackId===runtimeId;},'les deux navigateurs sur le même circuit');
   await host.locator('#ready-button').click();await guest.locator('#ready-button').tap();await host.locator('#start-button').click();
   await until(async()=>(await state(host!)).phase==='racing'&&(await state(guest!)).phase==='racing','compte à rebours et course partagés');

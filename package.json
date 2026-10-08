@@ -37,6 +37,8 @@
     "test:mobile-browser": "node --import tsx scripts/mobile-browser-check.ts",
     "test:mobile-stick": "node --import tsx scripts/mobile-stick-check.ts",
     "test:scenes-browser": "node --import tsx scripts/scenes-browser-check.ts",
+    "test:loop-driving": "node --import tsx scripts/loop-driving-check.ts",
+    "test:track-deletion": "node --import tsx scripts/track-deletion-browser-check.ts",
     "test:accounts-browser": "node --import tsx scripts/accounts-browser-check.ts",
     "test:accounts-public": "node --import tsx scripts/accounts-public-check.ts",
     "test:cpu-obstacles-browser": "node --import tsx scripts/cpu-obstacles-browser-check.ts",
@@ -54,6 +56,7 @@
     "test:workshop-browser": "node --import tsx scripts/interactive-workshop-browser-check.ts",
     "test:party-browser": "node --import tsx scripts/party-crown-browser-check.ts",
     "test:ux-ranked": "node --import tsx scripts/ux-ranked-browser-check.ts",
+    "test:home-navigation": "node --import tsx scripts/home-navigation-browser-check.ts",
     "test:ux-editor": "node --import tsx scripts/ux-editor-browser-check.ts",
     "test:ux-driving": "node --import tsx scripts/ux-driving-check.ts",
     "test:ux-public": "node --import tsx scripts/ux-public-check.ts"

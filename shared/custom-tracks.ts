@@ -1,3 +1,4 @@
+import { deriveTrackCrossings } from './track-crossings.js';
 import { TRACKS, MAX_CUSTOM_TRACK_LAPS, getTrack, makeTrack, registerTrackDefinition, registerPreviewTrackDefinition, releasePreviewTrackDefinition, sampleTrackAnchors, type TrackDefinition, type TrackLapEventKind, type TrackId, type TrackZone, type TrackInteraction, type Vec2 } from './track.js';
 import {clearTrackEventCache} from './track-events.js';
 
@@ -56,6 +57,9 @@ export const CUSTOM_TRACK_TEMPLATES: ReadonlyArray<{ id: string; name: string; d
   { id: 'kidney', name: 'Courbes des bois', draft: { name: 'Mes courbes des bois', theme: 'forest', width: 22,
     anchors: [[0,-145],[105,-135],[172,-67],[154,25],[83,79],[32,145],[-60,143],[-132,83],[-107,-8],[-130,-90],[-75,-140]].map(([x,z]) => ({ x: x!, z: z! })),
     zones: [{ kind: 'boost', start: .1, end: .12, offset: 0, width: 8 }, { kind: 'mud', start: .56, end: .59, offset: 6.5, width: 8 }] } },
+  { id: 'figure-eight', name: 'Huit superposé', draft: { name: 'Mon huit superposé', theme: 'tropical', width: 18,
+    anchors: [[-145,-95],[-50,-80],[60,65],[150,95],[180,20],[130,-85],[55,-80],[-50,75],[-155,90],[-185,15]].map(([x,z]) => ({x:x!,z:z!})),
+    zones: [{kind:'boost',start:.33,end:.35,offset:0,width:8}] } },
 ];
 
 /** The editor and compiler use the exact same closed spline as every built-in circuit. */
@@ -67,14 +71,37 @@ export function sampleCustomTrackAnchors(anchors: readonly Vec2[]): Vec2[] {
 const object = (input: unknown): input is Record<string, unknown> => !!input && typeof input === 'object' && !Array.isArray(input);
 const finite = (input: unknown): input is number => typeof input === 'number' && Number.isFinite(input);
 const distance = (a: Vec2, b: Vec2) => Math.hypot(b.x - a.x, b.z - a.z);
+const compiledLoopSelections = new WeakMap<TrackDefinition, number[]>();
+
+/** Overlapping authored modules describe one continuous magnetic ribbon. The
+ * source remains editable as authored; duplicate modules do not add coincident
+ * meshes, and changing ownership halfway through a loop cannot cut the road. */
+function mergeCustomLoops(loops: readonly CustomTrackLoop[]): Array<CustomTrackLoop & { sources: number[] }> {
+  const ordered = loops.map((loop, index) => ({ ...loop, sources: [index] })).sort((a, b) => a.start - b.start);
+  const merged: Array<CustomTrackLoop & { sources: number[] }> = [];
+  for (const loop of ordered) {
+    const previous = merged.at(-1);
+    if (previous && loop.start <= previous.end + 1e-10) {
+      previous.end = Math.max(previous.end, loop.end);
+      previous.height = Math.max(previous.height, loop.height);
+      previous.lateralSpread = Math.max(previous.lateralSpread, loop.lateralSpread);
+      previous.sources.push(...loop.sources);
+    } else merged.push(loop);
+  }
+  // Retain authored ordering (and therefore existing ids) for disjoint loops.
+  return merged.sort((a, b) => Math.min(...a.sources) - Math.min(...b.sources));
+}
 function build(draft: CustomTrackDraft, id: TrackId): TrackDefinition {
   const theme = TRACKS.find(track => track.theme === draft.theme)!;
+  const loops = mergeCustomLoops(draft.loops ?? []);
   const track = makeTrack({ id, name: draft.name, description: 'Circuit créé par les joueurs. Trois tours, des objets et votre propre tracé.',
     difficulty: 'Intermédiaire', theme: draft.theme, width: draft.width, grip: theme.grip, palette: { ...theme.palette },
     anchors: draft.anchors.map(({x,z}) => [x,z]), zones: draft.zones.map(zone => ({ ...zone })),
-    elevations: draft.elevations?.map(feature=>({...feature})), loops: draft.loops?.map(loop=>({...loop})) });
-  // Absent options must stay absent: immutable pre-editor versions keep their
-  // complete serialized geometry, description and default three-lap behavior.
+    elevations: draft.elevations?.map(feature=>({...feature})),
+    loops: loops.map(({ start, end, height, lateralSpread }) => ({ start, end, height, lateralSpread })) });
+  compiledLoopSelections.set(track, (draft.loops ?? []).map((_, index) => loops.findIndex(loop => loop.sources.includes(index))));
+  // Absent authored options stay absent: ordinary historical circuits retain
+  // their serialized geometry, description and default three-lap behavior.
   if (draft.lapCount !== undefined) {
     track.lapCount = draft.lapCount;
     track.description = `Circuit créé par les joueurs. ${draft.lapCount} ${draft.lapCount === 1 ? 'tour' : 'tours'}, des objets et votre propre tracé.`;
@@ -90,6 +117,7 @@ function build(draft: CustomTrackDraft, id: TrackId): TrackDefinition {
     }
     return result;
   });
+  deriveTrackCrossings(track);
   return track;
 }
 
@@ -101,7 +129,8 @@ export function getTrackWorkshopStart(trackId: string, selection: unknown): {pro
   if(group==='track')return selection.index===0?{progress:0,end:track.length,label:'Circuit entier · brouillon privé'}:undefined;
   const features=group==='events'?track.lapEvents:group==='elevations'?track.elevations.filter(feature=>!track.interactions?.some(module=>module.elevationId===feature.id))
     :group==='loops'?track.loops:group==='zones'?track.zones:group==='interactions'?track.interactions:undefined;
-  const feature=features?.[selection.index as number]; if (!feature) return;
+  const featureIndex=group==='loops'?compiledLoopSelections.get(track)?.[selection.index as number]??selection.index as number:selection.index as number;
+  const feature=features?.[featureIndex]; if (!feature) return;
   const begin='trigger' in feature?feature.trigger:feature.start;
   const progress=((begin-Math.min(35,track.length*.1))%track.length+track.length)%track.length;
   const label=group==='elevations'?'Relief':group==='loops'?'Looping':group==='events'?'Événement':group==='zones'?'Zone':'Interrupteur';

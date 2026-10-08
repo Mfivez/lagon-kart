@@ -1,3 +1,4 @@
+import { homeControl } from './menu-navigation.js';
 import assert from 'node:assert/strict';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
@@ -26,7 +27,7 @@ try {
   for (const size of [{ width: 1280, height: 900 }, { width: 320, height: 568 }]) {
     const context = await browser.newContext({ viewport: size, isMobile: size.width === 320, hasTouch: size.width === 320, deviceScaleFactor: 1 });
     const page = await context.newPage(); page.on('pageerror', error => errors.push(error.message));
-    await page.goto(origin, { waitUntil: 'domcontentloaded' }); await page.locator('#track-editor-button').click();
+    await page.goto(origin, { waitUntil: 'domcontentloaded' }); await (await homeControl(page, '#track-editor-button')).click();
     await page.locator(`[data-action="copy"][data-id="${fixture.id}"]`).click();
     const texts = await page.locator('[data-feature-marker^="events-"] text').allTextContents();
     assert.equal(texts.length, 3); assert.ok(texts.every(text => text === 'T1/T4/T5'));

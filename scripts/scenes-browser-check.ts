@@ -1,3 +1,4 @@
+import { homeControl, readOfficialTrackCatalog, selectHomeTrack } from './menu-navigation.js';
 import assert from 'node:assert/strict';
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
@@ -86,10 +87,10 @@ try {
     const value = (window as unknown as { __lagonDebug?: Debug }).__lagonDebug;
     return value?.sceneryAssets.state === 'ready' && value.kartAssets.status === 'ready';
   }, undefined, { timeout: 60000 });
-  assert.equal(await page.locator('#track-cards [data-track]').count(), 12);
+  assert.equal((await readOfficialTrackCatalog(page)).length, TRACKS.length);
   if (!loopsOnly) {
     for (const track of TRACKS) {
-      await page.locator(`#track-cards [data-track="${track.id}"]`).click();
+      await selectHomeTrack(page, track.id, track.name);
       await until(async () => (await page.locator('#track-name').textContent()) === track.name, 'sélection ' + track.id);
       await wait(1500);
       const hide = await page.addStyleTag({ content: '.menu,.screen-wash,.topbar,.bottom-bar{visibility:hidden!important}' });
@@ -117,7 +118,7 @@ try {
     // A solo room normally has one seat. Add one spectator seat only in this
     // private diagnostic; there is still exactly one competing kart.
     live.maxClients = 2; await live.unlock();
-    await page.locator('#code-input').fill(room.roomId); await page.locator('#join-button').click();
+    await (await homeControl(page, '#code-input')).fill(room.roomId); await (await homeControl(page, '#join-button')).click();
     await until(async () => { const state = await debug(); return state.world?.players.some(kart => kart.id === state.sessionId && kart.spectator) ?? false; }, 'observateur ' + track.id);
     const kart = live.world.players.find(kart => kart.id === room.sessionId)!;
     const loop = track.loops[0]!;

@@ -118,4 +118,43 @@ test('same-origin custom track API publishes usable revisions and preserves play
     assert.deepEqual(JSON.parse(await readFile(join(directory,'tracks',saved.runtimeId+'.json'),'utf8')).draft,creative);
   });
 
+  await t.test('deletion requires ownership or the real Admin account, preserves history, and rejects forged roles and stale edits', async () => {
+    const created = await request('/api/tracks', 'POST', { draft }, owner.token);
+    const removable = created.data.track as StoredCustomTrack & { runtimeId: string };
+    const path = '/api/tracks/' + removable.id;
+    assert.equal((await request(path, 'DELETE', { revision: 1 })).status, 401);
+    assert.equal((await request(path, 'DELETE', { revision: 1 }, other.token)).status, 403);
+    assert.equal((await request(path, 'DELETE', { revision: 1, canModerateTracks: true, authorId: owner.profile.id, admin: true }, other.token)).status, 403);
+    const impostor = (await request('/api/profile', 'POST', { name: 'Admin' })).data as typeof owner;
+    assert.equal((await request(path, 'DELETE', { revision: 1 }, impostor.token)).status, 403);
+    const falseAccount = await request('/api/account/register', 'POST', { username: 'AlmostAdmin', password: 'classroom impostor' }, impostor.token);
+    assert.equal(falseAccount.status, 201);
+    assert.equal((await request(path, 'DELETE', { revision: 1 }, falseAccount.data.token)).status, 403);
+    assert.equal((await request(path, 'DELETE', { revision: 1 }, owner.token, { origin: 'https://foreign.invalid' })).status, 403);
+    assert.equal((await request(path, 'DELETE', { revision: 1 }, owner.token, { 'content-type': 'text/plain' })).status, 415);
+    assert.equal((await request(path, 'DELETE', { revision: '1' }, owner.token)).status, 400);
+    const updated = await request(path, 'PUT', { draft: { ...draft, name: 'Version récente' }, revision: 1 }, owner.token);
+    assert.equal(updated.status, 200);
+    assert.equal((await request(path, 'DELETE', { revision: 1 }, owner.token)).status, 409);
+    assert.equal((await request('/api/tracks/lagon', 'DELETE', { revision: 1 }, owner.token)).status, 404);
+    const removed = await request(path, 'DELETE', { revision: 2 }, owner.token);
+    assert.equal(removed.status, 200); assert.deepEqual(removed.data, { deletedId: removable.id });
+    assert.ok(!(await request('/api/tracks')).data.tracks.some((track: StoredCustomTrack) => track.id === removable.id));
+    assert.deepEqual((await request('/api/tracks/' + removable.runtimeId)).data.track, removable);
+    assert.equal((await request(path, 'PUT', { draft, revision: 2 }, owner.token)).status, 404);
+    assert.equal((await request(path, 'DELETE', { revision: 2 }, owner.token)).status, 404);
+
+    const foreign = (await request('/api/tracks', 'POST', { draft }, owner.token)).data.track as StoredCustomTrack;
+    const admin = await request('/api/account/register', 'POST', { username: 'Admin', password: 'classroom moderation' }, other.token);
+    assert.equal(admin.status, 201); assert.equal(admin.data.profile.canModerateTracks, true);
+    const login = await request('/api/account/login', 'POST', { username: 'admin', password: 'classroom moderation' });
+    assert.equal(login.status, 200); assert.equal(login.data.profile.canModerateTracks, true);
+    const moderated = await request('/api/tracks/' + foreign.id, 'DELETE', { revision: 1 }, login.data.token);
+    assert.equal(moderated.status, 200); assert.deepEqual(moderated.data, { deletedId: foreign.id });
+    const { CustomTrackStore } = await import('../server/custom-track-store.js');
+    const reopened = await CustomTrackStore.open(join(directory, 'tracks'));
+    assert.ok(reopened.list().every(track => track.id !== removable.id && track.id !== foreign.id));
+    assert.deepEqual(reopened.get(removable.runtimeId), removable);
+  });
+
 });

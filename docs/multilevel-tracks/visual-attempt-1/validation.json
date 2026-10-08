@@ -1,0 +1,54 @@
+{
+  "origin": "http://127.0.0.1:39491",
+  "startedAt": "2026-10-07T20:38:11.820Z",
+  "scope": "Temporary private server. Two SDK drivers use normal inputs; Chromium joins through the UI as a spectator. No race state injection.",
+  "crossing": {
+    "id": "custom-5fd9a1de-b12d-4d6f-b8d6-7eed640199c9-v1-crossing-0",
+    "x": 6.423134977727951,
+    "z": -6.731416550181392,
+    "lowerProgress": 195.35891568484783,
+    "upperProgress": 758.9729266934856,
+    "lowerStart": 177.28713185752056,
+    "lowerEnd": 213.4306995121751,
+    "upperStart": 740.9011428661584,
+    "upperEnd": 777.0447105208129,
+    "lowerHeight": 0,
+    "height": 5.7,
+    "approach": 57,
+    "clearance": 5,
+    "deckThickness": 0.7,
+    "layer": 1
+  },
+  "passed": false,
+  "failure": "Error: inside-tunnel.png reached by driving",
+  "captures": [
+    {
+      "name": "tunnel-approach.png",
+      "raceTime": 7.533333333333316,
+      "progress": 166.51244865438105,
+      "elevation": 0,
+      "ground": 0,
+      "camera": {
+        "position": [
+          -20.08803670625909,
+          3.1,
+          -45.835474736572415
+        ],
+        "target": [
+          -12.35482718479734,
+          1.0499990921914,
+          -35.24764550089549
+        ],
+        "fov": 54.9999999997391,
+        "near": 1
+      },
+      "spectators": 1
+    }
+  ],
+  "errors": [],
+  "finishedAt": "2026-10-07T20:40:22.837Z",
+  "remaining": [
+    "No physical mobile device or Safari tested.",
+    "This browser scenario covers the figure-eight template; three floors are covered by geometry and physics tests."
+  ]
+}

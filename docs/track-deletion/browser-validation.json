@@ -1,0 +1,38 @@
+{
+  "passed": true,
+  "timestamp": "2026-10-08T07:24:21.893Z",
+  "checks": [
+    "Authenticated Admin permission is independent of display name; an ordinary author and a guest displayed as Admin receive HTTP 403 for somebody else’s circuit.",
+    "Owner publishes and deletes from the UI; Escape cancels, keyboard focus stays in confirmation, catalogue/selection update immediately, and the preserved draft republishes with a new identity.",
+    "A different client removes the selected circuit while the picker is open; Refresh removes its preview and restores an official choice, and reopening the editor preserves and detaches the local draft.",
+    "A real concurrent v2 update rejects confirmation of v1 with HTTP 409; the circuit and draft survive until an explicit refresh and a new confirmation.",
+    "Simulated permission-change 403 and real expired-session 401 remain readable, preserve the drawing and circuit, and cannot execute a stale-authority deletion.",
+    "Real logout/login on the same page removes Admin controls for Bob and restores them for Admin; both accounts keep independent local drawings.",
+    "The authenticated Admin account, displayed as Prof de la classe, removes Bob’s circuit with explicit name/author confirmation while preserving its own draft and the historical revision.",
+    "Mobile 320×568: a long circuit name fits the confirmation, both actions stay visible with 44 px targets, touch Cancel preserves the circuit and touch Delete removes it without horizontal overflow."
+  ],
+  "captures": [
+    "owner-confirmation-desktop.png",
+    "revision-conflict-desktop.png",
+    "admin-confirmation-desktop.png",
+    "owner-confirmation-mobile-320.png",
+    "owner-deleted-mobile-320.png"
+  ],
+  "errors": [],
+  "evidence": {
+    "origin": "http://127.0.0.1:42503",
+    "startedAt": "2026-10-08T07:23:43.022Z",
+    "scope": "Built client and real private server; disposable accounts and circuits. Desktop Chromium and mobile touch emulation.",
+    "limitations": [
+      "No physical phone or Safari iOS tested.",
+      "Running races and replay persistence are covered separately by server tests."
+    ],
+    "assets": [
+      "/assets/index-D77iRu6s.js",
+      "/assets/index-DuMPiEmA.css"
+    ],
+    "remainingCircuitNames": [
+      "Circuit à conserver"
+    ]
+  }
+}

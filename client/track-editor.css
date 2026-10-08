@@ -16,6 +16,8 @@
 .editor-button.is-active{background:#244f4c;color:#fff9df;border-color:#244f4c}
 .editor-button.editor-primary{background:#ed865d;color:#243d40;border-color:#da724c}
 .editor-button.editor-primary:hover:not(:disabled){background:#f19a74;border-color:#da724c}
+.editor-button.editor-danger{color:#963725;border-color:#d5a08f;background:#fff5ee}
+.editor-button.editor-danger:hover:not(:disabled){color:#7a2517;border-color:#b86751;background:#ffe5db}
 .editor-square{width:44px;flex:0 0 44px;padding:8px;font-size:19px!important}
 .editor-layout{display:grid;grid-template-columns:minmax(0,1fr) 325px;flex:1;min-height:0;overflow:auto;overscroll-behavior:contain}
 .editor-workspace{min-width:0;padding:20px 24px;display:flex;flex-direction:column;align-self:start;gap:12px}
@@ -80,8 +82,9 @@
 .editor-saved-track{padding:10px;background:#ecf2e4;border:1px solid #d1deca;border-radius:10px;min-width:0}
 .editor-saved-track strong{font-size:12px;line-height:1.4;display:block;overflow-wrap:anywhere}
 .editor-saved-track small{font-size:10px;color:var(--editor-muted);display:block;line-height:1.5;margin-top:4px}
-.editor-saved-track>div:last-child{display:flex;gap:6px;margin-top:9px}
-.editor-saved-track .editor-button{flex:1}
+.editor-saved-track>div:last-child{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.editor-saved-track .editor-button{flex:1 1 90px;padding:9px 7px}
+.editor-moderation-note{font-size:11px;line-height:1.5;color:#735329;padding:0 0 12px}
 .editor-library-error{color:#943f30;font-size:12px;line-height:1.5;padding:6px 0}
 .editor-footer{flex-shrink:0;border-top:1px solid var(--editor-line);padding:15px 24px;background:#fffdf2;display:flex;align-items:center;justify-content:space-between;gap:20px;box-shadow:0 -4px 16px #173c3807}
 .editor-footer>div:first-child{min-width:0}
@@ -91,9 +94,9 @@
 #editor-status[data-kind=success]{color:#3b7450}
 .editor-footer-actions{display:flex;gap:8px;flex-shrink:0}
 .editor-confirm-backdrop{position:absolute;inset:0;background:#173b42a6;z-index:4;display:grid;place-items:center;padding:20px}
-.editor-confirm{max-width:460px;width:100%;padding:25px;background:#fffef1;border-radius:18px;box-shadow:0 12px 50px #19313a50}
+.editor-confirm{max-width:460px;width:100%;max-height:100%;overflow:auto;overscroll-behavior:contain;padding:25px;background:#fffef1;border-radius:18px;box-shadow:0 12px 50px #19313a50}
 .editor-confirm h3{font-size:21px;margin-bottom:12px}
-.editor-confirm p{font-size:13px;line-height:1.6;margin-bottom:18px}
+.editor-confirm p{font-size:13px;line-height:1.6;margin-bottom:18px;overflow-wrap:anywhere}
 .editor-confirm>div{display:flex;flex-direction:column;gap:9px}
 @media(min-width:1100px){.editor-workspace{position:sticky;top:0}}
 @media(max-width:900px){.track-editor-dialog{width:calc(100vw - 16px);height:calc(100dvh - 16px);border-radius:16px}.editor-layout{grid-template-columns:minmax(0,1fr) 280px}.editor-workspace{padding:15px}.editor-settings{padding:12px}.editor-card{padding:12px}.editor-header{padding:17px 19px}.editor-footer{padding:12px 17px}.editor-footer-actions{max-width:48%}.editor-footer-actions .editor-button{padding:10px}.editor-header h2{font-size:25px}}
@@ -132,4 +135,11 @@
 .editor-selected-feature{outline:3px solid #218b7a;outline-offset:2px}
 .editor-feature-legend>.editor-legend-interaction::before{background:#218b7a}
 .editor-feature-legend>.editor-legend-zone::before{background:#ffc951}
+.editor-feature-legend>.editor-legend-crossing::before{background:#ffe2a0;border:1px solid #805421}
+.editor-feature-legend>.editor-legend-tunnel::before{background:repeating-linear-gradient(90deg,#183c49 0 3px,transparent 3px 5px)}
+.editor-crossings{padding:11px 13px;border:1px solid #d8bd80;border-radius:11px;background:#fff4d7;font-size:11px;line-height:1.5;color:#564528}
+.editor-crossings>strong{font-size:12px}.editor-crossings p{margin-top:4px}
+.editor-crossings ul{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:6px 12px;margin:8px 0 0;padding:0;list-style:none;max-height:148px;overflow:auto}
+.editor-crossings li{display:flex;flex-direction:column;gap:1px}.editor-crossings li span{font-size:10px}
+@media(max-width:680px){.editor-crossings{padding:9px 10px;font-size:10px}.editor-crossings>strong{font-size:11px}.editor-crossings ul{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:680px){.editor-module-selection .editor-button{flex:1 1 100px}.editor-footer-actions{grid-template-columns:1fr 1fr}.editor-footer-actions .editor-button{font-size:10px!important}}

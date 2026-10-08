@@ -11,6 +11,9 @@ export interface TrackEditorOptions {
   onClose?: () => void;
   storageKey?: string;
   getPlayerId?: () => string;
+  canModerateTracks?: () => boolean;
+  remove?: (record: { id: string; revision: number }) => Promise<void>;
+  onDeleted?: (id: string) => void;
 }
 type EditorMode = 'move' | 'add';
 type FeatureGroup = 'elevations' | 'loops' | 'events' | 'interactions';
@@ -48,20 +51,25 @@ export class TrackEditor {
   private validationTimer?: number;
   private drag?: { pointer: number; index: number; before: CustomTrackDraft; moved: boolean;module?:TrackModuleSelection;grabFraction?:number;grabOffset?:number;initialFraction?:number;initialOffset?:number };
   private pending?: PendingAction;
+  private deletion?: { record: StoredCustomTrack; error?: string };
+  private libraryRequest = 0;
+  private confirmationFocus?: HTMLElement;
   private returnFocus?: HTMLElement;
   private readonly storagePrefix: string;
   private storageOwner = '';
-  private get storageKey(): string { return `${this.storagePrefix}:${this.options.getPlayerId?.() || 'local'}`; }
+  private moderator = false;
+  private get storageKey(): string { return `${this.storagePrefix}:${this.storageOwner || 'local'}`; }
 
   constructor(private readonly options: TrackEditorOptions) {
     this.storagePrefix = options.storageKey ?? 'lagon-track-editor-draft-v1';
     this.storageOwner = options.getPlayerId?.() || '';
+    this.moderator = options.canModerateTracks?.() === true;
     this.restoreDraft();
     this.dialog.id = 'track-editor-dialog';
     this.dialog.className = 'track-editor-dialog';
     this.dialog.setAttribute('aria-labelledby', 'track-editor-title');
     document.body.append(this.dialog);
-    this.dialog.addEventListener('cancel', event => { event.preventDefault(); if (this.pending) { this.pending = undefined; this.renderConfirmation(); } else this.close(); });
+    this.dialog.addEventListener('cancel', event => { event.preventDefault(); if (this.busy) return; if (this.pending || this.deletion) this.cancelConfirmation(); else this.close(); });
     this.dialog.addEventListener('click', event => this.click(event));
     this.dialog.addEventListener('change', event => this.change(event));
     this.dialog.addEventListener('input', event => this.input(event));
@@ -80,13 +88,26 @@ export class TrackEditor {
   get isOpen(): boolean { return this.dialog.open; }
   private get dirty(): boolean { return JSON.stringify(this.draft) !== this.baseline; }
 
+  /** A different account must not inherit the previous account's draft or actions. */
+  identityChanged() {
+    const owner = this.options.getPlayerId?.() || '';
+    const moderator = this.options.canModerateTracks?.() === true;
+    if (owner === this.storageOwner && moderator === this.moderator) return;
+    this.moderator = moderator;
+    if (owner !== this.storageOwner) {
+      this.persistDraft();
+      this.storageOwner = owner; this.draft = copy(CUSTOM_TRACK_TEMPLATES[0]!.draft); this.previous = undefined;
+      this.baseline = JSON.stringify(this.draft); this.notice = ''; this.undoStack = []; this.redoStack = []; this.selected = 0;
+      this.selectedModule = undefined; this.pending = undefined; this.deletion = undefined; this.restoreDraft();
+      if (this.dialog.open) { this.validate(); this.fit(); this.render(); }
+    }
+    if (this.deletion && !this.canDelete(this.deletion.record)) this.cancelConfirmation();
+    this.renderLibrary(); this.renderConfirmation();
+  }
+
   open() {
     if (this.dialog.open) return;
-    const owner = this.options.getPlayerId?.() || '';
-    if (owner !== this.storageOwner) {
-      this.storageOwner = owner; this.draft = copy(CUSTOM_TRACK_TEMPLATES[0]!.draft); this.previous = undefined;
-      this.baseline = JSON.stringify(this.draft); this.notice = ''; this.undoStack = []; this.redoStack = []; this.selected = 0; this.restoreDraft();
-    }
+    this.identityChanged();
     this.returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : undefined;
     this.validate(); this.fit(); this.render(); this.dialog.showModal(); this.renderDrawing();
     this.dialog.querySelector<HTMLButtonElement>('#editor-mode-move')?.focus();
@@ -107,7 +128,7 @@ export class TrackEditor {
   }
 
   private finishClose() {
-    this.persistDraft(); this.pending = undefined; this.dialog.close(); this.options.onClose?.();
+    this.persistDraft(); this.pending = undefined; this.deletion = undefined; this.dialog.close(); this.options.onClose?.();
     this.returnFocus?.focus();
   }
 
@@ -152,19 +173,74 @@ export class TrackEditor {
 
   private changed(immediate = true) {
     this.persistDraft();
-    window.clearTimeout(this.validationTimer);
-    if (immediate) this.validate();
-    else this.validationTimer = window.setTimeout(() => { this.validate(); this.renderFeedback(); this.renderToolbar(); }, 140);
+    if (immediate) {
+      window.clearTimeout(this.validationTimer); this.validationTimer = undefined; this.validate();
+    } else if (this.validationTimer === undefined) {
+      // Keep moving the points smoothly while recomputing the automatic floors
+      // regularly, even when a pointer gesture has not ended yet.
+      this.validationTimer = window.setTimeout(() => {
+        this.validationTimer = undefined; this.validate(); this.renderDrawing(); this.renderFeedback(); this.renderToolbar();
+      }, 140);
+    }
     this.renderDrawing(); this.renderFeedback(); this.renderToolbar();
   }
 
   private validate() { this.validation = validateCustomTrackDraft(this.draft); }
 
   private async refreshLibrary() {
+    const request = ++this.libraryRequest;
     this.loading = true; this.libraryError = ''; this.renderLibrary();
-    try { this.records = await this.options.list(); }
-    catch (error) { this.libraryError = error instanceof Error ? error.message : 'La bibliothèque est indisponible. Votre brouillon reste ici.'; }
-    finally { this.loading = false; this.renderLibrary(); }
+    try {
+      const records = await this.options.list();
+      if (request !== this.libraryRequest) return;
+      this.records = records;
+      if (this.previous && !records.some(record => record.id === this.previous!.id)) {
+        this.detachDeletedDraft(this.previous.id);
+        this.notice = 'Ce circuit a été retiré de la bibliothèque. Votre dessin reste un brouillon privé.'; this.noticeKind = 'info'; this.renderFeedback();
+      }
+    }
+    catch (error) { if (request === this.libraryRequest) this.libraryError = error instanceof Error ? error.message : 'La bibliothèque est indisponible. Votre brouillon reste ici.'; }
+    finally { if (request === this.libraryRequest) { this.loading = false; this.renderLibrary(); } }
+  }
+
+  private canDelete(record: StoredCustomTrack): boolean {
+    return !!this.options.remove && !!this.options.getPlayerId?.()
+      && (record.authorId === this.options.getPlayerId() || this.options.canModerateTracks?.() === true);
+  }
+
+  private detachDeletedDraft(id: string) {
+    if (this.previous?.id !== id) return;
+    this.previous = undefined; this.baseline = ''; this.persistDraft();
+  }
+
+  private cancelConfirmation() {
+    const deletedId = this.deletion?.record.id;
+    this.pending = undefined; this.deletion = undefined; this.renderConfirmation();
+    if (this.confirmationFocus?.isConnected) this.confirmationFocus.focus({ preventScroll: true });
+    else if (deletedId && this.dialog.querySelector<HTMLButtonElement>(`[data-action="delete-track"][data-id="${CSS.escape(deletedId)}"]`))
+      this.dialog.querySelector<HTMLButtonElement>(`[data-action="delete-track"][data-id="${CSS.escape(deletedId)}"]`)!.focus({ preventScroll: true });
+    else this.dialog.querySelector<HTMLButtonElement>('[data-action="refresh"]')?.focus({ preventScroll: true });
+    this.confirmationFocus = undefined;
+  }
+
+  private async deleteTrack() {
+    const deletion = this.deletion;
+    if (this.busy || !deletion || !this.canDelete(deletion.record)) return;
+    this.busy = true; deletion.error = undefined; this.renderToolbar(); this.renderLibrary(); this.renderConfirmation();
+    try {
+      await this.options.remove!({ id: deletion.record.id, revision: deletion.record.revision });
+      // Discard an older library request that may still contain the deleted track.
+      ++this.libraryRequest; this.loading = false;
+      this.records = this.records.filter(record => record.id !== deletion.record.id);
+      this.detachDeletedDraft(deletion.record.id); this.options.onDeleted?.(deletion.record.id);
+      this.deletion = undefined; this.confirmationFocus = undefined; this.libraryError = '';
+      this.notice = `« ${deletion.record.draft.name} » a été supprimé des circuits partagés. Votre brouillon est conservé.`; this.noticeKind = 'success';
+    } catch (error) {
+      deletion.error = error instanceof Error ? error.message : 'Suppression impossible. Votre circuit et votre brouillon sont conservés.';
+    } finally {
+      this.busy = false; this.renderToolbar(); this.renderLibrary(); this.renderFeedback(); this.renderConfirmation();
+      if (!this.deletion) this.dialog.querySelector<HTMLButtonElement>('[data-action="refresh"]')?.focus({ preventScroll: true });
+    }
   }
 
   private async save() {
@@ -173,7 +249,7 @@ export class TrackEditor {
     if (!this.validation.ok) {
       this.dialog.querySelector<HTMLElement>('#editor-validation')?.focus(); return;
     }
-    this.busy = true; this.notice = 'Publication du circuit pour la classe…'; this.noticeKind = 'info'; this.renderFeedback(); this.renderToolbar();
+    this.busy = true; this.notice = 'Publication du circuit pour la classe…'; this.noticeKind = 'info'; this.renderFeedback(); this.renderToolbar(); this.renderLibrary();
     try {
       const existing = !this.dirty && this.previous ? this.records.find(record => record.id === this.previous!.id && record.revision === this.previous!.revision) : undefined;
       const record = existing ?? await this.options.save(copy(this.draft), this.previous ? { ...this.previous } : undefined);
@@ -181,11 +257,16 @@ export class TrackEditor {
       this.baseline = JSON.stringify(this.draft); this.persistDraft(); this.options.onSaved(record);
       this.records = [record, ...this.records.filter(item => item.id !== record.id)];
       this.notice = 'Circuit publié ! Il est disponible dans les circuits de la classe.'; this.noticeKind = 'success';
-      this.renderLibrary();
     } catch (error) {
+      if (this.previous && typeof error === 'object' && error !== null && 'status' in error && error.status === 404) {
+        this.detachDeletedDraft(this.previous.id);
+        this.notice = 'Ce circuit a été supprimé de la bibliothèque. Votre dessin reste ici ; publiez-le à nouveau pour créer un nouveau circuit.';
+        this.noticeKind = 'error';
+        return;
+      }
       this.notice = error instanceof Error ? error.message : 'Publication impossible. Votre brouillon reste ouvert : réessayez dans un instant.';
       this.noticeKind = 'error';
-    } finally { this.busy = false; this.validate(); this.renderFeedback(); this.renderToolbar(); }
+    } finally { this.busy = false; this.validate(); this.renderFeedback(); this.renderToolbar(); this.renderLibrary(); }
   }
 
   private async tryDraft(selection?:TrackWorkshopSelection){
@@ -195,7 +276,7 @@ export class TrackEditor {
     this.finishClose();
     try{await this.options.onTry(copy(this.draft),selection);this.persistDraft();this.notice='Brouillon gardé ici. L’essai n’a rien publié.';this.noticeKind='info';}
     catch(error){this.dialog.showModal();this.notice=`L’essai n’a pas démarré. ${error instanceof Error?error.message:'Réessayez.'}`;this.noticeKind='error';}
-    finally{this.busy=false;this.renderFeedback();this.renderToolbar();}
+    finally{this.busy=false;this.renderFeedback();this.renderToolbar();this.renderLibrary();}
   }
 
   private confirmReplace(action: () => void) {
@@ -243,7 +324,7 @@ export class TrackEditor {
     }
     if (action === 'start' && this.selected !== 0) {
       this.remember(); this.draft.anchors = [...this.draft.anchors.slice(this.selected), ...this.draft.anchors.slice(0, this.selected)]; this.selected = 0;
-      this.notice = 'Départ déplacé. Zones, reliefs et événements se placent à partir de ce nouveau départ.'; this.noticeKind = 'info'; this.changed();
+      this.notice = 'Départ déplacé. L’ordre des ponts automatiques, les zones, les reliefs et les événements se recalculent depuis ce départ.'; this.noticeKind = 'info'; this.changed();
     }
     if (action === 'new') {
       const template = CUSTOM_TRACK_TEMPLATES.find(item => item.id === this.dialog.querySelector<HTMLSelectElement>('#editor-template')?.value) ?? CUSTOM_TRACK_TEMPLATES[0]!;
@@ -254,6 +335,14 @@ export class TrackEditor {
       const owned = record?.authorId === this.options.getPlayerId?.();
       if (record) this.confirmReplace(() => this.load(action === 'copy' || !owned ? { ...record.draft, name: `${record.draft.name.slice(0, 35)} — copie` } : record.draft, action === 'open' && owned ? record : undefined));
     }
+    if (action === 'delete-track') {
+      const record = this.records.find(item => item.id === target.dataset.id);
+      if (record && this.canDelete(record)) {
+        this.confirmationFocus = target; this.deletion = { record }; this.renderConfirmation();
+      }
+    }
+    if (action === 'delete-cancel') this.cancelConfirmation();
+    if (action === 'delete-confirm') void this.deleteTrack();
     if (action === 'add-zone' && this.draft.zones.length < CUSTOM_TRACK_LIMITS.maxZones) {
       let start = .25;
       for (let candidate = .08; candidate <= .88; candidate += .06) {
@@ -291,7 +380,7 @@ export class TrackEditor {
       if (!['elevations', 'loops', 'events', 'interactions'].includes(group) || !this.draft[group]?.[Number(target.dataset.index)]) return;
       this.remember(); this.draft[group]!.splice(Number(target.dataset.index), 1); this.changed(); this.renderFeatures();
     }
-    if (action === 'pending-cancel') { this.pending = undefined; this.renderConfirmation(); }
+    if (action === 'pending-cancel') this.cancelConfirmation();
     if (action === 'pending-confirm') { const next = this.pending; this.pending = undefined; this.renderConfirmation(); next?.proceed(); }
     if (action === 'pending-save') {
       const next = this.pending; this.pending = undefined; this.renderConfirmation();
@@ -371,10 +460,10 @@ export class TrackEditor {
   }
 
   private keydown(event: KeyboardEvent) {
-    if (this.pending) {
-      if (event.key === 'Escape') { event.preventDefault(); this.pending = undefined; this.renderConfirmation(); return; }
+    if (this.pending || this.deletion) {
+      if (event.key === 'Escape') { event.preventDefault(); if (!this.busy) this.cancelConfirmation(); return; }
       if (event.key === 'Tab') {
-        const buttons = [...this.dialog.querySelectorAll<HTMLButtonElement>('.editor-confirm button')];
+        const buttons = [...this.dialog.querySelectorAll<HTMLButtonElement>('.editor-confirm button:not(:disabled)')];
         const index = buttons.indexOf(document.activeElement as HTMLButtonElement);
         const next = (index + (event.shiftKey ? -1 : 1) + buttons.length) % buttons.length;
         event.preventDefault(); buttons[next]?.focus();
@@ -497,14 +586,15 @@ export class TrackEditor {
   private render() {
     this.dialog.innerHTML = `<header class="editor-header"><div><span class="editor-eyebrow">ATELIER DES CIRCUITS</span><h2 id="track-editor-title">Votre prochaine piste</h2><p>Créez et essayez en privé. Publiez quand votre circuit est prêt.</p></div><button type="button" data-action="close" id="editor-close" class="editor-button" aria-label="Fermer l’éditeur">Fermer ✕</button></header>
       <div class="editor-layout"><section class="editor-workspace" aria-label="Dessin du circuit"><div class="editor-tools" id="editor-toolbar"></div>
-      <p class="editor-canvas-hint" id="editor-canvas-hint"></p><div class="editor-canvas-frame"><svg id="editor-canvas" role="group" aria-label="Plan du circuit. Faites glisser les points pour modifier la route." xmlns="http://www.w3.org/2000/svg"></svg></div><div class="editor-feature-legend"><span class="editor-legend-relief">Pont / tremplin</span><span class="editor-legend-loop">Looping</span><span class="editor-legend-event">Événement · T = tour</span><span class="editor-legend-interaction">Plaque / cible · I</span><span class="editor-legend-zone">Zone · Z</span></div>
+      <p class="editor-canvas-hint" id="editor-canvas-hint"></p><div class="editor-canvas-frame"><svg id="editor-canvas" role="group" aria-label="Plan du circuit. Faites glisser les points pour modifier la route. Les ponts dorés passent au-dessus des portions en pointillés." xmlns="http://www.w3.org/2000/svg"></svg></div><div class="editor-feature-legend"><span class="editor-legend-crossing">Pont auto · N = niveau</span><span class="editor-legend-tunnel">Tunnel dessous</span><span class="editor-legend-relief">Pont / tremplin</span><span class="editor-legend-loop">Looping</span><span class="editor-legend-event">Événement · T = tour</span><span class="editor-legend-interaction">Plaque / cible · I</span><span class="editor-legend-zone">Zone · Z</span></div>
+      <div id="editor-crossings" class="editor-crossings" aria-live="polite"></div>
       <div id="editor-module-selection" class="editor-module-selection" hidden></div><div class="editor-point-tools"><span id="editor-selection"></span><button type="button" data-action="start" id="editor-set-start" class="editor-button">Départ ici</button><button type="button" data-action="delete-point" id="editor-delete-point" class="editor-button">Supprimer le point</button></div>
       <div class="editor-route-stats" id="editor-route-stats"></div><div id="editor-validation" class="editor-validation" tabindex="-1" aria-live="polite"></div>
-      <details class="editor-help"><summary>Comment créer un circuit agréable ?</summary><ol><li>Partez d’un modèle, puis faites glisser les points blancs. Virages serrés, points collés et croisements sont autorisés.</li><li>Pour allonger la route, choisissez « Ajouter un point » puis touchez le tracé.</li><li>Le drapeau marque le départ. Sélectionnez un point puis « Départ ici » pour le déplacer.</li><li>Les zones turbo, glace ou boue sont facultatives. Le pourcentage indique leur position dans le tour.</li><li>Le brouillon reste sur cet appareil. « Essayer en privé » ouvre un atelier sans publication ; « Publier pour la classe » partage le circuit.</li></ol><p>Clavier : tabulation pour choisir un point, flèches pour le déplacer, Maj pour affiner. Touchez un module pour ses réglages, glissez-le pour le déplacer. Flèches sur un module : avancer/reculer ; Maj affine. Ctrl/Cmd + Z annule, Ctrl/Cmd + S garde le brouillon local.</p></details></section>
+      <details class="editor-help"><summary>Comment créer un circuit agréable ?</summary><ol><li>Partez d’un modèle, puis faites glisser les points blancs. Virages serrés, points collés et croisements sont autorisés.</li><li>Quand deux portions se croisent, celle parcourue le plus tard depuis le départ monte automatiquement sur un pont. Le passage dessous reste ouvert en tunnel. D’autres croisements peuvent créer des niveaux supplémentaires.</li><li>Les repères dorés montrent le niveau du pont : N1 au-dessus du sol, N2 au-dessus de N1. Déplacez les points pour ajuster les passages ; ponts et tunnels se recalculent.</li><li>Pour allonger la route, choisissez « Ajouter un point » puis touchez le tracé.</li><li>Le drapeau marque le départ. Sélectionnez un point puis « Départ ici » pour le déplacer. Cela peut changer l’ordre des ponts.</li><li>Les zones turbo, glace ou boue sont facultatives. Le pourcentage indique leur position dans le tour.</li><li>Le brouillon reste sur cet appareil. « Essayer en privé » ouvre un atelier sans publication ; « Publier pour la classe » partage le circuit.</li></ol><p>Clavier : tabulation pour choisir un point, flèches pour le déplacer, Maj pour affiner. Touchez un module pour ses réglages, glissez-le pour le déplacer. Flèches sur un module : avancer/reculer ; Maj affine. Ctrl/Cmd + Z annule, Ctrl/Cmd + S garde le brouillon local.</p></details></section>
       <aside class="editor-settings"><section class="editor-card"><h3>1. Donnez-lui un style</h3><div id="editor-fields"></div></section>
       <section class="editor-card"><div class="editor-section-heading"><h3>2. Pimentez le tour</h3><button type="button" class="editor-button" data-action="add-zone" id="editor-add-zone">+ Zone</button></div><p class="editor-muted">Facultatif : des bandes colorées sur la route. En cas de superposition, la première zone de la liste agit.</p><div id="editor-zones"></div></section>
       <details class="editor-card editor-feature-section" id="editor-race-options" open><summary>3. Durée de la course</summary><div id="editor-lap-fields"></div></details>
-      <details class="editor-card editor-feature-section" id="editor-relief-options"><summary>4. Ponts, sauts et loopings</summary><p class="editor-muted">Placez un module sur une portion du tour. Position et longueur sont mesurées depuis le départ. Les marques violettes et orange repèrent leur emplacement. L’essai montre leur forme en 3D.</p><div class="editor-module-actions"><button type="button" class="editor-button" data-action="add-feature" data-kind="bridge" id="editor-add-bridge">+ Pont</button><button type="button" class="editor-button" data-action="add-feature" data-kind="jump" id="editor-add-jump">+ Tremplin</button><button type="button" class="editor-button" data-action="add-feature" data-kind="loop" id="editor-add-loop">+ Looping</button></div><div id="editor-elevations"></div><div id="editor-loops"></div><p class="editor-muted editor-feature-note">Un pont monte puis redescend. Un tremplin fait décoller le kart. Un looping retourne le kart sur sa boucle. Essayez pour ajuster vitesse et réception. En cas de superposition, le looping passe en premier, puis le premier relief de la liste.</p></details>
+      <details class="editor-card editor-feature-section" id="editor-relief-options"><summary>4. Ponts, sauts et loopings</summary><p class="editor-muted">Placez un module sur une portion du tour. Position et longueur sont mesurées depuis le départ. Les marques violettes et orange repèrent leur emplacement. L’essai montre leur forme en 3D.</p><div class="editor-module-actions"><button type="button" class="editor-button" data-action="add-feature" data-kind="bridge" id="editor-add-bridge">+ Pont</button><button type="button" class="editor-button" data-action="add-feature" data-kind="jump" id="editor-add-jump">+ Tremplin</button><button type="button" class="editor-button" data-action="add-feature" data-kind="loop" id="editor-add-loop">+ Looping</button></div><div id="editor-elevations"></div><div id="editor-loops"></div><p class="editor-muted editor-feature-note">Un pont monte puis redescend. Un tremplin fait décoller le kart. Un looping retourne le kart sur sa boucle. Les loopings qui se touchent ou se chevauchent forment une seule boucle continue. Essayez pour ajuster vitesse et réception. En cas de superposition, le looping passe en premier, puis le premier relief de la liste.</p></details>
       <details class="editor-card editor-feature-section" id="editor-interaction-options"><summary>5. Interrupteurs et effets partagés</summary><p class="editor-muted">Roulez sur une plaque pour annoncer un effet à tous les pilotes. Après une seconde, sa cible s’active temporairement. La route reste toujours praticable.</p><div class="editor-module-actions"><button type="button" class="editor-button" data-action="add-feature" data-kind="switch-boost" id="editor-add-switch-boost">+ Plaque → turbo</button><button type="button" class="editor-button" data-action="add-feature" data-kind="switch-jump" id="editor-add-switch-jump">+ Plaque → tremplin</button></div><div id="editor-interactions"></div><p class="editor-muted">Le tremplin garde sa forme : seule son impulsion s’active. Laissez assez de distance après la plaque pour l’annonce. Deux secondes de repos suivent l’effet ; les passages pendant l’activation ne prolongent pas sa durée.</p></details>
       <details class="editor-card editor-feature-section" id="editor-event-options"><summary>6. Événements par tour</summary><p class="editor-muted">L’événement commence quand le pilote en tête atteint le tour choisi et dure ce tour, pour tous les joueurs. La météo concerne le circuit ; la zone choisie reçoit son effet sur la route.</p><button type="button" class="editor-button" data-action="add-feature" data-kind="event" id="editor-add-event">+ Événement</button><div id="editor-events"></div><p class="editor-muted editor-feature-note">Pluie, cendres et tempête : une bande boueuse. Neige : verglas. Éclaircie : météo calme sans bande. Turbo, glace et boue : une bande temporaire. En cas de superposition, la première bande de la liste agit. Si plusieurs météos arrivent au même tour, la dernière de la liste est retenue.</p></details>
       <details class="editor-card editor-library" open><summary>Vos circuits et ceux de la classe</summary><div class="editor-new"><label for="editor-template">Partir d’un modèle</label><select id="editor-template">${CUSTOM_TRACK_TEMPLATES.map(template => `<option value="${escape(template.id)}">${escape(template.name)}</option>`).join('')}</select><button type="button" class="editor-button" data-action="new" id="editor-new">Nouveau circuit</button></div><div id="editor-library"></div></details></aside></div>
@@ -559,11 +649,23 @@ export class TrackEditor {
     const lengths = [0]; points.forEach((point, index) => { const next = points[(index + 1) % points.length]!; lengths.push(lengths[index]! + Math.hypot(next.x - point.x, next.z - point.z)); });
     const length = lengths[lengths.length - 1]!;
     const atDistance = (distance: number, offset: number): Vec2 => {
+      distance = length > 0 ? ((distance % length) + length) % length : 0;
       const segment = Math.max(0, Math.min(points.length - 1, lengths.findIndex((value, index) => index > 0 && value >= distance) - 1));
       const point = points[segment]!, next = points[(segment + 1) % points.length]!;
       const dx = next.x - point.x, dz = next.z - point.z, norm = Math.hypot(dx, dz) || 1;
       const t = Math.max(0, Math.min(1, (distance - lengths[segment]!) / norm));
       return { x: point.x + dx * t + dz / norm * offset, z: point.z + dz * t - dx / norm * offset };
+    };
+    const between = (begin: number, end: number, offset = 0): string => {
+      if (!(length > 0)) return '';
+      const samples = [atDistance(begin, offset)];
+      for (let lap = Math.floor(begin / length); lap <= Math.floor(end / length); lap++) {
+        for (const distance of lengths.slice(0, -1)) {
+          const at = distance + lap * length;
+          if (at > begin && at < end) samples.push(atDistance(at, offset));
+        }
+      }
+      samples.push(atDistance(end, offset)); return path(samples);
     };
     const zones = [...this.draft.zones].reverse().map(zone => {
       const start = zone.start * length, end = zone.end * length;
@@ -576,6 +678,31 @@ export class TrackEditor {
     svg.setAttribute('viewBox', `${this.view.x} ${this.view.z} ${this.view.width} ${this.view.height}`);
     const scale = 1 / (svg.getScreenCTM()?.a || 1);
     const radius = Math.max(5, 9 * scale); const hitRadius = 22 * scale; const flag = this.draft.width * .5 + 8;
+    const crossings = this.validation.track?.crossings ?? [];
+    // A dense doodle can produce thousands of contacts. Keep the plan responsive;
+    // the compiler and the playable circuit still retain every crossing.
+    const detailedCrossings = crossings.slice(0, 48), labelledCrossings = crossings.slice(0, 24);
+    // Reuse the shared compiler's crossing order; drawing never guesses a floor.
+    // During a drag the length ratio follows the live route between compilations.
+    const crossingRatio = length / (this.validation.track?.length || length || 1);
+    const crossingPercent = (distance: number) => Math.round(((distance * crossingRatio / (length || 1)) % 1 + 1) % 1 * 100);
+    const tunnels = detailedCrossings.map(crossing => `<path data-tunnel="${escape(crossing.id)}" d="${between(crossing.lowerStart * crossingRatio - this.draft.width * .45, crossing.lowerEnd * crossingRatio + this.draft.width * .45)}" fill="none" stroke="#183c49" stroke-width="${2 * scale}" stroke-dasharray="${4 * scale} ${3 * scale}" pointer-events="none"/>`).join('');
+    const bridges = detailedCrossings.map((crossing, index) => ({ crossing, index })).sort((a, b) => a.crossing.layer - b.crossing.layer || a.crossing.upperProgress - b.crossing.upperProgress).map(({ crossing, index }) => {
+      const begin = crossing.upperStart * crossingRatio, end = crossing.upperEnd * crossingRatio;
+      const deck = between(begin, end), approach = Math.min(crossing.approach * crossingRatio, length / 4);
+      const upperZones = [...this.draft.zones].reverse().flatMap(zone => [-1, 0, 1].map(lap => {
+        const from = Math.max(begin, (zone.start + lap) * length), to = Math.min(end, (zone.end + lap) * length);
+        return to > from ? `<path d="${between(from, to, zone.offset)}" fill="none" stroke="${ZONE_COLORS[zone.kind]}" stroke-width="${zone.width}"/>` : '';
+      })).join('');
+      const label = `Pont ${index + 1}, niveau ${crossing.layer}. Dessus à ${crossingPercent(crossing.upperProgress)} % du tour, tunnel dessous à ${crossingPercent(crossing.lowerProgress)} %. Hauteur libre minimale ${crossing.clearance} mètres.`;
+      return `<g data-crossing="${escape(crossing.id)}" data-level="${crossing.layer}" role="img" aria-label="${escape(label)}" pointer-events="none"><title>${escape(label)}</title><path d="${between(begin - approach, end + approach)}" fill="none" stroke="#ffd879" stroke-width="${this.draft.width + 2}" stroke-dasharray="${3 * scale} ${4 * scale}" opacity=".6"/><path d="${deck}" fill="none" stroke="#163c495c" stroke-width="${this.draft.width + 7 * scale}"/><path d="${deck}" fill="none" stroke="#ffe2a0" stroke-width="${this.draft.width + 2.5 * scale}"/><path d="${deck}" fill="none" stroke="${road}" stroke-width="${this.draft.width}"/>${upperZones}<path d="${deck}" fill="none" stroke="#fff5d5" stroke-width="${.9 * scale}" stroke-dasharray="${4 * scale} ${4 * scale}"/></g>`;
+    }).join('');
+    const crossingBadges = labelledCrossings.map((crossing, index) => {
+      const centre = atDistance(crossing.upperProgress * crossingRatio, 0);
+      const badge = atDistance(crossing.upperProgress * crossingRatio, this.draft.width / 2 + 15 * scale);
+      const text = `P${index + 1} · N${crossing.layer}`, width = (text.length * 5.5 + 12) * scale;
+      return `<g data-crossing-badge="${index}" pointer-events="none"><path d="M${centre.x} ${centre.z}L${badge.x} ${badge.z}" stroke="#805421" stroke-width="${scale}"/><rect x="${badge.x - width / 2}" y="${badge.z - 9 * scale}" width="${width}" height="${18 * scale}" rx="${5 * scale}" fill="#ffe2a0" stroke="#805421" stroke-width="${scale}"/><text x="${badge.x}" y="${badge.z + 3 * scale}" text-anchor="middle" fill="#49341d" font-weight="800" font-size="${9 * scale}">${text}</text></g>`;
+    }).join('');
     const plates=(this.draft.interactions??[]).map((module,index)=>{
       const a=atDistance(module.trigger*length,module.offset),b=atDistance(module.start*length,module.offset),selected=this.selectedModule?.group==='interactions'&&this.selectedModule.index===index&&this.selectedModule.handle==='trigger';
       return `<path data-interaction-link="${index}" d="M${a.x} ${a.z}L${b.x} ${b.z}" stroke="#218b7a" stroke-width="${1.5*scale}" stroke-dasharray="${4*scale} ${4*scale}" pointer-events="none"/><g class="editor-map-module" data-module-group="interactions" data-module-index="${index}" data-module-handle="trigger" tabindex="0" role="button" aria-label="Plaque ${index+1}. Glissez pour déplacer ; entrée pour les réglages." aria-pressed="${selected}"><circle cx="${a.x}" cy="${a.z}" r="${22*scale}" fill="transparent"/><circle cx="${a.x}" cy="${a.z}" r="${(selected?9:7)*scale}" fill="${selected?'#ffcc6b':'#8ff4d4'}" stroke="#15594e" stroke-width="${2*scale}"/><text x="${a.x}" y="${a.z+3*scale}" text-anchor="middle" font-size="${8*scale}" fill="#15594e" pointer-events="none">${index+1}</text></g>`;
@@ -599,12 +726,17 @@ export class TrackEditor {
     }).join('');
     svg.setAttribute('viewBox', `${this.view.x} ${this.view.z} ${this.view.width} ${this.view.height}`);
     svg.style.backgroundColor = ground;
-    svg.innerHTML = `<defs><pattern id="editor-grid" width="25" height="25" patternUnits="userSpaceOnUse"><path d="M25 0H0V25" fill="none" stroke="#213f4030" stroke-width=".5"/></pattern></defs><rect x="${this.view.x}" y="${this.view.z}" width="${this.view.width}" height="${this.view.height}" fill="url(#editor-grid)"/><path d="${route}" fill="none" stroke="#e9ead5" stroke-width="${this.draft.width + 3}" stroke-linejoin="round"/><path d="${route}" fill="none" stroke="${road}" stroke-width="${this.draft.width}" stroke-linejoin="round"/>${zones}<path d="${route}" fill="none" stroke="#ffffff65" stroke-width=".7" stroke-dasharray="4 5"/>
+    svg.innerHTML = `<defs><pattern id="editor-grid" width="25" height="25" patternUnits="userSpaceOnUse"><path d="M25 0H0V25" fill="none" stroke="#213f4030" stroke-width=".5"/></pattern></defs><rect x="${this.view.x}" y="${this.view.z}" width="${this.view.width}" height="${this.view.height}" fill="url(#editor-grid)"/><path d="${route}" fill="none" stroke="#e9ead5" stroke-width="${this.draft.width + 3}" stroke-linejoin="round"/><path d="${route}" fill="none" stroke="${road}" stroke-width="${this.draft.width}" stroke-linejoin="round"/>${zones}<path d="${route}" fill="none" stroke="#ffffff65" stroke-width=".7" stroke-dasharray="4 5"/>${tunnels}${bridges}
       <g transform="translate(${start.x} ${start.z}) rotate(${angle})"><path d="M0 ${-this.draft.width / 2}V${this.draft.width / 2}" stroke="#ffffff" stroke-width="3"/><path d="M0 ${-this.draft.width / 2}V${this.draft.width / 2}" stroke="#263c42" stroke-width="3" stroke-dasharray="2 2"/><path d="M${flag} -3 L${flag + 6} 0 L${flag} 3" fill="none" stroke="#fff7dd" stroke-width="2"/></g>
       ${this.draft.anchors.map((point, index) => `<g data-point="${index}" tabindex="0" role="button" aria-label="Point ${index + 1}${index === 0 ? ', départ' : ''}. Flèches pour déplacer." aria-pressed="${index === this.selected}"><circle cx="${point.x}" cy="${point.z}" r="${hitRadius}" fill="transparent"/><circle cx="${point.x}" cy="${point.z}" r="${radius}" fill="${index === this.selected ? '#ffcc6b' : '#fff8e8'}" stroke="${index === this.selected ? '#8e4b1e' : '#324e51'}" stroke-width="${1.5 * scale}"/><text x="${point.x}" y="${point.z + 3 * scale}" text-anchor="middle" font-size="${8 * scale}" font-weight="800" fill="#213f40" pointer-events="none">${index === 0 ? '⚑' : index + 1}</text></g>`).join('')}`;
-    svg.insertAdjacentHTML('beforeend',features+plates);
+    svg.insertAdjacentHTML('beforeend',features+plates+crossingBadges);
     const stats = this.dialog.querySelector('#editor-route-stats');
-    if (stats) stats.innerHTML = `<span><strong>${Math.round(length)} m</strong> par tour</span><span><strong>${this.draft.lapCount ?? 3}</strong> tours</span><span><strong>${this.draft.width} m</strong> de large</span><span><strong>${this.draft.anchors.length}</strong> points</span><span><strong>${this.draft.zones.length}</strong> zones</span><span><strong>${(this.draft.elevations?.length ?? 0) + (this.draft.loops?.length ?? 0)}</strong> reliefs</span><span><strong>${this.draft.events?.length ?? 0}</strong> événements</span>`;
+    if (stats) stats.innerHTML = `<span><strong>${Math.round(length)} m</strong> par tour</span><span><strong>${this.draft.lapCount ?? 3}</strong> tours</span><span><strong>${this.draft.width} m</strong> de large</span><span><strong>${this.draft.anchors.length}</strong> points</span><span><strong>${this.draft.zones.length}</strong> zones</span><span><strong>${(this.draft.elevations?.length ?? 0) + (this.draft.loops?.length ?? 0)}</strong> reliefs</span><span><strong>${this.draft.events?.length ?? 0}</strong> événements</span>${crossings.length ? `<span><strong>${Math.max(...crossings.map(crossing => crossing.layer)) + 1}</strong> niveaux</span>` : ''}`;
+    const crossingSummary = this.dialog.querySelector('#editor-crossings');
+    if (crossingSummary) {
+      const next = crossings.length ? `<strong>${crossings.length} ${crossings.length === 1 ? 'pont automatique' : 'ponts automatiques'} · passages dessous dégagés</strong><p>La portion parcourue le plus tard passe au-dessus. Les pointillés repèrent le tunnel ; les bords dorés montrent le pont et ses montées.</p><ul>${labelledCrossings.map((crossing, index) => `<li><b>P${index + 1} · Niveau ${crossing.layer}</b><span>Dessus ${crossingPercent(crossing.upperProgress)} % · dessous ${crossingPercent(crossing.lowerProgress)} % · ${crossing.clearance} m libres</span></li>`).join('')}</ul>${crossings.length > labelledCrossings.length ? `<p>Les ${labelledCrossings.length} premiers passages sont nommés ici${crossings.length > detailedCrossings.length ? `, les ${detailedCrossings.length} premiers sont détaillés sur le plan` : ''}. Les ${crossings.length} passages sont présents dans l’essai en 3D.</p>` : ''}` : '<strong>Croisements automatiques</strong><p>Faites passer deux portions l’une sur l’autre : un pont et un tunnel se créent seuls. Essayez le modèle « Huit superposé » pour commencer.</p>';
+      if (crossingSummary.innerHTML !== next) crossingSummary.innerHTML = next;
+    }
   }
 
   private renderFeedback() {
@@ -650,11 +782,26 @@ export class TrackEditor {
 
   private renderLibrary() {
     const target = this.dialog.querySelector('#editor-library'); if (!target) return;
-    target.innerHTML = `<div class="editor-section-heading"><strong>${this.records.length} circuit${this.records.length > 1 ? 's' : ''} partagé${this.records.length > 1 ? 's' : ''}</strong><button type="button" class="editor-button" data-action="refresh" ${this.loading ? 'disabled' : ''}>${this.loading ? 'Chargement…' : 'Actualiser'}</button></div>${this.libraryError ? `<p class="editor-library-error" role="alert">${escape(this.libraryError)}</p>` : ''}${!this.loading && !this.records.length && !this.libraryError ? '<p class="editor-empty">Votre classe n’a pas encore publié de circuit. Le vôtre sera le premier !</p>' : ''}<div class="editor-library-list">${this.records.map(record => `<article class="editor-saved-track" data-record-id="${escape(record.id)}"><div><strong>${escape(record.draft.name)}</strong><small>${escape(CUSTOM_TRACK_THEMES.find(theme => theme.id === record.draft.theme)?.label ?? record.draft.theme)} · ${record.draft.anchors.length} points · version ${record.revision}${record.authorName ? ` · ${escape(record.authorName)}` : ''}</small></div><div>${record.authorId === this.options.getPlayerId?.() ? `<button type="button" class="editor-button" data-action="open" data-id="${escape(record.id)}" aria-label="Modifier ${escape(record.draft.name)}">Modifier</button>` : ''}<button type="button" class="editor-button" data-action="copy" data-id="${escape(record.id)}" aria-label="Copier ${escape(record.draft.name)}">Dupliquer</button></div></article>`).join('')}</div>`;
+    const disabled = this.busy ? 'disabled' : '';
+    const entries = this.records.map(record => {
+      const own = !!this.options.getPlayerId?.() && record.authorId === this.options.getPlayerId();
+      const name = escape(record.draft.name), id = escape(record.id);
+      return `<article class="editor-saved-track" data-record-id="${id}"><div><strong>${name}</strong><small>${escape(CUSTOM_TRACK_THEMES.find(theme => theme.id === record.draft.theme)?.label ?? record.draft.theme)} · ${record.draft.anchors.length} points · version ${record.revision}${record.authorName ? ` · ${escape(record.authorName)}` : ''}</small></div><div>${own ? `<button type="button" class="editor-button" data-action="open" data-id="${id}" aria-label="Modifier ${name}" ${disabled}>Modifier</button>` : ''}<button type="button" class="editor-button" data-action="copy" data-id="${id}" aria-label="Copier ${name}" ${disabled}>Dupliquer</button>${this.canDelete(record) ? `<button type="button" class="editor-button editor-danger" data-action="delete-track" data-id="${id}" aria-label="Supprimer ${name}" ${disabled}>Supprimer</button>` : ''}</div></article>`;
+    }).join('');
+    target.innerHTML = `<div class="editor-section-heading"><strong>${this.records.length} circuit${this.records.length > 1 ? 's' : ''} partagé${this.records.length > 1 ? 's' : ''}</strong><button type="button" class="editor-button" data-action="refresh" ${this.loading || this.busy ? 'disabled' : ''}>${this.loading ? 'Chargement…' : 'Actualiser'}</button></div>${this.options.canModerateTracks?.() ? '<p class="editor-moderation-note">Modération Admin · vous pouvez supprimer les circuits de tous les pilotes.</p>' : ''}${this.libraryError ? `<p class="editor-library-error" role="alert">${escape(this.libraryError)}</p>` : ''}${!this.loading && !this.records.length && !this.libraryError ? '<p class="editor-empty">Votre classe n’a pas encore publié de circuit. Le vôtre sera le premier !</p>' : ''}<div class="editor-library-list">${entries}</div>`;
   }
 
   private renderConfirmation() {
     const target = this.dialog.querySelector<HTMLElement>('#editor-confirmation'); if (!target) return;
+    for (const area of this.dialog.querySelectorAll<HTMLElement>('.editor-header,.editor-layout,.editor-footer')) area.inert = !!(this.pending || this.deletion);
+    if (this.deletion) {
+      const { record, error } = this.deletion;
+      const moderation = record.authorId !== this.options.getPlayerId?.();
+      const text = `Supprimer « ${record.draft.name} »${record.authorName ? `, créé par ${record.authorName}` : ''} des circuits partagés ? ${moderation ? 'Vous agissez en tant qu’Admin. ' : ''}Il ne sera plus proposé pour de nouvelles courses. Les courses en cours et les replays sont conservés. Votre brouillon reste privé sur cet appareil.`;
+      target.innerHTML = `<div class="editor-confirm-backdrop"><section class="editor-confirm" role="alertdialog" aria-modal="true" aria-labelledby="editor-confirm-title" aria-describedby="editor-confirm-text" aria-busy="${this.busy}" tabindex="-1"><h3 id="editor-confirm-title">${moderation ? 'Modérer ce circuit' : 'Supprimer ce circuit'}</h3><p id="editor-confirm-text">${escape(text)}</p>${error ? `<p class="editor-library-error" id="editor-delete-error" role="alert">${escape(error)} Annulez puis actualisez la bibliothèque si le circuit a changé.</p>` : ''}<div><button type="button" class="editor-button" id="editor-delete-cancel" data-action="delete-cancel" ${this.busy ? 'disabled' : ''}>Annuler</button><button type="button" class="editor-button editor-danger" id="editor-delete-confirm" data-action="delete-confirm" ${this.busy ? 'disabled' : ''}>${this.busy ? 'Suppression…' : 'Supprimer le circuit'}</button></div></section></div>`;
+      (this.busy ? target.querySelector<HTMLElement>('.editor-confirm') : target.querySelector<HTMLElement>('#editor-delete-cancel'))?.focus({ preventScroll: true });
+      return;
+    }
     if (!this.pending) { target.innerHTML = ''; return; }
     target.innerHTML = `<div class="editor-confirm-backdrop"><section class="editor-confirm" role="alertdialog" aria-modal="true" aria-labelledby="editor-confirm-title" aria-describedby="editor-confirm-text"><h3 id="editor-confirm-title">Votre brouillon compte</h3><p id="editor-confirm-text">${escape(this.pending.text)}</p><div><button type="button" class="editor-button editor-primary" data-action="pending-save">Publier et continuer</button><button type="button" class="editor-button" data-action="pending-confirm">${this.pending.close ? (this.localStorageFailed ? 'Fermer sans conserver' : 'Garder le brouillon et fermer') : 'Remplacer le brouillon'}</button><button type="button" class="editor-button" data-action="pending-cancel">Continuer à créer</button></div></section></div>`;
     target.querySelector<HTMLButtonElement>('[data-action="pending-cancel"]')?.focus();

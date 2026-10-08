@@ -1,0 +1,248 @@
+{
+  "origin": "http://127.0.0.1:35585",
+  "startedAt": "2026-10-07T20:43:50.024Z",
+  "scope": "Temporary private server. Two SDK drivers use normal inputs; Chromium joins through the UI as a spectator. No race state injection.",
+  "crossing": {
+    "id": "custom-bae04b60-a341-4f26-b314-7bbb413fbdd1-v1-crossing-0",
+    "x": 6.423134977727951,
+    "z": -6.731416550181392,
+    "lowerProgress": 195.35891568484783,
+    "upperProgress": 758.9729266934856,
+    "lowerStart": 177.28713185752056,
+    "lowerEnd": 213.4306995121751,
+    "upperStart": 740.9011428661584,
+    "upperEnd": 777.0447105208129,
+    "lowerHeight": 0,
+    "height": 5.7,
+    "approach": 57,
+    "clearance": 5,
+    "deckThickness": 0.7,
+    "layer": 1
+  },
+  "lastObservation": {
+    "practice": false,
+    "trackId": "custom-bae04b60-a341-4f26-b314-7bbb413fbdd1-v1",
+    "raceTime": 49.599999999999746,
+    "spectators": 1,
+    "kart": {
+      "id": "SeQGIO1Bl",
+      "name": "Pilote pont",
+      "color": "#fc735d",
+      "modelId": "zsky",
+      "characterId": "racer",
+      "build": {
+        "chassis": "balanced",
+        "engine": "standard",
+        "tires": "road",
+        "turbo": "regular",
+        "wing": "neutral",
+        "weight": "normal"
+      },
+      "playerId": "",
+      "careerLevel": 0,
+      "eventStage": 0,
+      "eventLevel": 3,
+      "team": 0,
+      "cpu": false,
+      "x": 6.182572410645829,
+      "z": -6.34317776109055,
+      "angle": -0.5175587560088705,
+      "elevation": 5.7,
+      "verticalVelocity": 0,
+      "airborne": false,
+      "loopId": "",
+      "speed": 0,
+      "driftCharge": 0,
+      "boost": 0,
+      "stun": 0,
+      "lap": 0,
+      "nextCheckpoint": 8,
+      "progress": 759.4293201022202,
+      "routeProgress": 759.4293201022202,
+      "respawnProgress": 687.041769111041,
+      "finished": false,
+      "finishTime": 0,
+      "rank": 1,
+      "item": "trap",
+      "itemCharges": 1,
+      "invincible": 0,
+      "shield": 0,
+      "hitGrace": 0,
+      "ready": true,
+      "connected": true,
+      "spectator": false,
+      "abandoned": false,
+      "lastSeq": 1346,
+      "epoch": 1,
+      "driftDirection": 0,
+      "lateralVelocity": 0,
+      "respawnX": 44.15264156593282,
+      "respawnZ": -67.91024944582841,
+      "respawnAngle": -0.6692512697490547,
+      "resetCooldown": 0,
+      "itemLatch": false,
+      "resetLatch": false,
+      "trackId": "custom-bae04b60-a341-4f26-b314-7bbb413fbdd1-v1",
+      "surface": "road",
+      "turnVelocity": 1.8814368760063197e-9,
+      "padCooldown": 0,
+      "padZone": "",
+      "padLaps": {
+        "custom-bae04b60-a341-4f26-b314-7bbb413fbdd1-v1-boost-0": 0
+      },
+      "launchCharge": 0,
+      "launchArmed": false,
+      "launchPressed": false,
+      "launchFault": false,
+      "draftCharge": 0,
+      "draftCooldown": 0,
+      "fun": {
+        "wallSeconds": 0,
+        "chain": 0,
+        "chainTime": 0,
+        "feedbackSeq": 0,
+        "feedbackKind": "",
+        "feedbackValue": 0
+      },
+      "crownMode": false,
+      "interactionTime": 52.76666666666623
+    },
+    "view": {
+      "camera": {
+        "position": [
+          12.137053651362736,
+          11.999252318193424,
+          -16.795526360785313
+        ],
+        "target": [
+          3.654343713247335,
+          6.749252318193425,
+          -1.9048236142126405
+        ],
+        "fov": 55,
+        "near": 1
+      },
+      "tracked": {
+        "id": "SeQGIO1Bl",
+        "position": [
+          6.182572410645829,
+          5.755,
+          -6.34317776109055
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "projected": [
+          0.000011653990821871498,
+          -0.21963315123602753,
+          0.8486554274148441
+        ]
+      },
+      "calls": 70,
+      "triangles": 37296,
+      "compact": false,
+      "qualityMode": "smooth",
+      "quality": "light",
+      "pixelRatio": 0.8,
+      "shadows": false,
+      "sceneryDetails": {
+        "optional": 22,
+        "visible": 8
+      },
+      "renderedFrames": 144,
+      "renderState": "race",
+      "menuFpsLimit": 15
+    }
+  },
+  "results": [
+    {
+      "name": "Pilote pont",
+      "lap": 1,
+      "finished": true,
+      "finishTime": 69.76666666666527
+    },
+    {
+      "name": "Pilote tunnel",
+      "lap": 1,
+      "finished": true,
+      "finishTime": 69.86666666666527
+    }
+  ],
+  "passed": true,
+  "captures": [
+    {
+      "name": "tunnel-approach.png",
+      "raceTime": 9.266666666666644,
+      "progress": 150.09101126354955,
+      "elevation": 0,
+      "ground": 0,
+      "camera": {
+        "position": [
+          -31.44932809006548,
+          6.3,
+          -60.71196735822472
+        ],
+        "target": [
+          -19.790803613744842,
+          1.049997730003512,
+          -46.3776495338405
+        ],
+        "fov": 54.999999990621895,
+        "near": 1
+      },
+      "spectators": 1
+    },
+    {
+      "name": "inside-tunnel.png",
+      "raceTime": 23.333333333333652,
+      "progress": 194.4566514370147,
+      "elevation": 0,
+      "ground": 0,
+      "camera": {
+        "position": [
+          1.9447241192265559,
+          3.1,
+          -13.539570338728943
+        ],
+        "target": [
+          8.823022397573654,
+          1.0498652018756034,
+          -3.119947609694031
+        ],
+        "fov": 55,
+        "near": 1
+      },
+      "spectators": 1
+    },
+    {
+      "name": "on-upper-road.png",
+      "raceTime": 49.599999999999746,
+      "progress": 759.4293201022202,
+      "elevation": 5.7,
+      "ground": 5.7,
+      "camera": {
+        "position": [
+          12.137053651362736,
+          11.999252318193424,
+          -16.795526360785313
+        ],
+        "target": [
+          3.654343713247335,
+          6.749252318193425,
+          -1.9048236142126405
+        ],
+        "fov": 55,
+        "near": 1
+      },
+      "spectators": 1
+    }
+  ],
+  "errors": [],
+  "finishedAt": "2026-10-07T20:45:14.098Z",
+  "remaining": [
+    "No physical mobile device or Safari tested.",
+    "This browser scenario covers the figure-eight template; three floors are covered by geometry and physics tests."
+  ]
+}

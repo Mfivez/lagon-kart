@@ -1,0 +1,229 @@
+{
+  "origin": "http://127.0.0.1:33157",
+  "startedAt": "2026-10-07T20:58:23.885Z",
+  "checks": [],
+  "errors": [],
+  "captures": [
+    "home-1827x860.png",
+    "picker-1827x860.png",
+    "picker-desktop-long-name.png",
+    "failure.png"
+  ],
+  "scope": "Chromium desktop and touch emulation, built client and real private server; temporary profiles and 32 authored tracks created through HTTP APIs.",
+  "limitations": [
+    "No physical phone or Safari iOS tested.",
+    "These checks cover home navigation and normal room creation, not a complete race."
+  ],
+  "assets": [
+    "/assets/index-l5UFafWz.js",
+    "/assets/index-C1o4Icqr.css"
+  ],
+  "catalogueFixture": {
+    "authored": 32,
+    "nameLengths": [
+      48
+    ],
+    "themes": 10
+  },
+  "layouts": [
+    {
+      "width": 1827,
+      "height": 860,
+      "touch": false,
+      "selected": "lagon",
+      "boxes": {
+        "#name-input": {
+          "x": 486.59375,
+          "y": 269.265625,
+          "width": 283.546875,
+          "height": 44
+        },
+        "#home-ranked-action": {
+          "x": 942.5,
+          "y": 329.625,
+          "width": 417,
+          "height": 55.78125
+        },
+        "[data-ranked-grade]": {
+          "x": 942.5,
+          "y": 288.140625,
+          "width": 70.890625,
+          "height": 25.59375
+        },
+        "[data-ranked-mmr]": {
+          "x": 1021.390625,
+          "y": 291.9375,
+          "width": 77.9375,
+          "height": 18
+        },
+        "#create-button": {
+          "x": 925.5,
+          "y": 450.984375,
+          "width": 221.5,
+          "height": 71.328125
+        },
+        "#practice-button": {
+          "x": 1155,
+          "y": 450.984375,
+          "width": 221.5,
+          "height": 71.328125
+        },
+        "#code-input": {
+          "x": 925.5,
+          "y": 534.3125,
+          "width": 221.5,
+          "height": 69.34375
+        },
+        "#join-button": {
+          "x": 1155,
+          "y": 534.3125,
+          "width": 221.5,
+          "height": 69.34375
+        },
+        "#choose-track-button": {
+          "x": 469.5,
+          "y": 592.796875,
+          "width": 413,
+          "height": 44
+        },
+        "#track-name": {
+          "x": 469.5,
+          "y": 478.265625,
+          "width": 413,
+          "height": 28.75
+        },
+        "#track-tags": {
+          "x": 469.5,
+          "y": 515.015625,
+          "width": 413,
+          "height": 21
+        },
+        ".home-presence-summary": {
+          "x": 1225.515625,
+          "y": 171.890625,
+          "width": 150.984375,
+          "height": 50.296875
+        },
+        "#home-tab-play": {
+          "x": 450.5,
+          "y": 711,
+          "width": 227,
+          "height": 44
+        },
+        "#home-tab-pilot": {
+          "x": 683.5,
+          "y": 711,
+          "width": 227,
+          "height": 44
+        },
+        "#home-tab-online": {
+          "x": 916.5,
+          "y": 711,
+          "width": 227,
+          "height": 44
+        },
+        "#home-tab-options": {
+          "x": 1149.5,
+          "y": 711,
+          "width": 227,
+          "height": 44
+        }
+      }
+    }
+  ],
+  "passed": false,
+  "error": "AssertionError [ERR_ASSERTION]: Tab must remain inside the modal\n\nfalse !== true\n",
+  "failureLayout": [
+    {
+      "id": "home-panel",
+      "box": {
+        "x": 423.5,
+        "y": 142,
+        "width": 980,
+        "height": 640
+      },
+      "scrollHeight": 638,
+      "clientHeight": 638
+    },
+    {
+      "id": "home-hub-body",
+      "box": {
+        "x": 447.5,
+        "y": 242.078125,
+        "width": 932,
+        "height": 438.921875
+      },
+      "scrollHeight": 439,
+      "clientHeight": 439
+    },
+    {
+      "id": "home-view-play",
+      "box": {
+        "x": 450.5,
+        "y": 245.078125,
+        "width": 926,
+        "height": 432.921875
+      },
+      "scrollHeight": 433,
+      "clientHeight": 433
+    },
+    {
+      "id": "home-ranked",
+      "box": {
+        "x": 925.5,
+        "y": 252.890625,
+        "width": 451,
+        "height": 178.90625
+      },
+      "scrollHeight": 177,
+      "clientHeight": 177
+    },
+    {
+      "id": "track-picker",
+      "box": {
+        "x": 413.5,
+        "y": 50,
+        "width": 1000,
+        "height": 760
+      },
+      "scrollHeight": 758,
+      "clientHeight": 758
+    },
+    {
+      "id": "track-picker-cards",
+      "box": {
+        "x": 438.5,
+        "y": 202.1875,
+        "width": 533.09375,
+        "height": 460.8125
+      },
+      "scrollHeight": 461,
+      "clientHeight": 461
+    },
+    {
+      "id": "track-picker-detail",
+      "box": {
+        "x": 993.59375,
+        "y": 202.1875,
+        "width": 394.90625,
+        "height": 514.8125
+      },
+      "scrollHeight": 515,
+      "clientHeight": 515
+    },
+    {
+      "id": "track-picker-confirm",
+      "box": {
+        "x": 876.859375,
+        "y": 735,
+        "width": 511.625,
+        "height": 50
+      },
+      "scrollHeight": 50,
+      "clientHeight": 50
+    }
+  ],
+  "finishedAt": "2026-10-07T20:58:48.602Z",
+  "browserClosed": true,
+  "temporaryDataRemoved": true
+}

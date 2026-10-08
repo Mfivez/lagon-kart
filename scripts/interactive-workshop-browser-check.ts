@@ -1,3 +1,4 @@
+import { homeControl } from './menu-navigation.js';
 import assert from 'node:assert/strict';
 import {mkdir,mkdtemp,readFile,rm,writeFile} from 'node:fs/promises';
 import {join,resolve} from 'node:path';
@@ -66,7 +67,7 @@ try{
   browser=await chromium.launch({headless:true,args:['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--disable-background-timer-throttling','--disable-renderer-backgrounding']});
   const desktop=await browser.newContext({viewport:{width:1280,height:900},deviceScaleFactor:1});
   await desktop.addInitScript(origin=>{if(location.origin!==origin)return;localStorage.setItem('lagon-volume','0');},origin);
-  const page=await desktop.newPage();await open(page);await page.locator('#name-input').fill('Atelier interactif');await page.locator('#track-editor-button').click();
+  const page=await desktop.newPage();await open(page);await (await homeControl(page, '#name-input')).fill('Atelier interactif');await (await homeControl(page, '#track-editor-button')).click();
   await field(page,'#editor-name','L’atelier des plaques');
   // Remove the template's permanent boost so observed acceleration proves the switch target.
   await page.locator('[data-action="remove-zone"][data-zone="0"]').click();
@@ -107,7 +108,7 @@ try{
 
   await desktop.close();
   const mobile=await browser.newContext({viewport:{width:320,height:568},isMobile:true,hasTouch:true,deviceScaleFactor:1});
-  const phone=await mobile.newPage();await open(phone);await phone.locator('#name-input').fill('Atelier mobile');await phone.locator('#track-editor-button').click();
+  const phone=await mobile.newPage();await open(phone);await (await homeControl(phone, '#name-input')).fill('Atelier mobile');await (await homeControl(phone, '#track-editor-button')).click();
   await until(async()=>await phone.locator(`[data-action="copy"][data-id="${record.id}"]`).count()===1,'Circuit accessible sur mobile');
   await phone.locator(`[data-action="copy"][data-id="${record.id}"]`).click();await section(phone,'#editor-interaction-options');
   const card=phone.locator('[data-feature-card="interactions-0"]');await card.scrollIntoViewIfNeeded();

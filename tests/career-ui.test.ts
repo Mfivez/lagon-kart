@@ -47,11 +47,48 @@ test('career queue has one owner, survives menu close, cancels a late POST and s
     assert.equal(career.rankedState.state, 'error'); assert.equal(career.isSearching, false); assert.equal(serverQueued, true);
     await career.cancelQueue(); assert.equal(serverQueued, false); assert.equal(requests.at(-1), 'DELETE /api/ranked'); assert.equal(joined, 0);
   });
+  await t.test('an older profile response cannot overwrite a result refreshed after persistence', async () => {
+    const fetchNormally = globalThis.fetch, stale = structuredClone(current);
+    let release!: () => void;
+    const gate = new Promise<void>(resolve => { release = resolve; });
+    let held = false;
+    globalThis.fetch = (async (url: string, options?: RequestInit) => {
+      if (url === '/api/me' && !held) { held = true; await gate; return Response.json({ profile: stale }); }
+      return fetchNormally(url, options);
+    }) as typeof fetch;
+    try {
+      const earlier = career.refresh();
+      current = profile('a', 820); current.stats.races = 1;
+      await career.refresh(); release(); await earlier;
+      assert.equal(career.currentProfile?.mmr, 820);
+      assert.equal(career.currentProfile?.stats.races, 1);
+    } finally { release(); globalThis.fetch = fetchNormally; }
+  });
+  await t.test('a pending result survives a normal home refresh until the persisted race appears', async () => {
+    const before = requests.filter(value => value === 'GET /api/me').length;
+    const pendingResult = career.refresh({ minimumRaces: 2 });
+    await career.refresh(); // Returning home does not cancel the result retry.
+    current = profile('a', 840); current.stats.races = 2;
+    await pendingResult;
+    assert.equal(career.currentProfile?.mmr, 840);
+    assert.equal(career.currentProfile?.stats.races, 2);
+    assert.equal(requests.filter(value => value === 'GET /api/me').length - before, 3);
+  });
   await t.test('room guard prevents queueing; identity switch cancels and publishes the new server grade/MMR', async () => {
     canQueue = false; const count = requests.length; await career.joinQueue(); assert.equal(requests.length, count); canQueue = true;
     await career.joinQueue(); await career.account('login', 'b', 'password');
     assert.ok(requests.lastIndexOf('DELETE /api/ranked') < requests.lastIndexOf('POST /api/account/login'));
     assert.equal(career.rankedState.profile?.mmr, 1000); assert.equal(career.rankedState.profile?.rank, 'Silver'); assert.equal(seen.at(-1), 'b');
     await career.logout(); assert.equal(career.rankedState.profile, undefined); assert.equal(seen.at(-1), undefined);
+  });
+  await t.test('leaving an account stops its delayed result refresh without fetching the next identity', async () => {
+    values.set('lagon-player-token', 'token-a'); current = profile();
+    const other = new CareerUI({ profile: () => {}, championship: async () => {}, ranked: async () => {}, replay: () => {}, error: () => {} });
+    await other.restore();
+    const before = requests.filter(value => value === 'GET /api/me').length;
+    const pendingResult = other.refresh({ minimumRaces: 1 });
+    await other.logout(); await pendingResult;
+    assert.equal(other.currentProfile, undefined);
+    assert.equal(requests.filter(value => value === 'GET /api/me').length - before, 1);
   });
 });

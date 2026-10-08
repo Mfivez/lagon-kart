@@ -1,0 +1,34 @@
+{
+  "passed": true,
+  "timestamp": "2026-10-07T20:37:29.906Z",
+  "checks": [
+    "Modèle Huit superposé choisi dans l’UI : pont au niveau1, tunnel dessous, 5m de hauteur libre et repères dessus/dessous.",
+    "Glissement souris : aperçu du pont recalculé avant relâchement, Annuler et Rétablir conservent géométrie et ordre.",
+    "Mobile320×568 : brouillon retrouvé, glissement tactile réel, Annuler/Rétablir et explications sans débordement.",
+    "Aucun circuit publié ni fichier de circuit créé ; données temporaires uniquement."
+  ],
+  "errors": [],
+  "captures": [
+    "figure-eight-desktop.png",
+    "figure-eight-mobile.png",
+    "crossing-details-mobile.png"
+  ],
+  "evidence": {
+    "origin": "http://127.0.0.1:44695",
+    "initial": {
+      "description": "Pont 1, niveau 1. Dessus à 65 % du tour, tunnel dessous à 17 %. Hauteur libre minimale 5 mètres.",
+      "summary": "1 pont automatique · passages dessous dégagés\n\nLa portion parcourue le plus tard passe au-dessus. Les pointillés repèrent le tunnel ; les bords dorés montrent le pont et ses montées.\n\nP1 · Niveau 1\nDessus 65 % · dessous 17 % · 5 m libres"
+    },
+    "mousePreview": {
+      "updatedBeforeRelease": true
+    },
+    "touchPreview": {
+      "updatedBeforeRelease": true
+    }
+  },
+  "scope": "Éditeur réel dans Chromium, souris et toucher. Serveur privé, sources dist/client, aucun changement direct du brouillon ou de la simulation.",
+  "remaining": [
+    "Téléphone physique et Safari iOS non testés.",
+    "La conduite sous et sur le pont est couverte par un scénario distinct."
+  ]
+}

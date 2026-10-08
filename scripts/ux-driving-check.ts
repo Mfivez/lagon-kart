@@ -1,3 +1,4 @@
+import { homeControl } from './menu-navigation.js';
 import assert from 'node:assert/strict';
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
@@ -79,14 +80,14 @@ try {
   evidence.assets = [...html.matchAll(/(?:src|href)="([^"]*assets[^"]+)"/g)].map(match => match[1]);
   await page.goto(origin, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => !!(window as unknown as { __lagonDebug?: unknown }).__lagonDebug);
-  await page.locator('#graphics-quality').selectOption('detailed');
+  await (await homeControl(page, '#graphics-quality')).selectOption('detailed');
   await until(async () => (await debug()).view.qualityMode === 'detailed', 'Detailed mode not applied');
   const full = (await debug()).view; assert.equal(full.shadows, true); assert.equal(full.pixelRatio, 1);
   const menuBefore = full.renderedFrames; await wait(1200); const menuAfter = (await debug()).view.renderedFrames;
   assert.ok(menuAfter > menuBefore && menuAfter - menuBefore <= 20, `menu draws ${menuAfter - menuBefore} times in1.2s`);
   evidence.menuRendering = { before: menuBefore, after: menuAfter, milliseconds: 1200 };
   record('Menus : rendu plafonné à15FPS, sans prétendre mesurer une fluidité GPU.');
-  await page.locator('#graphics-quality').selectOption('smooth');
+  await (await homeControl(page, '#graphics-quality')).selectOption('smooth');
   await until(async () => (await debug()).view.qualityMode === 'smooth', 'Smooth mode not applied');
   const light = (await debug()).view;
   assert.equal(light.shadows, false); assert.equal(light.pixelRatio, .8); assert.equal(light.quality, 'light');
@@ -96,10 +97,10 @@ try {
   await page.waitForFunction(() => !!(window as unknown as { __lagonDebug?: unknown }).__lagonDebug);
   await until(async () => (await debug()).view.qualityMode === 'smooth', 'Saved graphics mode not restored');
   assert.equal(await page.locator('#graphics-quality').inputValue(), 'smooth');
-  await page.locator('#graphics-quality').selectOption('auto');
+  await (await homeControl(page, '#graphics-quality')).selectOption('auto');
   await until(async () => (await debug()).view.qualityMode === 'auto', 'Auto not restored');
   record('Auto / Fluide / Détaillé : choix réel, ombres/résolution/décor réduits, préférence conservée au rechargement.');
-  await page.locator('#name-input').fill('Essai conduite UX'); await page.locator('#practice-button').tap();
+  await (await homeControl(page, '#name-input')).fill('Essai conduite UX'); await (await homeControl(page, '#practice-button')).tap();
   await until(async () => (await debug()).world?.phase === 'racing', 'Practice did not start');
   const roomId = new URL(await page.locator('#share-url').inputValue()).pathname.split('/').pop()!;
   const room = matchMaker.getLocalRoomById(roomId) as RaceRoom, sessionId = (await debug()).sessionId!;

@@ -1,4 +1,5 @@
-import { getTrack, trackElevation } from './track.js';
+import { getTrack, trackElevation, type TrackDefinition } from './track.js';
+import { automaticTrackElevation } from './track-crossings.js';
 
 /** Metres above the local road; shared with the procedural renderers. */
 export const ROAD_RAIL_HEIGHT = .6;
@@ -12,10 +13,34 @@ export const TRACK_SHOULDER = 5;
 export const BRIDGE_SHOULDER = 1.5;
 export const KART_COLLISION_HEIGHT = 1.8;
 
+const upperDeckRanges = new WeakMap<TrackDefinition, Array<{ start: number; end: number }>>();
+function onUpperDeck(wrapped: number, track: TrackDefinition): boolean {
+  if (!track.crossings?.length) return false;
+  let ranges = upperDeckRanges.get(track);
+  if (!ranges) {
+    const intervals = track.crossings.flatMap(crossing => {
+      const span = crossing.upperEnd - crossing.upperStart;
+      const start = ((crossing.upperStart % track.length) + track.length) % track.length, end = start + span;
+      return end <= track.length ? [{ start, end }] : [{ start, end: track.length }, { start: 0, end: end - track.length }];
+    }).sort((a, b) => a.start - b.start);
+    ranges = [];
+    for (const interval of intervals) {
+      const previous = ranges[ranges.length - 1];
+      if (previous && interval.start <= previous.end) previous.end = Math.max(previous.end, interval.end);
+      else ranges.push({ ...interval });
+    }
+    upperDeckRanges.set(track, ranges);
+  }
+  let low = 0, high = ranges.length;
+  while (low < high) { const middle = (low + high) >>> 1; if (ranges[middle]!.start <= wrapped) low = middle + 1; else high = middle; }
+  return low > 0 && wrapped <= ranges[low - 1]!.end;
+}
+
 export function isBridgeProgress(progress: number, trackId: string): boolean {
   const track = getTrack(trackId), remainder = progress % track.length;
   const wrapped = remainder < 0 ? remainder + track.length : remainder;
-  return track.elevations.some(feature => feature.kind === 'bridge' && wrapped >= feature.start && wrapped <= feature.end);
+  return automaticTrackElevation(progress, track) > .02 || onUpperDeck(wrapped, track) ||
+    track.elevations.some(feature => feature.kind === 'bridge' && wrapped >= feature.start && wrapped <= feature.end);
 }
 export function trackBoundaryHeight(progress: number, trackId: string, branchId = ''): number {
   return branchId ? BRANCH_POST_HEIGHT : isBridgeProgress(progress, trackId) ? BRIDGE_RAIL_TOP : ROAD_RAIL_TOP;

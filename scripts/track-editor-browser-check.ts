@@ -1,3 +1,4 @@
+import { homeControl } from './menu-navigation.js';
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
@@ -57,7 +58,7 @@ try {
   const health = await fetch(`${origin}/healthz`); assert.equal(health.status, 200);
   const desktop = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
   const host = await desktop.newPage(); await ready(host);
-  await host.locator('#name-input').fill('Créateur atelier'); await host.locator('#track-editor-button').click(); await host.locator('#track-editor-dialog').waitFor({ state: 'visible' });
+  await (await homeControl(host, '#name-input')).fill('Créateur atelier'); await (await homeControl(host, '#track-editor-button')).click(); await host.locator('#track-editor-dialog').waitFor({ state: 'visible' });
   assert.match(await host.locator('#editor-validation').innerText(), /prête à rouler/);
   const title = `Grande boucle atelier ${Date.now().toString().slice(-6)}`;
   await host.locator('#editor-name').fill(title); await host.locator('#editor-theme').selectOption('forest');
@@ -91,7 +92,7 @@ try {
 
   await host.locator('#editor-name').fill(`${title} brouillon`); await host.locator('#editor-close').click(); await host.locator('#track-editor-dialog').waitFor({ state: 'hidden' });
   await host.reload({ waitUntil: 'domcontentloaded' }); await host.waitForFunction(() => !!(window as unknown as { __lagonDebug?: unknown }).__lagonDebug);
-  await host.locator('#track-editor-button').click(); assert.equal(await host.locator('#editor-name').inputValue(), `${title} brouillon`);
+  await (await homeControl(host, '#track-editor-button')).click(); assert.equal(await host.locator('#editor-name').inputValue(), `${title} brouillon`);
   record('Un brouillon non publié survit à la fermeture de l’éditeur et au rechargement de la page.');
 
   await host.locator('#editor-canvas').scrollIntoViewIfNeeded(); const first = await pointPosition(host, 0); const second = await pointPosition(host, 1);
@@ -125,7 +126,7 @@ try {
   record('Essayer en privé ouvre le brouillon sans publier de version3 ; accélération réelle, version2 intacte et retour dans l’éditeur sans perte.');
 
   const mobile = await browser.newContext({ viewport: { width: 320, height: 568 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1 });
-  const guest = await mobile.newPage(); await ready(guest); await guest.locator('#name-input').fill('Créatrice mobile'); await guest.locator('#track-editor-button').click();
+  const guest = await mobile.newPage(); await ready(guest); await (await homeControl(guest, '#name-input')).fill('Créatrice mobile'); await (await homeControl(guest, '#track-editor-button')).click();
   await guest.locator(`[data-action="copy"][data-id="${saved.id}"]`).waitFor();
   assert.equal(await guest.locator(`[data-action="open"][data-id="${saved.id}"]`).count(), 0);
   await guest.locator(`[data-action="copy"][data-id="${saved.id}"]`).click();

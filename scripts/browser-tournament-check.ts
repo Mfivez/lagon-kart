@@ -1,3 +1,4 @@
+import { homeControl, readOfficialTrackCatalog, selectHomeTrack } from './menu-navigation.js';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -6,7 +7,7 @@ import { chromium, type Browser, type Page } from 'playwright';
 import { matchMaker } from '@colyseus/core';
 import type { RaceRoom } from '../server/RaceRoom.js';
 import type { World } from '../shared/game.js';
-import { TRACK_IDS } from '../shared/track.js';
+import { TRACK_IDS, getTrack } from '../shared/track.js';
 
 // Browser/Colyseus transitions, not eight fully driven races. Each round starts
 // normally and receives real keyboard input before a private finish fixture.
@@ -60,19 +61,18 @@ try {
   }
   await host.goto(origin, { waitUntil: 'domcontentloaded' });
   await host.locator('#create-button').waitFor();
-  await host.waitForFunction(() => document.querySelectorAll('[data-track]').length >= 12);
-  const catalog = await host.locator('[data-track]').evaluateAll(elements => elements.map(element => element.getAttribute('data-track')!));
+  const catalog = await readOfficialTrackCatalog(host);
   assert.deepEqual(new Set(catalog), new Set(TRACK_IDS), 'Le catalogue isolé doit contenir tous les circuits intégrés.');
   const schedule = catalog.slice(0, 8); assert.equal(schedule.length, 8);
   evidence.catalog = catalog; evidence.manualSchedule = schedule;
-  await host.locator(`[data-track="${schedule[0]}"]`).click();
+  await selectHomeTrack(host, schedule[0]!, getTrack(schedule[0]).name);
   record(`${catalog.length} circuits disponibles : le contrôle utilise le catalogue actuel.`);
-  await host.locator('#name-input').fill('Camille');
-  await host.locator('#create-button').click(); await phase(host, 'lobby');
+  await (await homeControl(host, '#name-input')).fill('Camille');
+  await (await homeControl(host, '#create-button')).click(); await phase(host, 'lobby');
   const link = await host.locator('#share-url').inputValue();
   await guest.goto(link, { waitUntil: 'domcontentloaded' });
-  await guest.locator('#name-input').fill('Sacha');
-  await guest.locator('#join-button').click(); await phase(guest, 'lobby');
+  await (await homeControl(guest, '#name-input')).fill('Sacha');
+  await (await homeControl(guest, '#join-button')).click(); await phase(guest, 'lobby');
   const roomId = new URL(link).pathname.split('/').pop()!;
   const live = matchMaker.getLocalRoomById(roomId) as RaceRoom; assert.ok(live);
   await host.locator('#race-configuration').evaluate(element => { if (element instanceof HTMLDetailsElement) element.open = true; });

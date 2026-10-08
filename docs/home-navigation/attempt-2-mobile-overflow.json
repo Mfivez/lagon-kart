@@ -1,0 +1,447 @@
+{
+  "origin": "http://127.0.0.1:39841",
+  "startedAt": "2026-10-07T20:59:33.092Z",
+  "checks": [
+    "Keyboard/mouse picker: 32 long-name creations, pagination, accent-insensitive search, source filters, empty state, explicit confirm/cancel, focus return and failed refresh/retry preserving selection.",
+    "1827x860: core actions, rank/MMR, chosen circuit, presence and navigation visible without scrolling; secondary views reachable with no horizontal overflow.",
+    "1366x768: core actions, rank/MMR, chosen circuit, presence and navigation visible without scrolling; secondary views reachable with no horizontal overflow.",
+    "1024x768: core actions, rank/MMR, chosen circuit, presence and navigation visible without scrolling; secondary views reachable with no horizontal overflow.",
+    "Desktop: keyboard tab navigation, selected custom circuit used by a real normal room, leave returns to Play with settings and selection intact."
+  ],
+  "errors": [],
+  "captures": [
+    "home-1827x860.png",
+    "picker-1827x860.png",
+    "picker-desktop-long-name.png",
+    "home-1366x768.png",
+    "picker-1366x768.png",
+    "home-1024x768.png",
+    "picker-1024x768.png",
+    "failure.png"
+  ],
+  "scope": "Chromium desktop and touch emulation, built client and real private server; temporary profiles and 32 authored tracks created through HTTP APIs.",
+  "limitations": [
+    "No physical phone or Safari iOS tested.",
+    "These checks cover home navigation and normal room creation, not a complete race."
+  ],
+  "assets": [
+    "/assets/index-l5UFafWz.js",
+    "/assets/index-C1o4Icqr.css"
+  ],
+  "catalogueFixture": {
+    "authored": 32,
+    "nameLengths": [
+      48
+    ],
+    "themes": 10
+  },
+  "layouts": [
+    {
+      "width": 1827,
+      "height": 860,
+      "touch": false,
+      "selected": "lagon",
+      "boxes": {
+        "#name-input": {
+          "x": 486.59375,
+          "y": 269.265625,
+          "width": 283.546875,
+          "height": 44
+        },
+        "#home-ranked-action": {
+          "x": 942.5,
+          "y": 329.625,
+          "width": 417,
+          "height": 55.78125
+        },
+        "[data-ranked-grade]": {
+          "x": 942.5,
+          "y": 288.140625,
+          "width": 70.890625,
+          "height": 25.59375
+        },
+        "[data-ranked-mmr]": {
+          "x": 1021.390625,
+          "y": 291.9375,
+          "width": 77.9375,
+          "height": 18
+        },
+        "#create-button": {
+          "x": 925.5,
+          "y": 450.984375,
+          "width": 221.5,
+          "height": 71.328125
+        },
+        "#practice-button": {
+          "x": 1155,
+          "y": 450.984375,
+          "width": 221.5,
+          "height": 71.328125
+        },
+        "#code-input": {
+          "x": 925.5,
+          "y": 534.3125,
+          "width": 221.5,
+          "height": 69.34375
+        },
+        "#join-button": {
+          "x": 1155,
+          "y": 534.3125,
+          "width": 221.5,
+          "height": 69.34375
+        },
+        "#choose-track-button": {
+          "x": 469.5,
+          "y": 592.796875,
+          "width": 413,
+          "height": 44
+        },
+        "#track-name": {
+          "x": 469.5,
+          "y": 478.265625,
+          "width": 413,
+          "height": 28.75
+        },
+        "#track-tags": {
+          "x": 469.5,
+          "y": 515.015625,
+          "width": 413,
+          "height": 21
+        },
+        ".home-presence-summary": {
+          "x": 1225.515625,
+          "y": 171.890625,
+          "width": 150.984375,
+          "height": 50.296875
+        },
+        "#home-tab-play": {
+          "x": 450.5,
+          "y": 711,
+          "width": 227,
+          "height": 44
+        },
+        "#home-tab-pilot": {
+          "x": 683.5,
+          "y": 711,
+          "width": 227,
+          "height": 44
+        },
+        "#home-tab-online": {
+          "x": 916.5,
+          "y": 711,
+          "width": 227,
+          "height": 44
+        },
+        "#home-tab-options": {
+          "x": 1149.5,
+          "y": 711,
+          "width": 227,
+          "height": 44
+        }
+      }
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "touch": false,
+      "selected": "custom-8f5105e9-1777-4be7-838e-5c891a011e80-v1",
+      "boxes": {
+        "#name-input": {
+          "x": 256.09375,
+          "y": 208.890625,
+          "width": 283.546875,
+          "height": 44
+        },
+        "#home-ranked-action": {
+          "x": 712,
+          "y": 271.65625,
+          "width": 417,
+          "height": 58.171875
+        },
+        "[data-ranked-grade]": {
+          "x": 712,
+          "y": 228.96875,
+          "width": 70.890625,
+          "height": 25.59375
+        },
+        "[data-ranked-mmr]": {
+          "x": 790.890625,
+          "y": 232.765625,
+          "width": 77.9375,
+          "height": 18
+        },
+        "#create-button": {
+          "x": 695,
+          "y": 397.796875,
+          "width": 221.5,
+          "height": 78.515625
+        },
+        "#practice-button": {
+          "x": 924.5,
+          "y": 397.796875,
+          "width": 221.5,
+          "height": 78.515625
+        },
+        "#code-input": {
+          "x": 695,
+          "y": 488.3125,
+          "width": 221.5,
+          "height": 76.53125
+        },
+        "#join-button": {
+          "x": 924.5,
+          "y": 488.3125,
+          "width": 221.5,
+          "height": 76.53125
+        },
+        "#choose-track-button": {
+          "x": 239,
+          "y": 561.171875,
+          "width": 413,
+          "height": 44
+        },
+        "#track-name": {
+          "x": 239,
+          "y": 417.890625,
+          "width": 413,
+          "height": 57.5
+        },
+        "#track-tags": {
+          "x": 239,
+          "y": 483.390625,
+          "width": 413,
+          "height": 21
+        },
+        ".home-presence-summary": {
+          "x": 995.015625,
+          "y": 125.890625,
+          "width": 150.984375,
+          "height": 50.296875
+        },
+        "#home-tab-play": {
+          "x": 220,
+          "y": 665,
+          "width": 227,
+          "height": 44
+        },
+        "#home-tab-pilot": {
+          "x": 453,
+          "y": 665,
+          "width": 227,
+          "height": 44
+        },
+        "#home-tab-online": {
+          "x": 686,
+          "y": 665,
+          "width": 227,
+          "height": 44
+        },
+        "#home-tab-options": {
+          "x": 919,
+          "y": 665,
+          "width": 227,
+          "height": 44
+        }
+      }
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "touch": false,
+      "selected": "custom-8f5105e9-1777-4be7-838e-5c891a011e80-v1",
+      "boxes": {
+        "#name-input": {
+          "x": 87.09375,
+          "y": 208.890625,
+          "width": 281.546875,
+          "height": 44
+        },
+        "#home-ranked-action": {
+          "x": 541,
+          "y": 271.65625,
+          "width": 415,
+          "height": 58.171875
+        },
+        "[data-ranked-grade]": {
+          "x": 541,
+          "y": 228.96875,
+          "width": 70.890625,
+          "height": 25.59375
+        },
+        "[data-ranked-mmr]": {
+          "x": 619.890625,
+          "y": 232.765625,
+          "width": 77.9375,
+          "height": 18
+        },
+        "#create-button": {
+          "x": 524,
+          "y": 397.796875,
+          "width": 220.5,
+          "height": 78.515625
+        },
+        "#practice-button": {
+          "x": 752.5,
+          "y": 397.796875,
+          "width": 220.5,
+          "height": 78.515625
+        },
+        "#code-input": {
+          "x": 524,
+          "y": 488.3125,
+          "width": 220.5,
+          "height": 76.53125
+        },
+        "#join-button": {
+          "x": 752.5,
+          "y": 488.3125,
+          "width": 220.5,
+          "height": 76.53125
+        },
+        "#choose-track-button": {
+          "x": 70,
+          "y": 561.171875,
+          "width": 411,
+          "height": 44
+        },
+        "#track-name": {
+          "x": 70,
+          "y": 417.890625,
+          "width": 411,
+          "height": 57.5
+        },
+        "#track-tags": {
+          "x": 70,
+          "y": 483.390625,
+          "width": 411,
+          "height": 21
+        },
+        ".home-presence-summary": {
+          "x": 822.015625,
+          "y": 125.890625,
+          "width": 150.984375,
+          "height": 50.296875
+        },
+        "#home-tab-play": {
+          "x": 51,
+          "y": 665,
+          "width": 226,
+          "height": 44
+        },
+        "#home-tab-pilot": {
+          "x": 283,
+          "y": 665,
+          "width": 226,
+          "height": 44
+        },
+        "#home-tab-online": {
+          "x": 515,
+          "y": 665,
+          "width": 226,
+          "height": 44
+        },
+        "#home-tab-options": {
+          "x": 747,
+          "y": 665,
+          "width": 226,
+          "height": 44
+        }
+      }
+    }
+  ],
+  "passed": false,
+  "error": "AssertionError [ERR_ASSERTION]: Primary home screen must not scroll at 320×568\n\ntrue !== false\n",
+  "failureLayout": [
+    {
+      "id": "home-panel",
+      "box": {
+        "x": 8,
+        "y": 54,
+        "width": 304,
+        "height": 506
+      },
+      "scrollHeight": 504,
+      "clientHeight": 504
+    },
+    {
+      "id": "home-hub-body",
+      "box": {
+        "x": 18,
+        "y": 127,
+        "width": 284,
+        "height": 360
+      },
+      "scrollHeight": 381,
+      "clientHeight": 360
+    },
+    {
+      "id": "home-view-play",
+      "box": {
+        "x": 21,
+        "y": 130,
+        "width": 278,
+        "height": 374.875
+      },
+      "scrollHeight": 375,
+      "clientHeight": 375
+    },
+    {
+      "id": "home-ranked",
+      "box": {
+        "x": 21,
+        "y": 374,
+        "width": 278,
+        "height": 130.875
+      },
+      "scrollHeight": 129,
+      "clientHeight": 129
+    },
+    {
+      "id": "track-picker",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "scrollHeight": 0,
+      "clientHeight": 0
+    },
+    {
+      "id": "track-picker-cards",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "scrollHeight": 0,
+      "clientHeight": 0
+    },
+    {
+      "id": "track-picker-detail",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "scrollHeight": 0,
+      "clientHeight": 0
+    },
+    {
+      "id": "track-picker-confirm",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "scrollHeight": 0,
+      "clientHeight": 0
+    }
+  ],
+  "finishedAt": "2026-10-07T21:00:19.522Z",
+  "browserClosed": true,
+  "temporaryDataRemoved": true
+}

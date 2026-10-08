@@ -3,17 +3,20 @@ import { link, mkdir, open, readdir, readFile, stat, unlink } from 'node:fs/prom
 import { basename, dirname, join, resolve } from 'node:path';
 import { compileCustomTrack, customTrackRuntimeId, registerCustomTrack, validateCustomTrackDraft,
   type StoredCustomTrack } from '../shared/custom-tracks.js';
+import { retireCustomTrackDefinition } from '../shared/track.js';
 
 export class CustomTrackError extends Error {
   constructor(message: string, public readonly status = 400) { super(message); }
 }
-export interface TrackAuthor { id: string; name: string }
+export interface TrackAuthor { id: string; name: string; canModerateTracks?: boolean }
 export interface CustomTrackStoreOptions {
   now?: () => number; maxTracks?: number; maxTracksPerAuthor?: number; maxRevisions?: number;
 }
 export const CUSTOM_TRACK_FILE_LIMIT = 64 * 1024;
 const logicalId = /^custom-[a-z0-9-]{1,64}$/;
 const runtimeFile = /^(custom-[a-z0-9-]{1,64})-v([1-9][0-9]{0,4})\.json$/;
+const deletedFile = /^(custom-[a-z0-9-]{1,64})\.deleted\.json$/;
+const directoryWrites = new Map<string, Promise<unknown>>();
 type OwnedTrack = StoredCustomTrack & { authorId: string; authorName: string; runtimeId: string };
 const clone = <T>(value: T): T => structuredClone(value);
 const isTimestamp = (value: unknown): value is string => typeof value === 'string' &&
@@ -25,6 +28,7 @@ export class CustomTrackStore {
   private readonly records = new Map<string, OwnedTrack>();
   private readonly latest = new Map<string, OwnedTrack>();
   private readonly damaged = new Set<string>();
+  private readonly deleted = new Set<string>();
   private tail: Promise<unknown> = Promise.resolve();
   private readonly now: () => number;
   private readonly maxTracks: number;
@@ -41,7 +45,14 @@ export class CustomTrackStore {
   static async open(directory: string, options: CustomTrackStoreOptions = {}): Promise<CustomTrackStore> {
     const store = new CustomTrackStore(resolve(directory), options);
     await mkdir(store.directory, { recursive: true, mode: 0o700 });
-    const files = (await readdir(store.directory)).filter(file => runtimeFile.test(file)).sort();
+    const entries = await readdir(store.directory);
+    // Even a damaged tombstone stays effective: an interrupted/manual edit must
+    // never silently republish a moderated circuit. Revision files stay intact.
+    for (const file of entries) {
+      const match = deletedFile.exec(file);
+      if (match) store.retire(match[1]!);
+    }
+    const files = entries.filter(file => runtimeFile.test(file)).sort();
     if (files.length > 51_200) throw new CustomTrackError('Trop de versions de circuits dans le dossier de sauvegarde.', 503);
     for (const file of files) {
       const match = runtimeFile.exec(file)!;
@@ -70,23 +81,48 @@ export class CustomTrackStore {
     return record ? clone(record) : undefined;
   }
 
+  isAvailable(runtimeId: string): boolean {
+    const record = this.records.get(runtimeId);
+    return !!record && !this.deleted.has(record.id);
+  }
+
+  async delete(author: TrackAuthor, id: unknown, expectedRevision: unknown): Promise<{ deletedId: string }> {
+    this.validateAuthor(author);
+    if (typeof id !== 'string' || !logicalId.test(id)) throw new CustomTrackError('Identifiant de circuit invalide.');
+    return this.transaction(async () => {
+      await this.checkNotDeleted(id);
+      const previous = this.latest.get(id);
+      if (!previous) throw new CustomTrackError('Circuit introuvable.', 404);
+      if (previous.authorId !== author.id && author.canModerateTracks !== true)
+        throw new CustomTrackError('Seul le créateur ou le compte administrateur peut supprimer ce circuit.', 403);
+      if (!Number.isSafeInteger(expectedRevision) || Number(expectedRevision) < 1) throw new CustomTrackError('Version de circuit invalide.');
+      if (expectedRevision !== previous.revision) throw new CustomTrackError('Ce circuit a été modifié. Rechargez la bibliothèque avant de le supprimer.', 409);
+      await this.checkLatestRevision(previous);
+      const marker = { id, revision: previous.revision, deletedAt: new Date(this.now()).toISOString(), deletedBy: author.id };
+      await this.persistFile(id + '.deleted', marker, 'Le circuit ne peut pas être supprimé pour le moment. Réessayez.');
+      this.retire(id);
+      return { deletedId: id };
+    });
+  }
+
   async save(author: TrackAuthor, draftInput: unknown, id?: unknown, expectedRevision?: unknown): Promise<OwnedTrack> {
     const validation = validateCustomTrackDraft(draftInput);
     if (!validation.ok || !validation.draft) throw new CustomTrackError(validation.errors.join(' ') || 'Circuit invalide.');
-    if (!author || typeof author.id !== 'string' || !author.id.length || author.id.length > 80 ||
-      typeof author.name !== 'string' || !author.name.trim() || author.name.length > 80) throw new CustomTrackError('Profil invalide.', 401);
+    this.validateAuthor(author);
     // Canonical JSON values match both the on-disk record and the HTTP representation (including -0).
     const draft = JSON.parse(JSON.stringify(validation.draft)) as typeof validation.draft;
     return this.transaction(async () => {
       let previous: OwnedTrack | undefined;
       if (id !== undefined) {
         if (typeof id !== 'string' || !logicalId.test(id)) throw new CustomTrackError('Identifiant de circuit invalide.');
+        await this.checkNotDeleted(id);
         previous = this.latest.get(id);
         if (!previous) throw new CustomTrackError('Circuit introuvable.', 404);
         if (previous.authorId !== author.id) throw new CustomTrackError('Seul le créateur peut modifier ce circuit. Dupliquez-le pour créer votre version.', 403);
         if (this.damaged.has(id)) throw new CustomTrackError('Une sauvegarde de ce circuit est illisible. Les fichiers sont conservés ; dupliquez la version disponible.', 503);
         if (!Number.isSafeInteger(expectedRevision) || Number(expectedRevision) < 1) throw new CustomTrackError('Version de circuit invalide.');
         if (expectedRevision !== previous.revision) throw new CustomTrackError('Ce circuit a été modifié depuis son ouverture. Rechargez-le avant de sauvegarder.', 409);
+        await this.checkLatestRevision(previous);
         if (previous.revision >= this.maxRevisions) throw new CustomTrackError('Ce circuit a atteint sa limite de versions. Dupliquez-le pour continuer.', 409);
       } else {
         if (this.latest.size >= this.maxTracks) throw new CustomTrackError('La bibliothèque de circuits est pleine.', 409);
@@ -110,7 +146,35 @@ export class CustomTrackStore {
 
   private install(record: OwnedTrack) {
     this.records.set(record.runtimeId, record);
-    if ((this.latest.get(record.id)?.revision ?? 0) < record.revision) this.latest.set(record.id, record);
+    if (!this.deleted.has(record.id) && (this.latest.get(record.id)?.revision ?? 0) < record.revision) this.latest.set(record.id, record);
+  }
+
+  private validateAuthor(author: TrackAuthor) {
+    if (!author || typeof author.id !== 'string' || !author.id.length || author.id.length > 80 ||
+      typeof author.name !== 'string' || !author.name.trim() || author.name.length > 80) throw new CustomTrackError('Profil invalide.', 401);
+  }
+
+  private retire(id: string) {
+    this.deleted.add(id); this.latest.delete(id); retireCustomTrackDefinition(id);
+  }
+
+  private async exists(file: string): Promise<boolean> {
+    try { await stat(join(this.directory, file)); return true; }
+    catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return false;
+      throw new CustomTrackError('La bibliothèque de circuits est temporairement indisponible.', 503);
+    }
+  }
+
+  private async checkNotDeleted(id: string) {
+    if (this.deleted.has(id) || await this.exists(id + '.deleted.json')) {
+      this.retire(id); throw new CustomTrackError('Ce circuit a été supprimé.', 404);
+    }
+  }
+
+  private async checkLatestRevision(record: OwnedTrack) {
+    if (await this.exists(`${record.id}-v${record.revision + 1}.json`))
+      throw new CustomTrackError('Ce circuit a été modifié. Rechargez la bibliothèque avant de réessayer.', 409);
   }
 
   private readRecord(input: unknown): OwnedTrack {
@@ -134,8 +198,12 @@ export class CustomTrackStore {
   }
 
   private async persist(record: OwnedTrack) {
-    const destination = join(this.directory, record.runtimeId + '.json');
-    const temporary = join(this.directory, `.${record.runtimeId}.${randomUUID()}.tmp`);
+    return this.persistFile(record.runtimeId, record, 'Le circuit ne peut pas être sauvegardé pour le moment. Votre dessin reste ouvert.');
+  }
+
+  private async persistFile(name: string, record: unknown, failureMessage: string) {
+    const destination = join(this.directory, name + '.json');
+    const temporary = join(this.directory, `.${name}.${randomUUID()}.tmp`);
     const data = JSON.stringify(record) + '\n';
     if (Buffer.byteLength(data) > CUSTOM_TRACK_FILE_LIMIT) throw new CustomTrackError('Circuit trop volumineux.', 413);
     try {
@@ -146,13 +214,16 @@ export class CustomTrackStore {
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'EEXIST')
         throw new CustomTrackError('Cette version existe déjà sur disque. Rechargez le serveur avant de réessayer.', 409);
-      throw new CustomTrackError('Le circuit ne peut pas être sauvegardé pour le moment. Votre dessin reste ouvert.', 503);
+      throw new CustomTrackError(failureMessage, 503);
     } finally { await unlink(temporary).catch(() => {}); }
   }
 
   private transaction<T>(operation: () => Promise<T>): Promise<T> {
-    const pending = this.tail.then(operation);
+    // All instances for a directory serialize writes, including reload/test
+    // instances whose in-memory catalogue may lag behind a newer revision.
+    const pending = (directoryWrites.get(this.directory) ?? this.tail).then(operation);
     this.tail = pending.catch(() => {});
+    directoryWrites.set(this.directory, this.tail);
     return pending;
   }
 }

@@ -3,7 +3,7 @@ import { getTrack, nearestTrack, trackElevation, trackPoint, type Surface, type 
 export const INTERACTION_WARNING_SECONDS = 1;
 export const INTERACTION_COOLDOWN_SECONDS = 2;
 export interface TrackInteractionState { id:string; triggeredAt:number; activeAt:number; expiresAt:number; triggeredBy:string }
-interface InteractionKart { id:string;x:number;z:number;elevation:number;speed:number;airborne:boolean;connected:boolean;spectator:boolean;abandoned:boolean;finished:boolean;trackId:string }
+interface InteractionKart { routeProgress?:number;progress?:number;id:string;x:number;z:number;elevation:number;speed:number;airborne:boolean;connected:boolean;spectator:boolean;abandoned:boolean;finished:boolean;trackId:string }
 interface InteractionWorld {trackId:string;time:number;interactions?:TrackInteractionState[]}
 
 /** Snapshot state is explicit: different rooms using one definition stay independent. */
@@ -33,7 +33,7 @@ export function triggerTrackInteractions(world:InteractionWorld,kart:Interaction
     if (Math.abs(across-module.offset)>module.width/2+.35||Math.abs(kart.elevation-trackElevation(module.trigger,world.trackId))>1) continue;
     // On a self crossing, physical location alone is ambiguous. Match the
     // nearest route segment as well, without awarding any lap progress.
-    const near=nearestTrack(kart.x,kart.z,world.trackId),length=getTrack(world.trackId).length;
+    const near=nearestTrack(kart.x,kart.z,world.trackId,{progress:kart.routeProgress??kart.progress,elevation:kart.elevation}),length=getTrack(world.trackId).length;
     if (Math.min(Math.abs(near.progress-module.trigger),length-Math.abs(near.progress-module.trigger))>20) continue;
     const state={id:module.id,triggeredAt:world.time,activeAt:world.time+INTERACTION_WARNING_SECONDS,expiresAt:world.time+INTERACTION_WARNING_SECONDS+module.duration,triggeredBy:kart.id};
     world.interactions=[...(world.interactions??[]).filter(item=>item.id!==module.id),state]; triggered=true;

@@ -1,0 +1,50 @@
+{
+  "origin": "http://127.0.0.1:38359",
+  "executedAt": "2026-10-07T21:07:54.657Z",
+  "checks": [
+    "Accueil : grade et MMR serveur, chargement réel sans classement inventé, carte lisible sur mobile 320 px.",
+    "Recherche unique continue après fermeture du menu ; annulation réelle, erreur récupérable et annulation avant un salon libre.",
+    "QR du canvas réellement décodé puis lien ouvert par le second profil ; copie locale et contrat de partage natif vérifiés.",
+    "Entrer dans l’éditeur annule aussi la recherche serveur avant d’ouvrir l’atelier."
+  ],
+  "errors": [],
+  "captures": [
+    "home-ranked-mobile-320.png",
+    "home-ranked-search.png",
+    "invitation-qr-desktop.png",
+    "invitation-qr-mobile-320.png"
+  ],
+  "assets": [
+    "/assets/index-bKh-G9dw.js",
+    "/assets/index-cmIs3avI.css"
+  ],
+  "mobileHomeBoxes": {
+    "home-ranked": {
+      "x": 19,
+      "y": 358.484375,
+      "width": 282,
+      "height": 130.875
+    },
+    "create-button": {
+      "x": 19,
+      "y": 258.484375,
+      "width": 137,
+      "height": 44
+    },
+    "join-button": {
+      "x": 164,
+      "y": 308.484375,
+      "width": 137,
+      "height": 44
+    },
+    "practice-button": {
+      "x": 164,
+      "y": 258.484375,
+      "width": 137,
+      "height": 44
+    }
+  },
+  "qrDecoded": "http://127.0.0.1:38359/room/DH7FG9",
+  "passed": false,
+  "error": "Error: Home refreshed from server result"
+}

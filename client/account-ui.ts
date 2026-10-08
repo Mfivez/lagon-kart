@@ -37,7 +37,7 @@ export class AccountUI {
   }
   update(profile = this.career.currentProfile) {
     this.host.innerHTML = profile?.username
-      ? `<div class="account-summary"><strong>Compte · ${escape(profile.username)}</strong><span>${profile.xp} XP sauvegardés · niveau ${profile.careerLevel}</span></div><button type="button" class="account-link" data-account="logout">Se déconnecter</button>`
+      ? `<div class="account-summary"><strong>Compte · ${escape(profile.username)}${profile.canModerateTracks ? ' · Admin' : ''}</strong><span>${profile.xp} XP sauvegardés · niveau ${profile.careerLevel}</span>${profile.canModerateTracks ? '<span>Modération des circuits dans l’éditeur.</span>' : ''}</div><button type="button" class="account-link" data-account="logout">Se déconnecter</button>`
       : `<div class="account-summary"><strong>Pilote invité</strong><span>Créez un compte pour retrouver vos courses sur un autre appareil.</span></div><div class="account-buttons"><button type="button" class="secondary" data-account="register">Sauvegarder mon pilote</button><button type="button" class="account-link" data-account="login">Se connecter</button></div>`;
   }
   private clearPasswords() { this.dialog.querySelectorAll<HTMLInputElement>('input[type="password"]').forEach(input => { input.value = ''; }); }

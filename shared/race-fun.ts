@@ -62,7 +62,7 @@ export interface FunMovementBefore {
   driftCharge: number; wallSeconds: number; resetCooldown: number; x: number; z: number;
 }
 export function captureFunMovement(kart: Kart): FunMovementBefore {
-  return { progress: kart.progress, localProgress: nearestDriveableTrack(kart.x, kart.z, kart.trackId, kart.eventStage, kart.eventLevel).progress,
+  return { progress: kart.progress, localProgress: nearestDriveableTrack(kart.x, kart.z, kart.trackId, kart.eventStage, kart.eventLevel, { progress: kart.routeProgress ?? kart.progress, elevation: kart.elevation }).progress,
     speed: kart.speed, airborne: kart.airborne, loopId: kart.loopId, driftCharge: kart.driftCharge,
     wallSeconds: kart.fun?.wallSeconds ?? 0, resetCooldown: kart.resetCooldown, x: kart.x, z: kart.z };
 }
@@ -87,7 +87,7 @@ function trick(kart: Kart, kind: Trick, credit: string) {
 export function updateRaceFun(world: World, kart: Kart, input: Input, before: FunMovementBefore, dt: number, reset: boolean) {
   const state = flow(kart), track = getTrack(kart.trackId);
   state.left = Math.max(0, state.left - dt); if (!state.left) state.mask = 0;
-  const near = nearestDriveableTrack(kart.x, kart.z, kart.trackId, kart.eventStage, kart.eventLevel);
+  const near = nearestDriveableTrack(kart.x, kart.z, kart.trackId, kart.eventStage, kart.eventLevel, { progress: kart.routeProgress ?? kart.progress, elevation: kart.elevation });
   const forward = Math.cos(kart.angle - near.angle) > .65 && kart.speed > 8;
   const clean = kart.surface !== 'offroad' && kart.surface !== 'mud' && kart.stun === 0 && (kart.fun?.wallSeconds ?? 0) < .12;
   const actualProgress = kart.progress - before.progress;

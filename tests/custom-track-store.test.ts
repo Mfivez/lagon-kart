@@ -4,7 +4,8 @@ import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { CustomTrackError, CustomTrackStore } from '../server/custom-track-store.js';
-import { getTrack } from '../shared/track.js';
+import { getAvailableTracks, getTrack, isTrackId } from '../shared/track.js';
+import { registerCustomTrack } from '../shared/custom-tracks.js';
 import type { CustomTrackDraft } from '../shared/custom-tracks.js';
 
 const author = { id: 'class-pilot-1', name: 'Architecte' };
@@ -106,4 +107,82 @@ test('existing files cannot be replaced by a competing store and capacity limits
   await store.save(other, draft('Deuxième pilote'));
   await assert.rejects(store.save({ id: 'third', name: 'Troisième' }, draft()), status(409));
   assert.equal(store.list().length, 2); assert.ok(store.get(first.runtimeId));
+});
+
+test('deletion retires every version durably, preserves historical geometry and frees author/library capacity', async t => {
+  const directory = await mkdtemp(join(tmpdir(), 'lagon-tracks-delete-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const store = await CustomTrackStore.open(directory, { maxTracks: 1, maxTracksPerAuthor: 1 });
+  const first = await store.save(author, draft());
+  const second = await store.save(author, draft('Dernière version'), first.id, 1);
+  const firstBytes = await readFile(join(directory, first.runtimeId + '.json'), 'utf8');
+  assert.deepEqual(await store.delete(author, first.id, 2), { deletedId: first.id });
+  assert.deepEqual(store.list(), []);
+  for (const record of [first, second]) {
+    assert.equal(store.isAvailable(record.runtimeId), false);
+    assert.deepEqual(store.get(record.runtimeId), record);
+    assert.equal(isTrackId(record.runtimeId), true, 'historical geometry remains resolvable');
+    assert.equal(getTrack(record.runtimeId).id, record.runtimeId);
+    registerCustomTrack(record);
+    assert.ok(!getAvailableTracks().some(track => track.id === record.runtimeId), 'an old room snapshot cannot republish a deleted track');
+  }
+  assert.equal(await readFile(join(directory, first.runtimeId + '.json'), 'utf8'), firstBytes);
+  const replacement = await store.save(author, draft('Place libérée'));
+  assert.notEqual(replacement.id, first.id);
+  const reopened = await CustomTrackStore.open(directory);
+  assert.deepEqual(reopened.list(), [replacement]);
+  assert.deepEqual(reopened.get(first.runtimeId), first);
+  assert.equal(reopened.isAvailable(second.runtimeId), false);
+  await assert.rejects(reopened.save(author, draft(), first.id, 2), status(404));
+  await assert.rejects(reopened.delete(author, first.id, 2), status(404));
+  await writeFile(join(directory, first.id + '.deleted.json'), '{damaged deletion marker');
+  assert.deepEqual((await CustomTrackStore.open(directory)).list(), [replacement], 'a damaged tombstone never resurrects content');
+});
+
+test('only the owner or an authenticated moderation capability can delete, irrespective of display name', async t => {
+  const directory = await mkdtemp(join(tmpdir(), 'lagon-tracks-moderation-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const store = await CustomTrackStore.open(directory);
+  const first = await store.save(author, draft());
+  await assert.rejects(store.delete(other, first.id, 1), status(403));
+  await assert.rejects(store.delete({ ...other, name: 'Admin' }, first.id, 1), status(403));
+  await assert.rejects(store.delete({ ...other, name: author.name }, first.id, 1), status(403));
+  await assert.rejects(store.delete(author, first.id, '1'), status(400));
+  await assert.rejects(store.delete(author, 'lagon', 1), status(400));
+  assert.deepEqual(await store.delete({ ...other, canModerateTracks: true }, first.id, 1), { deletedId: first.id });
+});
+
+test('save/delete races reject stale revisions and never resurrect a deleted id, including a stale store instance', async t => {
+  const directory = await mkdtemp(join(tmpdir(), 'lagon-tracks-racing-delete-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const store = await CustomTrackStore.open(directory);
+  const first = await store.save(author, draft());
+  const stale = await CustomTrackStore.open(directory);
+  const editWins = await Promise.allSettled([
+    store.save(author, draft('Edition gagnante'), first.id, 1),
+    stale.delete(author, first.id, 1),
+  ]);
+  assert.equal(editWins[0]!.status, 'fulfilled');
+  assert.equal(editWins[1]!.status, 'rejected');
+  assert.equal((editWins[1] as PromiseRejectedResult).reason.status, 409);
+  const deletedWins = await Promise.allSettled([
+    store.delete(author, first.id, 2),
+    stale.save(author, draft('Circuit supprimé dans un autre onglet'), first.id, 1),
+  ]);
+  assert.equal(deletedWins[0]!.status, 'fulfilled');
+  assert.equal(deletedWins[1]!.status, 'rejected');
+  assert.equal((deletedWins[1] as PromiseRejectedResult).reason.status, 404);
+  assert.deepEqual(store.list(), []); assert.deepEqual(stale.list(), []);
+  assert.equal((await readdir(directory)).filter(file => /-v\d+\.json$/.test(file)).length, 2);
+});
+
+test('a failed deletion write leaves the published circuit available and does not mutate revision data', async t => {
+  const root = await mkdtemp(join(tmpdir(), 'lagon-tracks-delete-failed-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const directory = join(root, 'tracks'), store = await CustomTrackStore.open(directory);
+  const first = await store.save(author, draft());
+  await rm(directory, { recursive: true }); await writeFile(directory, 'Not a directory');
+  await assert.rejects(store.delete(author, first.id, 1), status(503));
+  assert.deepEqual(store.list(), [first]); assert.equal(store.isAvailable(first.runtimeId), true);
+  assert.ok(getAvailableTracks().some(track => track.id === first.runtimeId));
 });

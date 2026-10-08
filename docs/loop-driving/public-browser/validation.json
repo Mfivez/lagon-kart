@@ -1,0 +1,32 @@
+{
+  "origin": "https://yoga-unlikely-div-converted.trycloudflare.com",
+  "startedAt": "2026-10-07T21:44:02.148Z",
+  "healthBefore": {
+    "status": "ok",
+    "rooms": 1,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "checks": [
+    "Public 1366×768: actual grade/MMR, no home scroll, catalogue search/confirmation, unique settings and retained selection.",
+    "Public 320×568: actual grade/MMR, no home scroll, catalogue search/confirmation, unique settings and retained selection."
+  ],
+  "errors": [],
+  "captures": [
+    "home-1366.png",
+    "home-320.png"
+  ],
+  "scope": "Read-only public HTTPS home and track selection. Existing test identity; presence POST answered with actual GET snapshot. All other API mutations blocked. No public game or ranking changed.",
+  "passed": true,
+  "finishedAt": "2026-10-07T21:44:21.214Z",
+  "healthAfter": {
+    "status": "ok",
+    "rooms": 1,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  }
+}

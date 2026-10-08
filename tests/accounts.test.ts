@@ -15,6 +15,28 @@ async function fixture(t: test.TestContext, options = {}) {
 }
 const status = (expected: number) => (error: unknown) => error instanceof AccountError && error.status === expected;
 
+test('track moderation belongs to the immutable Admin account and survives restart without trusting display names', async t => {
+  const { store, directory } = await fixture(t);
+  const guest = await store.createPlayer('Admin');
+  const ordinary = await store.registerAccount('PiloteOrdinaire', 'secret123', undefined, 'Admin');
+  assert.notEqual(guest.profile.canModerateTracks, true);
+  assert.notEqual(ordinary.profile.canModerateTracks, true);
+  const admin = await store.registerAccount(' ＡdMiN ', 'secret123');
+  assert.equal(admin.profile.canModerateTracks, true);
+  await assert.rejects(store.registerAccount('admin', 'different-password'), status(409));
+  assert.equal((await store.updateName(admin.profile.id, 'Responsable de classe')).canModerateTracks, true);
+  assert.notEqual((await store.updateName(ordinary.profile.id, 'admin')).canModerateTracks, true);
+  const before = await readFile(join(directory, 'players.json'), 'utf8');
+  const reopened = await PlayerStore.open(directory, { now: () => now });
+  assert.equal(reopened.authenticate(admin.token)!.canModerateTracks, true);
+  assert.notEqual(reopened.authenticate(guest.token)!.canModerateTracks, true);
+  assert.equal(await readFile(join(directory, 'players.json'), 'utf8'), before, 'permission is derived without rewriting the data volume');
+  const session = await reopened.loginAccount('ADMIN', 'secret123');
+  assert.equal(session.profile.canModerateTracks, true);
+  await reopened.logout(session.token);
+  assert.equal(reopened.authenticate(session.token), null);
+});
+
 test('username accounts persist salted password hashes and recover on a fresh store without exposing secrets', async t => {
   const { store, directory } = await fixture(t);
   const password = 'CourSeDeClasse_2026';

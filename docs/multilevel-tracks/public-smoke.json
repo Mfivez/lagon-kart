@@ -1,0 +1,74 @@
+{
+  "passed": true,
+  "startedAt": "2026-10-07T20:48:28.046Z",
+  "finishedAt": "2026-10-07T20:48:53.066Z",
+  "origin": "https://yoga-unlikely-div-converted.trycloudflare.com",
+  "assets": [
+    "/assets/index-DMnMydN_.js",
+    "/assets/index-93XvWp6o.css"
+  ],
+  "checks": [
+    "Aperçu privé reçu par WSS, reconstruit localement puis acquitté via tracksReady, sans profil ni publication.",
+    "Conduite par commandes SDK : passage inférieur à0m puis supérieur à5.7m sur le Docker déployé via le tunnel public.",
+    "Catalogue public inchangé avant/après ; connexion fermée et aperçu local libéré."
+  ],
+  "errors": [],
+  "scope": "Atelier privé SOLO en mode entraînement sur le Docker public via HTTPS/WSS. Aucun profil, compte ou circuit publié. Vraies commandes SDK à30Hz et lecture de snapshots, aucune mutation de simulation. Ne constitue pas un test de course multijoueur publique.",
+  "mode": {
+    "practice": true,
+    "ranked": false,
+    "workshop": {
+      "group": "track",
+      "index": 0
+    },
+    "players": 1
+  },
+  "passages": [
+    {
+      "floor": "lower",
+      "raceTime": 6.799999999999986,
+      "routeProgress": 191.67571930011243,
+      "elevation": 0,
+      "x": 4.415166587670912,
+      "z": -9.819138485304078
+    },
+    {
+      "floor": "upper",
+      "raceTime": 23.300000000000317,
+      "routeProgress": 756.7265228596843,
+      "elevation": 5.7,
+      "x": 7.501913687741168,
+      "z": -8.702153129361138
+    }
+  ],
+  "snapshots": 473,
+  "inputs": 702,
+  "previewMessages": 4,
+  "tracksReadySent": 4,
+  "connectionClosed": true,
+  "catalogue": {
+    "unchanged": true,
+    "beforeHash": "8f094664699ae0bc479412c67295d8db6199fcf2ca38fdd1858ac7c166394049",
+    "afterHash": "8f094664699ae0bc479412c67295d8db6199fcf2ca38fdd1858ac7c166394049"
+  },
+  "healthBefore": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "healthAfter": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "remaining": [
+    "Rendu navigateur non testé par ce smoke SDK.",
+    "La course normale complète àdeux est couverte par network-validation.json sur serveur privé."
+  ]
+}

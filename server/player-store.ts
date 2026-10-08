@@ -331,7 +331,11 @@ export class PlayerStore {
   private publicProfile(player: StoredPlayer): PlayerProfile {
     const season = seasonId(new Date(this.now()));
     const ranked = player.seasons.find(entry => entry.season === season) ?? this.freshSeason(player, season);
-    return structuredClone({ id: player.id, name: player.name, ...(player.username === undefined ? {} : { username: player.username }), createdAt: player.createdAt, xp: player.xp,
+    return structuredClone({ id: player.id, name: player.name, ...(player.username === undefined ? {} : { username: player.username }),
+      // Account usernames are unique, normalized and immutable. A display name
+      // supplied by a guest or changed in the menu never grants moderation.
+      ...(player.username && usernameKey(player.username) === 'admin' ? { canModerateTracks: true } : {}),
+      createdAt: player.createdAt, xp: player.xp,
       careerLevel: careerLevel(player.completedChampionships), completedChampionships: player.completedChampionships,
       stats: player.stats, season, mmr: ranked.mmr, rank: rankForMmr(ranked.mmr), ranked });
   }

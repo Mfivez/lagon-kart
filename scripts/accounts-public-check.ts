@@ -1,3 +1,4 @@
+import { homeControl } from './menu-navigation.js';
 import assert from 'node:assert/strict';
 import { randomBytes } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -40,8 +41,8 @@ try {
   const first = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
   const desktop = await first.newPage(); await ready(desktop);
   evidence.clientAssets = await desktop.locator('script[src],link[rel="stylesheet"]').evaluateAll(nodes => nodes.map(node => node.getAttribute('src') ?? node.getAttribute('href')));
-  await desktop.locator('#name-input').fill('Test comptes');
-  await desktop.locator('[data-account="register"]').click(); await credentials(desktop, true);
+  await (await homeControl(desktop, '#name-input')).fill('Test comptes');
+  await (await homeControl(desktop, '[data-account="register"]')).click(); await credentials(desktop, true);
   const registered = await profile(desktop); assert.equal(registered.username, username); assert.equal(registered.xp, 0);
   record('Inscription via le vrai formulaire HTTPS et son Origin navigateur ; un compte de test sans XP fictifs est enregistré.');
   await first.close();
@@ -49,12 +50,12 @@ try {
   const second = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 1 });
   const mobile = await second.newPage(); await ready(mobile);
   assert.equal(await mobile.evaluate(() => localStorage.getItem('lagon-player-token')), null);
-  await mobile.locator('[data-account="login"]').click(); await credentials(mobile, false);
+  await (await homeControl(mobile, '[data-account="login"]')).click(); await credentials(mobile, false);
   const recovered = await profile(mobile);
   assert.equal(recovered.id, registered.id); assert.equal(recovered.name, registered.name); assert.equal(recovered.xp, 0);
   record('Connexion sur un second contexte mobile vierge : même pilote retrouvé, sans transfert de stockage navigateur.');
 
-  await mobile.locator('#create-button').click(); joinedPage = mobile;
+  await (await homeControl(mobile, '#create-button')).click(); joinedPage = mobile;
   await mobile.locator('#lobby-panel').waitFor({ state: 'visible' });
   const kart = await mobile.evaluate(() => {
     const debug = (window as unknown as { __lagonDebug: { sessionId: string; world: World } }).__lagonDebug;
@@ -64,7 +65,7 @@ try {
   assert.equal(kart.name, registered.name);
   record('Salon Colyseus réel à travers le tunnel : le kart utilise l’identité authentifiée récupérée.');
   await mobile.locator('#leave-button').click(); await mobile.locator('#home-panel').waitFor({ state: 'visible' }); joinedPage = undefined;
-  await mobile.locator('[data-account="logout"]').click();
+  await (await homeControl(mobile, '[data-account="logout"]')).click();
   await mobile.waitForFunction(() => !localStorage.getItem('lagon-player-token'));
   assert.equal(await mobile.evaluate(() => sessionStorage.getItem('lagon-session')), null);
   record('Sortie du salon et déconnexion ; aucun salon de test laissé actif ni reconnexion locale conservée.');

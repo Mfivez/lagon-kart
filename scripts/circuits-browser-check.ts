@@ -1,3 +1,4 @@
+import { homeControl, readOfficialTrackCatalog, selectHomeTrack } from './menu-navigation.js';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
@@ -57,21 +58,20 @@ try {
     page.on('response', response => { if (/\/(assets|models|audio)\//.test(response.url()) && response.status() >= 400) errors.push(`${response.status()} ${response.url()}`); });
     await page.goto(origin, { waitUntil: 'domcontentloaded', timeout: 60000 });
     await page.waitForFunction(() => !!(window as unknown as { __lagonDebug?: Debug }).__lagonDebug, undefined, { timeout: 45000 });
-    await page.locator('#name-input').fill(index ? 'Caméra circuit' : 'Pilote tremplin');
+    await (await homeControl(page, '#name-input')).fill(index ? 'Caméra circuit' : 'Pilote tremplin');
   }
   const [driver, observer] = pages as [Page, Page];
   await observer.setViewportSize({ width: 640, height: 480 });
-  assert.equal(await driver.locator('#track-cards [data-track]').count(), 12);
-  evidence.trackIds = await driver.locator('#track-cards [data-track]').evaluateAll(nodes => nodes.map(node => (node as HTMLElement).dataset.track));
+  evidence.trackIds = await readOfficialTrackCatalog(driver);
   assert.deepEqual(evidence.trackIds, TRACKS.map(track => track.id));
 
   for (const track of TRACKS.slice(6)) {
-    await driver.locator(`#track-cards [data-track="${track.id}"]`).click();
+    await selectHomeTrack(driver, track.id, track.name);
     await pause(1600);
-    const panoramaStyle = await driver.addStyleTag({ content: '.menu,.screen-wash,.topbar,.bottom-bar,.island-card,.home-circuit-picker{visibility:hidden!important}' });
+    const panoramaStyle = await driver.addStyleTag({ content: '.menu,.screen-wash,.topbar,.bottom-bar{visibility:hidden!important}' });
     await capture(driver, track.id + '-overview'); await panoramaStyle.evaluate(node => (node as Element).remove());
     fixtures.push(`${track.id} : panorama du rendu d’accueil, panneaux HTML masqués uniquement pour la capture du décor.`);
-    await driver.locator('#create-button').click();
+    await (await homeControl(driver, '#create-button')).click();
     await until(async () => (await state(driver)).world?.phase === 'lobby', 'salon ' + track.id);
     const roomId = new URL(await driver.locator('#share-url').inputValue()).pathname.split('/').pop()!;
     const live = matchMaker.getLocalRoomById(roomId) as RaceRoom; assert.ok(live);
@@ -84,7 +84,7 @@ try {
     await until(() => live.world.phase === 'racing', 'départ réel');
     await driver.setViewportSize({ width: 640, height: 480 });
     await observer.setViewportSize({ width: 1440, height: 900 });
-    await observer.locator('#code-input').fill(roomId); await observer.locator('#join-button').click();
+    await (await homeControl(observer, '#code-input')).fill(roomId); await (await homeControl(observer, '#join-button')).click();
     await until(async () => (await state(observer)).world?.phase === 'racing', 'observateur connecté');
     const driverId = (await state(driver)).sessionId!;
     const kart = live.world.players.find(kart => kart.id === driverId)!;
@@ -170,7 +170,7 @@ try {
   }
 
   // Real UI: every new circuit belongs to the random tournament pool.
-  await driver.locator('#create-button').click(); await until(async () => (await state(driver)).world?.phase === 'lobby', 'salon aléatoire');
+  await (await homeControl(driver, '#create-button')).click(); await until(async () => (await state(driver)).world?.phase === 'lobby', 'salon aléatoire');
   await driver.locator('#mode-select').selectOption('tournament'); await driver.locator('#count-select').selectOption('8');
   await driver.locator('#selection-select').selectOption('random');
   assert.equal(await driver.locator('[data-pool-track]').count(), 12);

@@ -7,7 +7,7 @@ import { nearestTrack, trackElevation, trackPoint, type Vec2 } from './track.js'
 import { KART_COLLISION_HEIGHT, trackBoundaryHeight, trackBoundaryShoulder } from './obstacle-heights.js';
 
 export type AutopilotDriver = Pick<Kart, 'trackId' | 'x' | 'z' | 'speed' | 'angle' | 'nextCheckpoint' | 'resetCooldown' |
-  'resetLatch' | 'item' | 'itemLatch' | 'epoch'> & Partial<Pick<Kart, 'eventStage' | 'eventLevel' | 'elevation' | 'airborne'>>;
+  'resetLatch' | 'item' | 'itemLatch' | 'epoch'> & Partial<Pick<Kart, 'eventStage' | 'eventLevel' | 'elevation' | 'airborne' | 'routeProgress' | 'progress'>>;
 
 /** A late closure must not send a driver sideways through an unrelated road's rail. */
 export function drivingRoute(kart: AutopilotDriver, near: DriveablePosition,
@@ -37,7 +37,7 @@ function pressingRail(kart: AutopilotDriver, near: DriveablePosition, target: Ve
   const at = (fraction: number) => {
     const x = kart.x + (target.x - kart.x) / distance * 2 * fraction;
     const z = kart.z + (target.z - kart.z) / distance * 2 * fraction;
-    const road = nearestDriveableTrack(x, z, kart.trackId, stage, level);
+    const road = nearestDriveableTrack(x, z, kart.trackId, stage, level, { progress: near.progress, elevation: kart.elevation });
     return { x, z, road, inside: road.distance <= road.width / 2 + trackBoundaryShoulder(road.progress, kart.trackId, road.branchId) };
   };
   const start = at(0);
@@ -53,7 +53,7 @@ function pressingRail(kart: AutopilotDriver, near: DriveablePosition, target: Ve
 export function autopilot(kart: AutopilotDriver, seq: number, useItems = false): Input {
   const track = getTrack(kart.trackId);
   const stage = kart.eventStage ?? 0, level = kart.eventLevel ?? 0;
-  const near = nearestDriveableTrack(kart.x, kart.z, track.id, stage, level);
+  const near = nearestDriveableTrack(kart.x, kart.z, track.id, stage, level, { progress: kart.routeProgress ?? kart.progress, elevation: kart.elevation });
   const event = getTrackEvent(track.id, stage, level);
   const route = drivingRoute(kart, near, stage, level);
   const lookahead = route.branch ? Math.max(8, kart.speed * .45) : Math.max(9, kart.speed * .58);
@@ -62,7 +62,7 @@ export function autopilot(kart: AutopilotDriver, seq: number, useItems = false):
   const difference = Math.atan2(Math.sin(desired - kart.angle), Math.cos(desired - kart.angle));
   const ahead = route.point(near.progress + 25);
   const curvature = Math.abs(Math.atan2(Math.sin(ahead.angle - near.angle), Math.cos(ahead.angle - near.angle))) / 25;
-  const iceAhead = dynamicSurface(target.x, target.z, track.id, stage, level).surface === 'ice';
+  const iceAhead = dynamicSurface(target.x, target.z, track.id, stage, level, nearestDriveableTrack(target.x, target.z, track.id, stage, level, { progress: near.progress + lookahead })).surface === 'ice';
   const targetSpeed = route.branch ? Math.min(32, route.branch.minTurnRadius * 1.05) : curvature > .045 ? 21 : curvature > .03 ? 26 : iceAhead ? 28 : 46;
   let localProgress = near.progress;
   if (kart.nextCheckpoint === 1 && localProgress > track.length * .9) localProgress -= track.length;

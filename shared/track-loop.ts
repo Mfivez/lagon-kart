@@ -1,4 +1,5 @@
 import { getTrack, nearestTrack, trackElevation, trackPoint, type TrackLoop } from './track.js';
+import { automaticTrackElevation } from './track-crossings.js';
 
 export interface LoopVector { x: number; y: number; z: number }
 export interface TrackLoopPose extends LoopVector {
@@ -34,7 +35,7 @@ function centre(progress: number, trackId: string, loop: TrackLoop): LoopVector 
   const along = (loop.end - loop.start) * .31 * Math.sin(Math.PI * u) ** 2 * wave;
   const sideways = loop.lateralSpread * Math.sin(Math.PI * u) ** 2 * wave;
   return { x: point.x + Math.sin(entry.angle) * along + Math.cos(entry.angle) * sideways,
-    y: loop.height * Math.sin(Math.PI * u) ** 2,
+    y: loop.height * Math.sin(Math.PI * u) ** 2 + automaticTrackElevation(progress, getTrack(trackId)),
     z: point.z + Math.cos(entry.angle) * along - Math.sin(entry.angle) * sideways };
 }
 
@@ -80,8 +81,31 @@ export function trackLoopPose(progress: number, trackId: string, lateral = 0): T
     speedScale: 1 / Math.max(.2, Math.hypot(derivative.x, derivative.y, derivative.z)) };
 }
 
-export function kartLoopPose(kart: { x: number; z: number; angle: number; elevation: number; trackId: string; loopId?: string }): TrackLoopPose {
-  const near = nearestTrack(kart.x, kart.z, kart.trackId);
+type LoopKartPosition = { x: number; z: number; elevation: number; trackId: string; loopId?: string; routeProgress?: number; progress?: number };
+
+/** While magnetically attached, routeProgress identifies the ribbon even when a
+ * different section of a user-created road is closer in its ground projection. */
+export function kartLoopRoadPosition(kart: LoopKartPosition): ReturnType<typeof nearestTrack> | undefined {
+  if (!kart.loopId) return undefined;
+  const loop = getTrack(kart.trackId).loops.find(candidate => candidate.id === kart.loopId);
+  if (!loop) return undefined;
+  const progress = kart.routeProgress;
+  if (progress !== undefined && progress >= loop.start && progress <= loop.end) {
+    const point = trackPoint(progress, kart.trackId);
+    const along = (kart.x - point.x) * Math.sin(point.angle) + (kart.z - point.z) * Math.cos(point.angle);
+    // Respawns, imported replays and visual interpolation may supply an older
+    // coordinate. Only pin a pose that still lies on its perpendicular slice.
+    if (Math.abs(along) < .05) return { ...point, progress, index: 0, distance: Math.hypot(kart.x - point.x, kart.z - point.z) };
+  }
+  const near = nearestTrack(kart.x, kart.z, kart.trackId, { progress: kart.progress, elevation: kart.elevation });
+  return near.progress >= loop.start && near.progress <= loop.end ? near : undefined;
+}
+
+/** Keep the body inside the visible rail, including its 1.25 m collision radius. */
+export function loopLateralLimit(trackId: string): number { return getTrack(trackId).width / 2 + 5 - 1.25; }
+
+export function kartLoopPose(kart: { x: number; z: number; angle: number; elevation: number; trackId: string; loopId?: string; routeProgress?: number; progress?: number }): TrackLoopPose {
+  const near = kartLoopRoadPosition(kart) ?? nearestTrack(kart.x, kart.z, kart.trackId, { progress: kart.routeProgress ?? kart.progress, elevation: kart.elevation });
   const lateral = (kart.x - near.x) * Math.cos(near.angle) - (kart.z - near.z) * Math.sin(near.angle);
   const pose = trackLoopPose(near.progress, kart.trackId, lateral);
   if (!pose.active || !kart.loopId) return { ...pose, x: kart.x, y: kart.elevation, z: kart.z,

@@ -1,0 +1,1159 @@
+{
+  "passed": true,
+  "baseline": false,
+  "cases": [
+    {
+      "trackId": "sky",
+      "direction": -1,
+      "turbo": true,
+      "entered": true,
+      "exited": true,
+      "lostAdhesion": false,
+      "maximumDistance": 15.750000000000014,
+      "halfWidth": 12,
+      "maximumElevation": 31.999675072410426,
+      "boosted": true,
+      "simulationSeconds": 10.999999999999972,
+      "snapshots": [
+        284,
+        283
+      ],
+      "observerPositionError": 0.4000000000000014,
+      "final": {
+        "x": 100.72516749746356,
+        "z": -168.14823901819452,
+        "progress": 102.55053433323475,
+        "elevation": 0,
+        "loopId": "",
+        "speed": 12
+      }
+    },
+    {
+      "trackId": "sky",
+      "direction": 1,
+      "turbo": false,
+      "entered": true,
+      "exited": true,
+      "lostAdhesion": false,
+      "maximumDistance": 15.750000000000025,
+      "halfWidth": 12,
+      "maximumElevation": 31.99999917220218,
+      "boosted": false,
+      "simulationSeconds": 12.199999999999967,
+      "snapshots": [
+        308,
+        307
+      ],
+      "observerPositionError": 0.40000000000000774,
+      "final": {
+        "x": 103.06638564739957,
+        "z": -199.99440382709332,
+        "progress": 101.72157992189048,
+        "elevation": 0,
+        "loopId": "",
+        "speed": 12
+      }
+    },
+    {
+      "trackId": "foundry",
+      "direction": -1,
+      "turbo": true,
+      "entered": true,
+      "exited": true,
+      "lostAdhesion": false,
+      "maximumDistance": 14.750000000000028,
+      "halfWidth": 11,
+      "maximumElevation": 26.99995648635554,
+      "boosted": true,
+      "simulationSeconds": 9.833333333333309,
+      "snapshots": [
+        261,
+        260
+      ],
+      "observerPositionError": 0.4000000000000091,
+      "final": {
+        "x": 92.02691973823097,
+        "z": -155.1693421099542,
+        "progress": 92.73592950980532,
+        "elevation": 0,
+        "loopId": "",
+        "speed": 12
+      }
+    },
+    {
+      "trackId": "foundry",
+      "direction": 1,
+      "turbo": false,
+      "entered": true,
+      "exited": true,
+      "lostAdhesion": false,
+      "maximumDistance": 14.75000000000002,
+      "halfWidth": 11,
+      "maximumElevation": 26.999943970850953,
+      "boosted": false,
+      "simulationSeconds": 11.033333333333305,
+      "snapshots": [
+        286,
+        285
+      ],
+      "observerPositionError": 0.3999999999999982,
+      "final": {
+        "x": 93.42583755825494,
+        "z": -185.19055901770116,
+        "progress": 92.98094054190699,
+        "elevation": 0,
+        "loopId": "",
+        "speed": 12
+      }
+    },
+    {
+      "trackId": "custom-118ae303-7f80-4595-b318-27139ecb99b7-v1",
+      "direction": -1,
+      "turbo": true,
+      "entered": true,
+      "exited": true,
+      "lostAdhesion": false,
+      "maximumDistance": 14.750000000000014,
+      "halfWidth": 11,
+      "maximumElevation": 24.999873021421617,
+      "boosted": true,
+      "simulationSeconds": 10.56666666666664,
+      "snapshots": [
+        276,
+        275
+      ],
+      "observerPositionError": 0.3999999999999982,
+      "final": {
+        "x": 104.60379896615446,
+        "z": -69.65329865699378,
+        "progress": 115.79239566293084,
+        "elevation": 0,
+        "loopId": "",
+        "speed": 12
+      }
+    },
+    {
+      "trackId": "custom-118ae303-7f80-4595-b318-27139ecb99b7-v1",
+      "direction": 1,
+      "turbo": false,
+      "entered": true,
+      "exited": true,
+      "lostAdhesion": false,
+      "maximumDistance": 14.750000000000012,
+      "halfWidth": 11,
+      "maximumElevation": 24.999968702665928,
+      "boosted": false,
+      "simulationSeconds": 11.866666666666635,
+      "snapshots": [
+        302,
+        301
+      ],
+      "observerPositionError": 0.39999999999999536,
+      "final": {
+        "x": 118.43745982668662,
+        "z": -96.07734926046885,
+        "progress": 115.71249975919514,
+        "elevation": 0,
+        "loopId": "",
+        "speed": 12
+      }
+    },
+    {
+      "controls": "ArrowUp + ArrowRight held",
+      "trackId": "sky",
+      "practice": false,
+      "exited": true,
+      "maximumDistance": 15.750000000000032,
+      "maximumElevation": 31.999999306896175,
+      "lostAdhesion": false,
+      "lastInput": {
+        "seq": 281,
+        "epoch": 1,
+        "throttle": 1,
+        "steer": -1,
+        "brake": false,
+        "drift": false,
+        "use": false,
+        "reset": false
+      }
+    },
+    {
+      "controls": "CDP touch joystick diagonal held",
+      "trackId": "sky",
+      "practice": false,
+      "exited": true,
+      "maximumDistance": 15.750000000000025,
+      "maximumElevation": 31.999998816826324,
+      "lostAdhesion": false,
+      "lastInput": {
+        "seq": 370,
+        "epoch": 1,
+        "throttle": 1,
+        "steer": 1,
+        "brake": false,
+        "drift": false,
+        "use": false,
+        "reset": false
+      }
+    }
+  ],
+  "captures": [
+    {
+      "file": "sky-entry-1280x800.png",
+      "trackId": "sky",
+      "fraction": 0.2518867566774123,
+      "elevation": 16.189673026578618,
+      "renderedError": 0.05500000000000316,
+      "cameraAcross": 0.000005402022878797652,
+      "cameraAbove": 4.000001904142176,
+      "cameraAhead": 1.99995938186665,
+      "view": {
+        "camera": {
+          "position": [
+            45.48681692954053,
+            16.15059191912477,
+            -190.43754944310973
+          ],
+          "target": [
+            51.875872709024854,
+            17.85550512004008,
+            -195.84802396497827
+          ],
+          "up": [
+            -0.07450966580570681,
+            0.7174809014378083,
+            0.6925817394167363
+          ],
+          "fov": 59.9996368005619,
+          "near": 1
+        },
+        "tracked": {
+          "id": "wARbyg2Mb",
+          "position": [
+            50.40493431540739,
+            16.213166117565354,
+            -195.66934852425163
+          ],
+          "up": [
+            -0.07450907960193418,
+            0.7174800881506131,
+            0.6925826450065444
+          ],
+          "projected": [
+            2.430578733353858e-7,
+            -0.1694380451086269,
+            0.7012320374632797
+          ]
+        },
+        "calls": 46,
+        "triangles": 63084,
+        "compact": true,
+        "qualityMode": "smooth",
+        "quality": "light",
+        "pixelRatio": 0.8,
+        "shadows": false,
+        "sceneryDetails": {
+          "optional": 8,
+          "visible": 3
+        },
+        "renderedFrames": 52,
+        "renderState": "race",
+        "menuFpsLimit": 15
+      }
+    },
+    {
+      "file": "sky-apex-1280x800.png",
+      "trackId": "sky",
+      "fraction": 0.5057071019039177,
+      "elevation": 31.989714286076683,
+      "renderedError": 0.05499999999999858,
+      "cameraAcross": 9.606599906675228e-7,
+      "cameraAbove": 4.000000536789821,
+      "cameraAhead": 1.9999968871757872,
+      "view": {
+        "camera": {
+          "position": [
+            61.50143576163758,
+            28.141100048720006,
+            -188.58864440669598
+          ],
+          "target": [
+            58.064964667057126,
+            30.964246845403697,
+            -181.2934057902526
+          ],
+          "up": [
+            0.07727906450502071,
+            -0.9969490398927554,
+            0.010979892811050728
+          ],
+          "fov": 60,
+          "near": 1
+        },
+        "tracked": {
+          "id": "wARbyg2Mb",
+          "position": [
+            58.79309322219875,
+            31.948288919590677,
+            -183.13582342638077
+          ],
+          "up": [
+            0.0772792669522121,
+            -0.9969490241414173,
+            0.010979898123598968
+          ],
+          "projected": [
+            4.515430377986776e-8,
+            -0.16944110598194354,
+            0.7012304490995739
+          ]
+        },
+        "calls": 68,
+        "triangles": 63946,
+        "compact": true,
+        "qualityMode": "smooth",
+        "quality": "light",
+        "pixelRatio": 0.8,
+        "shadows": false,
+        "sceneryDetails": {
+          "optional": 8,
+          "visible": 3
+        },
+        "renderedFrames": 89,
+        "renderState": "race",
+        "menuFpsLimit": 15
+      }
+    },
+    {
+      "file": "sky-apex-390x844.png",
+      "trackId": "sky",
+      "fraction": 0.5057071019039177,
+      "elevation": 31.989714286076683,
+      "renderedError": 0.05499999999999858,
+      "cameraAcross": 5.329070518200751e-15,
+      "cameraAbove": 4.499916657103766,
+      "cameraAhead": 1.9999999999999891,
+      "view": {
+        "camera": {
+          "position": [
+            61.74032490388418,
+            27.653188724631214,
+            -189.04108721114284
+          ],
+          "target": [
+            58.06496361679284,
+            30.964246899219017,
+            -181.29340285010773
+          ],
+          "up": [
+            0.0772792669522121,
+            -0.9969490241414174,
+            0.010979898123598966
+          ],
+          "fov": 67.28613289278898,
+          "near": 1
+        },
+        "tracked": {
+          "id": "wARbyg2Mb",
+          "position": [
+            58.79309322219875,
+            31.948288919590677,
+            -183.13582342638077
+          ],
+          "up": [
+            0.0772792669522121,
+            -0.9969490241414173,
+            0.010979898123598968
+          ],
+          "projected": [
+            1.5778765714698204e-15,
+            -0.14584125978744017,
+            0.7287706383577992
+          ]
+        },
+        "calls": 59,
+        "triangles": 63788,
+        "compact": true,
+        "qualityMode": "smooth",
+        "quality": "light",
+        "pixelRatio": 0.8,
+        "shadows": false,
+        "sceneryDetails": {
+          "optional": 8,
+          "visible": 3
+        },
+        "renderedFrames": 117,
+        "renderState": "race",
+        "menuFpsLimit": 15
+      }
+    },
+    {
+      "file": "sky-apex-667x375.png",
+      "trackId": "sky",
+      "fraction": 0.5057071019039177,
+      "elevation": 31.989714286076683,
+      "renderedError": 0.05499999999999858,
+      "cameraAcross": -8.881784197001252e-15,
+      "cameraAbove": 4.000000508425482,
+      "cameraAhead": 1.9999999999999891,
+      "view": {
+        "camera": {
+          "position": [
+            61.501435711307906,
+            28.141100100810466,
+            -188.5886419060685
+          ],
+          "target": [
+            58.06496361679284,
+            30.964246899219017,
+            -181.29340285010773
+          ],
+          "up": [
+            0.0772792669522121,
+            -0.9969490241414174,
+            0.010979898123598966
+          ],
+          "fov": 60.17315667502753,
+          "near": 1
+        },
+        "tracked": {
+          "id": "wARbyg2Mb",
+          "position": [
+            58.79309322219875,
+            31.948288919590677,
+            -183.13582342638077
+          ],
+          "up": [
+            0.0772792669522121,
+            -0.9969490241414173,
+            0.010979898123598968
+          ],
+          "projected": [
+            0,
+            -0.168851655364891,
+            0.7012303500603418
+          ]
+        },
+        "calls": 68,
+        "triangles": 63946,
+        "compact": true,
+        "qualityMode": "smooth",
+        "quality": "light",
+        "pixelRatio": 0.8,
+        "shadows": false,
+        "sceneryDetails": {
+          "optional": 8,
+          "visible": 3
+        },
+        "renderedFrames": 148,
+        "renderState": "race",
+        "menuFpsLimit": 15
+      }
+    },
+    {
+      "file": "sky-exit-1280x800.png",
+      "trackId": "sky",
+      "fraction": 0.7573347137351273,
+      "elevation": 15.262895133535652,
+      "renderedError": 0.09000000012908552,
+      "cameraAcross": 0.000006363237994078119,
+      "cameraAbove": 4.000003638542947,
+      "cameraAhead": 1.9999563113309016,
+      "view": {
+        "camera": {
+          "position": [
+            65.2465428203817,
+            21.342290767322826,
+            -172.3606930039487
+          ],
+          "target": [
+            71.13140829813102,
+            15.280114613774225,
+            -173.63284687052885
+          ],
+          "up": [
+            0.12303242320999111,
+            0.7505527266149713,
+            -0.6492562109136193
+          ],
+          "fov": 66.88206124981852,
+          "near": 1
+        },
+        "tracked": {
+          "id": "wARbyg2Mb",
+          "position": [
+            69.45599297848743,
+            15.54971966060676,
+            -172.2370594033585
+          ],
+          "up": [
+            0.12303290691913821,
+            0.7505535439953831,
+            -0.6492551743428752
+          ],
+          "projected": [
+            3.27933288432361e-7,
+            -0.14092796448736036,
+            0.7006750850170427
+          ]
+        },
+        "calls": 54,
+        "triangles": 63146,
+        "compact": true,
+        "qualityMode": "smooth",
+        "quality": "light",
+        "pixelRatio": 0.8,
+        "shadows": false,
+        "sceneryDetails": {
+          "optional": 8,
+          "visible": 3
+        },
+        "renderedFrames": 191,
+        "renderState": "race",
+        "menuFpsLimit": 15
+      }
+    },
+    {
+      "file": "foundry-entry-1280x800.png",
+      "trackId": "foundry",
+      "fraction": 0.25148882834054453,
+      "elevation": 13.626285046932647,
+      "renderedError": 0.05499999999718246,
+      "cameraAcross": 0.00047278249980431397,
+      "cameraAbove": 4.000114182911005,
+      "cameraAhead": 1.9971803132181123,
+      "view": {
+        "camera": {
+          "position": [
+            40.88131131944741,
+            13.744355049727533,
+            -174.7741308857226
+          ],
+          "target": [
+            47.27034648900227,
+            15.23146515183137,
+            -180.24847254457694
+          ],
+          "up": [
+            -0.03930204008513819,
+            0.7162753776841554,
+            0.6967100781304707
+          ],
+          "fov": 59.999970171864284,
+          "near": 1
+        },
+        "tracked": {
+          "id": "JH8-S79-U",
+          "position": [
+            45.74193875384839,
+            13.646875284685946,
+            -180.0620168610332
+          ],
+          "up": [
+            -0.039247347433768454,
+            0.716203193937828,
+            0.6967873640592709
+          ],
+          "projected": [
+            0.000020764645442573706,
+            -0.16912115893612004,
+            0.7013491263057067
+          ]
+        },
+        "calls": 43,
+        "triangles": 54198,
+        "compact": true,
+        "qualityMode": "smooth",
+        "quality": "light",
+        "pixelRatio": 0.8,
+        "shadows": false,
+        "sceneryDetails": {
+          "optional": 6,
+          "visible": 2
+        },
+        "renderedFrames": 269,
+        "renderState": "race",
+        "menuFpsLimit": 15
+      }
+    },
+    {
+      "file": "foundry-apex-1280x800.png",
+      "trackId": "foundry",
+      "fraction": 0.5025365053610672,
+      "elevation": 26.998285545806734,
+      "renderedError": 0.054999999999999515,
+      "cameraAcross": 0.0005009162487987773,
+      "cameraAbove": 4.00021936134413,
+      "cameraAhead": 1.9985511269928813,
+      "view": {
+        "camera": {
+          "position": [
+            56.09737040516972,
+            23.058125589054615,
+            -174.54762898923593
+          ],
+          "target": [
+            52.754434588650014,
+            25.987113312812326,
+            -167.2507133118486
+          ],
+          "up": [
+            0.038683276063661655,
+            -0.9992219417996675,
+            0.007688639612091429
+          ],
+          "fov": 60,
+          "near": 1
+        },
+        "tracked": {
+          "id": "JH8-S79-U",
+          "position": [
+            53.52402872906906,
+            26.948599394607243,
+            -169.08661164892908
+          ],
+          "up": [
+            0.038795912363911535,
+            -0.9992174938783644,
+            0.0076991630254791285
+          ],
+          "projected": [
+            0.000022208790769095365,
+            -0.16929174121452667,
+            0.7012904979923064
+          ]
+        },
+        "calls": 69,
+        "triangles": 58794,
+        "compact": true,
+        "qualityMode": "smooth",
+        "quality": "light",
+        "pixelRatio": 0.8,
+        "shadows": false,
+        "sceneryDetails": {
+          "optional": 6,
+          "visible": 2
+        },
+        "renderedFrames": 308,
+        "renderState": "race",
+        "menuFpsLimit": 15
+      }
+    },
+    {
+      "file": "foundry-apex-390x844.png",
+      "trackId": "foundry",
+      "fraction": 0.5025365053610672,
+      "elevation": 26.998285545806734,
+      "renderedError": 0.054999999999999515,
+      "cameraAcross": -3.1086244689504383e-15,
+      "cameraAbove": 4.499997718659119,
+      "cameraAhead": 1.9999999999999918,
+      "view": {
+        "camera": {
+          "position": [
+            56.31836890232243,
+            22.563051803607518,
+            -174.99986882113774
+          ],
+          "target": [
+            52.75395445039977,
+            25.987116736929522,
+            -167.24934147165058
+          ],
+          "up": [
+            0.03879591236391154,
+            -0.9992174938783643,
+            0.007699163025479128
+          ],
+          "fov": 67.73725162617971,
+          "near": 1
+        },
+        "tracked": {
+          "id": "JH8-S79-U",
+          "position": [
+            53.52402872906906,
+            26.948599394607243,
+            -169.08661164892908
+          ],
+          "up": [
+            0.038795912363911535,
+            -0.9992174938783644,
+            0.0076991630254791285
+          ],
+          "projected": [
+            -1.0951251041151341e-14,
+            -0.14460341733221832,
+            0.7287747176574647
+          ]
+        },
+        "calls": 62,
+        "triangles": 58464,
+        "compact": true,
+        "qualityMode": "smooth",
+        "quality": "light",
+        "pixelRatio": 0.8,
+        "shadows": false,
+        "sceneryDetails": {
+          "optional": 6,
+          "visible": 2
+        },
+        "renderedFrames": 339,
+        "renderState": "race",
+        "menuFpsLimit": 15
+      }
+    },
+    {
+      "file": "foundry-apex-667x375.png",
+      "trackId": "foundry",
+      "fraction": 0.5025365053610672,
+      "elevation": 26.998285545806734,
+      "renderedError": 0.054999999999999515,
+      "cameraAcross": 1.0658141036401503e-14,
+      "cameraAbove": 4.000000924190907,
+      "cameraAhead": 1.9999999999999918,
+      "view": {
+        "camera": {
+          "position": [
+            56.097288259548314,
+            23.05835184363563,
+            -174.54622269396845
+          ],
+          "target": [
+            52.75395445039977,
+            25.987116736929522,
+            -167.24934147165058
+          ],
+          "up": [
+            0.03879591236391154,
+            -0.9992174938783643,
+            0.007699163025479128
+          ],
+          "fov": 60.2044241124245,
+          "near": 1
+        },
+        "tracked": {
+          "id": "JH8-S79-U",
+          "position": [
+            53.52402872906906,
+            26.948599394607243,
+            -169.08661164892908
+          ],
+          "up": [
+            0.038795912363911535,
+            -0.9992174938783644,
+            0.0076991630254791285
+          ],
+          "projected": [
+            1.0358917378422471e-15,
+            -0.1687454894627594,
+            0.7012303751193808
+          ]
+        },
+        "calls": 71,
+        "triangles": 58808,
+        "compact": true,
+        "qualityMode": "smooth",
+        "quality": "light",
+        "pixelRatio": 0.8,
+        "shadows": false,
+        "sceneryDetails": {
+          "optional": 6,
+          "visible": 2
+        },
+        "renderedFrames": 372,
+        "renderState": "race",
+        "menuFpsLimit": 15
+      }
+    },
+    {
+      "file": "foundry-exit-1280x800.png",
+      "trackId": "foundry",
+      "fraction": 0.7547272497003875,
+      "elevation": 13.099079446957989,
+      "renderedError": 0.05500000000000601,
+      "cameraAcross": 7.958257633999821e-7,
+      "cameraAbove": 4.0000011219837734,
+      "cameraAhead": 1.9999926780598296,
+      "view": {
+        "camera": {
+          "position": [
+            58.03811500316776,
+            18.91019294193226,
+            -158.88194489424424
+          ],
+          "target": [
+            64.16008397352071,
+            13.090497784334946,
+            -160.1674961087328
+          ],
+          "up": [
+            0.07084063247007241,
+            0.7381999520444573,
+            -0.6708520221276828
+          ],
+          "fov": 60.000000000048324,
+          "near": 1
+        },
+        "tracked": {
+          "id": "JH8-S79-U",
+          "position": [
+            62.509522766060726,
+            13.294169061404324,
+            -158.70901685259904
+          ],
+          "up": [
+            0.07084062143731737,
+            0.73820008856029,
+            -0.6708518730718092
+          ],
+          "projected": [
+            4.12597626307817e-8,
+            -0.16944066746936723,
+            0.7012306299565486
+          ]
+        },
+        "calls": 49,
+        "triangles": 54240,
+        "compact": true,
+        "qualityMode": "smooth",
+        "quality": "light",
+        "pixelRatio": 0.8,
+        "shadows": false,
+        "sceneryDetails": {
+          "optional": 6,
+          "visible": 2
+        },
+        "renderedFrames": 416,
+        "renderState": "race",
+        "menuFpsLimit": 15
+      }
+    },
+    {
+      "file": "workshop-entry-1280x800.png",
+      "trackId": "custom-118ae303-7f80-4595-b318-27139ecb99b7-v1",
+      "fraction": 0.2508473337935785,
+      "elevation": 12.566549126141464,
+      "renderedError": 0.05500000000000386,
+      "cameraAcross": 5.32704514277782e-7,
+      "cameraAbove": 3.9999999944054343,
+      "cameraAhead": 1.999997890867084,
+      "view": {
+        "camera": {
+          "position": [
+            54.56363880922442,
+            12.784284534260417,
+            -108.74936707937006
+          ],
+          "target": [
+            62.41210496211259,
+            13.784743689525463,
+            -111.97437247973257
+          ],
+          "up": [
+            -0.18055381333565648,
+            0.6869363342094414,
+            0.7039309577173373
+          ],
+          "fov": 59.999996582353695,
+          "near": 1
+        },
+        "tracked": {
+          "id": "kkvi0MIQi",
+          "position": [
+            60.75602908900443,
+            12.370272584936268,
+            -112.3612843895944
+          ],
+          "up": [
+            -0.18055377608599213,
+            0.6869362539337551,
+            0.703931045609262
+          ],
+          "projected": [
+            2.617284338642538e-8,
+            -0.16944118535394548,
+            0.7012304073957538
+          ]
+        },
+        "calls": 46,
+        "triangles": 49398,
+        "compact": true,
+        "qualityMode": "smooth",
+        "quality": "light",
+        "pixelRatio": 0.8,
+        "shadows": false,
+        "sceneryDetails": {
+          "optional": 22,
+          "visible": 8
+        },
+        "renderedFrames": 497,
+        "renderState": "race",
+        "menuFpsLimit": 15
+      }
+    },
+    {
+      "file": "workshop-apex-1280x800.png",
+      "trackId": "custom-118ae303-7f80-4595-b318-27139ecb99b7-v1",
+      "fraction": 0.5018669723454692,
+      "elevation": 24.999139976053375,
+      "renderedError": 0.0549999999999999,
+      "cameraAcross": 0.000006588778826976949,
+      "cameraAbove": 4.00000249612259,
+      "cameraAhead": 1.999985134422617,
+      "view": {
+        "camera": {
+          "position": [
+            72.17894293353065,
+            21.073242761413816,
+            -103.85899529032875
+          ],
+          "target": [
+            66.74800441886403,
+            24.020559062776215,
+            -97.95829918931715
+          ],
+          "up": [
+            0.048832023164625586,
+            -0.9981896465197775,
+            0.035112150238504114
+          ],
+          "fov": 60,
+          "near": 1
+        },
+        "tracked": {
+          "id": "kkvi0MIQi",
+          "position": [
+            68.02295932200865,
+            24.97566263392402,
+            -99.49297643486382
+          ],
+          "up": [
+            0.048833177607941106,
+            -0.998189574636008,
+            0.03511258823693242
+          ],
+          "projected": [
+            3.231240412126935e-7,
+            -0.16944003911006117,
+            0.7012309195530093
+          ]
+        },
+        "calls": 66,
+        "triangles": 49918,
+        "compact": true,
+        "qualityMode": "smooth",
+        "quality": "light",
+        "pixelRatio": 0.8,
+        "shadows": false,
+        "sceneryDetails": {
+          "optional": 22,
+          "visible": 8
+        },
+        "renderedFrames": 529,
+        "renderState": "race",
+        "menuFpsLimit": 15
+      }
+    },
+    {
+      "file": "workshop-apex-390x844.png",
+      "trackId": "custom-118ae303-7f80-4595-b318-27139ecb99b7-v1",
+      "fraction": 0.5018669723454692,
+      "elevation": 24.999139976053375,
+      "renderedError": 0.0549999999999999,
+      "cameraAcross": 3.1086244689504383e-15,
+      "cameraAbove": 4.49999244837043,
+      "cameraAhead": 1.9999999999999967,
+      "view": {
+        "camera": {
+          "position": [
+            72.5336281031726,
+            20.577111677040037,
+            -104.21679653318154
+          ],
+          "target": [
+            66.7479957013906,
+            24.020559883117258,
+            -97.95828705212155
+          ],
+          "up": [
+            0.04883317760794109,
+            -0.9981895746360081,
+            0.03511258823693241
+          ],
+          "fov": 67.63361055661528,
+          "near": 1
+        },
+        "tracked": {
+          "id": "kkvi0MIQi",
+          "position": [
+            68.02295932200865,
+            24.97566263392402,
+            -99.49297643486382
+          ],
+          "up": [
+            0.048833177607941106,
+            -0.998189574636008,
+            0.03511258823693242
+          ],
+          "projected": [
+            -8.621403736553061e-15,
+            -0.14488645929432126,
+            0.7287744524416891
+          ]
+        },
+        "calls": 52,
+        "triangles": 49440,
+        "compact": true,
+        "qualityMode": "smooth",
+        "quality": "light",
+        "pixelRatio": 0.8,
+        "shadows": false,
+        "sceneryDetails": {
+          "optional": 22,
+          "visible": 8
+        },
+        "renderedFrames": 558,
+        "renderState": "race",
+        "menuFpsLimit": 15
+      }
+    },
+    {
+      "file": "workshop-apex-667x375.png",
+      "trackId": "custom-118ae303-7f80-4595-b318-27139ecb99b7-v1",
+      "fraction": 0.5018669723454692,
+      "elevation": 24.999139976053375,
+      "renderedError": 0.0549999999999999,
+      "cameraAcross": -8.43769498715119e-15,
+      "cameraAbove": 4.000000507511136,
+      "cameraAhead": 1.9999999999999967,
+      "view": {
+        "camera": {
+          "position": [
+            72.17893948806733,
+            21.073245066717618,
+            -103.8589815980402
+          ],
+          "target": [
+            66.7479957013906,
+            24.020559883117258,
+            -97.95828705212155
+          ],
+          "up": [
+            0.0488331776079411,
+            -0.9981895746360082,
+            0.03511258823693241
+          ],
+          "fov": 60.173070113194115,
+          "near": 1
+        },
+        "tracked": {
+          "id": "kkvi0MIQi",
+          "position": [
+            68.02295932200865,
+            24.97566263392402,
+            -99.49297643486382
+          ],
+          "up": [
+            0.048833177607941106,
+            -0.998189574636008,
+            0.03511258823693242
+          ],
+          "projected": [
+            -1.8139543769868825e-15,
+            -0.1688519494169231,
+            0.7012303500052337
+          ]
+        },
+        "calls": 67,
+        "triangles": 49954,
+        "compact": true,
+        "qualityMode": "smooth",
+        "quality": "light",
+        "pixelRatio": 0.8,
+        "shadows": false,
+        "sceneryDetails": {
+          "optional": 22,
+          "visible": 8
+        },
+        "renderedFrames": 594,
+        "renderState": "race",
+        "menuFpsLimit": 15
+      }
+    },
+    {
+      "file": "workshop-exit-1280x800.png",
+      "trackId": "custom-118ae303-7f80-4595-b318-27139ecb99b7-v1",
+      "fraction": 0.7532398387904481,
+      "elevation": 12.245561229980687,
+      "renderedError": 0.0550000000000002,
+      "cameraAcross": 0.000002408675307874475,
+      "cameraAbove": 4.000001712491287,
+      "cameraAhead": 1.9999823777923942,
+      "view": {
+        "camera": {
+          "position": [
+            70.83374924274914,
+            17.799927882230644,
+            -87.22657539858072
+          ],
+          "target": [
+            77.42257477161534,
+            12.561335967984075,
+            -85.76215358769275
+          ],
+          "up": [
+            0.25266980409634404,
+            0.7053151814262184,
+            -0.6623356135280782
+          ],
+          "fov": 60.00000000035708,
+          "near": 1
+        },
+        "tracked": {
+          "id": "kkvi0MIQi",
+          "position": [
+            75.34710930431714,
+            12.675467426825653,
+            -85.00560073688193
+          ],
+          "up": [
+            0.2526697909336343,
+            0.7053155704658027,
+            -0.6623352042644667
+          ],
+          "projected": [
+            1.2124143550268863e-7,
+            -0.16943953989416943,
+            0.7012310719186987
+          ]
+        },
+        "calls": 55,
+        "triangles": 49560,
+        "compact": true,
+        "qualityMode": "smooth",
+        "quality": "light",
+        "pixelRatio": 0.8,
+        "shadows": false,
+        "sceneryDetails": {
+          "optional": 22,
+          "visible": 8
+        },
+        "renderedFrames": 641,
+        "renderState": "race",
+        "menuFpsLimit": 15
+      }
+    }
+  ],
+  "fixtures": [
+    "Serveur et données éphémères, aucun compte ni circuit de production modifié. Circuit atelier ovale créé par API normale avec un looping.",
+    "Chaque essai réseau utilise deux SDK Colyseus dans une course ordinaire. Seul le kart pilote est posé au sol, arrêté, 3 m avant le looping ; ensuite commandes input normales. Un turbo attribué avant chaque essai gauche puis consommé par input.use. Pas de téléportation, reset ou suspension durant ces parcours.",
+    "Captures : navigateur spectateur suivant le premier SDK piloté avec autopilot normal. Simulation privée suspendue aux fractions réellement atteintes 0,25/0,50/0,75 pour stabiliser les captures, puis reprise jusqu’à la sortie. Aucun temps de course complet revendiqué.",
+    "Deux parcours supplémentaires conduits par le navigateur dans des courses ordinaires : touches ArrowUp + ArrowRight maintenues, puis joystick tactile CDP en diagonale. Même fixture au sol avant entrée, aucune suspension ensuite. Entrées, adhérence et sortie mesurées dans le serveur autoritaire."
+  ],
+  "errors": [],
+  "limitations": [
+    "Chromium SwiftShader, pas de téléphone physique ni Safari iOS.",
+    "Deux clients réseau locaux, pas deux machines physiques.",
+    "Fixtures de départ privées : ces parcours ciblés ne constituent pas des courses complètes."
+  ]
+}

@@ -11,7 +11,7 @@ import type { PlayerProfile } from '../shared/progression.js';
 import type { RaceRoom } from '../server/RaceRoom.js';
 import { getTrack, getTrackLapCount } from '../shared/track.js';
 
-const directory = await mkdtemp(join(tmpdir(), 'lagon-ux-ranked-')), output = resolve('docs/ux-ranked'); await mkdir(output, { recursive: true });
+const directory = await mkdtemp(join(tmpdir(), 'lagon-ux-ranked-')), output = resolve(process.env.LAGON_UX_OUTPUT ?? 'docs/ux-ranked'); await mkdir(output, { recursive: true });
 process.env.PLAYER_DATA_DIR = join(directory, 'players'); process.env.CUSTOM_TRACK_DATA_DIR = join(directory, 'tracks');
 const { createGameServer } = await import('../server/app.js'), { matchMaker } = await import('@colyseus/core');
 const { rankedQueue } = await import('../server/career.js');
@@ -28,7 +28,12 @@ async function api(path: string, token?: string, body?: unknown) {
   assert.ok(response.ok, `${path}: ${response.status}`); return response.json();
 }
 const record = (message: string) => { checks.push(message); console.log('✓ ' + message); };
-async function capture(page: Page, name: string) { await page.screenshot({ path: join(output, name), timeout: 20000 }); captures.push(name); }
+async function capture(page: Page, name: string) {
+  const session = await page.context().newCDPSession(page);
+  let deadline: ReturnType<typeof setTimeout> | undefined;
+  try { const result = await Promise.race([session.send('Page.captureScreenshot', { format: 'png', fromSurface: false }), new Promise<never>((_, reject) => { deadline = setTimeout(() => reject(new Error('Capture timed out')), 20000); })]); await writeFile(join(output, name), Buffer.from(result.data, 'base64')); captures.push(name); }
+  finally { clearTimeout(deadline); await session.detach(); }
+}
 async function home(page: Page) { if (await page.locator('#leave-button').isVisible()) await page.locator('#leave-button').click(); await until(async () => !(await state(page)).world, 'Return home'); }
 try {
   const html = await fetch(origin).then(response => response.text()); evidence.assets = [...html.matchAll(/(?:src|href)="([^"]*assets[^"]+)"/g)].map(match => match[1]);
@@ -58,7 +63,7 @@ try {
   await capture(guest, 'home-ranked-mobile-320.png'); record('Accueil : grade et MMR serveur, chargement réel sans classement inventé, carte lisible sur mobile 320 px.');
   host.on('request', request => { if (new URL(request.url()).pathname === '/api/ranked') requests.push(request.method()); });
   await host.locator('#home-ranked-action').click(); await until(async () => (await host.locator('#home-ranked-action').innerText()).includes('Annuler'), 'Queue active');
-  await host.locator('#career-button').click(); await host.locator('#career-close').click(); await pause(2800);
+  await host.locator('#home-tab-options').click(); await host.locator('#career-button').click(); await host.locator('#career-close').click(); await host.locator('#home-tab-play').click(); await pause(2800);
   assert.equal(rankedQueue.poll(identities[0]!.profile.id).state, 'queued'); assert.equal(requests.filter(method => method === 'POST').length, 1);
   await capture(host, 'home-ranked-search.png'); await host.locator('#home-ranked-action').click(); await until(async () => rankedQueue.poll(identities[0]!.profile.id).state === 'idle', 'Explicit cancellation reaches server');
   let failed = false; await host.route('**/api/ranked', async route => { if (!failed && route.request().method() === 'POST') { failed = true; await route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: 'Erreur réseau de test, réessayez.' }) }); } else await route.continue(); });
@@ -80,9 +85,9 @@ try {
   record('QR du canvas réellement décodé puis lien ouvert par le second profil ; copie locale et contrat de partage natif vérifiés.');
   await home(guest); await home(host);
   await host.locator('#home-ranked-action').click(); await until(async () => rankedQueue.poll(identities[0]!.profile.id).state === 'queued', 'Queue before editor');
-  await host.locator('#track-editor-button').click(); await host.locator('#track-editor-dialog').waitFor({ state: 'visible' });
+  await host.locator('#home-tab-options').click(); await host.locator('#track-editor-button').click(); await host.locator('#track-editor-dialog').waitFor({ state: 'visible' });
   assert.equal(rankedQueue.poll(identities[0]!.profile.id).state, 'idle');
-  await host.locator('#editor-close').click(); await host.locator('#track-editor-dialog').waitFor({ state: 'hidden' });
+  await host.locator('#editor-close').click(); await host.locator('#track-editor-dialog').waitFor({ state: 'hidden' }); await host.locator('#home-tab-play').click();
   record('Entrer dans l’éditeur annule aussi la recherche serveur avant d’ouvrir l’atelier.');
   await host.locator('#home-ranked-action').click(); await guest.locator('#home-ranked-action').tap();
   await until(async () => !!(await state(host)).world?.ranked && !!(await state(guest)).world?.ranked, 'Two profiles matched by real queue', 50000);
@@ -98,7 +103,7 @@ try {
   await home(guest); await home(host);
   const saved = (await api('/api/me', identities[0]!.token)).profile as PlayerProfile; await until(async () => (await host.locator('[data-ranked-mmr]').innerText()) === `${saved.mmr} MMR`, 'Home refreshed from server result'); evidence.result = { mmr: saved.mmr, rank: saved.rank };
   await capture(host, 'home-ranked-updated.png'); record('Deux profils appariés par la vraie file, même salon classé et départ ; après résultat privé déclaré, le MMR serveur actualise l’accueil.');
-  await host.locator('#home-profile-options > summary').click();
+  await host.locator('#home-tab-pilot').click();
   await host.locator('[data-account="logout"]').click(); await until(async () => !(await host.locator('[data-ranked-mmr]').innerText()).includes(String(saved.mmr)), 'Logout clears previous rating');
   await host.locator('[data-account="login"]').click(); await host.locator('#account-username').fill('ux-alice'); await host.locator('#account-password').fill('test-local-2026'); await host.locator('#account-submit').click();
   await until(async () => (await host.locator('[data-ranked-mmr]').innerText()) === `${saved.mmr} MMR`, 'Account login restores authoritative rating'); record('Déconnexion retire l’ancien classement ; connexion au compte rétablit le MMR sauvegardé sans recharger la page.');

@@ -17,11 +17,12 @@ async function until(check: () => unknown | Promise<unknown>, description: strin
   while (!await check()) { if (Date.now() > deadline) throw new Error(`Timeout: ${description}`); await pause(30); }
 }
 interface Account { token: string; profile: PlayerProfile }
-interface Peer { room: Room; world?: World; notices: string[]; snapshots: string[] }
+interface Peer { room: Room; world?: World; notices: string[]; snapshots: string[]; profileUpdates: number[] }
 function observe(room: Room): Peer {
-  const peer: Peer = { room, notices: [], snapshots: [] };
+  const peer: Peer = { room, notices: [], snapshots: [], profileUpdates: [] };
   room.onMessage('snapshot', (value: { world: World }) => { peer.world = value.world; peer.snapshots.push(JSON.stringify(value)); if (peer.snapshots.length > 20) peer.snapshots.shift(); });
   room.onMessage('notice', (value: { message: string }) => peer.notices.push(value.message));
+  room.onMessage('profile-updated', (value: { round: number }) => peer.profileUpdates.push(value.round));
   room.onError(() => {}); return peer;
 }
 const me = (peer: Peer): Kart | undefined => peer.world?.players.find(player => player.id === peer.room.sessionId);
@@ -125,7 +126,20 @@ test('career API and authoritative room integration', { timeout: 60_000 }, async
     assert.equal(host.world!.phase, 'lobby', 'manual start cannot exclude another reserved player');
     const third = await enter(roomId, { token: c.token }); third.room.send('ready', { ready: true });
     await until(() => host.world?.phase === 'countdown', 'ranked starts once all reserved drivers are ready');
-    await finishFixture(host);
+    const store = await playerStore(), recordRace = store.recordRace.bind(store);
+    let releaseSave!: () => void;
+    const saveGate = new Promise<void>(resolve => { releaseSave = resolve; });
+    let saveStarted = false;
+    const heldSave = t.mock.method(store, 'recordRace', async (race: Parameters<PlayerStore['recordRace']>[0]) => { saveStarted = true; await saveGate; return recordRace(race); });
+    try {
+      await finishFixture(host);
+      await until(() => saveStarted, 'race persistence entered');
+      assert.deepEqual(host.profileUpdates, [], 'finished snapshot cannot advertise an unsaved profile');
+      assert.equal((await request('/api/me', 'GET', a.token)).body.profile.mmr, 800);
+      releaseSave();
+      await until(() => host.profileUpdates.includes(host.world!.round), 'saved profile notification received');
+      assert.equal((await request('/api/me', 'GET', a.token)).body.profile.mmr, 820, 'notification follows durable MMR update');
+    } finally { releaseSave(); heldSave.mock.restore(); }
     await until(async () => (await request('/api/me', 'GET', a.token)).body.profile.ranked.races === 1, 'ranked MMR persisted');
     assert.equal((await request('/api/me', 'GET', a.token)).body.profile.mmr, 820);
     assert.equal((await request('/api/me', 'GET', b.token)).body.profile.mmr, 800);

@@ -1,0 +1,71 @@
+{
+  "startedAt": "2026-10-08T07:26:09.154Z",
+  "origin": "https://dec-automatically-shell-makers.trycloudflare.com",
+  "healthBefore": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "tunnelBefore": "1dc0cee3485156687d71717db0a07c90be5b7b3ecb64476a0ff6861eac62205c",
+  "appBefore": "077912cfdc5ffe4a7ecbdae8eab520f9f7aaa4b559832ab496c743283d2b7f12",
+  "dataBefore": {
+    "files": 50,
+    "digest": "f18d6158827cc84000ef28de4fee3a06182a64812af42bdc42e5a069f4b8fab5"
+  },
+  "healthAfter": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "appAfter": "b10454116fd715f47e3761eab8cbd2ac2a3694cf1bb905d47893b8e7ed936450",
+  "tunnelAfter": "1dc0cee3485156687d71717db0a07c90be5b7b3ecb64476a0ff6861eac62205c",
+  "dataAfter": {
+    "files": 50,
+    "digest": "f18d6158827cc84000ef28de4fee3a06182a64812af42bdc42e5a069f4b8fab5"
+  },
+  "adminPermission": {
+    "accountFound": true,
+    "username": "admin",
+    "canModerateTracks": true
+  },
+  "runningImage": "sha256:4350daabd3aad80853f48080f7092b2b6b9ee13de827fbdaa086f9cde87bba21",
+  "passed": true,
+  "finishedAt": "2026-10-08T07:28:40.239Z",
+  "previousOrigin": "https://yoga-unlikely-div-converted.trycloudflare.com",
+  "tunnelRecovery": {
+    "reason": "Previous Quick Tunnel returned Unauthorized: Tunnel not found before app deployment; previous hostname ENOTFOUND. Restarted only the tunnel service.",
+    "recoveredAt": "2026-10-08T07:28:36.212Z"
+  },
+  "publicHealth": {
+    "status": "ok",
+    "rooms": 0,
+    "maxRooms": 16,
+    "maxPlayers": 8,
+    "simHz": 30,
+    "snapshotHz": 20
+  },
+  "assets": [
+    {
+      "path": "/assets/index-D77iRu6s.js",
+      "sha256": "6674dadc7e7bf56d252de7535527a256f3665ccccb89deeec8d53b9a8a319d8a"
+    },
+    {
+      "path": "/assets/index-DuMPiEmA.css",
+      "sha256": "72c1fe06e932592320cabe70986e5765448dd156aff0bb6d7a12ec7e8ab81585"
+    }
+  ],
+  "catalogue": {
+    "count": 6,
+    "identicalThroughTunnel": true
+  },
+  "dataAfterPublicChecks": {
+    "files": 50,
+    "digest": "f18d6158827cc84000ef28de4fee3a06182a64812af42bdc42e5a069f4b8fab5"
+  }
+}
